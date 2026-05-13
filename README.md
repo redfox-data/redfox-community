@@ -86,7 +86,3 @@ clawhub install <skill-slug>
 ---
 
 **redfoxhub** — 将可重复的新媒体工作流沉淀为可分享、可演进的 Agent 技能。
-
-```
-
-```
