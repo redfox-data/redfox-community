@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>综合全部 · 小红书冷门爆款笔记TOP20</title>
+    <!-- 使用多个CDN源，确保html2pdf.js能够加载 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    <script>
+        // 如果第一个CDN加载失败，尝试第二个
+        if (typeof html2pdf === 'undefined') {
+            var script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            document.head.appendChild(script);
+        }
+        // 如果第二个也失败，尝试第三个
+        if (typeof html2pdf === 'undefined') {
+            var script = document.createElement('script');
+            script.src = 'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+            document.head.appendChild(script);
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.8;
+            padding: 12px;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .brand-header {
+            background: linear-gradient(135deg, #fff 0%, #fffbf0 100%);
+            padding: 32px 24px 28px;
+            text-align: center;
+            border-bottom: 3px solid #ff2442;
+        }
+
+        .brand-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ff2442;
+            margin-bottom: 8px;
+        }
+
+        .brand-subtitle {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .data-criteria {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+            padding: 2px 8px;
+            background: rgba(255, 36, 66, 0.06);
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: #fafafa;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sort-tags {
+            display: flex;
+            gap: 8px;
+        }
+
+        .sort-tag {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: #ffeef0;
+            color: #ff2442;
+        }
+
+        .export-btn {
+            background: #ff2442;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            background: #e01f3a;
+            transform: translateY(-1px);
+        }
+
+        .article-list {
+            padding: 0 20px 20px;
+        }
+
+        .article-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s;
+        }
+
+        .article-item:last-child {
+            border-bottom: none;
+        }
+
+        .article-item:hover {
+            background: #fafafa;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        .article-body {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .article-rank {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            background: #f5f5f5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .article-rank.top {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            color: white;
+            font-size: 16px;
+        }
+
+        .article-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .article-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .article-title:hover {
+            color: #ff2442;
+        }
+
+        .article-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .info-source-link {
+            text-decoration: none;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .info-source-link:hover {
+            color: #ff2442;
+        }
+
+        .info-stat {
+            color: #666;
+        }
+
+        .info-stat-value {
+            color: #ff2442;
+            font-weight: 500;
+        }
+
+        .article-analysis {
+            margin-top: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #ff2442;
+        }
+
+        /* 作者头像样式 */
+        .author-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-right: 4px;
+            object-fit: cover;
+        }
+
+        .author-avatar-placeholder {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #eee;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+
+        .analysis-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ff2442;
+            margin-bottom: 4px;
+        }
+
+        .analysis-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* 爆款规律分析样式 */
+        .insights-section {
+            padding: 20px 24px;
+            background: #fff5f6;
+            border-top: 1px solid #ffe5e8;
+        }
+
+        .insights-section .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ff2442;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .insights-content {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .insights-content h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ff2442;
+            margin: 16px 0 8px 0;
+        }
+
+        .insights-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .insights-content ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 8px 0;
+        }
+
+        .insights-content li {
+            padding-left: 16px;
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        .insights-content li::before {
+            content: "•";
+            color: #ff2442;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .insights-content strong {
+            color: #ff2442;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 8px;
+            }
+
+            .container {
+                border-radius: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="brand-header">
+            <div class="brand-title">综合全部 · 小红书冷门爆款笔记TOP20</div>
+            <div class="brand-subtitle">2026年-04-28 19:30 更新</div>
+            <div class="data-criteria">数据查询标准：粉丝数低于5000、笔记点赞数大于500</div>
+        </div>
+
+        <div class="action-bar">
+            <div class="sort-tags">
+                <span class="sort-tag">互动数排序</span>
+            </div>
+            <button class="export-btn" onclick="exportToPDF()">📥 导出PDF</button>
+        </div>
+
+        <div class="article-list">
+            <!-- 文章列表将在这里动态插入 -->
+            
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank top">1</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f0951000000000350383ca" target="_blank" class="article-title">你五一最想去哪个乐园呢？</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/69c626c4000000003402dfe1" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31u7cvrku2s6g5qe64r2d5nv1m2dh3bg?imageView2/2/w/540/format/webp" class="author-avatar" alt="同程江西好玩攻略">同程江西好玩攻略（587 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">13w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">1w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">538</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">2945</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">15w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「你五一最想去哪个乐园呢？」展开，内容涵盖江西、葛仙村、搞笑、假期去哪玩、同程旅行等话题，属于旅行攻略类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank top">2</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f0bbc0000000003501fbd1" target="_blank" class="article-title">？ 你们去哪啊</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/60b7568c0000000001005b1c" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31t1ub66jl8005o5naq608mosnqkmd08?imageView2/2/w/120/format/webp" class="author-avatar" alt="波波小姐二号机">波波小姐二号机（486 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">11w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">9668</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">2533</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">1w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">12w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「？ 你们去哪啊」展开，内容涵盖猫等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank top">3</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f07c12000000002202545c" target="_blank" class="article-title">最还原结界兽的一集</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/63cd56b8000000002600719a" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31p9ajius2a6g5oudaqs9gscqlgbf9t0?imageView2/2/w/540/format/webp" class="author-avatar" alt="焱焱摸娱记">焱焱摸娱记（982 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">8w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">9288</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">288</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">2898</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">9w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「最还原结界兽的一集」展开，内容涵盖搞笑、抽象、cos、哪吒、结界兽等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">4</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f030e9000000001e00e508" target="_blank" class="article-title">无笔记标题</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/613799430000000002022a90" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31o6iujnd6g5g5o9nj51gkakg4tf3a70?imageView2/2/w/540/format/webp" class="author-avatar" alt="奶味娃娃机">奶味娃娃机（1268 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">8w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">4874</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">5596</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">917</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">9w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「无笔记标题」展开，内容涵盖亲情、回到从前、母亲年轻时、会对妈妈说什么等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">5</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f04493000000003601be02" target="_blank" class="article-title">我怎么现在才发现这个软件</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/668348ea0000000003033e0d" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31v59prpj2g005pk393l0ufgduregtso?imageView2/2/w/540/format/webp" class="author-avatar" alt="Steph">Steph（736 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">5w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">3w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">198</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">3140</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">9w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「我怎么现在才发现这个软件」展开，内容涵盖大学生、读书、考試等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">6</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69ef90460000000022029b81" target="_blank" class="article-title">突然收到高中时期的朋友来信</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/5e8c45bd0000000001000028" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3189kpq723u6g5nkc8mug8018pq7cbo0?imageView2/2/w/540/format/webp" class="author-avatar" alt="momo">momo（215 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">7w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">9912</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">3528</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">2963</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">8w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「突然收到高中时期的朋友来信」展开，内容涵盖祝你幸福、永远闪耀、isfj人生时刻等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">7</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f03799000000003501c5f5" target="_blank" class="article-title">飞机上拍的，真没有ai</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/5de3dab4000000000100179b" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/60817bcb00947dfeafc2388d.jpg?imageView2/2/w/540/format/webp" class="author-avatar" alt="BlueAlliance">BlueAlliance（2034 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">6w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">9799</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">2252</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">6588</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">8w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「飞机上拍的，真没有ai」展开，内容涵盖浪漫生活的记录者、生活影像诗、日常、飞机上的云、梦幻等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">8</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69ef9402000000001f0038ad" target="_blank" class="article-title">绝世好锅的后续来了！专利已经申请了</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/66c9767d000000001d023650" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vdfkes2ig005pm9epuncdigi75ee1o?imageView2/2/w/120/format/jpg" class="author-avatar" alt="卡卡很爱吃">卡卡很爱吃（4993 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">5w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">8424</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">1191</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">4381</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">6w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「绝世好锅的后续来了！专利已经申请了」展开，内容涵盖美食、锅具、高颜值锅具、厨房必备的锅、高颜值厨具分享等话题，属于美食探店类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">9</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f0ae80000000003501edf9" target="_blank" class="article-title">跟对象两天没联系了</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/639adc6c0000000026013edb" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31h60v3g3jc005osqrhm9ifmrtcnd9r8?imageView2/2/w/120/format/webp" class="author-avatar" alt="蛋蛋是个球球">蛋蛋是个球球（619 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">2w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">2w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">1w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">4033</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">6w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「跟对象两天没联系了」展开，内容涵盖男朋友、对象等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">10</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f050e2000000001f006401" target="_blank" class="article-title">互联网没有记忆</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/5f19b1e000000000010023d3" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/63eb627388a1deedc7aab5db.jpg?imageView2/2/w/540/format/webp" class="author-avatar" alt="蜂鸟">蜂鸟（4979 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">5w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">1000</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">2837</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">916</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">6w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「互联网没有记忆」展开，内容涵盖带上这个以防万一、互联网是有记忆的、真让我大开眼界了、互联网的力量、一起来吃瓜等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">11</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69efdea300000000350382e4" target="_blank" class="article-title">大喵，是这里转弯吗？</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/63e110550000000026004657" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31b7g2vqd7q6g5ov121apghinlo4nkj8?imageView2/2/w/540/format/webp" class="author-avatar" alt="ᅠᅠtb1************66">ᅠᅠtb1************66（495 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">5w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">1931</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">585</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">3849</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">6w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「大喵，是这里转弯吗？」展开，内容涵盖无限暖暖、暖暖、大喵等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">12</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69ef9eac0000000022024469" target="_blank" class="article-title">27考研</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/68d755710000000021021ea7" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31thc60jvlk005q6nalooc7l7fik4tp0?imageView2/2/w/540/format/webp" class="author-avatar" alt="甜虾">甜虾（4 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">2w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">3w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">984</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">1338</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">6w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「27考研」展开，内容涵盖研究生考试等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">13</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f0482500000000360319ed" target="_blank" class="article-title">🐶萨摩耶接住了掉落的小猫，好可爱！</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/5fa6b9e8000000000101ccc5" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31uijuq8a2o005nt6n7k0bj65pbk2clo?imageView2/2/w/540/format/webp" class="author-avatar" alt="糖豆自己赚猫粮">糖豆自己赚猫粮（436 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">5w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">2439</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">650</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">3032</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">5w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「🐶萨摩耶接住了掉落的小猫，好可爱！」展开，内容涵盖宠物、治愈系猫咪、治愈、小狗、萨摩耶等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">14</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f05468000000001f000179" target="_blank" class="article-title">这么大的银行也用上拼夕夕了</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/6117e077000000000101e6eb" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31v1uqdkbiq005o8ns1rgbpnb0cqf8l0?imageView2/2/w/540/format/webp" class="author-avatar" alt="就下班踢V你说嘛">就下班踢V你说嘛（236 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">5w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">2846</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">3424</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">2w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">5w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「这么大的银行也用上拼夕夕了」展开，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">15</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f03fc9000000003701c0e4" target="_blank" class="article-title">一个被吓不乱叫 一个信鬼屋有好东西</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/67ff1966000000000a03fb80" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31k50vr5d2u005pvv35j2nus0t5t01m8?imageView2/2/w/540/format/webp" class="author-avatar" alt="涵涵妹妹💗">涵涵妹妹💗（1271 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">4w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">4077</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">5135</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">2w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">5w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「一个被吓不乱叫 一个信鬼屋有好东西」展开，内容涵盖到底谁能忍住不笑啊、密室逃脱、监控下的一慕等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">16</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69ef8dfd000000001a02e983" target="_blank" class="article-title">无笔记标题</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/658e9cc6000000001f01338a" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vb6573djq6g5pcejj37qcsa4umbkfg?imageView2/2/w/540/format/webp" class="author-avatar" alt="梦7">梦7（985 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">5w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">2377</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">389</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">72</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">5w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「无笔记标题」展开，内容涵盖天下无拐、父爱、MVP结算等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">17</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f0405b00000000220262b2" target="_blank" class="article-title">可以拥吻监管的人类角色？</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/69da1518000000003301a6fe" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31v5sp84m2q6g5qeq2kccr9nuej6egm8?imageView2/2/w/540/format/webp" class="author-avatar" alt="娱乐糕糕熊">娱乐糕糕熊（1244 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">4w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">4949</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">751</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">4365</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">5w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「可以拥吻监管的人类角色？」展开，内容涵盖二次元、游戏、第五人格、娱乐等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">18</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f026fc000000001e00f37d" target="_blank" class="article-title">笑死了猫师傅这么努力的掏出来个什么玩意</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/629cb0f20000000021027793" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31v4fot88jq005oksm3p8ctsjf851d3g?imageView2/2/w/540/format/webp" class="author-avatar" alt="一天到晚牛轰轰">一天到晚牛轰轰（258 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">5w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">2177</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">1401</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">9519</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">5w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「笑死了猫师傅这么努力的掏出来个什么玩意」展开，内容涵盖奶牛猫、猫咪倒车入库等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">19</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f0810b0000000023016973" target="_blank" class="article-title">无笔记标题</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/667571e100000000070050e7" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31t9auras5k005pjle7ghok771j09kp8?imageView2/2/w/120/format/webp" class="author-avatar" alt="郑慧儿">郑慧儿（864 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">4w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">979</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">2268</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">106</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">5w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「无笔记标题」展开，内容涵盖反对暴力侵害女性、请问你现在几点、反转、抵制家暴等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank ">20</div>
+                    <div class="article-content">
+                        <a href="https://www.xiaohongshu.com/explore/69f0587c000000002202530e" target="_blank" class="article-title">此恨滔天死难平</a>
+                        <div class="article-info">
+                            <a href="https://www.xiaohongshu.com/user/profile/66caafa0000000001d0232b5" target="_blank" class="info-source-link">
+                                <img src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31s681ao5m8005pmalug7ccll9c0rdb0?imageView2/2/w/540/format/webp" class="author-avatar" alt="骨生">骨生（11 粉丝）
+                            </a>
+                            
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">4w+</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">1179</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">753</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">540</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">5w+</span></span>
+            </div>
+        
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">笔记主题围绕「此恨滔天死难平」展开，内容涵盖girl等话题，属于生活分享类型，获得了较好的用户互动和传播效果</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function exportToPDF() {
+            // 检查html2pdf是否加载成功
+            if (typeof html2pdf === 'undefined') {
+                alert('PDF导出功能暂时不可用，请检查网络连接后刷新页面重试');
+                return;
+            }
+
+            const element = document.querySelector('.container');
+            const button = document.querySelector('.export-btn');
+            button.style.display = 'none';
+
+            // 计算内容高度，决定PDF尺寸
+            const contentHeight = element.scrollHeight;
+            const contentWidth = element.scrollWidth;
+            // 根据内容比例决定纸张尺寸，mm为单位，1mm ≈ 3.78px
+            const pdfWidth = Math.max(210, Math.ceil(contentWidth / 3.78) + 20);
+            const pdfHeight = Math.max(297, Math.ceil(contentHeight / 3.78) + 20);
+
+            const opt = {
+                margin: 0,
+                filename: '综合全部_小红书爆款笔记.pdf',
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    scrollX: 0,
+                    scrollY: 0
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: [pdfWidth, pdfHeight],
+                    orientation: pdfWidth > pdfHeight ? 'landscape' : 'portrait'
+                },
+                pagebreak: { mode: 'none' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                button.style.display = 'block';
+            });
+        }
+
+        // 页面加载完成后检查CDN状态
+        window.addEventListener('load', function() {
+            if (typeof html2pdf === 'undefined') {
+                console.warn('html2pdf.js加载失败，PDF导出功能不可用');
+                const btn = document.querySelector('.export-btn');
+                if (btn) {
+                    btn.style.opacity = '0.5';
+                    btn.title = 'PDF导出功能不可用，请检查网络连接';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
