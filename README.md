@@ -1,6 +1,6 @@
-# redfoxhub · Agent Skills
+# redfoxdata · Agent Skills
 
-本仓库收录 **redfoxhub** 社区维护的多枚 Agent 技能（Skill），面向灵感、选题、文案创作、数据复盘等场景。技能以 `SKILL.md` 为核心，可与 Cursor、Claude Code 等支持 Agent Skills 的工具配合使用。
+本仓库收录 **redfoxdata** 社区维护的多枚 Agent 技能（Skill），面向灵感、选题、文案创作、数据复盘等场景。技能以 `SKILL.md` 为核心，可与 Cursor、Claude Code 等支持 Agent Skills 的工具配合使用。
 
 ## 仓库结构
 
@@ -85,4 +85,4 @@ clawhub install <skill-slug>
 
 ---
 
-**redfoxhub** — 将可重复的新媒体工作流沉淀为可分享、可演进的 Agent 技能。
+**redfoxdata** — 将可重复的新媒体工作流沉淀为可分享、可演进的 Agent 技能。
