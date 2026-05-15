@@ -49,35 +49,11 @@ npx skills add redfox-data/redfox-community
 
 ### SkillHub
 
-首先在终端执行命令安装SkillHub CLI：
-
-```bash
-curl -fsSL https://skillhub.cn/install/install.sh | bash
-```
-
-安装完成后：
-
-```bash
-skillhub install <skill-slug>
-```
-
-### Skhub（`skhub`）
-
-```bash
-skhub add <owner>/<skill-slug>
-```
-
-也可在可交互终端下从 GitHub 导入整仓后勾选技能（以官方 CLI 文档为准）：
-
-```bash
-skhub add https://github.com/<owner>/<repo>
-```
+访问SkillHub搜索skills目录中对应技能的中文名安装：https://skillhub.cn/skills，如：公众号爆款文章查询/抖音每日最具影响力账号
 
 ### ClawHub（`clawhub`）
 
-```bash
-clawhub install <skill-slug>
-```
+访问clawhub红狐数据官方主页搜索安装skill：https://clawhub.ai/user/redfox-data
 
 ## 参与贡献
 
