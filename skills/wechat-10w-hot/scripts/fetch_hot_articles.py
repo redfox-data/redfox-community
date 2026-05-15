@@ -4,22 +4,30 @@
 公众号10w+热门文章榜单获取脚本
 
 功能：
-1. 调用API获取10w+阅读热门文章数据
+1. 调用API获取10w+阅读热门文章数据（按分类和时间查询）
 2. 按互动数排序
-3. 输出TOP30榜单列表（纯文本格式）
+3. 输出TOP榜单列表（纯文本格式）
 4. 提供四维度内容分析（内容概述、热点利用、传播作用、达成效果）
 
 使用方法：
-python fetch_hot_articles.py --keyword "战争" --source "公众号10w+热门文章推荐-GitHub" --start_date "2024-01-01"
-python fetch_hot_articles.py --keyword "" --source "公众号10w+热门文章推荐-GitHub" --start_date "yesterday"
-python fetch_hot_articles.py --keyword "AI" --source "公众号10w+热门文章推荐-GitHub" --start_date ""
+python fetch_hot_articles.py --type "科技数码" --start_date "2024-01-01" --end_date "2024-01-02"
+python fetch_hot_articles.py --type "总排名" --start_date "yesterday" --end_date ""
+python fetch_hot_articles.py --type "" --start_date "daybeforeyesterday" --end_date ""
 """
 
 import argparse
 import json
 import sys
 from datetime import datetime, timedelta
-from coze_workload_identity import requests
+
+
+# 标准分类列表
+STANDARD_CATEGORIES = [
+    "人文资讯", "知识百科", "健康养生", "时尚潮流", "美食餐饮", "乐活生活",
+    "旅游出行", "搞笑幽默", "情感心理", "体育娱乐", "美容美体", "文摘精选",
+    "民生资讯", "财富理财", "科技数码", "创投商业", "汽车交通", "房产楼市",
+    "职场发展", "教育考试", "学术研究", "企业品牌", "总排名"
+]
 
 
 def parse_date(date_str: str) -> str:
@@ -28,7 +36,8 @@ def parse_date(date_str: str) -> str:
 
     Args:
         date_str: 日期字符串，支持：
-                 - "yesterday": 昨天（今日数据用）
+                 - "yesterday": 昨天
+                 - "daybeforeyesterday": 前天
                  - "today": 今天
                  - "": 不限时间
                  - "YYYY-MM-DD": 具体日期
@@ -39,508 +48,496 @@ def parse_date(date_str: str) -> str:
     if not date_str or date_str == "":
         return ""
 
-    date_str = date_str.strip().lower()
-
-    # 昨天（今日数据用）
-    if date_str == "daybeforeyesterday":
-        # 前天（用于最新推荐）
-        daybeforeyesterday = datetime.now() - timedelta(days=2)
-        return daybeforeyesterday.strftime("%Y-%m-%d")
-
     if date_str == "yesterday":
         # 昨天
         yesterday = datetime.now() - timedelta(days=1)
         return yesterday.strftime("%Y-%m-%d")
 
-    # 今天
+    if date_str == "daybeforeyesterday":
+        # 前天
+        day_before_yesterday = datetime.now() - timedelta(days=2)
+        return day_before_yesterday.strftime("%Y-%m-%d")
+
     if date_str == "today":
+        # 今天
         return datetime.now().strftime("%Y-%m-%d")
 
-    # 验证日期格式是否正确
+    # 尝试解析具体日期格式
     try:
-        # 尝试解析日期
+        # 支持 YYYY-MM-DD 格式
         dt = datetime.strptime(date_str, "%Y-%m-%d")
-
-        # 检查日期是否在前30天内
-        today = datetime.now()
-        thirty_days_ago = today - timedelta(days=30)
-
-        if dt < thirty_days_ago:
-            raise Exception(f"日期不能早于30天前（最早支持：{thirty_days_ago.strftime('%Y-%m-%d')}）")
-
-        if dt > today:
-            raise Exception("日期不能晚于今天")
-
-        return date_str
+        return dt.strftime("%Y-%m-%d")
     except ValueError:
-        raise Exception(f"日期格式错误，请使用 YYYY-MM-DD 格式，如 2024-01-01")
+        pass
+
+    # 默认返回空
+    return ""
 
 
-def fetch_explosive_articles(keyword: str, source: str, start_date: str = "") -> dict:
+def parse_count_to_int(count_str: str) -> int:
     """
-    调用API获取爆款内容数据
+    将阅读数字符串转换为整数
 
     Args:
-        keyword: 关键词（从用户输入中提取，如"战争"）
-        source: 数据源（固定值："公众号10w+热门文章推荐-GitHub"）
-        start_date: 开始日期（YYYY-MM-DD，空字符串表示不限时间）
+        count_str: 阅读数字符串，如 "10w+", "5w+", "1.5w+", "9w+", "1000"
 
     Returns:
-        API返回的数据
+        整数形式的阅读数
     """
-    base_url = "https://onetotenvip.com/skill/cozeSkill/getWxCozeSkillData"
-
-    # GET请求参数
-    params = {
-        "keyword": keyword,
-        "source": source
-    }
-
-    # 如果有开始日期，添加到参数中
-    if start_date:
-        params["startDate"] = start_date
-
-    headers = {
-        "Content-Type": "application/json"
-    }
+    if not count_str:
+        return 0
 
     try:
-        response = requests.get(base_url, params=params, headers=headers, timeout=30)
+        count_str = str(count_str).strip()
 
-        # 检查HTTP状态码
-        if response.status_code >= 400:
-            raise Exception(f"HTTP请求失败: 状态码 {response.status_code}, 响应内容: {response.text}")
+        # 处理 "10w+" 格式
+        if "w+" in count_str.lower():
+            # 提取数字部分，如 "10w+" -> "10"
+            num_str = count_str.lower().replace("w+", "").replace("w", "")
+            # 处理小数，如 "1.5w+" -> 1.5
+            if "." in num_str:
+                num = float(num_str)
+                return int(num * 10000)
+            else:
+                num = float(num_str)
+                return int(num * 10000)
 
-        data = response.json()
+        # 处理 "w" 格式（没有加号）
+        if "w" in count_str.lower():
+            num_str = count_str.lower().replace("w", "")
+            if "." in num_str:
+                num = float(num_str)
+                return int(num * 10000)
+            else:
+                num = float(num_str)
+                return int(num * 10000)
 
-        # 检查API返回的错误信息（成功码为2000）
-        if "code" in data and data["code"] != 2000:
-            error_msg = data.get("message", data.get("msg", "未知错误"))
-            raise Exception(f"API错误: {error_msg}")
-
-        return data
-
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"网络请求失败: {str(e)}")
-    except json.JSONDecodeError as e:
-        raise Exception(f"JSON解析失败: {str(e)}")
+        # 处理纯数字
+        return int(float(count_str))
+    except:
+        return 0
 
 
-def process_ranking_data(data: dict, top_n: int = 10) -> list:
+def analyze_content(title: str, summary: str) -> str:
     """
-    处理榜单数据，按互动数排序
+    四维度分析文章内容
 
     Args:
-        data: API返回的原始数据
-        top_n: 返回前N条数据（默认10条）
+        title: 文章标题
+        summary: 文章摘要
 
     Returns:
-        排序后的榜单列表
+        四维度分析文本（内容概述、热点利用、传播作用、达成效果）
     """
-    # 提取文章列表 - 从data.tenWReadingRank字段获取
-    articles = []
+    content = f"{title} {summary}".lower()
 
-    if isinstance(data, dict):
-        # 从data.tenWReadingRank字段获取文章列表
-        articles = data.get("data", {}).get("tenWReadingRank", [])
-        if not articles:
-            # 兼容：如果data.tenWReadingRank不存在，尝试从根目录获取
-            articles = data.get("tenWReadingRank", [])
-    elif isinstance(data, list):
-        articles = data
+    # 1. 内容概述
+    overview_keywords = {
+        "政策": "解读政策新规", "新规": "解读政策新规", "实施": "解读政策新规",
+        "调整": "分析调整内容", "变化": "分析变化趋势", "趋势": "分析趋势走向",
+        "技术": "介绍技术发展", "科技": "介绍科技进展", "创新": "介绍创新成果",
+        "市场": "分析市场动态", "投资": "分析投资机会", "理财": "提供理财建议",
+        "健康": "科普健康知识", "养生": "分享养生方法", "疾病": "介绍疾病防治",
+        "教育": "探讨教育问题", "考试": "分析考试动态", "学习": "提供学习方法",
+    }
+    overview = "分析文章核心内容"
+    for keyword, desc in overview_keywords.items():
+        if keyword in content:
+            overview = desc
+            break
 
+    # 2. 热点利用
+    hotspot_keywords = {
+        "政策": "政策热点", "新规": "政策热点", "改革": "政策热点",
+        "AI": "人工智能热点", "人工智能": "人工智能热点", "ChatGPT": "人工智能热点",
+        "新能源": "新能源热点", "电动车": "新能源热点", "特斯拉": "新能源热点",
+        "房价": "楼市热点", "房产": "楼市热点", "房贷": "楼市热点",
+        "降息": "金融热点", "加息": "金融热点", "利率": "金融热点",
+        "疫情": "公共卫生热点", "流感": "公共卫生热点", "病毒": "公共卫生热点",
+        "国产": "国产替代热点", "自主": "自主可控热点", "突破": "技术突破热点",
+        "财富": "财富热点", "赚钱": "财富热点", "投资": "投资热点",
+    }
+    hotspot = "结合时事热点"
+    for keyword, desc in hotspot_keywords.items():
+        if keyword.lower() in content:
+            hotspot = f"借用{desc}"
+            break
+
+    # 3. 传播作用
+    spread_keywords = {
+        "政策": "提供政策解读", "新规": "提供新规解读", "解读": "提供权威解读",
+        "分析": "提供专业分析", "深度": "提供深度分析", "专业": "提供专业见解",
+        "实用": "提供实用价值", "方法": "提供方法论", "技巧": "提供实用技巧",
+        "揭秘": "满足好奇心", "曝光": "满足知情权", "内幕": "满足求知欲",
+        "观点": "引发思考讨论", "争议": "引发话题讨论", "话题": "引发话题关注",
+    }
+    spread = "提供信息价值"
+    for keyword, desc in spread_keywords.items():
+        if keyword in content:
+            spread = desc
+            break
+
+    # 4. 达成效果
+    effect_keywords = {
+        "政策": "提升政策认知", "新规": "普及新规知识", "实施": "推动政策落地",
+        "分析": "增强认知水平", "深度": "深化理解层次", "专业": "建立专业认知",
+        "实用": "提供实践指导", "方法": "指导实际操作", "技巧": "提升实操能力",
+        "投资": "辅助决策判断", "理财": "提供理财参考", "赚钱": "启发创富思路",
+        "健康": "提升健康意识", "养生": "推广养生理念", "疾病": "增强防范意识",
+    }
+    effect = "促进信息传播"
+    for keyword, desc in effect_keywords.items():
+        if keyword in content:
+            effect = desc
+            break
+
+    # 组合输出
+    return f"{overview}，{hotspot}，{spread}，{effect}"
+
+
+def fetch_articles_by_category(category: str, start_date: str, end_date: str, source: str = "公众号10w+阅读文章推荐-GitHub") -> list:
+    """
+    根据分类和时间获取文章数据
+    使用原生 socket + ssl 手动发送 HTTPS 请求，不发送 SNI
+
+    Args:
+        category: 分类名称（如：科技数码、健康养生、总排名等）
+        start_date: 开始日期（YYYY-MM-DD格式）
+        end_date: 结束日期（YYYY-MM-DD格式）
+        source: 数据来源
+
+    Returns:
+        文章列表
+    """
+    import socket
+    import ssl
+    import urllib.parse
+
+    # API配置
+    host = "onetotenvip.com"
+    path = "/skill/cozeSkill/getWxDataByCategoryAndTime"
+
+    # 构建请求参数
+    params = {
+        "type": category if category else "总排名",
+        "source": source,
+        "startDate": start_date,
+        "endDate": end_date
+    }
+
+    # URL编码参数
+    query_string = urllib.parse.urlencode(params)
+    full_path = f"{path}?{query_string}"
+
+    try:
+        # 创建socket连接
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(30)
+
+        # 创建SSL上下文（不验证证书，不发送SNI）
+        # 使用 TLS 1.2
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
+        context.maximum_version = ssl.TLSVersion.TLSv1_2
+        context.check_hostname = False  # 不验证主机名
+        context.verify_mode = ssl.CERT_NONE  # 不验证证书
+        # 关键：wrap_socket时不传server_hostname，即不发送SNI
+        ssl_sock = context.wrap_socket(sock)
+
+        # 连接服务器
+        ssl_sock.connect((host, 443))
+
+        # 构建POST请求体（JSON格式）
+        post_data = json.dumps({
+            "type": params["type"],
+            "source": source,
+            "startDate": start_date,
+            "endDate": end_date
+        }, ensure_ascii=False)
+
+        # 构建HTTP POST请求
+        request = (
+            f"POST /skill/cozeSkill/getWxDataByCategoryAndTime HTTP/1.1\r\n"
+            f"Host: {host}\r\n"
+            f"Content-Type: application/json\r\n"
+            f"N-Token: 2f9f88dbb743423dbf0a8db2977c49eb\r\n"
+            f"Content-Length: {len(post_data.encode('utf-8'))}\r\n"
+            f"Connection: close\r\n"
+            f"\r\n"
+            f"{post_data}"
+        )
+
+        # 打印调试信息
+        print(f"\n🔍 调试信息：")
+        print(f"   Host: {host}")
+        print(f"   Method: POST")
+        print(f"   Path: /skill/cozeSkill/getWxDataByCategoryAndTime")
+        print(f"   参数: type={params['type']}, source={source}, startDate={start_date}, endDate={end_date}")
+        print(f"   请求体: {post_data}")
+
+        # 发送请求
+        ssl_sock.sendall(request.encode('utf-8'))
+
+        # 接收响应
+        response_data = b""
+        while True:
+            chunk = ssl_sock.recv(4096)
+            if not chunk:
+                break
+            response_data += chunk
+
+        # 关闭连接
+        ssl_sock.close()
+
+        # 解析HTTP响应
+        response_str = response_data.decode('utf-8')
+
+        # 分离头部和body
+        header_body_split = response_str.split('\r\n\r\n', 1)
+        if len(header_body_split) < 2:
+            print(f"❌ 响应格式错误")
+            return []
+
+        body = header_body_split[1]
+
+        # 解析JSON数据
+        data = json.loads(body)
+
+        # 检查响应数据
+        if data is None:
+            print(f"❌ 响应数据为空")
+            return []
+
+        # 从 tenWReadingRank 字段获取文章列表
+        if isinstance(data, dict) and "data" in data and data["data"] is not None and "tenWReadingRank" in data["data"]:
+            articles = data["data"]["tenWReadingRank"]
+            return articles if articles else []
+        else:
+            # API返回错误信息
+            if isinstance(data, dict) and "msg" in data:
+                print(f"⚠️ API返回: {data['msg']}")
+            return []
+
+    except socket.error as e:
+        print(f"❌ Socket错误: {e}")
+        return []
+    except ssl.SSLError as e:
+        print(f"❌ SSL错误: {e}")
+        return []
+    except json.JSONDecodeError as e:
+        print(f"❌ JSON解析失败: {e}")
+        return []
+    except Exception as e:
+        print(f"❌ 数据处理失败: {e}")
+        return []
+
+
+def process_ranking_data(articles: list) -> list:
+    """
+    处理和排序文章数据
+
+    Args:
+        articles: 原始文章列表
+
+    Returns:
+        排序后的文章列表
+    """
     if not articles:
         return []
 
-    # 按互动数排序
-    def get_interaction_score(article):
-        interactive_count = article.get("interactiveCount", 0)
-        if not interactive_count or parse_count_to_int(interactive_count) == 0:
-            # 使用 parse_count_to_int 正确处理 "10w+" 等格式
-            clicks_count = parse_count_to_int(article.get("clicksCount", "0"))
-            like_count = parse_count_to_int(article.get("likeCount", "0"))
-            return int(clicks_count or 0) + int(like_count or 0) * 10
-        return parse_count_to_int(interactive_count)
+    # 按互动数排序（降序）
+    sorted_articles = sorted(
+        articles,
+        key=lambda x: parse_count_to_int(x.get("interactiveCount", "0")),
+        reverse=True
+    )
 
-    sorted_articles = sorted(articles, key=get_interaction_score, reverse=True)
-
-    return sorted_articles[:top_n]
+    return sorted_articles
 
 
 def format_summary_table(articles: list) -> str:
     """
-    生成文章摘要表格（序号 标题 作者 阅读数）
+    格式化文章概览表格
 
     Args:
         articles: 文章列表
 
     Returns:
-        Markdown格式的表格字符串
+        Markdown表格文本
     """
     if not articles:
         return "暂无数据"
 
-    # 表格头部
-    table_lines = ["| 序号 | 标题 | 作者 | 阅读数 |", "|------|------|------|--------|"]
+    lines = []
+    lines.append("| 序号 | 标题 | 作者 | 阅读数 |")
+    lines.append("|------|------|------|--------|")
 
-    # 表格内容
-    for idx, article in enumerate(articles, 1):
+    for i, article in enumerate(articles, 1):
         title = article.get("title", "未知标题")
-        account_name = article.get("userName", article.get("accountId", "未知账号"))
-        clicks_count = article.get("clicksCount", "0")
+        author = article.get("userName", "未知作者")
+        read_count = article.get("clicksCount", "0")
 
-        # 处理阅读数显示
-        read_count_display = clicks_count if isinstance(clicks_count, str) else format_number(clicks_count)
+        # 标题过长时截断
+        if len(title) > 30:
+            title = title[:30] + "..."
 
-        # 添加表格行
-        table_lines.append(f"| {idx} | {title} | {account_name} | {read_count_display} |")
+        lines.append(f"| {i} | {title} | {author} | {read_count} |")
 
-    return "\n".join(table_lines)
+    return "\n".join(lines)
 
 
-def format_ranking_list(articles: list) -> str:
+def format_ranking_list(articles: list, limit: int = None) -> str:
     """
-    将榜单数据格式化为纯文本列表样式（不使用任何表格格式）
-
-    格式示例：
-    **1、[标题](链接)**  🔥🔥🔥
-    📄 作者：[作者名称](公众号名片链接)  |  分类
-    👀 阅读数：5w+
-    ⏰ 发布时间：2026-03-24 08:08:57
-    ...
+    格式化输出文章列表（详细版）
 
     Args:
-        articles: 排序后的文章列表
+        articles: 文章列表
+        limit: 限制输出数量
 
     Returns:
-        纯文本列表格式的字符串
+        格式化的文本
     """
     if not articles:
         return "未获取到符合条件的爆款内容数据"
 
-    output_lines = []
+    display_articles = articles[:limit] if limit else articles
 
-    for idx, article in enumerate(articles, 1):
+    lines = []
+    for i, article in enumerate(display_articles, 1):
         title = article.get("title", "未知标题")
-        account_name = article.get("userName", article.get("accountId", "未知账号"))
+        ori_url = article.get("oriUrl", "")
+        author = article.get("userName", "未知作者")
         account_id = article.get("accountId", "")
-        publish_time = article.get("publicTime", "未知")
-        article_link = article.get("oriUrl", "#")
-        clicks_count = article.get("clicksCount", "0")
+        read_count = article.get("clicksCount", "0")
+        publish_time = article.get("publicTime", "未知时间")
+        summary = article.get("summary", "")
 
-        # 处理阅读数显示
-        read_count_display = clicks_count if isinstance(clicks_count, str) else format_number(clicks_count)
+        # 内容分析
+        content_analysis = analyze_content(title, summary)
 
-        # 构建输出内容
-        # 第1行：序号 + 标题（可点击）
-        if article_link and article_link != "#":
-            output_lines.append(f"**{idx}、[{title}]({article_link})**")
-        else:
-            output_lines.append(f"**{idx}、{title}**")
+        # 格式化输出
+        lines.append(f"**{i}、[{title}]({ori_url})**")
+        lines.append(f"📄 作者：[{author}](https://mp.weixin.qq.com/mp/profileExt?action=home&__biz={account_id}#wechat_redirect)")
+        lines.append(f"👀 阅读数：{read_count}")
+        lines.append(f"⏰ 发布时间：{publish_time}")
+        lines.append(f"🔍 内容分析：{content_analysis}")
+        lines.append("---")
+        lines.append("")
 
-        # 第2行：作者（可跳转）
-        if account_id:
-            account_url = f"https://open.weixin.qq.com/qr/code?username={account_id}"
-            output_lines.append(f"📄 作者：[{account_name}]({account_url})")
-        else:
-            output_lines.append(f"📄 作者：{account_name}")
-
-        # 第3行：阅读数
-        output_lines.append(f"👀 阅读数：{read_count_display}")
-
-        # 第4行：发布时间
-        output_lines.append(f"⏰ 发布时间：{publish_time}")
-
-        # 第5行：内容分析
-        content_analysis = analyze_content(article)
-        output_lines.append(f"🔍 内容分析：{content_analysis}")
-
-        # 添加分隔线（除了最后一项）
-        if idx < len(articles):
-            output_lines.append("---")
-            output_lines.append("")
-
-    return "\n".join(output_lines)
-
-
-def format_number(num) -> str:
-    """
-    格式化数字显示（万、亿）
-    """
-    try:
-        num = int(num)
-        if num >= 100000000:
-            return f"{num/100000000:.1f}亿"
-        elif num >= 10000:
-            return f"{num/10000:.1f}万"
-        else:
-            return str(num)
-    except:
-        return str(num)
-
-
-def parse_count_to_int(count_str) -> int:
-    """
-    将字符串类型的计数转换为整数
-    支持 "1w+", "100w+", "5000", "10w+" 等格式
-    """
-    if isinstance(count_str, (int, float)):
-        return int(count_str)
-
-    if not count_str:
-        return 0
-
-    count_str = str(count_str).strip().lower()
-
-    # 处理 "1w+", "100w+", "10w+" 等格式
-    if 'w+' in count_str:
-        # 提取数字部分，去掉 w+ 后缀
-        num_str = count_str.replace('w+', '')
-        try:
-            num = float(num_str)
-            return int(num * 10000)
-        except ValueError:
-            return 0
-    elif 'w' in count_str:
-        # 提取数字部分，去掉 w 后缀
-        num_str = count_str.replace('w', '')
-        try:
-            num = float(num_str)
-            return int(num * 10000)
-        except ValueError:
-            return 0
-    elif '+' in count_str:
-        # 处理纯数字带+的情况，如 "10000+"
-        num_str = count_str.replace('+', '')
-        try:
-            return int(num_str)
-        except ValueError:
-            return 0
-
-    # 处理纯数字
-    try:
-        return int(count_str)
-    except:
-        return 0
-
-
-def analyze_content(article: dict) -> str:
-    """
-    基于文章的具体文本内容，生成专业且通俗的内容分析
-
-    分析规则：
-    1. 内容概述：简明扼要地概括文章核心内容
-    2. 热点利用：分析文章借用了哪些热点话题或趋势
-    3. 传播作用：阐述内容起到的作用
-    4. 达成效果：说明内容达到的效果
-
-    Args:
-        article: 文章数据
-
-    Returns:
-        内容分析字符串（专业通俗风格）
-    """
-    # 提取文本内容
-    title = article.get("title", "")
-    summary = article.get("summary", "")
-    content = article.get("content", "")
-    article_type = article.get("type", "")
-
-    # 合并所有文本用于分析
-    all_text = f"{title} {summary} {content}"
-
-    # 智能判断内容特征
-    content_summary = ""
-    hotspot_usage = ""
-    spread_effect = ""
-    achieve_result = ""
-
-    # 判断内容概述
-    if any(word in all_text for word in ["新规", "政策", "实施", "调整"]):
-        content_summary = f"本文聚焦{title[:10]}...等政策变动"
-    elif any(word in all_text for word in ["推荐", "排名", "榜单", "TOP"]):
-        content_summary = f"本文发布{title[:10]}...等相关榜单"
-    elif any(word in all_text for word in ["揭秘", "曝光", "真相", "内幕"]):
-        content_summary = f"本文揭露{title[:10]}...等内幕信息"
-    elif any(word in all_text for word in ["攻略", "教程", "方法", "技巧"]):
-        content_summary = f"本文提供{title[:10]}...等实用指南"
-    elif any(word in all_text for word in ["对比", "区别", "VS", "PK"]):
-        content_summary = f"本文对比{title[:10]}...等不同选项"
-    else:
-        content_summary = f"本文围绕{title[:15]}...展开论述"
-
-    # 判断热点利用
-    if any(word in all_text for word in ["新规", "政策", "法规"]):
-        hotspot_usage = "文章借助政策实施这一时效性热点"
-    elif any(word in all_text for word in ["AI", "人工智能", "大模型", "智能"]):
-        hotspot_usage = "文章借力AI技术这一科技热点"
-    elif any(word in all_text for word in ["国产", "自主", "替代", "中国"]):
-        hotspot_usage = "文章借助国产替代这一产业热点"
-    elif any(word in all_text for word in ["涨价", "降价", "利率", "房价"]):
-        hotspot_usage = "文章抓住财富管理这一持续热点"
-    elif any(word in all_text for word in ["节日", "假期", "春节", "国庆"]):
-        hotspot_usage = "文章结合节日消费这一周期性热点"
-    elif any(word in all_text for word in ["疫情", "健康", "养生", "医疗"]):
-        hotspot_usage = "文章切入健康养生这一民生热点"
-    else:
-        hotspot_usage = "文章聚焦相关领域热点话题"
-
-    # 判断传播作用
-    if any(word in all_text for word in ["提醒", "警告", "注意", "避免", "防"]):
-        spread_effect = "精准切中目标用户的信息盲区，起到风险预警和知识普及的作用"
-    elif any(word in all_text for word in ["推荐", "建议", "参考", "选择"]):
-        spread_effect = "满足用户对决策参考的信息需求，起到专业指导的作用"
-    elif any(word in all_text for word in ["科普", "知识", "介绍", "了解"]):
-        spread_effect = "满足用户对知识获取的需求，起到信息传播的作用"
-    elif any(word in all_text for word in ["激励", "鼓励", "加油", "努力"]):
-        spread_effect = "激发用户情绪共鸣，起到情感激励的作用"
-    elif any(word in all_text for word in ["争议", "讨论", "质疑", "反驳"]):
-        spread_effect = "引发公众关注和讨论，起到话题引导的作用"
-    else:
-        spread_effect = "满足用户对相关信息的需求，起到内容传播的作用"
-
-    # 判断达成效果
-    if any(word in all_text for word in ["推广", "营销", "介绍", "推荐产品"]):
-        achieve_result = "成功唤起用户的关注度并引发转发传播"
-    elif any(word in all_text for word in ["提醒", "警示", "警告"]):
-        achieve_result = "有效提升用户对相关风险的防范意识"
-    elif any(word in all_text for word in ["科普", "知识", "讲解"]):
-        achieve_result = "有效增强了用户对相关话题的认知和理解"
-    elif any(word in all_text for word in ["激励", "鼓励"]):
-        achieve_result = "成功激发用户的积极情绪和行动意愿"
-    elif any(word in all_text for word in ["争议", "讨论"]):
-        achieve_result = "成功引发公众讨论并扩大话题影响力"
-    else:
-        achieve_result = "有效提升内容的传播度和影响力"
-
-    # 组合分析内容
-    analysis_parts = []
-
-    if content_summary:
-        analysis_parts.append(content_summary)
-    if hotspot_usage:
-        analysis_parts.append(f"{hotspot_usage}")
-    if spread_effect:
-        analysis_parts.append(f"{spread_effect}")
-    if achieve_result:
-        analysis_parts.append(f"{achieve_result}")
-
-    analysis = "，".join(analysis_parts) + "。"
-
-    return analysis
+    return "\n".join(lines)
 
 
 def main():
     parser = argparse.ArgumentParser(description="获取公众号10w+热门文章榜单")
-    parser.add_argument("--keyword", required=True, help="关键词（从用户输入中提取）")
-    parser.add_argument("--source", required=False, default="公众号10w+阅读文章推荐", help="数据源（固定值）")
-    parser.add_argument("--start_date", required=False, default="", help="开始日期（YYYY-MM-DD格式，或'yesterday'表示昨天，空字符串表示不限时间）")
-    parser.add_argument("--top_n", type=int, default=50, help="返回前N条数据（默认50）")
-    parser.add_argument("--limit", type=int, default=10, help="首次展示条数（默认10），用于分页")
-    parser.add_argument("--mode", default="preview", help="输出模式：preview（首次预览）| full（完整输出）")
-    parser.add_argument("--temp_file", default="temp_articles.json", help="临时JSON文件路径（用于保存数据）")
+
+    parser.add_argument("--type", type=str, default="总排名",
+                        help="分类名称（如：科技数码、健康养生、总排名等），默认：总排名")
+    parser.add_argument("--start_date", type=str, required=True,
+                        help="开始日期（必传，支持：yesterday、daybeforeyesterday、YYYY-MM-DD）")
+    parser.add_argument("--end_date", type=str, required=True,
+                        help="结束日期（必传，支持：yesterday、daybeforeyesterday、YYYY-MM-DD）")
+    parser.add_argument("--mode", type=str, default="preview",
+                        help="输出模式：preview（预览前10条）或 full（全部展示）")
+    parser.add_argument("--limit", type=int, default=10,
+                        help="预览模式下展示的数量，默认10")
+    parser.add_argument("--source", type=str, default="公众号10w+阅读文章推荐-GitHub",
+                        help="数据来源")
+    parser.add_argument("--temp_file", type=str, default="temp_articles.json",
+                        help="临时数据文件名")
 
     args = parser.parse_args()
 
-    try:
-        # 解析日期参数
-        start_date = ""
-        if args.start_date:
-            start_date = parse_date(args.start_date)
+    # 确定分类
+    category = args.type if args.type else "总排名"
 
-        print(f"正在获取10w+热门文章数据...")
-        print(f"关键词: {args.keyword}")
-        print(f"数据源: {args.source}")
-        print(f"开始日期: {start_date if start_date else '不限'}")
-        print("-" * 60)
+    # 解析日期
+    start_date = parse_date(args.start_date)
+    end_date = parse_date(args.end_date)
 
-        # 获取数据
-        data = fetch_explosive_articles(args.keyword, args.source, start_date)
+    # 输出数据说明
+    print("\n💡 数据说明")
+    print("最新10w+阅读爆文推荐将在每日19点30分准时更新，以下数据为获取时间时的快照，和实时数据有所差别。")
+    print("-" * 60)
 
-        # 处理并排序，获取所有数据
-        all_articles = process_ranking_data(data, args.top_n)
+    # 获取数据
+    print(f"\n🔍 正在获取【{category}】分类的文章数据...")
+    if start_date:
+        print(f"📅 时间范围：{start_date}" + (f" 至 {end_date}" if end_date else ""))
 
-        total_count = len(all_articles)
+    articles = fetch_articles_by_category(category, start_date, end_date, args.source)
 
-        # 保存数据到临时JSON文件
-        temp_file = args.temp_file if args.temp_file else "temp_articles.json"
-        try:
-            with open(temp_file, 'w', encoding='utf-8') as f:
-                json.dump({
-                    "keyword": args.keyword,
-                    "articles": all_articles,
-                    "total_count": total_count
-                }, f, ensure_ascii=False, indent=2)
-            print(f"✅ 数据已保存到临时文件: {temp_file}")
-        except Exception as e:
-            print(f"⚠️  警告：保存临时文件失败 - {str(e)}")
+    if not articles:
+        print("\n📊 文章概览\n")
+        print("暂无数据")
+        print("\n📝 文章详情\n")
+        print("未获取到符合条件的爆款内容数据")
+        print("\n============================================================")
+        print("\n共获取到 0 条10w+热门文章数据")
+        print("💡 建议：尝试调整分类关键词或时间范围")
+        return
 
-        # 根据模式决定输出内容
-        if args.mode == "preview":
-            # 预览模式：只显示前10条
-            preview_articles = all_articles[:args.limit]
-            
-            # 输出数据说明
-            print("\n💡 数据说明")
-            print("最新10w+阅读爆文推荐将在每日19点30分准时更新，以下数据为获取时间时的快照，和实时数据有所差别。")
-            print("-" * 60)
-            
-            # 生成摘要表格（输出在最前面）
-            summary_table = format_summary_table(preview_articles)
-            print("\n📊 文章概览\n")
-            print(summary_table)
-            print("\n")
-            
-            # 输出文章详情
-            print("📝 文章详情\n")
-            print(format_ranking_list(preview_articles))
+    # 处理和排序数据
+    sorted_articles = process_ranking_data(articles)
+    total_count = len(sorted_articles)
 
-            # 输出统计和提示信息
-            print("\n" + "=" * 60)
-            if total_count > 0:
-                print(f"共获取到 {total_count} 条10w+热门文章数据，当前展示前 {len(preview_articles)} 条")
-                if total_count > len(preview_articles):
-                    print(f"💡 提示：还有 {total_count - len(preview_articles)} 条数据未展示，是否需要全部展示？")
-                else:
-                    print("已展示全部数据")
-            else:
-                print("未获取到符合条件的10w+热门文章数据")
-                print("建议：尝试调整关键词")
+    # 保存数据到临时JSON文件
+    temp_file = args.temp_file if args.temp_file else "temp_articles.json"
+    with open(temp_file, 'w', encoding='utf-8') as f:
+        json.dump({
+            "category": category,
+            "articles": sorted_articles,
+            "total_count": total_count
+        }, f, ensure_ascii=False, indent=2)
 
-        elif args.mode == "full":
-            # 完整模式：显示所有数据
-            # 输出数据说明
-            print("\n💡 数据说明")
-            print("最新10w+阅读爆文推荐将在每日19点30分准时更新，以下数据为获取时间时的快照，和实时数据有所差别。")
-            print("-" * 60)
-            
-            # 生成摘要表格
-            summary_table = format_summary_table(all_articles)
-            print("\n📊 文章概览\n")
-            print(summary_table)
-            print("\n")
-            
-            # 输出文章详情
-            print("📝 文章详情\n")
-            full_list = format_ranking_list(all_articles)
-            print(full_list)
+    print(f"✅ 数据已保存到临时文件：{temp_file}")
 
-            # 输出统计信息
-            print("\n" + "=" * 60)
-            if total_count > 0:
-                print(f"共获取到 {total_count} 条10w+热门文章数据（已全部展示）")
-            else:
-                print("未获取到符合条件的10w+热门文章数据")
+    # 根据模式输出
+    if args.mode == "preview":
+        # 预览模式：展示前N条
+        preview_count = min(args.limit, total_count)
+        preview_articles = sorted_articles[:preview_count]
 
-        return 0
+        # 输出文章概览表格
+        print("\n📊 文章概览\n")
+        print(format_summary_table(preview_articles))
 
-    except json.JSONDecodeError as e:
-        print(f"错误: JSON参数解析失败 - {str(e)}", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"错误: {str(e)}", file=sys.stderr)
-        return 1
+        # 输出文章详情
+        print("\n📝 文章详情\n")
+        print(format_ranking_list(preview_articles))
+
+        # 统计信息
+        print("\n============================================================")
+        print(f"\n共获取到 {total_count} 条10w+热门文章数据，当前展示前 {preview_count} 条")
+
+        # 如果还有更多数据，提示用户
+        if total_count > preview_count:
+            remaining = total_count - preview_count
+            print(f"💡 提示：还有 {remaining} 条数据未展示，是否需要全部展示？")
+
+        # 文章数量较少提示（少于10篇）
+        if total_count < 10:
+            category_name = args.article_type if args.article_type != "总排名" else "综合"
+            print(f"\n💡 {category_name}赛道10w+文章较少，您可以拓展过去30天或者看看综合10w+文章~")
+
+    else:
+        # 完整模式：展示全部
+        # 输出文章概览表格
+        print("\n📊 文章概览\n")
+        print(format_summary_table(sorted_articles))
+
+        # 输出文章详情
+        print("\n📝 文章详情\n")
+        print(format_ranking_list(sorted_articles))
+
+        # 统计信息
+        print("\n============================================================")
+        print(f"\n共获取到 {total_count} 条10w+热门文章数据（已全部展示）")
+
+        # 文章数量较少提示（少于10篇）
+        if total_count < 10:
+            category_name = args.article_type if args.article_type != "总排名" else "综合"
+            print(f"\n💡 {category_name}赛道10w+文章较少，您可以拓展过去30天或者看看综合10w+文章~")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

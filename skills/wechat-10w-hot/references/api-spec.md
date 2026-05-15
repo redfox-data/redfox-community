@@ -1,120 +1,128 @@
-# 爆款内容API接口规范
+# API接口规范
 
 ## 接口信息
 
-**接口地址**: `https://onetotenvip.com/skill/cozeSkill/getWxCozeSkillData`
+- **接口地址**：`https://onetotenvip.com/skill/cozeSkill/getWxDataByCategoryAndTime`
+- **请求方法**：GET（文档示例）；本仓库 **`scripts/fetch_hot_articles.py` 以 HTTPS POST + JSON body 调用同一路径**，联调请以脚本为准。
+- **Content-Type**：application/json
 
-**请求方式**: GET
+## 请求头
 
-**请求头**:
-- `Content-Type`: application/json
-- `N-Token`: 2f9f88dbb743423dbf0a8db2977c49eb
+```
+Content-Type: application/json
+N-Token: 2f9f88dbb743423dbf0a8db2977c49eb
+```
 
 ## 请求参数
 
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| keyword | String | 是 | 关键词（从用户输入中提取，空字符串表示获取全部爆文） |
-| source | String | 是 | 数据源（固定值："公众号10w+阅读文章推荐"） |
-| startDate | String | 否 | 开始日期（YYYY-MM-DD格式，如"2024-03-15"；空字符串表示不限时间，获取最近30天数据） |
+| type | string | 是 | 分类名称（标准23分类之一） |
+| source | string | 是 | 数据来源；文档示例为 `公众号10w+阅读文章推荐`；本仓库 **`fetch_hot_articles.py` 默认** `公众号10w+阅读文章推荐-GitHub`，联调以脚本 `--source` 为准 |
+| startDate | string | 是 | 开始日期，格式：YYYY-MM-DD |
+| endDate | string | 是 | 结束日期，格式：YYYY-MM-DD |
 
-**时间参数说明**：
-- **daybeforeyesterday**: 特殊值，表示前天（用于获取最新推荐，如今天是2026-04-17，传入2026-04-15）
-- **yesterday**: 特殊值，表示昨天（用于查询昨日数据）
-- **YYYY-MM-DD**: 具体日期（如 2024-03-15）
-- **空字符串**: 不限时间，获取最近30天数据
-- **时间限制**: 最早支持前30天的数据，超过30天会返回错误
-- **数据同步时间**: 每日下午6:30同步前一日数据
+## 标准分类列表
 
-### 示例1：获取最新推荐（总榜）
-```
-GET https://onetotenvip.com/skill/cozeSkill/getWxCozeSkillData?keyword=&source=公众号10w+热门文章推荐&startDate=2026-04-15
-```
-注：如果今天是2026-04-17，获取最新推荐时传入2026-04-15（前天的日期）
+共23个标准分类：
+- 人文资讯、知识百科、健康养生、时尚潮流、美食餐饮、乐活生活
+- 旅游出行、搞笑幽默、情感心理、体育娱乐、美容美体、文摘精选
+- 民生资讯、财富理财、科技数码、创投商业、汽车交通、房产楼市
+- 职场发展、教育考试、学术研究、企业品牌、总排名
 
-### 示例2：战争领域爆文（不限时间）
+## 请求示例
+
+### 1. 查询总排名（昨日数据）
+
 ```
-GET https://onetotenvip.com/skill/cozeSkill/getWxCozeSkillData?keyword=战争&source=公众号10w+阅读文章推荐
+GET https://onetotenvip.com/skill/cozeSkill/getWxDataByCategoryAndTime?type=总排名&source=公众号10w+阅读文章推荐&startDate=2026-05-13&endDate=2026-05-14
 ```
 
-### 示例3：指定日期查询
+### 2. 查询科技数码分类
+
 ```
-GET https://onetotenvip.com/skill/cozeSkill/getWxCozeSkillData?keyword=AI&source=公众号10w+阅读文章推荐&startDate=2024-03-15
+GET https://onetotenvip.com/skill/cozeSkill/getWxDataByCategoryAndTime?type=科技数码&source=公众号10w+阅读文章推荐&startDate=2026-05-13&endDate=2026-05-14
 ```
 
-## 返回数据
+### 3. 查询财富理财分类
 
-### 成功响应
+```
+GET https://onetotenvip.com/skill/cozeSkill/getWxDataByCategoryAndTime?type=财富理财&source=公众号10w+阅读文章推荐&startDate=2026-05-10&endDate=2026-05-14
+```
+
+## 响应数据结构
+
 ```json
 {
-  "code": 2000,
+  "code": 200,
   "message": "success",
-  "tenWReadingRank": [
-    {
-      "title": "文章标题",
-      "userName": "公众号名称",
-      "accountId": "公众号ID",
-      "type": "分类",
-      "clicksCount": "5w+",
-      "likeCount": 500,
-      "interactiveCount": 50000,
-      "publicTime": "2024-01-01 08:00:00",
-      "oriUrl": "https://mp.weixin.qq.com/...",
-      "summary": "文章摘要",
-      "content": "文章内容"
-    }
-  ]
+  "data": {
+    "tenWReadingRank": [
+      {
+        "accountId": "zepinghongguan",
+        "clicksCount": "10w+",
+        "commentCount": "3",
+        "content": "文章内容摘要...",
+        "coverUrl": "https://...",
+        "fans": "100w+",
+        "interactiveCount": "3413",
+        "likeCount": "606",
+        "orderNum": 0,
+        "oriUrl": "https://mp.weixin.qq.com/s?...",
+        "originalFlag": 1,
+        "photoId": "...",
+        "publicTime": "2026-04-15 00:01:14",
+        "shareCount": "2613",
+        "summary": "摘要内容",
+        "thumbnail": "https://...",
+        "title": "文章标题",
+        "type": "财富",
+        "userHeadUrl": "https://...",
+        "userName": "作者名称",
+        "watchCount": "191"
+      }
+    ]
+  }
 }
 ```
 
-### 字段说明
+## 数据字段说明
 
-| 字段名 | 类型 | 说明 |
-|--------|------|------|
-| tenWReadingRank | Array[Object] | 10w+阅读文章列表 |
-| title | String | 文章标题 |
-| userName | String | 公众号名称 |
-| accountId | String | 公众号ID（用于生成名片链接） |
-| type | String | 文章分类 |
-| clicksCount | String | 阅读量（格式如"5w+"） |
-| likeCount | Integer | 点赞数 |
-| interactiveCount | Integer | 互动数（用于排序） |
-| publicTime | String | 发布时间 |
-| oriUrl | String | 文章链接 |
-| summary | String | 文章摘要 |
-| content | String | 文章内容 |
+| 字段名 | 说明 |
+|--------|------|
+| accountId | 公众号ID |
+| clicksCount | 阅读数（如：10w+、5w+） |
+| commentCount | 评论数 |
+| content | 文章内容摘要 |
+| coverUrl | 封面图URL |
+| fans | 粉丝数 |
+| interactiveCount | 互动数 |
+| likeCount | 点赞数 |
+| oriUrl | 文章原文链接 |
+| publicTime | 发布时间 |
+| shareCount | 分享数 |
+| summary | 摘要 |
+| title | 文章标题 |
+| type | 文章分类 |
+| userName | 作者名称 |
 
-## 注意事项
+## 时间参数规则
 
-1. **关键词提取规则**：
-   - 用户输入"今日爆文"、"10w+文章"、"最新推荐"等 → keyword为空字符串""，startDate为"daybeforeyesterday"（前天）
-   - 用户输入"推荐一下战争10w+阅读数文章" → 提取关键词"战争"，startDate为空字符串
-   - 用户输入"昨天有哪些AI相关的爆文" → 提取关键词"AI"，startDate计算为昨天的日期
+### 重要规则
 
-2. **source参数**：
-   - 始终使用固定值："公众号10w+热门文章推荐"
+1. **所有时间参数都是必传的**：
+   - `startDate`：必须传入，格式为 YYYY-MM-DD
+   - `endDate`：必须传入，格式为 YYYY-MM-DD
 
-3. **startDate参数**：
-   - **最新推荐**: 传"daybeforeyesterday"（如今天是2026-04-17，传入2026-04-15）
-   - **具体时间**: 根据用户描述转换为YYYY-MM-DD格式
-   - **不限时间**: 传空字符串""，获取最近30天数据
-   - **时间限制**: 最早支持前30天的数据
-   - **数据同步**: 每日下午6:30同步前一日数据
+2. **时间参数示例**（假设今天是 2026-05-14）：
+   - 查询昨天数据：`startDate=2026-05-13&endDate=2026-05-14`
+   - 查询前天数据：`startDate=2026-05-12&endDate=2026-05-13`
+   - 查询近5天：`startDate=2026-05-10&endDate=2026-05-14`
 
-4. **排序规则**：
-   - 默认按互动数（interactiveCount）降序排序
-   - 如果interactiveCount为0或不存在，则按clicksCount + likeCount*10计算
+3. **数据同步时间**：
+   - 数据库每日下午 18:30 同步前一日数据
+   - 到 19:30 推送时，昨天的数据已完全同步
 
-5. **错误处理**：
-   - 网络超时：30秒
-   - HTTP错误：显示状态码和响应内容
-   - API错误：显示错误信息（成功码为2000）
-
-## 使用建议
-
-1. 最新推荐使用空字符串keyword和"daybeforeyesterday"startDate获取（如今天是2026-04-17，传入2026-04-15）
-2. 领域查询需要从用户输入中智能提取关键词
-3. 用户提到具体时间时，将时间描述转换为YYYY-MM-DD格式
-4. 用户未提到时间时，startDate传空字符串获取最近30天数据
-5. 日期不能早于30天前，晚于今天
-6. 数据同步时间：每日下午6:30同步前一日数据
+4. **时间建议**：
+   - 用户主动查询"今日文章"：使用前天数据（更稳妥）
+   - 订阅推送（19:30）：使用昨天数据（已同步完成）

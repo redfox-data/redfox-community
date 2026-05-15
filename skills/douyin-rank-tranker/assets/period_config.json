@@ -1,0 +1,72 @@
+{
+  "period_map": {
+    "day": "days",
+    "week": "weeks",
+    "month": "months"
+  },
+  "period_labels": {
+    "day": "日榜",
+    "week": "周榜",
+    "month": "月榜"
+  },
+  "period_keys": {
+    "days": "day",
+    "weeks": "week",
+    "months": "month"
+  },
+  "short_aliases": {
+    "day": "日",
+    "week": "周",
+    "month": "月"
+  },
+  "long_aliases": {
+    "day": [
+      "day",
+      "daily",
+      "日榜",
+      "日排名",
+      "日间",
+      "今日",
+      "今天",
+      "昨日"
+    ],
+    "week": [
+      "week",
+      "weekly",
+      "周榜",
+      "周排名",
+      "周间",
+      "上周",
+      "本周",
+      "这周",
+      "本周期"
+    ],
+    "month": [
+      "month",
+      "monthly",
+      "月榜",
+      "月排名",
+      "月间",
+      "上月",
+      "本月",
+      "这个月"
+    ]
+  },
+  "update_rules": {
+    "day": {
+      "label": "日榜",
+      "update_time": "每日17:30",
+      "window_days": 9
+    },
+    "week": {
+      "label": "周榜",
+      "update_time": "每周一17:30",
+      "window_days": 21
+    },
+    "month": {
+      "label": "月榜",
+      "update_time": "每月2号9点",
+      "window_days": 90
+    }
+  }
+}
