@@ -137,7 +137,7 @@ def fetch_ranking_data_socket(rank_date: str, source: str, category: str, top_n:
     params = {
         "rankDate": rank_date,
         "category": category,
-        "source": "小红书冷门账号爆款文章-github"
+        "source": "小红书冷门账号爆款文章-GitHub"
     }
 
     from urllib.parse import urlencode
@@ -739,7 +739,7 @@ def main():
             print(f"[调试] 分类 '{query_category}' 不在有效列表中，回退到综合全部", file=sys.stderr)
             query_category = "综合全部"
 
-        source = "小红书冷门账号爆款文章-github"
+        source = "小红书冷门账号爆款文章-GitHub"
 
         # 查找数据（只查询指定日期，数据为空不自动尝试其他日期）
         result_data = None
