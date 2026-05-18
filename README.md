@@ -1,3 +1,8 @@
+<p align="right">
+  中文
+  <a href="https://github.com/redfox-data/redfox-community/blob/main/README.en.md">中文</a>
+</p>
+
 # redfoxhub · Agent Skills
 
 本仓库收录 **redfoxhub** 社区维护的多枚 Agent 技能（Skill），面向灵感、选题、文案创作、数据复盘等场景。技能以 `SKILL.md` 为核心，可与 Cursor、Claude Code 等支持 Agent Skills 的工具配合使用。
@@ -6,8 +11,9 @@
 
 ```text
 .
-├── README.md          # 本说明
-├── skills/         # 中文技能（每个子目录一枚技能）
+├── README.md          # 本说明（中文）
+├── README.en.md       # English README
+├── skills/            # 技能（每个子目录一枚技能）
 │   └── <skill-name>/
 │       ├── SKILL.md
 │       └── …          # 脚本、参考文档等（可选）
