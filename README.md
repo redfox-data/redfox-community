@@ -1,6 +1,6 @@
 <p align="right">
   中文
-  <a href="https://github.com/redfox-data/redfox-community/blob/main/README.en.md">中文</a>
+  <a href="https://github.com/redfox-data/redfox-community/blob/main/README.en.md">English</a>
 </p>
 
 # redfoxdata · Agent Skills
