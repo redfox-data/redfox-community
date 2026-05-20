@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>短视频下载器 Skill — 审核演示</title>
+
+    <!-- Fonts: Cormorant (display serif) + IBM Plex Sans (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES (DARK BOTANICAL THEME)
+           Change these to customize colors & fonts
+           =========================================== */
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --text-primary: #e8e4df;
+            --text-secondary: #9a9590;
+            --accent-warm: #d4a574;
+            --accent-pink: #e8b4b8;
+            --accent-gold: #c9b896;
+            --accent-subtle: rgba(212, 165, 116, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(212, 165, 116, 0.15);
+
+            --font-display: 'Cormorant', Georgia, serif;
+            --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+
+            --title-size: clamp(2rem, 5vw, 4.5rem);
+            --h2-size: clamp(1.3rem, 3.5vw, 2.6rem);
+            --h3-size: clamp(1rem, 2.2vw, 1.6rem);
+            --body-size: clamp(0.75rem, 1.3vw, 1.05rem);
+            --small-size: clamp(0.65rem, 0.9vw, 0.85rem);
+            --accent-size: clamp(0.7rem, 1vw, 0.9rem);
+
+            --slide-padding: clamp(1.5rem, 4vw, 4rem);
+            --content-gap: clamp(0.6rem, 2vw, 2rem);
+            --element-gap: clamp(0.3rem, 1vw, 1rem);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.7s;
+        }
+
+        /* ===========================================
+           RESET & BASE
+           =========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ===========================================
+           VIEWPORT FITTING: MANDATORY BASE STYLES
+           Include this ENTIRE file in every presentation.
+           These styles ensure slides fit exactly in the viewport.
+           =========================================== */
+
+        /* 1. Lock html/body to viewport */
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        /* 2. Each slide = exact viewport height */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-primary);
+        }
+
+        /* 3. Content container with flex for centering */
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        /* 5. Cards/containers use viewport-relative max sizes */
+        .card, .container, .content-box {
+            max-width: min(90vw, 1000px);
+            max-height: min(80vh, 700px);
+        }
+
+        /* 6. Lists auto-scale with viewport */
+        .feature-list, .bullet-list {
+            gap: clamp(0.4rem, 1vh, 1rem);
+        }
+
+        .feature-list li, .bullet-list li {
+            font-size: var(--body-size);
+            line-height: 1.4;
+        }
+
+        /* 7. Grids adapt to available space */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: clamp(0.5rem, 1.5vw, 1rem);
+        }
+
+        /* 8. Images constrained to viewport */
+        img, .image-container {
+            max-width: 100%;
+            max-height: min(50vh, 400px);
+            object-fit: contain;
+        }
+
+        /* ===========================================
+           RESPONSIVE BREAKPOINTS
+           =========================================== */
+
+        /* Short viewports (< 700px height) */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+                --title-size: clamp(1.3rem, 4.5vw, 2.5rem);
+                --h2-size: clamp(1rem, 3vw, 1.75rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.9rem);
+            }
+        }
+
+        /* Very short viewports (< 600px height) */
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+                --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+                --title-size: clamp(1.1rem, 4vw, 2rem);
+                --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+            }
+
+            .nav-dots, .decorative {
+                display: none;
+            }
+        }
+
+        /* Extremely short (landscape phones, < 500px height) */
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.4rem, 2vw, 1rem);
+                --title-size: clamp(1rem, 3.5vw, 1.5rem);
+                --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+                --body-size: clamp(0.65rem, 1vw, 0.85rem);
+            }
+        }
+
+        /* Narrow viewports (< 600px width) */
+        @media (max-width: 600px) {
+            :root {
+                --title-size: clamp(1.25rem, 7vw, 2.5rem);
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .platform-row {
+                flex-direction: column;
+                gap: clamp(0.4rem, 1.5vw, 0.8rem) !important;
+            }
+
+            .faq-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* ===========================================
+           REDUCED MOTION
+           =========================================== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ===========================================
+           DARK BOTANICAL — THEME STYLES
+           =========================================== */
+        body {
+            font-family: var(--font-body);
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* --- Decorative floating circles --- */
+        .deco-circle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.5;
+        }
+
+        .deco-circle-1 {
+            width: clamp(200px, 40vw, 500px);
+            height: clamp(200px, 40vw, 500px);
+            background: radial-gradient(circle, rgba(212, 165, 116, 0.15) 0%, transparent 70%);
+            top: -10%;
+            right: -10%;
+        }
+
+        .deco-circle-2 {
+            width: clamp(150px, 25vw, 350px);
+            height: clamp(150px, 25vw, 350px);
+            background: radial-gradient(circle, rgba(232, 180, 184, 0.1) 0%, transparent 70%);
+            bottom: -5%;
+            left: -8%;
+        }
+
+        .deco-circle-3 {
+            width: clamp(100px, 18vw, 250px);
+            height: clamp(100px, 18vw, 250px);
+            background: radial-gradient(circle, rgba(201, 184, 150, 0.12) 0%, transparent 70%);
+            bottom: 20%;
+            right: 5%;
+        }
+
+        /* --- Vertical accent line --- */
+        .vline {
+            position: absolute;
+            left: clamp(1rem, 3vw, 3rem);
+            top: clamp(3rem, 8vh, 6rem);
+            bottom: clamp(3rem, 8vh, 6rem);
+            width: 1px;
+            background: linear-gradient(to bottom, transparent 0%, var(--accent-warm) 20%, var(--accent-warm) 80%, transparent 100%);
+            opacity: 0.4;
+            z-index: 1;
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- Section badge --- */
+        .section-num {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: var(--accent-size);
+            color: var(--accent-warm);
+            letter-spacing: 0.05em;
+            margin-bottom: clamp(0.3rem, 1vh, 0.6rem);
+            opacity: 0.8;
+        }
+
+        /* --- Headings --- */
+        h1 {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-size: var(--title-size);
+            color: var(--text-primary);
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+        }
+
+        h2 {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-size: var(--h2-size);
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+        }
+
+        h2 .accent-italic {
+            font-style: italic;
+            color: var(--accent-warm);
+        }
+
+        h3 {
+            font-family: var(--font-body);
+            font-weight: 500;
+            font-size: var(--h3-size);
+            color: var(--text-primary);
+        }
+
+        p, li {
+            font-family: var(--font-body);
+            font-weight: 300;
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* --- Title slide specific --- */
+        .title-slide {
+            justify-content: center;
+            text-align: left;
+        }
+
+        .title-slide .slide-content {
+            justify-content: center;
+        }
+
+        .title-slide h1 {
+            margin-bottom: clamp(0.5rem, 1.5vh, 1.2rem);
+        }
+
+        .title-slide .subtitle {
+            font-family: var(--font-body);
+            font-weight: 300;
+            font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+            color: var(--text-secondary);
+            line-height: 1.5;
+            max-width: min(80vw, 700px);
+        }
+
+        .title-slide .tagline {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: var(--accent-warm);
+            margin-top: clamp(1rem, 3vh, 2rem);
+        }
+
+        .title-slide .meta {
+            font-family: var(--font-body);
+            font-weight: 400;
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-top: clamp(1.5rem, 4vh, 3rem);
+            opacity: 0.6;
+        }
+
+        /* --- Feature cards --- */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.6rem, 1.5vw, 1.2rem);
+            max-width: min(95vw, 1100px);
+            width: 100%;
+            align-self: center;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: clamp(6px, 0.6vw, 10px);
+            padding: clamp(0.8rem, 1.5vh, 1.5rem) clamp(0.8rem, 1.2vw, 1.5rem);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .feature-card .icon {
+            font-size: clamp(1.2rem, 1.8vw, 2rem);
+            margin-bottom: clamp(0.3rem, 0.5vh, 0.6rem);
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: clamp(0.85rem, 1.4vw, 1.2rem);
+            font-weight: 500;
+            margin-bottom: clamp(0.15rem, 0.3vh, 0.4rem);
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* --- Use case cards --- */
+        .usecase-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.6rem, 1.2vw, 1rem);
+            max-width: min(95vw, 1100px);
+            width: 100%;
+            align-self: center;
+        }
+
+        .usecase-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: clamp(6px, 0.6vw, 10px);
+            padding: clamp(0.6rem, 1.2vh, 1.2rem) clamp(0.8rem, 1.2vw, 1.4rem);
+            display: flex;
+            align-items: flex-start;
+            gap: clamp(0.5rem, 1vw, 1rem);
+        }
+
+        .usecase-card .num {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: clamp(1rem, 1.5vw, 1.8rem);
+            color: var(--accent-warm);
+            opacity: 0.6;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .usecase-card .text h3 {
+            font-size: clamp(0.8rem, 1.3vw, 1.1rem);
+            font-weight: 500;
+            margin-bottom: clamp(0.1rem, 0.2vh, 0.3rem);
+            color: var(--text-primary);
+        }
+
+        .usecase-card .text p {
+            font-size: clamp(0.6rem, 0.9vw, 0.8rem);
+            color: var(--text-secondary);
+            line-height: 1.3;
+        }
+
+        /* --- Config cards --- */
+        .config-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.4rem, 1vh, 0.8rem);
+            max-width: min(90vw, 800px);
+            width: 100%;
+            align-self: center;
+        }
+
+        .config-item {
+            display: grid;
+            grid-template-columns: clamp(80px, 12vw, 130px) 1fr clamp(110px, 12vw, 160px);
+            align-items: center;
+            gap: clamp(0.5rem, 1.5vw, 1.5rem);
+            padding: clamp(0.4rem, 0.8vh, 0.8rem) clamp(0.8rem, 1.5vw, 1.5rem);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: clamp(4px, 0.4vw, 8px);
+        }
+
+        .config-item .method {
+            font-family: var(--font-body);
+            font-weight: 500;
+            font-size: var(--small-size);
+            color: var(--accent-warm);
+        }
+
+        .config-item .desc {
+            font-family: var(--font-body);
+            font-weight: 300;
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+        }
+
+        .config-item .badge {
+            font-family: var(--font-body);
+            font-weight: 400;
+            font-size: calc(var(--small-size) * 0.85);
+            padding: clamp(2px, 0.2vh, 4px) clamp(6px, 0.6vw, 10px);
+            border-radius: 4px;
+            background: var(--accent-subtle);
+            color: var(--accent-warm);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* --- Platform row --- */
+        .platform-row {
+            display: flex;
+            gap: clamp(0.6rem, 1.5vw, 1.5rem);
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: min(95vw, 900px);
+            width: 100%;
+            align-self: center;
+        }
+
+        .platform-chip {
+            padding: clamp(0.5rem, 1vh, 1rem) clamp(1rem, 2vw, 2rem);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: clamp(20px, 2vw, 40px);
+            text-align: center;
+            min-width: clamp(100px, 15vw, 160px);
+        }
+
+        .platform-chip .p-name {
+            font-family: var(--font-body);
+            font-weight: 500;
+            font-size: clamp(0.85rem, 1.4vw, 1.2rem);
+            color: var(--text-primary);
+        }
+
+        .platform-chip .p-sub {
+            font-family: var(--font-body);
+            font-weight: 300;
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            margin-top: clamp(2px, 0.2vh, 4px);
+        }
+
+        /* --- FAQ grid --- */
+        .faq-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.6rem, 1.2vw, 1rem);
+            max-width: min(95vw, 1000px);
+            width: 100%;
+            align-self: center;
+        }
+
+        .faq-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: clamp(6px, 0.6vw, 10px);
+            padding: clamp(0.6rem, 1.2vh, 1.2rem) clamp(0.8rem, 1.2vw, 1.4rem);
+        }
+
+        .faq-card .q {
+            font-family: var(--font-body);
+            font-weight: 500;
+            font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+            color: var(--accent-warm);
+            margin-bottom: clamp(0.2rem, 0.3vh, 0.4rem);
+        }
+
+        .faq-card .a {
+            font-family: var(--font-body);
+            font-weight: 300;
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* --- Advantage cards --- */
+        .advantage-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(0.6rem, 1.5vw, 1.2rem);
+            max-width: min(90vw, 800px);
+            width: 100%;
+            align-self: center;
+        }
+
+        .advantage-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: clamp(6px, 0.6vw, 10px);
+            padding: clamp(0.8rem, 1.5vh, 1.5rem) clamp(1rem, 1.5vw, 1.8rem);
+            text-align: center;
+        }
+
+        .advantage-card .icon {
+            font-size: clamp(1.5rem, 2.5vw, 2.5rem);
+            margin-bottom: clamp(0.3rem, 0.5vh, 0.6rem);
+            display: block;
+        }
+
+        .advantage-card h3 {
+            font-size: clamp(0.85rem, 1.4vw, 1.2rem);
+            font-weight: 500;
+            margin-bottom: clamp(0.15rem, 0.3vh, 0.4rem);
+            color: var(--text-primary);
+        }
+
+        .advantage-card p {
+            font-size: clamp(0.65rem, 1vw, 0.85rem);
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* --- Link format table --- */
+        .link-table {
+            max-width: min(95vw, 1000px);
+            width: 100%;
+            align-self: center;
+            border-collapse: collapse;
+        }
+
+        .link-table th {
+            font-family: var(--font-body);
+            font-weight: 500;
+            font-size: var(--small-size);
+            color: var(--accent-warm);
+            text-align: left;
+            padding: clamp(0.3rem, 0.6vh, 0.6rem) clamp(0.5rem, 1vw, 1rem);
+            border-bottom: 1px solid var(--card-border);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .link-table td {
+            font-family: var(--font-body);
+            font-weight: 300;
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            padding: clamp(0.3rem, 0.6vh, 0.7rem) clamp(0.5rem, 1vw, 1rem);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .link-table td:first-child {
+            color: var(--text-primary);
+            font-weight: 400;
+        }
+
+        .link-table td:last-child {
+            font-family: var(--font-body);
+            font-weight: 300;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        /* --- End slide --- */
+        .end-slide h1 {
+            margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+        }
+
+        .end-slide .end-links {
+            margin-top: clamp(1rem, 3vh, 2rem);
+            display: flex;
+            gap: clamp(0.8rem, 2vw, 2rem);
+            flex-wrap: wrap;
+        }
+
+        .end-slide .end-links a {
+            font-family: var(--font-body);
+            font-weight: 300;
+            font-size: var(--accent-size);
+            color: var(--accent-warm);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .end-slide .end-links a:hover {
+            border-bottom-color: var(--accent-warm);
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           Trigger via .visible class (added by JS)
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stagger timing */
+        .reveal:nth-child(1) { transition-delay: 0.05s; }
+        .reveal:nth-child(2) { transition-delay: 0.15s; }
+        .reveal:nth-child(3) { transition-delay: 0.25s; }
+        .reveal:nth-child(4) { transition-delay: 0.35s; }
+        .reveal:nth-child(5) { transition-delay: 0.45s; }
+        .reveal:nth-child(6) { transition-delay: 0.55s; }
+
+        /* Scale reveal for cards */
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.92);
+            transition: opacity 0.6s var(--ease-out-expo),
+                        transform 0.6s var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal-scale {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .reveal-scale:nth-child(1) { transition-delay: 0.05s; }
+        .reveal-scale:nth-child(2) { transition-delay: 0.12s; }
+        .reveal-scale:nth-child(3) { transition-delay: 0.19s; }
+        .reveal-scale:nth-child(4) { transition-delay: 0.26s; }
+        .reveal-scale:nth-child(5) { transition-delay: 0.33s; }
+        .reveal-scale:nth-child(6) { transition-delay: 0.40s; }
+
+        /* Fade in for deco elements */
+        .reveal-fade {
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+
+        .slide.visible .reveal-fade {
+            opacity: 0.5;
+        }
+
+        .reveal-fade:nth-child(1) { transition-delay: 0.2s; }
+        .reveal-fade:nth-child(2) { transition-delay: 0.5s; }
+        .reveal-fade:nth-child(3) { transition-delay: 0.8s; }
+
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--accent-warm), var(--accent-gold));
+            width: 0%;
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* Navigation dots */
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.8rem, 1.5vw, 2rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 0.6vh, 10px);
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: clamp(6px, 0.5vw, 8px);
+            height: clamp(6px, 0.5vw, 8px);
+            border-radius: 50%;
+            background: rgba(232, 228, 223, 0.2);
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+            padding: 0;
+        }
+
+        .nav-dot.active {
+            background: var(--accent-warm);
+            transform: scale(1.3);
+        }
+
+        .nav-dot:hover {
+            background: rgba(232, 228, 223, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress bar -->
+    <div class="progress-bar"></div>
+
+    <!-- Navigation dots -->
+    <nav class="nav-dots" aria-label="幻灯片导航"></nav>
+
+    <!-- ===========================================
+         SLIDE 1: TITLE
+         =========================================== -->
+    <section class="slide title-slide" data-slide="1">
+        <!-- Decorative circles -->
+        <div class="deco-circle deco-circle-1 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-2 deco reveal-fade"></div>
+        <div class="vline deco reveal-fade"></div>
+
+        <div class="slide-content">
+            <h1 class="reveal">短视频下载器</h1>
+            <p class="reveal subtitle">支持抖音 · 小红书 · 快手 · B站<br>无水印视频下载，开箱即用</p>
+            <p class="reveal tagline">粘贴链接 · 即刻下载</p>
+            <p class="reveal meta">Qoder Skill — 审核演示</p>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 2: 能力概述
+         =========================================== -->
+    <section class="slide" data-slide="2">
+        <div class="deco-circle deco-circle-1 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-3 deco reveal-fade"></div>
+        <div class="vline deco reveal-fade"></div>
+
+        <div class="slide-content">
+            <p class="section-num reveal">01</p>
+            <h2 class="reveal">能力概述</h2>
+            <p class="reveal" style="margin-bottom: clamp(0.8rem, 2vh, 1.5rem); max-width: min(90vw, 700px);">
+                从主流短视频平台解析作品链接，获取无水印的原始视频，开箱即用。
+            </p>
+
+            <div class="feature-grid" style="grid-template-columns: repeat(2, 1fr); max-width: min(90vw, 800px); align-self: center;">
+                <div class="feature-card reveal-scale" style="text-align: center;">
+                    <span class="icon">🎯</span>
+                    <h3>四平台支持</h3>
+                    <p>抖音、小红书、快手、B站</p>
+                </div>
+                <div class="feature-card reveal-scale" style="text-align: center;">
+                    <span class="icon">📦</span>
+                    <h3>内容类型</h3>
+                    <p>视频 mp4 / 图文 jpg+png</p>
+                </div>
+                <div class="feature-card reveal-scale" style="text-align: center;">
+                    <span class="icon">🔗</span>
+                    <h3>一键粘贴</h3>
+                    <p>粘贴分享链接即可（单次单链接）</p>
+                </div>
+                <div class="feature-card reveal-scale" style="text-align: center;">
+                    <span class="icon">💧</span>
+                    <h3>无水印</h3>
+                    <p>API 自动返回无水印直链</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 3: 平台支持
+         =========================================== -->
+    <section class="slide" data-slide="3">
+        <div class="deco-circle deco-circle-1 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-2 deco reveal-fade"></div>
+        <div class="vline deco reveal-fade"></div>
+
+        <div class="slide-content" style="align-items: center; text-align: center;">
+            <p class="section-num reveal">02</p>
+            <h2 class="reveal">平台支持</h2>
+            <p class="reveal" style="margin-bottom: clamp(0.8rem, 2vh, 1.5rem);">覆盖国内主流短视频平台</p>
+
+            <div class="platform-row">
+                <div class="platform-chip reveal-scale">
+                    <div class="p-name">🎵 抖音</div>
+                    <div class="p-sub">Douyin</div>
+                </div>
+                <div class="platform-chip reveal-scale">
+                    <div class="p-name">📕 小红书</div>
+                    <div class="p-sub">Xiaohongshu</div>
+                </div>
+                <div class="platform-chip reveal-scale">
+                    <div class="p-name">📱 快手</div>
+                    <div class="p-sub">Kuaishou</div>
+                </div>
+                <div class="platform-chip reveal-scale">
+                    <div class="p-name">📺 B站</div>
+                    <div class="p-sub">Bilibili</div>
+                </div>
+            </div>
+
+            <p class="reveal" style="margin-top: clamp(1rem, 2.5vh, 2rem); font-size: var(--small-size);">
+                支持手机端分享链接和 PC 端网页链接
+            </p>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 4: 特色功能
+         =========================================== -->
+    <section class="slide" data-slide="4">
+        <div class="deco-circle deco-circle-2 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-3 deco reveal-fade"></div>
+        <div class="vline deco reveal-fade"></div>
+
+        <div class="slide-content" style="align-items: center; text-align: center;">
+            <p class="section-num reveal">03</p>
+            <h2 class="reveal">特色功能</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card reveal-scale">
+                    <span class="icon">💧</span>
+                    <h3>无水印下载</h3>
+                    <p>API 自动返回无水印直链，无需手动处理</p>
+                </div>
+                <div class="feature-card reveal-scale">
+                    <span class="icon">🖼️</span>
+                    <h3>图文下载</h3>
+                    <p>支持图文类型下载所有图片（暂不支持小红书图文）</p>
+                </div>
+                <div class="feature-card reveal-scale">
+                    <span class="icon">🔄</span>
+                    <h3>跨平台支持</h3>
+                    <p>一个工具覆盖四个主流平台</p>
+                </div>
+                <div class="feature-card reveal-scale">
+                    <span class="icon">🔗</span>
+                    <h3>链接自适应</h3>
+                    <p>支持短链、分享链、网页链接等多种格式</p>
+                </div>
+                <div class="feature-card reveal-scale">
+                    <span class="icon">📊</span>
+                    <h3>进度显示</h3>
+                    <p>下载过程实时显示进度条和百分比</p>
+                </div>
+                <div class="feature-card reveal-scale">
+                    <span class="icon">📱</span>
+                    <h3>多端兼容</h3>
+                    <p>支持手机端和 PC 端的分享链接</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 5: 配置安装
+         =========================================== -->
+    <section class="slide" data-slide="5">
+        <div class="deco-circle deco-circle-1 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-3 deco reveal-fade"></div>
+        <div class="vline deco reveal-fade"></div>
+
+        <div class="slide-content" style="align-items: center; text-align: center;">
+            <p class="section-num reveal">04</p>
+            <h2 class="reveal">配置安装</h2>
+            <p class="reveal" style="margin-bottom: clamp(0.8rem, 2vh, 1.5rem);">多种 API Key 配置方式，按需选择</p>
+
+            <div class="config-list">
+                <div class="config-item reveal">
+                    <span class="method">内置公共 Key</span>
+                    <span class="desc">开箱即用，免费约 10000 次</span>
+                    <span class="badge">无需配置</span>
+                </div>
+                <div class="config-item reveal">
+                    <span class="method">环境变量</span>
+                    <span class="desc">设置一次，全局生效</span>
+                    <span class="badge">推荐</span>
+                </div>
+                <div class="config-item reveal">
+                    <span class="method">命令行参数</span>
+                    <span class="desc">临时使用，单次生效</span>
+                    <span class="badge">临时</span>
+                </div>
+                <div class="config-item reveal">
+                    <span class="method">配置文件</span>
+                    <span class="desc">持久化存储，跨会话保留</span>
+                    <span class="badge">持久</span>
+                </div>
+            </div>
+
+            <p class="reveal" style="margin-top: clamp(0.8rem, 2vh, 1.5rem); font-size: var(--small-size);">
+                依赖：仅需 <code style="color: var(--accent-warm);">pip3 install requests</code>
+            </p>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 6: 使用场景
+         =========================================== -->
+    <section class="slide" data-slide="6">
+        <div class="deco-circle deco-circle-2 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-1 deco reveal-fade"></div>
+        <div class="vline deco reveal-fade"></div>
+
+        <div class="slide-content" style="align-items: center; text-align: center;">
+            <p class="section-num reveal">05</p>
+            <h2 class="reveal">常见使用场景</h2>
+
+            <div class="usecase-grid">
+                <div class="usecase-card reveal-scale">
+                    <span class="num">01</span>
+                    <div class="text" style="text-align: left;">
+                        <h3>抖音去水印保存</h3>
+                        <p>下载无水印视频到本地</p>
+                    </div>
+                </div>
+                <div class="usecase-card reveal-scale">
+                    <span class="num">02</span>
+                    <div class="text" style="text-align: left;">
+                        <h3>小红书视频下载</h3>
+                        <p>下载无水印视频</p>
+                    </div>
+                </div>
+                <div class="usecase-card reveal-scale">
+                    <span class="num">03</span>
+                    <div class="text" style="text-align: left;">
+                        <h3>快手视频收藏</h3>
+                        <p>保存喜欢的视频作品</p>
+                    </div>
+                </div>
+                <div class="usecase-card reveal-scale">
+                    <span class="num">04</span>
+                    <div class="text" style="text-align: left;">
+                        <h3>B站高画质下载</h3>
+                        <p>下载最佳画质 + 音质视频</p>
+                    </div>
+                </div>
+                <div class="usecase-card reveal-scale">
+                    <span class="num">05</span>
+                    <div class="text" style="text-align: left;">
+                        <h3>内容二次创作</h3>
+                        <p>下载素材用于剪辑创作</p>
+                    </div>
+                </div>
+                <div class="usecase-card reveal-scale">
+                    <span class="num">06</span>
+                    <div class="text" style="text-align: left;">
+                        <h3>离线备份</h3>
+                        <p>备份收藏的作品到本地</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 7: 链接格式
+         =========================================== -->
+    <section class="slide" data-slide="7">
+        <div class="deco-circle deco-circle-1 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-3 deco reveal-fade"></div>
+        <div class="vline deco reveal-fade"></div>
+
+        <div class="slide-content" style="align-items: center; text-align: center;">
+            <p class="section-num reveal">06</p>
+            <h2 class="reveal">平台与链接格式</h2>
+            <p class="reveal" style="margin-bottom: clamp(0.6rem, 1.5vh, 1.2rem);">支持的作品分享链接格式</p>
+
+            <table class="link-table reveal">
+                <thead>
+                    <tr>
+                        <th>平台</th>
+                        <th>链接格式</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🎵 抖音</td>
+                        <td><code>https://v.douyin.com/xxxxxx/</code></td>
+                        <td>手机分享 / PC 链接</td>
+                    </tr>
+                    <tr>
+                        <td>📕 小红书</td>
+                        <td><code>http://xhslink.com/o/xxxxxx</code></td>
+                        <td>短链分享</td>
+                    </tr>
+                    <tr>
+                        <td>📱 快手</td>
+                        <td><code>https://v.kuaishou.com/xxxxxx</code></td>
+                        <td>手机分享链接</td>
+                    </tr>
+                    <tr>
+                        <td>📺 B站</td>
+                        <td><code>https://b23.tv/xxxxxx</code></td>
+                        <td>短链分享</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p class="reveal" style="margin-top: clamp(0.6rem, 1.5vh, 1.2rem); font-size: var(--small-size);">
+                每次仅限一个链接，不支持批量上传
+            </p>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 8: 常见问题
+         =========================================== -->
+    <section class="slide" data-slide="8">
+        <div class="deco-circle deco-circle-2 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-3 deco reveal-fade"></div>
+        <div class="vline deco reveal-fade"></div>
+
+        <div class="slide-content" style="align-items: center; text-align: center;">
+            <p class="section-num reveal">07</p>
+            <h2 class="reveal">常见问题</h2>
+
+            <div class="faq-grid">
+                <div class="faq-card reveal-scale">
+                    <div class="q">公共 Key 有多少次免费额度？</div>
+                    <div class="a">约 10000 次。超出后 API 返回 3107 错误，需配置自己的 Key。</div>
+                </div>
+                <div class="faq-card reveal-scale">
+                    <div class="q">如何获取自己的 API Key？</div>
+                    <div class="a">前往 <strong style="color: var(--accent-warm); font-weight: 500;">redfox.hk</strong> 注册获取，格式为 ark_xxx。</div>
+                </div>
+                <div class="faq-card reveal-scale">
+                    <div class="q">下载的视频有水印吗？</div>
+                    <div class="a">没有。API 返回的是无水印直链，画质与原始作品一致。</div>
+                </div>
+                <div class="faq-card reveal-scale">
+                    <div class="q">支持图文下载吗？</div>
+                    <div class="a">支持图文下载（暂不支持小红书图文）。自动下载所有图片，按序号命名。</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 9: 为什么选择
+         =========================================== -->
+    <section class="slide" data-slide="9">
+        <div class="deco-circle deco-circle-1 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-2 deco reveal-fade"></div>
+        <div class="vline deco reveal-fade"></div>
+
+        <div class="slide-content" style="align-items: center; text-align: center;">
+            <p class="section-num reveal">08</p>
+            <h2 class="reveal">为什么选择</h2>
+
+            <div class="advantage-grid">
+                <div class="advantage-card reveal-scale">
+                    <span class="icon">🔌</span>
+                    <h3>无需抓包</h3>
+                    <p>不需要分析网页源码或抓取接口，只需粘贴链接</p>
+                </div>
+                <div class="advantage-card reveal-scale">
+                    <span class="icon">⚡</span>
+                    <h3>持续可用</h3>
+                    <p>基于稳定 API，不依赖爬虫反爬对抗</p>
+                </div>
+                <div class="advantage-card reveal-scale">
+                    <span class="icon">🚀</span>
+                    <h3>开箱即用</h3>
+                    <p>内置公共 Key，拿到就能用</p>
+                </div>
+                <div class="advantage-card reveal-scale">
+                    <span class="icon">🔒</span>
+                    <h3>隐私安全</h3>
+                    <p>API Key 本地存储，安全可靠</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===========================================
+         SLIDE 10: 了解更多 / THANK YOU
+         =========================================== -->
+    <section class="slide title-slide end-slide" data-slide="10">
+        <div class="deco-circle deco-circle-1 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-2 deco reveal-fade"></div>
+        <div class="deco-circle deco-circle-3 deco reveal-fade"></div>
+        <div class="vline deco reveal-fade"></div>
+
+        <div class="slide-content">
+            <h1 class="reveal">了解更多</h1>
+            <p class="reveal subtitle">
+                本工具基于 redfox.hk 的 parseWork/parse 接口构建
+            </p>
+            <div class="end-links reveal">
+                <a href="https://www.redfox.hk" target="_blank">redfox.hk →</a>
+                <a href="https://skillhub.ai" target="_blank">SkillHub →</a>
+                <a href="https://github.com" target="_blank">GitHub →</a>
+            </div>
+            <p class="reveal meta" style="margin-top: clamp(2rem, 5vh, 4rem);">感谢审阅</p>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           Handles keyboard navigation, touch/swipe,
+           progress bar, nav dots, and scroll animations.
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.navDots = document.querySelector('.nav-dots');
+                this.progressBar = document.querySelector('.progress-bar');
+                this.currentSlide = 0;
+                this.isAnimating = false;
+
+                this.buildNavDots();
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupWheelNav();
+                this.setupNavDotClicks();
+                this.updateProgress();
+            }
+
+            /* --- Build navigation dots --- */
+            buildNavDots() {
+                this.navDots.innerHTML = '';
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot';
+                    dot.setAttribute('aria-label', `转到第 ${i + 1} 页`);
+                    dot.dataset.index = i;
+                    this.navDots.appendChild(dot);
+                });
+                this.updateActiveDot();
+            }
+
+            /* --- Intersection Observer for animations --- */
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            this.currentSlide = parseInt(entry.target.dataset.slide) - 1;
+                            this.updateActiveDot();
+                            this.updateProgress();
+                        }
+                    });
+                }, { threshold: 0.3 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            /* --- Keyboard navigation --- */
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault();
+                        this.goToSlide(this.currentSlide + 1);
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        this.goToSlide(this.currentSlide - 1);
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.goToSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.goToSlide(this.slides.length - 1);
+                    }
+                });
+            }
+
+            /* --- Touch/swipe navigation --- */
+            setupTouchNav() {
+                let startY = 0;
+                let startX = 0;
+
+                document.addEventListener('touchstart', (e) => {
+                    startY = e.changedTouches[0].screenY;
+                    startX = e.changedTouches[0].screenX;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const endY = e.changedTouches[0].screenY;
+                    const endX = e.changedTouches[0].screenX;
+                    const diffY = startY - endY;
+                    const diffX = startX - endX;
+
+                    if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 50) {
+                        if (diffY > 0) this.goToSlide(this.currentSlide + 1);
+                        else this.goToSlide(this.currentSlide - 1);
+                    }
+                }, { passive: true });
+            }
+
+            /* --- Mouse wheel navigation (debounced) --- */
+            setupWheelNav() {
+                let ticking = false;
+                document.addEventListener('wheel', (e) => {
+                    if (!ticking) {
+                        window.requestAnimationFrame(() => {
+                            if (e.deltaY > 0) this.goToSlide(this.currentSlide + 1);
+                            else this.goToSlide(this.currentSlide - 1);
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                }, { passive: true });
+            }
+
+            /* --- Nav dot click handlers --- */
+            setupNavDotClicks() {
+                this.navDots.addEventListener('click', (e) => {
+                    const dot = e.target.closest('.nav-dot');
+                    if (dot) {
+                        this.goToSlide(parseInt(dot.dataset.index));
+                    }
+                });
+            }
+
+            /* --- Navigate to slide --- */
+            goToSlide(index) {
+                if (this.isAnimating) return;
+                if (index < 0 || index >= this.slides.length) return;
+
+                this.isAnimating = true;
+                const target = this.slides[index];
+                target.scrollIntoView({ behavior: 'smooth' });
+                this.currentSlide = index;
+                this.updateActiveDot();
+                this.updateProgress();
+
+                setTimeout(() => {
+                    this.isAnimating = false;
+                }, 600);
+            }
+
+            /* --- Update active nav dot --- */
+            updateActiveDot() {
+                const dots = this.navDots.querySelectorAll('.nav-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+
+            /* --- Update progress bar --- */
+            updateProgress() {
+                if (!this.progressBar) return;
+                const pct = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = pct + '%';
+            }
+        }
+
+        /* Initialize on DOM ready */
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+        });
+    </script>
+
+</body>
+</html>

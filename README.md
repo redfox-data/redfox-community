@@ -57,7 +57,9 @@ npx skills add redfox-data/redfox-community
 
 ### SkillHub
 
-访问SkillHub搜索skills目录中对应技能的中文名安装：https://skillhub.cn/skills，如：公众号爆款文章查询/抖音每日最具影响力账号
+访问SkillHub搜索skills目录中对应技能的中文名安装：https://skillhub.cn/skills
+
+搜索示例：公众号爆款文章查询 或 抖音每日最具影响力账号
 
 ### ClawHub（`clawhub`）
 

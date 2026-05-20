@@ -3,9 +3,9 @@
   English
 </p>
 
-# redfoxhub · Agent Skills
+# redfoxdata · Agent Skills
 
-This repository hosts **Agent Skills** maintained by the **redfoxhub** community for inspiration, topic research, copywriting, and data review workflows. Each skill is centered on `SKILL.md` and works with tools that support Agent Skills, such as Cursor and Claude Code.
+This repository hosts **Agent Skills** maintained by the **redfoxdata** community for inspiration, topic research, copywriting, and data review workflows. Each skill is centered on `SKILL.md` and works with tools that support Agent Skills, such as Cursor and Claude Code.
 
 ## Repository layout
 
@@ -44,37 +44,30 @@ Optional folders such as `references/`, `scripts/`, and `assets/` may sit next t
 
 Copy the skill folder you need into your client’s skills directory (e.g. Cursor user skills or project `.cursor/skills/`—follow your client’s docs), or point the client’s “Add skill” flow at that subdirectory.
 
+### skills cli
+
+Run the following in an interactive terminal (you can copy as-is):
+
+```bash
+npx skills init // install skills cli
+npx skills add redfox-data/redfox-community
+```
+
+Follow the prompts to install skills into a specific agent folder or globally.
+
 ### SkillHub
 
-Install the SkillHub CLI first:
+Open SkillHub and install by searching for the **Chinese display name** of the skill under `skills/`:
 
-```bash
-curl -fsSL https://skillhub.cn/install/install.sh | bash
-```
+https://skillhub.cn/skills
 
-Then:
-
-```bash
-skillhub install <skill-slug>
-```
-
-### Skhub (`skhub`)
-
-```bash
-skhub add <owner>/<skill-slug>
-```
-
-You can also import the whole repo from GitHub in an interactive terminal and pick skills (see official CLI docs):
-
-```bash
-skhub add https://github.com/<owner>/<repo>
-```
+**Search examples:** `公众号爆款文章查询` or `抖音每日最具影响力账号`
 
 ### ClawHub (`clawhub`)
 
-```bash
-clawhub install <skill-slug>
-```
+Browse and install from the official redfox-data profile on ClawHub:
+
+https://clawhub.ai/user/redfox-data
 
 ## Contributing
 
@@ -91,4 +84,4 @@ Unless stated otherwise, the default license is **[MIT](LICENSE)** (or replace w
 
 ---
 
-**redfoxhub** — Turn repeatable new-media workflows into shareable, evolvable Agent skills.
+**redfoxdata** — Turn repeatable new-media workflows into shareable, evolvable Agent skills.
