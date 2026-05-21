@@ -1,101 +1,87 @@
-# Xiaohongshu (RED) viral title generator / xhs-explosive-content-suite
+# Xiaohongshu Viral Title Generator / xhs-explosive-content-suite
 
 ---
 
 ## Introduction
 
-This Skill targets creators and operators who need **higher title CTR and seeding efficiency on Xiaohongshu**: first **fetch** hot note samples by keyword, complete **“viral title analysis,”** then output **10** actionable title options in one go (fixed layout including match score, reference links, and recommendation reasons).
+With **2,000+** viral notes collected daily across the web, this tool analyzes viral title patterns and **generates 10 high-traffic titles in one go**—so you can capture attention faster.
 
-**Core value**
+**Feature Overview**
 
-- **Data alignment**: Analysis is grounded in script-fetched samples—no invented engagement or cases.  
-- **Analyze before writing**: Must output “viral title analysis” first, then new titles, with traceable patterns.  
-- **Batch delivery**: 10 items in a unified layout for comparison and A/B.
+A title-generation tool built for Xiaohongshu (RED) creators. It draws on **2,000+** viral notes collected daily, aligns with high-engagement title structure, keywords, and emotional hooks, analyzes viral title logic intelligently, and combines your core topic, selling points, and content direction to match audience preferences—delivering **10** quality viral titles in one batch, so you can move past title anxiety and lift click-through and reach.
 
-**Who it’s for**
+**Core Value**
 
-New creators starting accounts, brand and e-commerce operators writing note titles, MCN batch proposals, etc. **Full execution details** are in `**references/core_workflow.md`** in the same directory; this file is a user-facing summary.
+- **Large sample alignment**: Daily viral note coverage gives title writing a solid reference—no made-up engagement or cases.
+- **Analyze first, write second**: You get a “viral title analysis” block before new titles, so patterns are clear and easy to pick from.
+- **Batch delivery**: **10** titles in a consistent format with match score, reference link, and rationale—easy to compare and A/B test.
 
-**Runtime**: **Python 3**; depends on `**requests>=2.28.0`** (see `SKILL.md` frontmatter). Use natural language in an Agent with this Skill enabled, together with script calls.
+**Who It’s For**
+
+- 📝 **Xiaohongshu creators** — Stop agonizing over titles; use data-backed patterns to lift click-through and reach.
+- 🛍️ **Brand / e-commerce operators** — Turn product terms and selling points into multiple ready-to-use title options.
+- 🏢 **MCN / content planners** — Batch proposals in the same niche and build reusable title playbooks.
 
 ---
 
 ## Features
 
-### Core capabilities
+### Core Capabilities
 
-- **Keyword-driven**: Supports product words, topics, or broad categories; broad categories must go through expansion confirmation first (see usage guide).  
-- **Time strategy**: If data is thin, only auto-expand the time window (last 1→3→7→30 days), **do not change the keyword**.  
-- **Two-phase output**: Viral title structure analysis → then create 10 new titles (not copying originals).  
-- **Fixed delivery shape**: Each item includes match score (8–10, one decimal), reference viral link, recommendation reason, and separator line, consistent with the `core_workflow` checklist.
+- **Keyword-driven**: Works with product terms and topics; for broad categories, suggests sub-directions for you to confirm first.
+- **Smart time window**: If samples are thin, the query window expands step by step (recent → longer range) **without changing** your core keyword.
+- **Two-stage output**: Viral title pattern analysis first, then **10** new titles (not copy-paste of originals).
+- **Standard deliverable**: Each title includes a match score, a reference viral link, and a detailed rationale in a uniform layout.
 
 ### Highlights
 
-- **Clear product boundary**: Product form in user input aligns with the query keyword—do not silently expand to adjacent categories.  
-- **Compliant wording**: In user-visible text avoid “crawl/scrape”; use **“fetch”** uniformly; sensitive original titles get neutral summaries.
+- **Precise product focus**: Stays aligned with the product or format you specify—no drift into unrelated categories.
+- **Compliance-friendly wording**: Analysis and titles use neutral, platform-appropriate language.
+- **Audience fit**: Patterns reflect what performs on Xiaohongshu for titles closer to real high-engagement cases.
 
 ---
 
-## Prerequisites
+## How to Use
 
-### Dependencies
+Describe your product, topic, or creative need in plain language—no fixed commands to memorize.
 
-- **Python**: 3.8+ recommended (per your environment).  
-- **Python package**: `requests>=2.28.0` (same as `dependency.python` in `SKILL.md`).
-
-```bash
-pip install "requests>=2.28.0"
-```
-
----
-
-## Usage guide
-
-### How you can phrase it
+### Quick Phrase Guide
 
 
-| What you say                                          | What you’ll roughly get                                                                          |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| “Help me with a few Xiaohongshu titles for sunscreen” | Extract keyword → run script per date rules → read `关键词_爆款数据.md` → analyze first, then 10 titles |
-| “Titles for beauty” (broad category)                  | Niche directions first, **wait** for your “expand” or “don’t expand” before querying             |
-| “Find inspiration from site-wide hot for titles”      | Where workflow allows, empty-keyword overall path, then analysis and generation                  |
+| Intent                 | Example prompt                                                   | What you get                                                 |
+| ---------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------ |
+| Titles for one product | “Write Xiaohongshu viral titles for sunscreen—light, non-greasy” | Sample-aligned analysis, then 10 options                     |
+| Regular niche updates  | “Outfit niche, fall coat posts—need a title set”                 | Niche patterns applied to your batch                         |
+| Broad category first   | “Beauty direction, topic not decided yet”                        | Sub-direction suggestions, then generation after you confirm |
+| Ride recent trends     | “What titles are hot lately? Help me adapt a few”                | Recent hot patterns adapted to your brief                    |
 
 
-### Command cheat sheet (from skill root)
+### Sample Output
 
+After analysis, you receive **10** titles. Each block looks roughly like this (illustrative):
 
-| Example command                                                                | Purpose                                                 |
-| ------------------------------------------------------------------------------ | ------------------------------------------------------- |
-| `python scripts/fetch_xhs_trends.py --keyword "防晒霜" --start-date 2026-04-01`   | Fetch by keyword and start date; write Markdown report  |
-| `python scripts/fetch_xhs_trends.py --keyword "a,b,c" --start-date 2026-04-01` | Multiple keywords (comma-separated)                     |
-| `python scripts/fetch_xhs_trends.py --keyword "" --start-date 2026-04-01`      | Site-wide hot path with no track keyword (per workflow) |
+**Title 1: Fall coats styled this way—petite frames look taller**
 
-
-### Tips
-
-- **Order cannot be swapped**: “Viral title analysis” must come before “generate new viral titles.”  
-- **Insufficient data**: Only widen the time window, not the keyword; if still insufficient after up to ~30 days, say so honestly—**no fabricated** titles, engagement, or `photoId` links.  
-- **Generic words**: After the assistant gives niche suggestions, **stop and wait** for your “expand / don’t expand” reply—**do not** run a query in the same turn without waiting.
+📈 Match score: 9.2  
+🔥 Reference viral: [Summary of source title](link) (engagement: example)  
+👍 Why it works: Combines a pain point with a clear outfit payoff—aligned with high-engagement patterns in the niche.
 
 ---
 
-## Use cases
-
-
-| Scenario                 | Role                   | Need                                                  | How to use                                                                |
-| ------------------------ | ---------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------- |
-| New product titles       | E-commerce / brand ops | Have selling points but not Xiaohongshu-style titles  | Give product words and selling points → fetch data → analyze → 10 options |
-| Daily account updates    | Blogger / editor       | Same vertical lacks topics and title patterns         | Enter track or niche term → iterate title library from data patterns      |
-| Testing a broad vertical | New creator            | Only thinks of broad buckets like “beauty,” “outfits” | Generic suggestions → expand or not, then query                           |
-| Site-wide trend chasing  | Operator               | Wants recent site-wide hot before adapting            | Site-wide per workflow → narrow to concrete creation                      |
-
+(10 titles total, separated for easy copy and selection.)
 
 ---
 
-## Notes and limitations
+## Use Cases
 
-- **Data**: From the script’s agreed API and stored snapshots—**not live**; engagement and links follow the report—**no fiction**.  
-- **Task ownership**: Full flow should run in the **main Agent** so format and order aren’t broken (see `SKILL.md`).  
-- **Compliance**: Follow community and advertising norms; reference links must be traceable.  
-- **Scope**: Does not replace platform review; you must still verify compliance before publishing.
+
+| Scenario              | Role                   | Example ask                                                        | Benefit                                       |
+| --------------------- | ---------------------- | ------------------------------------------------------------------ | --------------------------------------------- |
+| New product launch    | E-commerce / brand ops | “New SKU—Xiaohongshu titles highlighting ingredients and benefits” | Multiple publish-ready options, better CTR    |
+| Daily posting         | Creator / editor       | “Skincare niche—serum review this week, need 10 titles”            | Less blank-page time, niche-consistent hooks  |
+| Testing a broad niche | New creator            | “Want beauty content but only know the big category”               | Sub-niche guidance before full generation     |
+| Trend adaptation      | Content ops            | “What titles are trending? Help me adapt a few I can post”         | Hot patterns mapped to your product and voice |
+
+
+---
 
