@@ -1,125 +1,168 @@
-# WeChat Official Account viral article discovery / gzh-explosive-content-detector
+# WeChat Article Search
 
 ---
 
 ## Introduction
 
-This Skill targets **WeChat Official Account topic selection and creation**: it probes recent high-heat articles by keyword, filters with dimensions such as **low-follower high reads, read ranking, growth in progress, original ranking**, outputs a small set of high-quality recommendations in forms including **HTML**, and suggests **sub-track keywords** you can dig into next.
+A WeChat Official Account hot article search tool that helps you quickly find articles with reads > 5,000, gain creative inspiration, and stay on top of content trends.
 
-**Core value**
+**Core Value**
 
-- **Keyword probing**: Query matching viral content by track or niche terms.  
-- **Smart filtering**: From candidates, pick **at most 10** recommendations combining intent and relevance.  
-- **Dual presentation**: Markdown cards + HTML grid cards for reading and sharing.  
-- **Niche guidance**: After results, append about **10** niche terms for the next query round.  
+Continuously indexing hot articles with reads > 5,000 from the past 30 days, updated daily with yesterday's data. Articles are ranked by a weighted score combining relevance, popularity, and timeliness, bringing together top viral content across all categories. Quickly find quality benchmark content across industries, easily reference trending creative approaches from peers — no more scouring multiple sources for material. A one-stop solution for your daily writing reference needs.
 
-**Who it’s for**
+**Who It's For**
 
-WeChat operators and editors, content creators, MCNs, and growth teams. Generic-word handling, script order, and fixed wording must follow **`references/gzh_explosive_content_workflow.md`** and **`SKILL.md`**.
-
-**Runtime**: **Python 3**; **`requests>=2.28.0`** (see `SKILL.md` frontmatter).
+- 🎯 Content creators — Find topic inspiration, dissect viral article structures
+- 📦 WeChat operators — Track industry hot spots, shape content strategy
+- 🏢 Brands / Business — Understand KOL dynamics, evaluate content marketing directions
+- 📚 Self-media learners — Learn viral patterns, improve writing skills
 
 ---
 
 ## Features
 
-### Core capabilities
+### Core Capabilities
 
-- **Viral article discovery**: Site-wide hot list (empty keyword) and keyword queries.  
-- **Time window**: Default **last 7 days**; up to about **30 days** (per script and workflow).  
-- **Generic-word handling**: For broad category words, show niche suggestions first and wait for “expand / don’t expand”—**do not** run the script again in the same turn.  
-- **Artifacts**: Commonly `{keyword}_爆款数据.html`; if the script outputs JSON, it can inform filtering.  
+- **Precise keyword search**: Enter any keyword to query related viral WeChat Official Account articles
+- **Site-wide hot recommendations**: View the most popular recent articles across the platform without a keyword
+- **Smart scoring & ranking**: Weighted scoring across three dimensions — relevance (10 pts), popularity (3 pts), timeliness (2 pts), for a total of 15 pts
+- **Keyword expansion**: Search results include related niche-direction recommendations to broaden topic ideas
+- **Subscription push**: Subscribe to keywords for daily scheduled push notifications
 
-### Highlights
+---
 
-- **Intent first**: Prefer niche directions from the user’s wording; avoid one-shot queries with overly broad terms only.  
-- **Data honesty**: Not a live snapshot; for asks like “today” or “beyond ~30 days,” use **fixed boundary wording** (see “Important data notes”).  
-- **No padding**: At most 10 items; if fewer than 10, show honestly—**no fabrication**.  
-- **Presentation closure**: Each item includes a recommendation reason (length and empty-phrase limits in `SKILL.md`); append niche-word guidance at the end.  
+## API Key Source & Security
+
+- This skill only requires the environment variable: `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is issued by [Redfox hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`) for API authentication.
+- Before providing your key, confirm its source, scope, validity period, and whether it can be reset or revoked.
+- Do not hard-code or expose keys in plain text in code, prompts, logs, or output files.
 
 ---
 
 ## Prerequisites
 
-### Dependencies
+### Register a Redfox hub account to obtain REDFOX_API_KEY
 
-- **Python 3** (version per your machine).  
-- **Python package**: `requests>=2.28.0`.  
+- Obtain `REDFOX_API_KEY` (apply at [Redfox hub](https://redfox.hk/dashboard/keys?souce=github))
+
+### Environment Variables
+
+
+| Variable       | Required | Description    |
+| -------------- | -------- | -------------- |
+| REDFOX_API_KEY | Yes      | API access key |
+
+
+**macOS (zsh)**
+
+Add one line at the end of `~/.zshrc` (replace the quoted value with your key):
 
 ```bash
-pip install "requests>=2.28.0"
+export REDFOX_API_KEY="your_api_key_here"
+```
+
+Then run:
+
+```bash
+source ~/.zshrc
+```
+
+**Windows (PowerShell)**
+
+- **Current session only**: Takes effect immediately after running; **no further commands needed**; expires when you close the window.
+
+```powershell
+$env:REDFOX_API_KEY = "your_api_key_here"
+```
+
+- **Persist for your user account**: After running `setx`, **this PowerShell window still does not have the variable**; you must **close and reopen** the terminal (or restart Cursor / VS Code, etc.) for new windows to read `REDFOX_API_KEY`.
+
+```powershell
+setx REDFOX_API_KEY "your_api_key_here"
 ```
 
 ---
 
-## Usage guide
+## Usage Guide
 
-### How you can phrase it
+### Common Phrases Quick Reference
 
-| What you say | What you’ll roughly get |
-| --- | --- |
-| “What’s viral lately,” “show me site-wide hot” | Keyword `""` for site-wide hot → cards and HTML → niche track words |
-| “What’s viral in workplace / emotions” (broad) | Niche list first and wait for “expand / don’t expand”—**no script this turn** |
-| “Workplace communication tips,” “parenting topic ideas” | Treated as niche terms; script query can run directly |
-| “xxx for the last ~15 days” | Map spoken range to `startDate = today − N days`, then query |
 
-### Tips
+| Intent                | Example phrase                                              | Result                                             |
+| --------------------- | ----------------------------------------------------------- | -------------------------------------------------- |
+| Search viral articles | "Help me find viral workplace articles"                     | Returns recent hot articles in the workplace track |
+| Search a niche area   | "Find articles about AI startups"                           | Precisely matches niche-keyword articles           |
+| Multi-track query     | "Find viral articles in workplace, emotions, and parenting" | Returns hot articles from all three tracks at once |
+| View site-wide hot    | "What are the hottest articles across the platform lately"  | Shows the most popular recent articles site-wide   |
+| View all results      | "Show all 50 results"                                       | Displays the complete query results                |
+| Subscribe to push     | "Subscribe to workplace articles, push daily at 9 AM"       | Creates a daily scheduled push task                |
 
-- **Generic words must be asked before querying**: After niche suggestions, **stop the script for this turn** and wait for the user reply before calling again.  
-- **When to pass empty keyword**: When the user gives **no track or topic** and only vaguely wants viral / hot content, pass `""` for site-wide.  
-- **Empty data**: Prompt to try a hotter track keyword—**do not** force unrelated keywords or wrongly trigger the generic flow.  
 
----
+### Output Example
 
-## Use cases
+📅 **Query time range**: May 14 – May 21
 
-| What users may ask | Assistant behavior (summary) |
-| --- | --- |
-| “What’s viral lately,” “show site-wide hot” | Keyword `""`, site-wide hot with default time window |
-| “What’s viral in workplace / emotions” (broad) | Generic flow: niche words + wait for “expand / don’t expand” |
-| “Workplace communication tips,” “parenting topics” | Treated as niche terms; script can be called directly |
-| “xxx for the last ~15 days” | Map `startDate`, then query |
-| “Want high likes / shares” | Intent treated as data-driven; filtering favors engagement |
+💡 **Found 12 related articles, showing the first 10. Would you like to see all?**
 
----
 
-## Important data notes
+| Article title                                                                                 | Author                       | Reads | Published  | Relevance | Popularity | Timeliness | **Total** |
+| --------------------------------------------------------------------------------------------- | ---------------------------- | ----- | ---------- | --------- | ---------- | ---------- | --------- |
+| [5 must-know tips for new hires to quickly fit into the team](https://mp.weixin.qq.com/s/xxx) | Workplace Growth Hub         | 10.0w | 2026-05-15 | 9.8       | 3.0        | 2.0        | **14.8**  |
+| [3 things you should never say in workplace communication!](https://mp.weixin.qq.com/s/xxx)   | Workplace Tips               | 8.5w  | 2026-05-14 | 9.5       | 2.8        | 2.0        | **14.3**  |
+| [7 meeting efficiency secrets every worker must bookmark](https://mp.weixin.qq.com/s/xxx)     | Workplace Research Institute | 6.2w  | 2026-05-13 | 9.2       | 2.5        | 1.8        | **13.5**  |
+| ...                                                                                           | ...                          | ...   | ...        | ...       | ...        | ...        | ...       |
 
-**Time and freshness**
 
-- Engagement data is a snapshot **near fetch time** and may grow afterward.  
-- Default range: **last 7 days**; if data is thin, the window may **auto-expand** and the user is informed per rules.  
-
-**Boundary wording (must match `SKILL.md`; use verbatim when executing)**
-
-- User mentions “today”: **「非常抱歉，今天的数据暂未更新，已为您展示最近可用的数据」**  
-- User asks beyond ~30 days: **「非常抱歉，当前仅支持最近30天的数据，已为您展示最接近的数据」**  
+**🔤 Keyword expansion**: Work, Office worker, Workplace fashion, Workplace tips, Growth, Niche careers, Upward management, Workplace anxiety, Promotion, Financial freedom
 
 ---
 
-## Notes and limitations
+📬 **Subscription service**
 
-- **Data truth**: Shown content must match script results—**no fabricated** recommendation reasons or metadata.  
-- **Compliance**: Follow platform and advertising rules; mind boundaries for niche suggestions and quoted body text.  
-- **Scope**: Does not replace platform review; double-check before publishing.  
+1️⃣ Would you like to subscribe to the current search criteria? Articles will be pushed to you on a schedule.
 
----
-
-## FAQ
-
-**Q: User only says “workplace”—can I query directly?**  
-A: **No.** Run generic-word expansion first and wait for “expand / don’t expand”; no script in the same turn.
-
-**Q: When is the keyword empty?**  
-A: When the user gives **no track or topic** and only vaguely wants viral / hot, pass `""` for site-wide.
-
-**Q: What if data is empty?**  
-A: Say the keyword may be too cold and suggest a hotter track—**do not** switch to unrelated keywords or wrongly trigger generic expansion.
+2️⃣ Not now
 
 ---
 
-## Changelog / version notes
+## Use Cases
 
-- **v1.1.1**: Aligned with original execution logic; restored fixed wording, filter steps, and “expand = comma-separated multi-keyword” constraints.  
-- **v1.1.0**: Restructured doc; merged duplicate data and presentation notes.  
-- **v1.0.0**: Viral discovery, generic-word handling, filtering, dual presentation, niche suggestions.  
+
+| Scenario                | Role               | Example question                                                 | Benefit                                   |
+| ----------------------- | ------------------ | ---------------------------------------------------------------- | ----------------------------------------- |
+| Find topic inspiration  | Content creator    | "Help me find trending workplace articles"                       | Quickly discover topic directions         |
+| Dissect viral patterns  | WeChat operator    | "Find viral emotion-category articles and analyze the structure" | Learn viral headline and content formulas |
+| Industry trend analysis | Brand / Business   | "What's trending in the food track lately"                       | Understand industry KOL dynamics          |
+| Multi-track scanning    | Self-media learner | "Show me the hottest articles site-wide"                         | Grasp platform-wide trending directions   |
+| Scheduled tracking      | Content creator    | "Push workplace articles to me every morning"                    | Automated industry hot-spot tracking      |
+
+
+---
+
+## Important Data Notes
+
+### Recommended hot tracks (22)
+
+Humanities, Knowledge, Wellness, Fashion, Food, Lifestyle, Travel, Humor, Emotions, Sports & Entertainment, Beauty, Digest, Civic News, Wealth & Finance, Tech & Digital, VC & Business, Automotive, Real Estate, Workplace, Education & Exams, Academia
+
+### Data notes
+
+- **Data scope**: Viral articles are those with reads ≥ 5,000
+- **Update schedule**: Updated daily at 7 AM with yesterday's data
+- **Data timeliness**: Article engagement data is current as of ingestion time, not real-time; engagement may continue to grow after ingestion
+- **Query range**: Currently supports querying data from the past 30 days
+
+### Sorting rules
+
+- **Keyword search**: Sorted by total score (relevance + popularity + timeliness) in descending order; total score max 15 pts
+- **Site-wide hot**: Sorted by read count in descending order
+- **Relevance**: How closely the article matches the keyword (max 10 pts)
+- **Popularity**: The article's overall popularity performance (max 3 pts)
+- **Timeliness**: The article's recency weight (max 2 pts)
+
+### Keyword expansion rules
+
+- When a broad category word (track keyword) is detected, niche-direction recommendations are automatically provided
+- If no results are found for your keyword, it may be too niche — try the suggested expansion words, extend the time range, or explore other popular tracks for inspiration
+

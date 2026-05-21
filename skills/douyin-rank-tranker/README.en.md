@@ -37,14 +37,14 @@ Simply describe your needs in natural language — no commands to memorize.
 
 ### Quick Reference
 
-| Intent               | Example phrase                                        | Result                             |
-| -------------------- | ----------------------------------------------------- | ---------------------------------- |
-| Daily ranking        | "What's the latest Douyin daily ranking?"             | Latest all-category daily TOP 20   |
-| Niche weekly ranking | "How did food accounts rank on Douyin last week?"     | Latest food niche weekly TOP 20    |
-| Monthly ranking      | "Show me last month's Douyin gaming account rankings" | Latest gaming monthly TOP 20       |
-| Full ranking list    | "I want to see all 50"                                | Full TOP 50 with generated report  |
-| Download report      | "Generate an HTML report for this ranking"            | Visual HTML file delivered         |
-| Subscribe push       | "I want daily updates on the Douyin food ranking"     | Creates a scheduled auto-push task |
+| Intent | Example phrase | Result |
+| --- | --- | --- |
+| Daily ranking | "What's the latest Douyin daily ranking?" | Latest all-category daily TOP 20 |
+| Niche weekly ranking | "How did food accounts rank on Douyin last week?" | Latest food niche weekly TOP 20 |
+| Monthly ranking | "Show me last month's Douyin gaming account rankings" | Latest gaming monthly TOP 20 |
+| Full ranking list | "I want to see all 50" | Full TOP 50 with generated report |
+| Download report | "Generate an HTML report for this ranking" | Visual HTML file delivered |
+| Subscribe push | "I want daily updates on the Douyin food ranking" | Creates a scheduled auto-push task |
 
 ### Output Example
 
@@ -57,11 +57,11 @@ Data date: 2025-05-19
 
 📐 Composite score: weighted by total followers, new follower growth, new likes/shares/comments; full score 100:
 
-| Rank | Account                  | Score | Total Followers | New Followers | New Likes | New Comments | New Shares |
-| :--: | ------------------------ | :---: | :-------------: | :-----------: | :-------: | :----------: | :--------: |
-| 🥇 1 | Account Name (clickable) |  96   |      2.54M      |     6,919     |   246K    |     67K      |    134K    |
-| 🥈 2 | Account Name (clickable) |  89   |      1.13M      |      19K      |    79K    |    4,787     |    31K     |
-|  …   | …                        |   …   |        …        |       …       |     …     |      …       |     …      |
+| Rank | Account | Score | Total Followers | New Followers | New Likes | New Comments | New Shares |
+|:---:|--------|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
+| 🥇 1 | Account Name (clickable) | 96 | 2.54M | 6,919 | 246K | 67K | 134K |
+| 🥈 2 | Account Name (clickable) | 89 | 1.13M | 19K | 79K | 4,787 | 31K |
+| … | … | … | … | … | … | … | … |
 
 ⚡ More Options
 ⏺️ This ranking has 50 entries in total. Would you like to see the remaining 30?
@@ -74,13 +74,13 @@ Data date: 2025-05-19
 
 ## Use Cases
 
-| Scenario                                   | Role                                  | Example Question                                                            | Benefit                                                                             |
-| ------------------------------------------ | ------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Find benchmark accounts in a niche         | Content creator / individual operator | "Which food accounts are performing well? Show me the latest daily ranking" | Quickly identify industry leaders and clarify content direction                     |
-| Evaluate influencer partnership candidates | Brand / ad placement team             | "Which beauty accounts stood out in last week's Douyin TOP 50?"             | Batch screening for more efficient campaign decisions                               |
-| Monitor competitor niche dynamics          | MCN agency / content team             | "Which gaming accounts grew the fastest this week?"                         | Stay on top of the competitive landscape and respond to market changes in real time |
-| Generate industry analysis reports         | Industry analyst / consultant         | "Generate a March Douyin gaming category ranking report for me"             | One-click visual HTML, easy to share in presentations                               |
-| Track account ranking changes over time    | Operations team                       | "I want the latest travel niche weekly ranking every Monday"                | Automated ranking intelligence via subscription push                                |
+| Scenario | Role | Example Question | Benefit |
+| --- | --- | --- | --- |
+| Find benchmark accounts in a niche | Content creator / individual operator | "Which food accounts are performing well? Show me the latest daily ranking" | Quickly identify industry leaders and clarify content direction |
+| Evaluate influencer partnership candidates | Brand / ad placement team | "Which beauty accounts stood out in last week's Douyin TOP 50?" | Batch screening for more efficient campaign decisions |
+| Monitor competitor niche dynamics | MCN agency / content team | "Which gaming accounts grew the fastest this week?" | Stay on top of the competitive landscape and respond to market changes in real time |
+| Generate industry analysis reports | Industry analyst / consultant | "Generate a March Douyin gaming category ranking report for me" | One-click visual HTML, easy to share in presentations |
+| Track account ranking changes over time | Operations team | "I want the latest travel niche weekly ranking every Monday" | Automated ranking intelligence via subscription push |
 
 ---
 
@@ -88,11 +88,11 @@ Data date: 2025-05-19
 
 ### Update Schedule and Data Lookback
 
-| Ranking Type | Update Time                                                     | Lookback Range |
-| ------------ | --------------------------------------------------------------- | -------------- |
-| Daily        | Updated at 17:30 every day with previous day's data             | Past 7 days    |
-| Weekly       | Updated every Monday at 17:30 with last week's data             | Past 3 weeks   |
-| Monthly      | Updated on the 2nd of each month at 9:00 with last month's data | Past 3 months  |
+| Ranking Type | Update Time | Lookback Range |
+| --- | --- | --- |
+| Daily | Updated at 17:30 every day with previous day's data | Past 7 days |
+| Weekly | Updated every Monday at 17:30 with last week's data | Past 3 weeks |
+| Monthly | Updated on the 2nd of each month at 9:00 with last month's data | Past 3 months |
 
 ### Supported Niches (27)
 
