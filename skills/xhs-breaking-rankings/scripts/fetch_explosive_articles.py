@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-小红书冷门账号爆款内容榜单获取脚本 - 使用原生socket+SSL
+小红书低粉爆款笔记获取脚本 - 使用原生socket+SSL
 
 功能：
-1. 获取小红书冷门账号爆款内容
+1. 获取小红书低粉爆款笔记
 2. 按互动数排序
 3. 格式化输出为文本列表
-4. 生成HTML文件
+4. 生成HTML文件（内置模板，无需子进程调用）
 
 使用方法：
-python fetch_explosive_articles.py --rank_date "2025-01-15"
-python fetch_explosive_articles.py --keyword "穿搭" --top_n 50
-python fetch_explosive_articles.py --realtime --top_n 50
-python fetch_explosive_articles.py --rank_date "2025-01-15" --show_all
+python scripts/fetch_explosive_articles.py --rank_date "2025-01-15"
+python scripts/fetch_explosive_articles.py --keyword "穿搭" --top_n 50
+python scripts/fetch_explosive_articles.py --realtime --top_n 50
+python scripts/fetch_explosive_articles.py --rank_date "2025-01-15" --show_all
 """
 
 import argparse
 import json
 import sys
 import os
-import subprocess
 from datetime import datetime, timedelta
 import re
 import random
@@ -282,7 +281,7 @@ Connection: close\r
     return {"type": "error"}
 
 
-def process_ranking_data(data: dict, top_n: int = 50) -> list:
+def process_ranking_data(data: list, top_n: int = 50) -> list:
     """处理榜单数据，按互动数排序"""
     if not data or not isinstance(data, list):
         return []
@@ -295,13 +294,13 @@ def process_ranking_data(data: dict, top_n: int = 50) -> list:
     return sorted_articles[:top_n]
 
 
-def format_ranking_list(articles: list, query_category: str = "综合全部", show_all: bool = False) -> str:
+def format_ranking_list(articles: list, query_category: str = "综合全部", show_all: bool = False, rank_date: str = "") -> str:
     """
     将榜单数据格式化为表格
 
     第一次输出：Top1-Top20，表格后加"查看更多"提示
     查看更多时：Top21-Top50
-    表格字段：序号、笔记信息、互动总数、点赞数、评论数、收藏数、分享数
+    表格字段：序号、笔记信息、互动总数、点赞数、评论数、收藏数、分享数、发布时间
     """
     if not articles:
         return "未获取到符合条件的爆款内容数据"
@@ -312,20 +311,23 @@ def format_ranking_list(articles: list, query_category: str = "综合全部", sh
     output_lines.append(f"数据查询标准为粉丝数低于5000、笔记点赞数大于500，已帮你查询到{len(articles)}条冷门爆文笔记~")
     output_lines.append("")
 
-    # 输出更新时间
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # 输出更新时间（使用榜单日期）
+    if rank_date:
+        update_time = rank_date
+    else:
+        update_time = datetime.now().strftime("%Y-%m-%d")
     if query_category == "综合全部":
         if show_all:
             table_title = f"**🏆 冷门爆款笔记（TOP 21-{len(articles)}）**"
         else:
             table_title = f"**🏆 冷门爆款笔记（TOP 20）**"
-        table_title += f"\n\n更新时间：{current_time}"
+        table_title += f"\n\n更新时间：{update_time}"
     else:
         if show_all:
             table_title = f"**🏆 {query_category}冷门爆款笔记（TOP 21-{len(articles)}）**"
         else:
             table_title = f"**🏆 {query_category}冷门爆款笔记（TOP 20）**"
-        table_title += f"\n\n更新时间：{current_time}"
+        table_title += f"\n\n更新时间：{update_time}"
     output_lines.append(table_title)
     output_lines.append("")
 
@@ -337,7 +339,7 @@ def format_ranking_list(articles: list, query_category: str = "综合全部", sh
         display_articles = articles[:20]  # Top1-Top20
         start_idx = 1
 
-    # 表格：序号、笔记信息、互动总数、点赞数、评论数、收藏数、分享数
+    # 表格：序号、笔记信息、互动总数、点赞数、评论数、收藏数、分享数、发布时间
     output_lines.append("| 序号 | 笔记信息 | 互动总数 | 点赞数 | 评论数 | 收藏数 | 分享数 | 发布时间 |")
     output_lines.append("|:----:|:--------|:------:|:------:|:------:|:------:|:------:|:------:|")
 
@@ -382,11 +384,11 @@ def format_ranking_list(articles: list, query_category: str = "综合全部", sh
         else:
             rank_display = str(idx)
 
-        # 笔记信息列：标题<br>作者（跳转链接）+ 粉丝数
+        # 笔记信息列：标题与作者信息通过换行区分
         if photo_url:
-            note_info = f"[{title}]({photo_url})<br>[{user_name_clean}]({user_url})（{fans_clean} 粉丝）"
+            note_info = f"[{title}]({photo_url})<br><br>[{user_name_clean}]({user_url})（{fans_clean} 粉丝）"
         else:
-            note_info = f"{title}<br>[{user_name_clean}]({user_url})（{fans_clean} 粉丝）"
+            note_info = f"{title}<br><br>[{user_name_clean}]({user_url})（{fans_clean} 粉丝）"
 
         output_lines.append(f"| {rank_display} | {note_info} | {interactive_clean} | {like_clean} | {comment_clean} | {collect_clean} | {share_clean} | {public_time_display} |")
 
@@ -394,8 +396,7 @@ def format_ranking_list(articles: list, query_category: str = "综合全部", sh
 
     # 第一次输出时（非show_all），在表格后加"查看更多"提示
     if not show_all and len(articles) > 20:
-        remaining = len(articles) - 20
-        output_lines.append(f'可以输入"查看更多"展示剩余榜单~')
+        output_lines.append('可以输入"查看更多"展示剩余榜单~')
 
     return "\n".join(output_lines)
 
@@ -669,8 +670,166 @@ def generate_insights_analysis(articles: list) -> str:
     return "\n".join(output_lines)
 
 
+# ========== HTML生成功能（内置，避免子进程调用） ==========
+
+def get_article_html(article: dict, rank: int) -> str:
+    """生成单篇笔记的HTML"""
+    try:
+        title = article.get("title", "无笔记标题") or "无笔记标题"
+        photo_url = article.get("photoJumpUrl", "#")
+        user_name = article.get("userName", "未知作者")
+        user_url = article.get("userJumpUrl", "#")
+        fans = article.get("fans", "0")
+        desc = article.get("desc", "")
+
+        like_count = article.get("useLikeCount", "0")
+        collect_count = article.get("collectedCount", "0")
+        comment_count = article.get("useCommentCount", "0")
+        share_count = article.get("useShareCount", "0")
+        interactive_count = article.get("interactiveCount", "0")
+
+        analysis = generate_content_analysis(desc, title)
+
+        top_class = "top" if rank <= 3 else ""
+
+        stats_html = f'''
+            <div class="info-item">
+                <span class="info-stat">❤️ 点赞 <span class="info-stat-value">{like_count}</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">⭐ 收藏 <span class="info-stat-value">{collect_count}</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">💬 评论 <span class="info-stat-value">{comment_count}</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">📤 分享 <span class="info-stat-value">{share_count}</span></span>
+            </div>
+            <div class="info-item">
+                <span class="info-stat">互动总数 <span class="info-stat-value">{interactive_count}</span></span>
+            </div>
+        '''
+
+        user_head_url = article.get("userHeadUrl", "")
+        if user_head_url:
+            author_html = f'<img src="{user_head_url}" class="author-avatar" alt="{user_name}">{user_name}（{fans} 粉丝）'
+        else:
+            author_html = f'<span class="author-avatar-placeholder"></span>{user_name}（{fans} 粉丝）'
+
+        return f'''
+            <div class="article-item">
+                <div class="article-body">
+                    <div class="article-rank {top_class}">{rank}</div>
+                    <div class="article-content">
+                        <a href="{photo_url}" target="_blank" class="article-title">{title}</a>
+                        <div class="article-info">
+                            <a href="{user_url}" target="_blank" class="info-source-link">
+                                {author_html}
+                            </a>
+                            {stats_html}
+                        </div>
+                        <div class="article-analysis">
+                            <div class="analysis-label">🔍 内容分析</div>
+                            <div class="analysis-text">{analysis}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>'''
+    except:
+        return ""
+
+
+def generate_content_analysis(desc, title):
+    """根据描述内容生成内容分析"""
+    if not desc and not title:
+        return "暂无分析"
+
+    analysis_parts = []
+
+    if title:
+        analysis_parts.append(f"笔记主题围绕「{title[:30]}{'...' if len(title) > 30 else ''}」展开")
+
+    if desc:
+        tags = re.findall(r'#([^\s#]+)', desc)
+        if tags:
+            tag_list = "、".join(tags[:5])
+            analysis_parts.append(f"内容涵盖{tag_list}等话题")
+
+        if any(keyword in desc for keyword in ["穿搭", "搭配", "时尚", "潮流"]):
+            content_type = "穿搭分享"
+        elif any(keyword in desc for keyword in ["美食", "探店", "料理", "味道"]):
+            content_type = "美食探店"
+        elif any(keyword in desc for keyword in ["旅行", "景点", "打卡", "攻略"]):
+            content_type = "旅行攻略"
+        elif any(keyword in desc for keyword in ["护肤", "化妆", "彩妆", "保养"]):
+            content_type = "美妆护肤"
+        elif any(keyword in desc for keyword in ["健身", "运动", "减肥", "瑜伽"]):
+            content_type = "健身运动"
+        else:
+            content_type = "生活分享"
+        analysis_parts.append(f"属于{content_type}类型")
+
+    if analysis_parts:
+        analysis = "，".join(analysis_parts) + "，获得了较好的用户互动和传播效果"
+    else:
+        analysis = "内容吸引了用户的关注和互动"
+
+    return analysis
+
+
+def generate_html_from_template(keyword: str, articles: list, rank_date: str = "", top_n: int = 20, output: str = "./xhs_breaking_rankings.html") -> str:
+    """使用模板生成HTML页面（只展示榜单数据），模板从assets目录读取"""
+
+    # 获取模板文件路径（基于脚本所在目录计算）
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    template_path = os.path.join(script_dir, "..", "assets", "preview-template.html")
+
+    # 读取模板
+    try:
+        with open(template_path, 'r', encoding='utf-8') as f:
+            template = f.read()
+    except Exception as e:
+        print(f"[错误] 无法读取模板文件 {template_path}: {str(e)}", file=sys.stderr)
+        return ""
+
+    # 生成笔记列表HTML
+    articles_html = ""
+    for i, article in enumerate(articles[:top_n], 1):
+        articles_html += get_article_html(article, i)
+
+    # 生成更新时间：使用榜单日期，固定19:30
+    if rank_date:
+        try:
+            dt = datetime.strptime(rank_date, "%Y-%m-%d")
+            update_time = f"{dt.year}年-{dt.month:02d}-{dt.day:02d} 19:30"
+        except:
+            update_time = f"{rank_date} 19:30"
+    else:
+        dt = datetime.now()
+        update_time = f"{dt.year}年-{dt.month:02d}-{dt.day:02d} 19:30"
+
+    # 替换模板变量
+    html_content = template.replace("{{KEYWORD}}", keyword)
+    html_content = html_content.replace("{{TOP_N}}", str(top_n))
+    html_content = html_content.replace("{{UPDATE_TIME}}", update_time)
+    html_content = html_content.replace("{{ARTICLES_HTML}}", articles_html)
+
+    # 写入输出文件
+    try:
+        with open(output, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        print(f"[调试] HTML文件已生成: {output}", file=sys.stderr)
+    except Exception as e:
+        print(f"[错误] 无法写入HTML文件 {output}: {str(e)}", file=sys.stderr)
+        return ""
+
+    return html_content
+
+
+# ========== 主函数 ==========
+
 def main():
-    parser = argparse.ArgumentParser(description="获取小红书冷门账号爆款内容榜单")
+    parser = argparse.ArgumentParser(description="获取小红书低粉爆款笔记")
     parser.add_argument("--rank_date", required=False, help="查询日期（yyyy-MM-dd格式，默认今天）")
     parser.add_argument("--top_n", type=int, default=50, help="返回前N条数据（默认50）")
     parser.add_argument("--realtime", action="store_true", help="实时热榜模式")
@@ -741,19 +900,33 @@ def main():
 
         source = "小红书冷门账号爆款文章-GitHub"
 
-        # 查找数据（只查询指定日期，数据为空不自动尝试其他日期）
+        # 查找数据：数据为空时直接查询最新数据日期，不询问用户
         result_data = None
         empty_or_msg = None
-        query_date = search_dates[0]  # 只查第一个日期
+        query_date = search_dates[0]
+        auto_switched = False  # 标记是否自动切换了日期
         print(f"[调试] 尝试查询日期: {query_date}", file=sys.stderr)
         result = fetch_ranking_data_socket(query_date, source, query_category, args.top_n)
+
         if result["type"] == "data":
             result_data = result["data"]
             start_date = query_date
         elif result["type"] == "msg":
             empty_or_msg = result
         else:
-            empty_or_msg = result
+            # 数据为空，计算最新数据日期并直接查询
+            if is_after_1930:
+                latest_data_date = (current_time - timedelta(days=1)).strftime("%Y-%m-%d")
+            else:
+                latest_data_date = (current_time - timedelta(days=2)).strftime("%Y-%m-%d")
+            print(f"[调试] {query_date} 暂无数据，自动查询最新数据日期: {latest_data_date}", file=sys.stderr)
+            fallback_result = fetch_ranking_data_socket(latest_data_date, source, query_category, args.top_n)
+            if fallback_result["type"] == "data":
+                result_data = fallback_result["data"]
+                start_date = latest_data_date
+                auto_switched = True
+            else:
+                empty_or_msg = fallback_result
 
         if not result_data:
             if empty_or_msg and empty_or_msg["type"] == "msg":
@@ -776,8 +949,13 @@ def main():
         full_output_lines.append("<!-- 以下内容已格式化完成，必须原样输出给用户。禁止修改格式、禁止将表格改为列表、禁止省略任何部分（含订阅服务和HTML文件包） -->")
         full_output_lines.append("")
 
+        # 如果自动切换了日期，在最前面提示用户
+        if auto_switched:
+            full_output_lines.append(f"**数据还没更新，目前最新数据到{start_date}。我将直接为您查询{start_date}的对应数据。**")
+            full_output_lines.append("")
+
         # 第1部分：爆款笔记（更新时间）表格
-        table_text = format_ranking_list(articles, query_category, args.show_all)
+        table_text = format_ranking_list(articles, query_category, args.show_all, rank_date=start_date)
         full_output_lines.append(table_text)
 
         # 第2部分：爆款规律分析
@@ -787,52 +965,26 @@ def main():
         full_output_lines.append("")
         full_output_lines.append(insights)
 
-        # 第3部分：订阅服务（强制输出，不受HTML影响）
+        # 第3部分：功能选择（订阅 + HTML）
         full_output_lines.append("")
         full_output_lines.append("---")
         full_output_lines.append("")
-        full_output_lines.append("### 📬 订阅服务")
+        full_output_lines.append("技能还支持以下功能：")
         full_output_lines.append("")
-        full_output_lines.append("**是否需要订阅小红书冷门爆款笔记？**")
+        full_output_lines.append("1️⃣ 支持订阅小红书低粉爆款笔记。订阅后将在每日19:30为你推送当日小红书低粉爆款笔记TOP50。直接回复\"订阅\"或\"1\"即可订阅相关内容。")
         full_output_lines.append("")
-        full_output_lines.append("1. 每日19:30 - 推送当日小红书冷门爆款笔记TOP50")
-        full_output_lines.append("2. 暂不需要 - 仅本次查询")
+        full_output_lines.append("2️⃣ 可生成小红书风格的html文件包。支持导出PDF（字体加粗），方便阅读、保存和分享。")
         full_output_lines.append("")
-        full_output_lines.append('📌 请回复数字或"取消"。')
-        full_output_lines.append("")
-        full_output_lines.append("**订阅逻辑**：小红书冷门爆款笔记TOP50，按每日19:30更新")
 
-        # 第4部分：HTML文件包
-        html_output = "./xhs_breaking_rankings.html"
-        if args.show_all:
-            html_top_n = 50
-        else:
-            html_top_n = 20
 
-        html_result = subprocess.run([
-            sys.executable,
-            os.path.join(os.path.dirname(__file__), "generate_html.py"),
-            "--keyword", query_category,
-            "--articles", json.dumps(articles),
-            "--rank_date", start_date,
-            "--output", html_output,
-            "--top_n", str(html_top_n)
-        ], capture_output=True, text=True)
+        # 写入Markdown文件（暂不生成HTML，等用户确认后再生成）
+        import time as _time
+        file_timestamp = str(int(_time.time() * 1000))
+        safe_category = query_category.replace("/", "-")
+        file_base = f"小红书{safe_category}低粉爆款数据_{file_timestamp}"
+        md_output = f"./{file_base}.md"
 
-        # HTML文件包（强制输出，无论生成是否成功）
-        full_output_lines.append("")
-        full_output_lines.append("---")
-        full_output_lines.append("")
-        full_output_lines.append("### 📄 HTML文件包")
-        full_output_lines.append("")
-        if html_result.returncode == 0:
-            full_output_lines.append(f"HTML文件已生成：{html_output}")
-        else:
-            full_output_lines.append("HTML文件生成失败，请重试")
-
-        # 写入Markdown文件
         full_output_text = "\n".join(full_output_lines)
-        md_output = "./xhs_breaking_rankings.md"
         with open(md_output, 'w', encoding='utf-8') as f:
             f.write(full_output_text)
 
