@@ -32,56 +32,14 @@ Based on follower count, niche, engagement data, and content style, this tool ma
 
 ---
 
-## API Key Source & Security
+## API Key Acquisition & Security
 
-- This skill only requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [Redfox hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`) for API authentication.
+- This skill requires the environment variable: `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`).
+- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain `REDFOX_API_KEY`.
+- Configure `REDFOX_API_KEY` on your device before using this skill.
 - Before providing your key, confirm its source, scope, validity period, and whether it can be reset or revoked.
 - Do not hard-code or expose keys in plain text in code, prompts, logs, or output files.
-
----
-
-## Prerequisites
-
-### Register a Redfox hub account to obtain REDFOX_API_KEY
-
-- Obtain `REDFOX_API_KEY` (apply at [Redfox hub](https://redfox.hk/dashboard/keys?souce=github))
-
-### Environment Variables
-
-
-| Variable       | Required | Description    |
-| -------------- | -------- | -------------- |
-| REDFOX_API_KEY | Yes      | API access key |
-
-
-**macOS (zsh)**
-
-Add one line at the end of `~/.zshrc` (replace the quoted value with your key):
-
-```bash
-export REDFOX_API_KEY="your_api_key_here"
-```
-
-Then run:
-
-```bash
-source ~/.zshrc
-```
-
-**Windows (PowerShell)**
-
-- **Current session only**: Takes effect immediately after running; **no further commands needed**; expires when you close the window.
-
-```powershell
-$env:REDFOX_API_KEY = "your_api_key_here"
-```
-
-- **Persist for your user account**: After running `setx`, **this PowerShell window still does not have the variable**; you must **close and reopen** the terminal (or restart Cursor / VS Code, etc.) for new windows to read `REDFOX_API_KEY`.
-
-```powershell
-setx REDFOX_API_KEY "your_api_key_here"
-```
 
 ---
 
@@ -90,7 +48,6 @@ setx REDFOX_API_KEY "your_api_key_here"
 Simply describe your needs in natural language — no commands to memorize.
 
 ### Quick Reference
-
 
 | Intent                      | Example phrase                                                     | Result                                                            |
 | --------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------- |
@@ -101,7 +58,6 @@ Simply describe your needs in natural language — no commands to memorize.
 | Download report             | "Generate an HTML report for these benchmark accounts"             | Visual HTML file delivered                                        |
 | Subscribe push              | "Push daily food-niche benchmark accounts to me"                   | Create a 7 PM daily auto-push task                                |
 
-
 ### Output Example
 
 ✨ Matched 【directly copyable same-level benchmarks (10)】and【aspirational high-level benchmarks (2)】— 2 groups of benchmarks for your reference:
@@ -109,22 +65,18 @@ Simply describe your needs in natural language — no commands to memorize.
 
 👉 【Directly copyable same-level benchmarks (10)】(copy their tactics)
 
-
 | Account              | Followers | Total Engagement | Recommendation Reason                                                                                     |
 | -------------------- | --------- | ---------------- | --------------------------------------------------------------------------------------------------------- |
 | [Account Name](link) | 3,200     | 15K              | Food tutorials, stable updates, high engagement, viral post "5-min quick breakfast…" got 23K interactions |
 | [Account Name](link) | 2,800     | 8,500            | Daily vlog style, consistently updating, solid engagement foundation                                      |
 | …                    | …         | …                | …                                                                                                         |
 
-
 👉 【Aspirational high-level benchmarks (2)】(proven models to learn from)
-
 
 | Account              | Followers | Total Engagement | Recommendation Reason                                     |
 | -------------------- | --------- | ---------------- | --------------------------------------------------------- |
 | [Account Name](link) | 12K       | 86K              | 12K followers, monetizable, review content, daily updates |
 | …                    | …         | …                | …                                                         |
-
 
 📊 **Analysis Summary**:
 
@@ -140,7 +92,6 @@ Simply describe your needs in natural language — no commands to memorize.
 
 ## Use Cases
 
-
 | Scenario                          | Role              | Example Question                                                       | Benefit                                                  |
 | --------------------------------- | ----------------- | ---------------------------------------------------------------------- | -------------------------------------------------------- |
 | Find benchmarks for a new account | New creator       | "I do food content, 3K followers, find my benchmarks"                  | Quickly find copyable operational tactics                |
@@ -148,7 +99,6 @@ Simply describe your needs in natural language — no commands to memorize.
 | Develop content strategy          | Content ops / MCN | "Fitness niche 10K-follower accounts, which ones perform well?"        | Learn top-niche playbooks and optimize topic direction   |
 | Get startup direction reference   | Account-starter   | "Pet niche newbie, which accounts can I learn from?"                   | Reduce startup uncertainty and clarify content direction |
 | Track benchmark changes           | Ops team          | "Push daily food-niche benchmark accounts to me"                       | Automated tracking of benchmark account latest data      |
-
 
 ---
 
