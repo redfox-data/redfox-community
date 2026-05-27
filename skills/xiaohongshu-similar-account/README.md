@@ -1,4 +1,4 @@
-# 小红书相似账号推荐 / xiaohongshu-benchmark-accounts
+# 小红书相似账号推荐 / xiaohongshu-similar-account
 
 ---
 

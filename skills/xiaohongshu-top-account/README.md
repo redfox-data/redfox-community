@@ -4,7 +4,7 @@
 
 ## 简介
 
-帮你快速发现小红书平台最具影响力的账号，掌握赛道动态。
+帮你快速发现每日小红书平台最具影响力的账号，掌握赛道动态。
 
 **核心价值**
 基于每日小红书全赛道TOP50账号的涨粉、互动、增长趋势数据，帮你解决选题决策、对标账号、竞品监控、赛道选择四大核心问题。
@@ -27,6 +27,57 @@
 - **综合评分**：根据总粉丝数、新增粉丝、新增点赞/收藏/分享/评论加权计算，多维指标排名客观可信，满分 100 分
 - **HTML 报告生成**：生成带可视化布局的 HTML 文件，账号名可点击跳转小红书主页，支持导出图片或 PDF
 - **订阅推送**：支持设置日榜、周榜、月榜定时自动推送，也可按指定赛道订阅
+
+---
+
+## 密钥来源与安全说明
+
+- 本技能需要使用环境变量：`REDFOX_API_KEY`。
+- `REDFOX_API_KEY` 由 [红狐 hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`)签发，用于其接口鉴权。
+- 在提供密钥前，请先确认密钥来源、可用范围、有效期及是否支持重置/撤销。
+- 禁止在代码、提示词、日志或输出文件中硬编码/明文暴露密钥。
+
+---
+
+## 前置条件
+
+### 注册红狐 hub 账号获取 REDFOX_API_KEY
+
+- 获取 REDFOX_API_KEY（前往 [红狐 hub](https://redfox.hk/dashboard/keys?souce=github) 申请）
+
+### 环境变量配置
+
+| 变量名           | 必填 | 说明         |
+| ---------------- | ---- | ------------ |
+| `REDFOX_API_KEY` | 是   | API 访问密钥 |
+
+**macOS（zsh）**
+
+在 `~/.zshrc` 末尾添加一行（将引号内换成你的密钥）：
+
+```bash
+export REDFOX_API_KEY="your_api_key_here"
+```
+
+保存后执行：
+
+```bash
+source ~/.zshrc
+```
+
+**Windows（PowerShell）**
+
+- **仅本次终端有效**：执行后立刻生效，**无需再跑别的命令**；关掉窗口后失效。
+
+```powershell
+$env:REDFOX_API_KEY = "your_api_key_here"
+```
+
+- **写入用户环境变量（持久）**：执行 `setx` 后，**当前这个 PowerShell 窗口里仍然没有该变量**，需要 **关闭并重新打开** 终端（或重启 Cursor / VS Code 等），新开的窗口里才会读到 `REDFOX_API_KEY`。
+
+```powershell
+setx REDFOX_API_KEY "your_api_key_here"
+```
 
 ---
 

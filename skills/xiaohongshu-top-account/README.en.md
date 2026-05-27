@@ -1,4 +1,4 @@
-# Xiaohongshu Top Account
+# xiaohongshu-top-account
 
 ---
 
@@ -28,6 +28,57 @@ Based on daily TOP 50 account data across all Xiaohongshu niches — covering fo
 - **Composite scoring**: weighted calculation based on total followers, new follower growth, and new likes/collects/shares/comments; multi-dimensional, objective ranking out of 100
 - **HTML report generation**: generates a visually styled HTML file with clickable account names linking to Xiaohongshu profiles; supports export as image or PDF
 - **Subscription push**: set up scheduled auto-delivery for daily, weekly, or monthly rankings; supports niche-specific subscriptions
+
+---
+
+## API key source and security
+
+- This skill requires the environment variable: `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is issued by [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`) for API authentication.
+- Before providing the key, confirm its source, available scope, validity period, and whether reset/revocation is supported.
+- Do not hard-code or expose the key in plaintext within code, prompts, logs, or output files.
+
+---
+
+## Prerequisites
+
+### Register a Redfox Hub account to obtain REDFOX_API_KEY
+
+- Get REDFOX_API_KEY (apply at [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github))
+
+### Environment variables
+
+| Variable         | Required | Notes          |
+| ---------------- | -------- | -------------- |
+| `REDFOX_API_KEY` | Yes      | API access key |
+
+**macOS (zsh)**
+
+Append one line to the end of `~/.zshrc` (replace the value in quotes with your key):
+
+```bash
+export REDFOX_API_KEY="your_api_key_here"
+```
+
+Then run:
+
+```bash
+source ~/.zshrc
+```
+
+**Windows (PowerShell)**
+
+- **Current terminal only**: Takes effect immediately after run, **no other commands needed**; lost when the window is closed.
+
+```powershell
+$env:REDFOX_API_KEY = "your_api_key_here"
+```
+
+- **Persist to user environment**: After running `setx`, the **current PowerShell window still won't have the variable**; you need to **close and reopen** the terminal (or restart Cursor / VS Code, etc.) for the new window to read `REDFOX_API_KEY`.
+
+```powershell
+setx REDFOX_API_KEY "your_api_key_here"
+```
 
 ---
 

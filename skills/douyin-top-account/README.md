@@ -1,4 +1,4 @@
-# 抖音每日TOP账号 / douyin-account
+# 抖音热门账号推荐 / douyin-top-account
 
 ---
 

@@ -8,7 +8,7 @@ A WeChat Official Account hot article search tool that helps you quickly find ar
 
 **Core Value**
 
-Continuously indexing hot articles with reads > 5,000 from the past 30 days, updated daily with yesterday's data. Articles are ranked by a weighted score combining relevance, popularity, and timeliness, bringing together top viral content across all categories. Quickly find quality benchmark content across industries, easily reference trending creative approaches from peers — no more scouring multiple sources for material. A one-stop solution for your daily writing reference needs.
+Continuously indexing hot articles with reads > 5,000 from WeChat Official Accounts across the web over the past 30 days, updated daily with yesterday's data. Articles are ranked by a weighted score combining relevance, popularity, and timeliness, bringing together top viral content across all categories. Quickly find quality benchmark content across industries, easily reference trending creative approaches from peers — no more scouring multiple sources for material. A one-stop solution for your daily writing reference needs.
 
 **Who It's For**
 
@@ -19,9 +19,7 @@ Continuously indexing hot articles with reads > 5,000 from the past 30 days, upd
 
 ---
 
-## Features
-
-### Core Capabilities
+## Core Capabilities
 
 - **Precise keyword search**: Enter any keyword to query related viral WeChat Official Account articles
 - **Site-wide hot recommendations**: View the most popular recent articles across the platform without a keyword
@@ -31,30 +29,30 @@ Continuously indexing hot articles with reads > 5,000 from the past 30 days, upd
 
 ---
 
-## API Key Source & Security
+## API key source and security
 
-- This skill only requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [Redfox hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`) for API authentication.
-- Before providing your key, confirm its source, scope, validity period, and whether it can be reset or revoked.
-- Do not hard-code or expose keys in plain text in code, prompts, logs, or output files.
+- This skill requires the environment variable: `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is issued by [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`) for API authentication.
+- Before providing the key, confirm its source, available scope, validity period, and whether reset/revocation is supported.
+- Do not hard-code or expose the key in plaintext within code, prompts, logs, or output files.
 
 ---
 
 ## Prerequisites
 
-### Register a Redfox hub account to obtain REDFOX_API_KEY
+### Register a Redfox Hub account to obtain REDFOX_API_KEY
 
-- Obtain `REDFOX_API_KEY` (apply at [Redfox hub](https://redfox.hk/dashboard/keys?souce=github))
+- Get REDFOX_API_KEY (apply at [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github))
 
-### Environment Variables
+### Environment variables
 
-| Variable       | Required | Description    |
-| -------------- | -------- | -------------- |
-| REDFOX_API_KEY | Yes      | API access key |
+| Variable         | Required | Notes          |
+| ---------------- | -------- | -------------- |
+| `REDFOX_API_KEY` | Yes      | API access key |
 
 **macOS (zsh)**
 
-Add one line at the end of `~/.zshrc` (replace the quoted value with your key):
+Append one line to the end of `~/.zshrc` (replace the value in quotes with your key):
 
 ```bash
 export REDFOX_API_KEY="your_api_key_here"
@@ -68,13 +66,13 @@ source ~/.zshrc
 
 **Windows (PowerShell)**
 
-- **Current session only**: Takes effect immediately after running; **no further commands needed**; expires when you close the window.
+- **Current terminal only**: Takes effect immediately after run, **no other commands needed**; lost when the window is closed.
 
 ```powershell
 $env:REDFOX_API_KEY = "your_api_key_here"
 ```
 
-- **Persist for your user account**: After running `setx`, **this PowerShell window still does not have the variable**; you must **close and reopen** the terminal (or restart Cursor / VS Code, etc.) for new windows to read `REDFOX_API_KEY`.
+- **Persist to user environment**: After running `setx`, the **current PowerShell window still won't have the variable**; you need to **close and reopen** the terminal (or restart Cursor / VS Code, etc.) for the new window to read `REDFOX_API_KEY`.
 
 ```powershell
 setx REDFOX_API_KEY "your_api_key_here"
@@ -156,4 +154,4 @@ Humanities, Knowledge, Wellness, Fashion, Food, Lifestyle, Travel, Humor, Emotio
 ### Keyword expansion rules
 
 - When a broad category word (track keyword) is detected, niche-direction recommendations are automatically provided
-- If no results are found for your keyword, it may be too niche — try the suggested expansion words, extend the time range, or explore other popular tracks for inspiration
+- If no results are found for your keyword, it may be too niche — our inclusion threshold is reads > 5,000. Try the suggested expansion words, extend the time range, or explore other popular tracks for inspiration
