@@ -51,7 +51,7 @@
 ### 输入格式说明
 
 **⚠️ 必须提供小红书号（纯数字或字母数字组合），不是中文昵称**
-![alt text](image.png)
+![alt text](https://img-newrank.newrank.cn/sq/inner/img/3323217/3323217/2026/05/27/52422bc0109944ada3bf42cc8eb656e1.png)
 | 有效输入 | 示例 |
 | --- | --- |
 | 纯数字 ID | `26112666886` |
