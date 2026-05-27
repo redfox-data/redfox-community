@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全网热点榜报告</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8f4f8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 导出按钮区域 */
+        .export-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .export-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        
+        .export-btn.image {
+            background: linear-gradient(135deg, #55efc4, #00b894);
+            color: white;
+            box-shadow: 0 4px 15px rgba(85, 239, 196, 0.4);
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 报告头部 */
+        .report-header {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .report-header h1 {
+            font-size: 36px;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+        
+        .report-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #636e72;
+            font-size: 14px;
+        }
+        
+        .meta-item .icon {
+            font-size: 20px;
+        }
+        
+        /* TOP10 表格区域 */
+        .top10-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 24px;
+            color: #2d3436;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title .emoji {
+            font-size: 28px;
+        }
+        
+        .top10-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .top10-table th {
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            color: white;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .top10-table th:first-child {
+            border-radius: 10px 0 0 0;
+        }
+        
+        .top10-table th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+        
+        .top10-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        
+        .top10-table tr:hover {
+            background: #f8f9ff;
+        }
+        
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .rank-1 { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: #6c5ce7; }
+        .rank-2 { background: linear-gradient(135deg, #dfe6e9, #b2bec3); color: #2d3436; }
+        .rank-3 { background: linear-gradient(135deg, #fab1a0, #e17055); color: white; }
+        .rank-other { background: #f0f0f0; color: #636e72; }
+        
+        .hot-score {
+            font-weight: 600;
+            color: #e17055;
+        }
+        
+        .platform-count {
+            color: #0984e3;
+            font-weight: 600;
+        }
+        
+        .duration {
+            color: #00b894;
+        }
+        
+        /* 热点卡片区域 */
+        .hotspot-cards {
+            display: grid;
+            gap: 25px;
+        }
+        
+        .hotspot-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .hotspot-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            padding: 25px;
+            color: white;
+            position: relative;
+        }
+        
+        .card-header.rank-1-header { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: #6c5ce7; }
+        .card-header.rank-2-header { background: linear-gradient(135deg, #dfe6e9, #b2bec3); color: #2d3436; }
+        .card-header.rank-3-header { background: linear-gradient(135deg, #fab1a0, #e17055); color: white; }
+        .card-header.rank-hot { background: linear-gradient(135deg, #ff7675, #d63031); color: white; }
+        .card-header.rank-medium { background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; }
+        .card-header.rank-normal { background: linear-gradient(135deg, #55efc4, #00b894); color: white; }
+        
+        .card-rank {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 48px;
+            font-weight: 900;
+            opacity: 0.2;
+        }
+        
+        .card-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            padding-right: 60px;
+        }
+        
+        .card-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .platform-section {
+            margin-bottom: 20px;
+        }
+        
+        .platform-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .platform-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .platform-tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .platform-weibo { background: #fff5f5; color: #e17055; }
+        .platform-douyin { background: #f0f4ff; color: #6c5ce7; }
+        .platform-xiaohongshu { background: #fff0f3; color: #e84393; }
+        .platform-zhihu { background: #f0f8ff; color: #0984e3; }
+        .platform-bilibili { background: #fff0f5; color: #e84393; }
+        .platform-kuaishou { background: #fff5f0; color: #e17055; }
+        .platform-toutiao { background: #fff5f5; color: #d63031; }
+        .platform-baidu { background: #f0f5ff; color: #0984e3; }
+        
+        .discussion-section {
+            margin-top: 20px;
+        }
+        
+        .discussion-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .discussion-item {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 15px 15px 15px 20px;
+            margin-bottom: 12px;
+            margin-left: 20px;
+            border-left: 4px solid #74b9ff;
+        }
+        
+        .discussion-item.weibo { border-left-color: #e17055; }
+        .discussion-item.douyin { border-left-color: #6c5ce7; }
+        .discussion-item.xiaohongshu { border-left-color: #e84393; }
+        .discussion-item.zhihu { border-left-color: #0984e3; }
+        .discussion-item.bilibili { border-left-color: #e84393; }
+        .discussion-item.kuaishou { border-left-color: #e17055; }
+        .discussion-item.toutiao { border-left-color: #d63031; }
+        .discussion-item.baidu { border-left-color: #0984e3; }
+        
+        .discussion-platform {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #2d3436;
+        }
+        
+        .discussion-content {
+            color: #636e72;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .topic-link {
+            color: #0984e3;
+            text-decoration: none;
+            border-bottom: 1px dashed #74b9ff;
+        }
+        
+        .topic-link:hover {
+            color: #6c5ce7;
+        }
+        
+        .prediction-section {
+            margin-top: 20px;
+            background: linear-gradient(135deg, #f0f8ff, #f0f4ff);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .prediction-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .prediction-content {
+            color: #636e72;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        /* 底部操作区域 */
+        .footer-actions {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .footer-actions h3 {
+            color: #2d3436;
+            margin-bottom: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn.primary {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+        }
+        
+        .action-btn.secondary {
+            background: #f0f0f0;
+            color: #636e72;
+        }
+        
+        /* 订阅区域 */
+        .subscribe-section {
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .subscribe-section h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .subscribe-section p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .report-header h1 {
+                font-size: 28px;
+            }
+            
+            .report-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .top10-table {
+                font-size: 12px;
+            }
+            
+            .card-title {
+                font-size: 18px;
+            }
+            
+            .card-stats {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .export-bar {
+                position: relative;
+                top: 0;
+                right: 0;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="export-bar">
+        <button class="export-btn image" onclick="exportImage()">
+            🖼️ 导出图片
+        </button>
+    </div>
+    
+    <div class="container">
+        <div class="report-header">
+            <h1>🔥 全网热点榜 TOP10</h1>
+            <div class="report-meta">
+                <div class="meta-item">
+                    <span class="icon">📅</span>
+                    <span>统计时间：{start_date} 至 {end_date}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="icon">📊</span>
+                    <span>覆盖平台：抖音、微博、B站、快手、知乎、头条、百度</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="top10-section">
+            <h2 class="section-title"><span class="emoji">🏆</span> 热点排行榜</h2>
+            <table class="top10-table">
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>热点事件</th>
+                        <th>热度</th>
+                        <th>上榜平台</th>
+                        <th>持续时长</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- TOP10数据填充示例：
+                    <tr>
+                        <td><span class="rank-badge rank-1">1</span></td>
+                        <td><strong>热点标题</strong></td>
+                        <td><span class="hot-score">938万</span></td>
+                        <td><span class="platform-count">5个</span></td>
+                        <td><span class="duration">14h</span></td>
+                    </tr>
+                    -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 热点详情卡片 -->
+        <div class="hotspot-cards">
+            <!-- 热点卡片填充示例：
+            <div class="hotspot-card">
+                <div class="card-header rank-1-header">
+                    <span class="card-rank">1</span>
+                    <h3 class="card-title">热点标题</h3>
+                    <div class="card-stats">
+                        <div class="stat-item">📊 热度：938万</div>
+                        <div class="stat-item">📍 上榜平台：5个</div>
+                        <div class="stat-item">⏱️ 持续时长：14小时</div>
+                        <div class="stat-item">🏆 最高排名：TOP3</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="platform-section">
+                        <div class="platform-title">📍 上榜平台</div>
+                        <div class="platform-list">
+                            <span class="platform-tag platform-weibo">微博</span>
+                            <span class="platform-tag platform-douyin">抖音</span>
+                        </div>
+                    </div>
+                    <div class="discussion-section">
+                        <div class="discussion-title">💬 跨平台讨论差异</div>
+                        <div class="discussion-item weibo">
+                            <div class="discussion-platform">🌐 微博</div>
+                            <div class="discussion-content">讨论焦点，如「话题1」「话题2」</div>
+                        </div>
+                        <div class="discussion-item douyin">
+                            <div class="discussion-platform">🎵 抖音</div>
+                            <div class="discussion-content">讨论焦点，如「话题1」</div>
+                        </div>
+                    </div>
+                    <div class="prediction-section">
+                        <div class="prediction-title">🔥 综合预测：预测内容...</div>
+                        <div class="prediction-content">预测内容...</div>
+                    </div>
+                </div>
+            </div>
+            -->
+        </div>
+        
+        <div class="footer-actions">
+            <h3>⚡ 更多操作</h3>
+            <p>点击上方按钮可导出图片格式报告</p>
+        </div>
+        
+        <div class="subscribe-section">
+            <h3>📬 订阅推送服务</h3>
+            <p>想持续追踪热点动态？可以订阅最新热榜（每隔一小时更新）；或者订阅昨日数据。</p>
+        </div>
+    </div>
+    
+    <script>
+        function exportImage() {
+            const element = document.querySelector('.container');
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = '热点榜报告.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>

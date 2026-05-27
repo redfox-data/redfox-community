@@ -2,15 +2,21 @@
 
 ## 接口信息
 
-- **接口地址**：`https://onetotenvip.com/skill/cozeSkill/getWxDataByCategoryAndTime`
-- **请求方法**：GET（文档示例）；本仓库 **`scripts/fetch_hot_articles.py` 以 HTTPS POST + JSON body 调用同一路径**，联调请以脚本为准。
+- **接口地址**：`https://redfox.hk/story/api/cozeSkill/getWxDataByCategoryAndTime`
+- **请求方法**：GET
 - **Content-Type**：application/json
+
+## 认证方式
+
+| 参数 | 说明 |
+|------|------|
+| X-API-KEY | API密钥，从环境变量 `REDFOX_API_KEY` 获取，未设置则自动从 shell 配置文件（`~/.zshrc`、`~/.bash_profile` 等）读取 |
 
 ## 请求头
 
 ```
 Content-Type: application/json
-N-Token: 2f9f88dbb743423dbf0a8db2977c49eb
+X-API-KEY: <your_api_key>
 ```
 
 ## 请求参数
@@ -18,7 +24,7 @@ N-Token: 2f9f88dbb743423dbf0a8db2977c49eb
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
 | type | string | 是 | 分类名称（标准23分类之一） |
-| source | string | 是 | 数据来源；文档示例为 `公众号10w+阅读文章推荐`；本仓库 **`fetch_hot_articles.py` 默认** `公众号10w+阅读文章推荐-GitHub`，联调以脚本 `--source` 为准 |
+| source | string | 是 | 数据来源，固定值："公众号10w+阅读文章推荐" |
 | startDate | string | 是 | 开始日期，格式：YYYY-MM-DD |
 | endDate | string | 是 | 结束日期，格式：YYYY-MM-DD |
 
@@ -35,19 +41,19 @@ N-Token: 2f9f88dbb743423dbf0a8db2977c49eb
 ### 1. 查询总排名（昨日数据）
 
 ```
-GET https://onetotenvip.com/skill/cozeSkill/getWxDataByCategoryAndTime?type=总排名&source=公众号10w+阅读文章推荐&startDate=2026-05-13&endDate=2026-05-14
+GET https://redfox.hk/story/api/cozeSkill/getWxDataByCategoryAndTime?type=总排名&source=公众号10w+阅读文章推荐&startDate=2026-05-13&endDate=2026-05-14
 ```
 
 ### 2. 查询科技数码分类
 
 ```
-GET https://onetotenvip.com/skill/cozeSkill/getWxDataByCategoryAndTime?type=科技数码&source=公众号10w+阅读文章推荐&startDate=2026-05-13&endDate=2026-05-14
+GET https://redfox.hk/story/api/cozeSkill/getWxDataByCategoryAndTime?type=科技数码&source=公众号10w+阅读文章推荐&startDate=2026-05-13&endDate=2026-05-14
 ```
 
 ### 3. 查询财富理财分类
 
 ```
-GET https://onetotenvip.com/skill/cozeSkill/getWxDataByCategoryAndTime?type=财富理财&source=公众号10w+阅读文章推荐&startDate=2026-05-10&endDate=2026-05-14
+GET https://redfox.hk/story/api/cozeSkill/getWxDataByCategoryAndTime?type=财富理财&source=公众号10w+阅读文章推荐&startDate=2026-05-10&endDate=2026-05-14
 ```
 
 ## 响应数据结构

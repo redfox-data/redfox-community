@@ -17,8 +17,11 @@ python fetch_hot_articles.py --type "" --start_date "daybeforeyesterday" --end_d
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timedelta
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
 
 
 # 标准分类列表
@@ -195,10 +198,19 @@ def analyze_content(title: str, summary: str) -> str:
     return f"{overview}，{hotspot}，{spread}，{effect}"
 
 
+def _get_api_key():
+    """从当前环境变量获取 REDFOX_API_KEY"""
+    key = os.environ.get("REDFOX_API_KEY")
+    if not key:
+        print("❌ 未找到 REDFOX_API_KEY，请配置环境变量：export REDFOX_API_KEY=<your_api_key>", file=sys.stderr)
+        sys.exit(1)
+    return key
+
+
 def fetch_articles_by_category(category: str, start_date: str, end_date: str, source: str = "公众号10w+阅读文章推荐-GitHub") -> list:
     """
     根据分类和时间获取文章数据
-    使用原生 socket + ssl 手动发送 HTTPS 请求，不发送 SNI
+    使用 urllib.request 发送 HTTPS 请求
 
     Args:
         category: 分类名称（如：科技数码、健康养生、总排名等）
@@ -209,13 +221,11 @@ def fetch_articles_by_category(category: str, start_date: str, end_date: str, so
     Returns:
         文章列表
     """
-    import socket
-    import ssl
-    import urllib.parse
-
     # API配置
-    host = "onetotenvip.com"
-    path = "/skill/cozeSkill/getWxDataByCategoryAndTime"
+    api_url = "https://redfox.hk/story/api/cozeSkill/getWxDataByCategoryAndTime"
+
+    # 获取 API Key
+    api_key = _get_api_key()
 
     # 构建请求参数
     params = {
@@ -225,80 +235,30 @@ def fetch_articles_by_category(category: str, start_date: str, end_date: str, so
         "endDate": end_date
     }
 
-    # URL编码参数
-    query_string = urllib.parse.urlencode(params)
-    full_path = f"{path}?{query_string}"
+    # 构建请求体（JSON格式）
+    post_data = json.dumps(params, ensure_ascii=False).encode("utf-8")
 
     try:
-        # 创建socket连接
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(30)
+        # 构建请求头
+        headers = {
+            "Content-Type": "application/json",
+            "X-API-KEY": api_key,
+        }
 
-        # 创建SSL上下文（不验证证书，不发送SNI）
-        # 使用 TLS 1.2
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        context.minimum_version = ssl.TLSVersion.TLSv1_2
-        context.maximum_version = ssl.TLSVersion.TLSv1_2
-        context.check_hostname = False  # 不验证主机名
-        context.verify_mode = ssl.CERT_NONE  # 不验证证书
-        # 关键：wrap_socket时不传server_hostname，即不发送SNI
-        ssl_sock = context.wrap_socket(sock)
-
-        # 连接服务器
-        ssl_sock.connect((host, 443))
-
-        # 构建POST请求体（JSON格式）
-        post_data = json.dumps({
-            "type": params["type"],
-            "source": source,
-            "startDate": start_date,
-            "endDate": end_date
-        }, ensure_ascii=False)
-
-        # 构建HTTP POST请求
-        request = (
-            f"POST /skill/cozeSkill/getWxDataByCategoryAndTime HTTP/1.1\r\n"
-            f"Host: {host}\r\n"
-            f"Content-Type: application/json\r\n"
-            f"N-Token: 2f9f88dbb743423dbf0a8db2977c49eb\r\n"
-            f"Content-Length: {len(post_data.encode('utf-8'))}\r\n"
-            f"Connection: close\r\n"
-            f"\r\n"
-            f"{post_data}"
-        )
+        # 构建POST请求
+        req = Request(api_url, data=post_data, headers=headers, method="POST")
 
         # 打印调试信息
         print(f"\n🔍 调试信息：")
-        print(f"   Host: {host}")
+        print(f"   URL: {api_url}")
         print(f"   Method: POST")
-        print(f"   Path: /skill/cozeSkill/getWxDataByCategoryAndTime")
+        print(f"   X-API-KEY: {api_key[:8]}...（已隐藏）")
         print(f"   参数: type={params['type']}, source={source}, startDate={start_date}, endDate={end_date}")
-        print(f"   请求体: {post_data}")
+        print(f"   请求体: {post_data.decode('utf-8')}")
 
         # 发送请求
-        ssl_sock.sendall(request.encode('utf-8'))
-
-        # 接收响应
-        response_data = b""
-        while True:
-            chunk = ssl_sock.recv(4096)
-            if not chunk:
-                break
-            response_data += chunk
-
-        # 关闭连接
-        ssl_sock.close()
-
-        # 解析HTTP响应
-        response_str = response_data.decode('utf-8')
-
-        # 分离头部和body
-        header_body_split = response_str.split('\r\n\r\n', 1)
-        if len(header_body_split) < 2:
-            print(f"❌ 响应格式错误")
-            return []
-
-        body = header_body_split[1]
+        with urlopen(req, timeout=30) as response:
+            body = response.read().decode("utf-8")
 
         # 解析JSON数据
         data = json.loads(body)
@@ -306,6 +266,13 @@ def fetch_articles_by_category(category: str, start_date: str, end_date: str, so
         # 检查响应数据
         if data is None:
             print(f"❌ 响应数据为空")
+            return []
+
+        # 检查业务状态码（兼容 200 和 2000）
+        code = data.get("code") if isinstance(data, dict) else None
+        if code and code not in (200, 2000):
+            msg = data.get("msg") or data.get("message") or "未知错误"
+            print(f"⚠️ API返回错误: code={code}, msg={msg}")
             return []
 
         # 从 tenWReadingRank 字段获取文章列表
@@ -318,11 +285,11 @@ def fetch_articles_by_category(category: str, start_date: str, end_date: str, so
                 print(f"⚠️ API返回: {data['msg']}")
             return []
 
-    except socket.error as e:
-        print(f"❌ Socket错误: {e}")
+    except HTTPError as e:
+        print(f"❌ HTTP错误: {e.code} {e.reason}")
         return []
-    except ssl.SSLError as e:
-        print(f"❌ SSL错误: {e}")
+    except URLError as e:
+        print(f"❌ URL错误: {e.reason}")
         return []
     except json.JSONDecodeError as e:
         print(f"❌ JSON解析失败: {e}")
@@ -516,7 +483,7 @@ def main():
 
         # 文章数量较少提示（少于10篇）
         if total_count < 10:
-            category_name = args.article_type if args.article_type != "总排名" else "综合"
+            category_name = args.type if args.type != "总排名" else "综合"
             print(f"\n💡 {category_name}赛道10w+文章较少，您可以拓展过去30天或者看看综合10w+文章~")
 
     else:
@@ -535,7 +502,7 @@ def main():
 
         # 文章数量较少提示（少于10篇）
         if total_count < 10:
-            category_name = args.article_type if args.article_type != "总排名" else "综合"
+            category_name = args.type if args.type != "总排名" else "综合"
             print(f"\n💡 {category_name}赛道10w+文章较少，您可以拓展过去30天或者看看综合10w+文章~")
 
 

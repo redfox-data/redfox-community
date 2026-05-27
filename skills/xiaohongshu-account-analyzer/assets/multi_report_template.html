@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<title>多账号对比诊断报告</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: #FFF5F5; color: #333; line-height: 1.6; }
+  .container { max-width: 720px; margin: 0 auto; padding: 20px; }
+
+  .report-header { background: linear-gradient(135deg, #FF2442, #FF6B81); color: #fff; border-radius: 12px; padding: 28px 24px; text-align: center; margin-bottom: 20px; }
+  .report-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .report-header .subtitle { font-size: 13px; opacity: 0.85; margin-bottom: 4px; }
+  .report-header .data-time { font-size: 12px; opacity: 0.7; }
+
+  .section { background: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(255,36,66,0.06); }
+  .section-title { font-size: 16px; font-weight: 600; color: #FF2442; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #FDE8EC; display: flex; align-items: center; gap: 6px; }
+  .section-title .emoji { font-size: 18px; }
+
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .compare-table th { background: #FFF0F3; color: #FF2442; font-weight: 500; padding: 8px 10px; text-align: center; }
+  .compare-table th:first-child { text-align: left; width: 90px; }
+  .compare-table td { padding: 8px 10px; border-bottom: 1px solid #F5F5F5; text-align: center; font-size: 13px; }
+  .compare-table td:first-child { text-align: left; color: #999; }
+  .compare-table .best { color: #FF2442; font-weight: 600; }
+  .compare-table .avatar-cell img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+
+  .account-detail { background: #fff; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(255,36,66,0.06); overflow: hidden; }
+  .account-detail-header { background: linear-gradient(135deg, #FFF0F3, #FFF5F7); padding: 14px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #FDE8EC; }
+  .account-detail-header img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+  .account-detail-header .name { font-size: 15px; font-weight: 600; color: #FF2442; }
+  .account-detail-header .tag { background: #FF2442; color: #fff; font-size: 11px; padding: 1px 8px; border-radius: 8px; margin-left: 6px; }
+  .account-detail-header .score { margin-left: auto; font-size: 14px; font-weight: 600; color: #FF2442; }
+  .account-detail-body { padding: 16px 20px; }
+
+  .info-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+  .info-row .label { color: #999; }
+  .info-row .value { color: #333; font-weight: 500; }
+
+  .score-bars { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+  .score-bar-item { display: flex; align-items: center; gap: 8px; }
+  .score-bar-item .icon { width: 22px; text-align: center; font-size: 13px; }
+  .score-bar-item .name { width: 56px; font-size: 12px; color: #666; flex-shrink: 0; }
+  .score-bar-item .bar-bg { flex: 1; height: 6px; background: #FDE8EC; border-radius: 3px; overflow: hidden; }
+  .score-bar-item .bar-fill { height: 100%; background: linear-gradient(90deg, #FF2442, #FF6B81); border-radius: 3px; }
+  .score-bar-item .val { width: 46px; font-size: 12px; color: #FF2442; font-weight: 600; text-align: right; flex-shrink: 0; }
+
+  .point-list { list-style: none; padding: 0; }
+  .point-list li { position: relative; padding: 4px 0 4px 16px; font-size: 13px; color: #555; }
+  .point-list li::before { content: ""; position: absolute; left: 0; top: 11px; width: 5px; height: 5px; border-radius: 50%; background: #FF2442; }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+  .tag { background: #FFF0F3; color: #FF2442; font-size: 11px; padding: 2px 10px; border-radius: 10px; }
+
+  .star-row { color: #FAAD14; font-size: 13px; letter-spacing: 2px; margin-bottom: 6px; }
+
+  .action-item { background: #FAFAFA; border-left: 3px solid #FF2442; padding: 8px 12px; margin-bottom: 6px; border-radius: 0 6px 6px 0; font-size: 13px; }
+  .action-item strong { color: #FF2442; }
+  .problem-item { background: #FFF0F0; border-radius: 6px; padding: 8px 12px; margin: 4px 0; font-size: 13px; color: #FF4D4F; }
+
+  .goal-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .goal-table th { background: #FFF0F3; color: #FF2442; font-weight: 500; padding: 6px 10px; text-align: left; }
+  .goal-table td { padding: 6px 10px; border-bottom: 1px solid #F5F5F5; }
+  .goal-table .target { color: #FF2442; font-weight: 600; }
+
+  .works-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .works-table th { background: #FFF0F3; color: #FF2442; font-weight: 500; padding: 6px 8px; text-align: left; }
+  .works-table td { padding: 6px 8px; border-bottom: 1px solid #F5F5F5; }
+  .works-table a { color: #FF2442; text-decoration: none; }
+
+  .similar-accounts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .similar-card { background: #FAFAFA; border-radius: 8px; padding: 10px; width: calc(50% - 5px); display: flex; gap: 8px; align-items: center; }
+  .similar-card img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+  .similar-card .info { flex: 1; min-width: 0; }
+  .similar-card .name { font-size: 12px; font-weight: 500; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .similar-card .fans { font-size: 11px; color: #999; }
+
+  .conclusion { background: linear-gradient(135deg, #FFF0F3, #FFF5F7); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+  .conclusion .type-tag { display: inline-block; background: #FF2442; color: #fff; font-size: 11px; padding: 1px 8px; border-radius: 8px; margin-bottom: 6px; }
+  .conclusion p { font-size: 13px; color: #555; line-height: 1.8; }
+
+  .summary-module { border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+  .summary-module:last-child { margin-bottom: 0; }
+  .summary-module .module-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .summary-module .module-title .icon { font-size: 15px; }
+  .summary-module p { font-size: 13px; color: #555; line-height: 1.8; margin: 0; }
+
+  .summary-diff { background: #FFF7E6; border-left: 3px solid #FAAD14; }
+  .summary-diff .module-title { color: #D48806; }
+
+  .summary-common { background: #F6FFED; border-left: 3px solid #52C41A; }
+  .summary-common .module-title { color: #389E0D; }
+
+  .summary-advice { background: linear-gradient(135deg, #FFF0F3, #FFF5F7); border-left: 3px solid #FF2442; }
+  .summary-advice .module-title { color: #FF2442; }
+
+  .download-tip { background: #FFF0F3; border-radius: 8px; padding: 12px 16px; margin-top: 16px; text-align: center; font-size: 13px; color: #FF2442; }
+  .footer { text-align: center; padding: 20px; font-size: 12px; color: #ccc; }
+
+  .export-btn { position: fixed; top: 16px; right: 16px; z-index: 9999; padding: 8px 18px; background: linear-gradient(135deg, #FF2442, #FF6B81); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; letter-spacing: 1px; box-shadow: 0 2px 8px rgba(255,36,66,0.3); }
+  .export-btn:hover { opacity: 0.9; }
+  .export-btn:active { opacity: 0.8; }
+</style>
+</head>
+<body>
+<div class="container" id="report-content">
+
+  <!-- 报告头部 -->
+  <div class="report-header">
+    <h1>多账号对比诊断报告</h1>
+    <div class="subtitle">{{账号数量}}个账号横向对比</div>
+    <div class="data-time">数据获取时间：{{数据获取时间}}</div>
+  </div>
+
+  <!-- 对比总览 -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">📊</span> 对比总览</div>
+    <table class="compare-table">
+      <tr><th>指标</th>{{对比表头}}</tr>
+      {{对比表格行}}
+    </table>
+  </div>
+
+  <!-- 对比总结 - 按账号展示 -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">💡</span> 对比总结</div>
+    {{对比总结_核心差异}}
+    {{对比总结_共同问题}}
+    {{对比总结_发展建议}}
+  </div>
+
+  <!-- 各账号详情 -->
+  {{各账号详情}}
+
+  <!-- 下载提示 -->
+  <div class="download-tip">
+    报告已生成为HTML文件，可直接下载保存
+  </div>
+
+  <div class="footer">
+    报告由AI基于数据和算法生成，仅供参考
+  </div>
+
+</div>
+
+<!-- 图片导出按钮 -->
+<button class="export-btn" id="exportBtn" onclick="exportImage()">导出报告图片</button>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+function exportImage() {
+  var btn = document.getElementById('exportBtn');
+  var content = document.getElementById('report-content');
+  btn.style.display = 'none';
+  if (typeof html2canvas === 'function') {
+    html2canvas(content, {
+      scale: 2,
+      backgroundColor: '#FFF5F5',
+      useCORS: true,
+      logging: false
+    }).then(function(canvas) {
+      var link = document.createElement('a');
+      link.download = (document.title || '多账号对比诊断报告') + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      btn.style.display = 'block';
+    }).catch(function() {
+      fallbackPrint();
+      btn.style.display = 'block';
+    });
+  } else {
+    fallbackPrint();
+    btn.style.display = 'block';
+  }
+}
+function fallbackPrint() {
+  try { window.print(); } catch(e) { alert('导出失败，请使用浏览器截图功能保存报告图片'); }
+}
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# WeChat Viral Article Hunter / wechat-10w-hot
+# Wechat 10w Hot
 
 ---
 
@@ -51,13 +51,13 @@ Describe what you need in plain language—no fixed commands to memorize.
 
 ### Quick Phrase Guide
 
-| Intent | Example prompt | What you get |
-| --- | --- | --- |
-| Today’s viral hits | “What are today’s 100k+ viral articles?” | Latest available overall ranking |
-| Niche track | “Tech 100k+ hits from the past week” | Category + time-window ranking |
-| More items | “Show all—give me 50 entries” | Longer list in the same window |
-| Shareable page | “Generate a ranking page I can export as PDF” | Visual page after the in-chat list |
-| Subscribe | “Subscribe me to daily finance viral picks” | Subscription flow after analysis (if enabled) |
+| Intent             | Example prompt                                | What you get                                  |
+| ------------------ | --------------------------------------------- | --------------------------------------------- |
+| Today’s viral hits | “What are today’s 100k+ viral articles?”      | Latest available overall ranking              |
+| Niche track        | “Tech 100k+ hits from the past week”          | Category + time-window ranking                |
+| More items         | “Show all—give me 50 entries”                 | Longer list in the same window                |
+| Shareable page     | “Generate a ranking page I can export as PDF” | Visual page after the in-chat list            |
+| Subscribe          | “Subscribe me to daily finance viral picks”   | Subscription flow after analysis (if enabled) |
 
 ### Sample Output
 
@@ -67,11 +67,11 @@ After a query, you first see the **full ranking** (notes, overview, and details)
 
 ## Use Cases
 
-| Scenario | Role | Example ask | Benefit |
-| --- | --- | --- | --- |
-| Daily trend watch | WeChat operator | “Today’s viral / latest 100k+ articles” | Fast read on top traffic and topics |
-| Competitor niche | Content lead | “Recent finance 100k+ hits” | Stay aligned in your vertical |
-| Team review | Editorial lead | “Export a printable viral ranking” | Easier offline debriefs |
-| Learn patterns | Junior editor | “What do these viral pieces have in common?” | From gut feel to a reusable model |
+| Scenario          | Role            | Example ask                                  | Benefit                             |
+| ----------------- | --------------- | -------------------------------------------- | ----------------------------------- |
+| Daily trend watch | WeChat operator | “Today’s viral / latest 100k+ articles”      | Fast read on top traffic and topics |
+| Competitor niche  | Content lead    | “Recent finance 100k+ hits”                  | Stay aligned in your vertical       |
+| Team review       | Editorial lead  | “Export a printable viral ranking”           | Easier offline debriefs             |
+| Learn patterns    | Junior editor   | “What do these viral pieces have in common?” | From gut feel to a reusable model   |
 
 ---

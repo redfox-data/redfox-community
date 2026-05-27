@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{账号名}}-账号诊断报告</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F5F5F5; color: #333; line-height:1.6; }
+.container { max-width:800px; margin:0 auto; padding:16px; }
+.card { background:#fff; border-radius:12px; padding:20px; margin-bottom:14px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.header { text-align:center; padding:24px 0 12px; }
+.header h1 { font-size:22px; font-weight:700; color:#222; }
+.header .score { font-size:48px; font-weight:800; color:#FF2442; margin:8px 0; }
+.header .score-label { font-size:14px; color:#999; }
+.header .data-time { font-size:12px; color:#bbb; margin-top:4px; }
+
+.score-table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+.score-table th { background:#FFF0F2; color:#FF2442; font-weight:600; padding:8px 10px; text-align:left; border-bottom:1px solid #FFE4E8; }
+.score-table td { padding:7px 10px; border-bottom:1px solid #F5F5F5; }
+.score-table tr:last-child td { border-bottom:none; }
+.score-table .score-val { font-weight:700; color:#FF2442; }
+.score-table .max-val { color:#999; font-size:12px; }
+.score-table .reason { color:#666; font-size:12px; }
+
+.section-title { font-size:16px; font-weight:700; margin:18px 0 10px; padding-bottom:6px; border-bottom:2px solid #FF2442; color:#222; }
+.section-title .icon { margin-right:6px; }
+.sub-title { font-size:14px; font-weight:600; color:#444; margin:12px 0 6px; }
+
+.info-row { display:flex; align-items:baseline; margin:4px 0; font-size:13px; }
+.info-row .label { color:#999; min-width:90px; flex-shrink:0; }
+.info-row .value { color:#333; font-weight:500; }
+
+.benchmark-text { background:#FAFAFA; border-radius:8px; padding:10px 14px; margin:8px 0; font-size:13px; line-height:1.8; }
+.benchmark-text .level-icon { font-weight:700; }
+.benchmark-table { width:100%; border-collapse:collapse; margin:8px 0; font-size:13px; }
+.benchmark-table th { background:#F8F8F8; padding:6px 10px; text-align:left; border:1px solid #EEE; font-weight:600; }
+.benchmark-table td { padding:6px 10px; border:1px solid #EEE; }
+
+.tag { display:inline-block; background:#FFF0F2; color:#FF2442; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:500; margin:2px; }
+.advantage-box { background:#FFFBF0; border-left:3px solid #FAAD14; padding:10px 14px; margin:8px 0; border-radius:0 8px 8px 0; font-size:13px; }
+.advantage-box .point { margin:4px 0; }
+
+.viral-table { width:100%; border-collapse:collapse; margin:8px 0; font-size:13px; }
+.viral-table th { background:#FFF7E6; color:#D48806; padding:6px 10px; text-align:left; border:1px solid #FFE7BA; }
+.viral-table td { padding:6px 10px; border:1px solid #FFE7BA; }
+.viral-warning { color:#FF4D4F; font-weight:600; font-size:13px; }
+
+.needs-table { width:100%; border-collapse:collapse; margin:8px 0; font-size:13px; }
+.needs-table th { background:#F0F5FF; color:#2F54EB; padding:6px 10px; text-align:left; border:1px solid #D6E4FF; }
+.needs-table td { padding:6px 10px; border:1px solid #D6E4FF; }
+
+.action-box { background:#FFF7F0; border-radius:10px; padding:16px; margin:10px 0; }
+.action-box .action-title { font-weight:700; font-size:14px; color:#FF2442; margin-bottom:8px; }
+.action-box .problem-item { background:#FFF0F0; border-radius:6px; padding:8px 12px; margin:4px 0; font-size:13px; color:#FF4D4F; }
+.action-box .action-step { margin:4px 0; font-size:13px; padding-left:20px; text-indent:-20px; }
+.action-box .success-metric { background:#F6FFED; border-radius:6px; padding:8px 12px; margin:8px 0; font-size:13px; }
+.action-box .fallback { background:#FFF2F0; border-radius:6px; padding:8px 12px; margin:8px 0; font-size:13px; color:#FF4D4F; }
+
+.discovery-box { background:#F0F5FF; border-left:3px solid #2F54EB; padding:10px 14px; margin:8px 0; border-radius:0 8px 8px 0; font-size:13px; }
+
+.goal-table { width:100%; border-collapse:collapse; margin:8px 0; font-size:13px; }
+.goal-table th { background:#F6FFED; color:#52C41A; padding:6px 10px; text-align:left; border:1px solid #D9F7BE; }
+.goal-table td { padding:6px 10px; border:1px solid #D9F7BE; }
+.goal-table .current { color:#999; }
+.goal-table .target { color:#52C41A; font-weight:600; }
+
+.learn-table { width:100%; border-collapse:collapse; margin:8px 0; font-size:13px; }
+.learn-table th { background:#F9F0FF; color:#722ED1; padding:6px 10px; text-align:left; border:1px solid #EFDBFF; }
+.learn-table td { padding:6px 10px; border:1px solid #EFDBFF; }
+
+.similar-card { display:inline-flex; align-items:center; background:#FAFAFA; border-radius:8px; padding:10px; margin:6px; width:calc(50% - 16px); }
+.similar-card img { width:40px; height:40px; border-radius:50%; margin-right:10px; }
+.similar-card .info .name { font-weight:600; font-size:13px; }
+.similar-card .info .fans { font-size:11px; color:#999; }
+
+.conclusion-text { font-size:13px; line-height:1.8; color:#555; }
+.conclusion-text .highlight { color:#FF2442; font-weight:600; }
+.section-divider { border:none; border-top:2px dashed #EEE; margin:18px 0; }
+
+.lifecycle-box { background:#F0F5FF; border-radius:8px; padding:12px 16px; margin:8px 0; }
+.lifecycle-box .stage { font-weight:700; color:#2F54EB; font-size:14px; }
+.lifecycle-box .chain { font-size:12px; color:#666; margin:6px 0; line-height:1.6; }
+.lifecycle-box .turning-point { font-size:12px; color:#555; margin:4px 0; }
+
+.pros-cons { margin:10px 0; font-size:13px; }
+.pros-cons .item { margin:4px 0; padding:6px 10px; border-radius:6px; }
+.pros-cons .pros { background:#F6FFED; }
+.pros-cons .cons { background:#FFF2F0; }
+
+.export-btn { position:fixed; top:16px; right:16px; background:linear-gradient(135deg,#FF2442,#FF6B81); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(255,36,66,0.3); z-index:1000; transition:all 0.3s; }
+.export-btn:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(255,36,66,0.4); }
+.export-btn:disabled { background:#ccc; cursor:not-allowed; transform:none; box-shadow:none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- 头部 -->
+<div class="card header">
+  <h1>{{账号名}}-账号诊断报告</h1>
+  <div class="score">{{综合评分}}</div>
+  <div class="score-label">综合评分 / 100</div>
+  <div class="data-time">数据获取时间：{{数据获取时间}}</div>
+</div>
+
+<!-- 评分表 -->
+<div class="card">
+  <table class="score-table">
+    <tr><th>维度</th><th>得分</th><th>满分</th><th>评分原因简述</th></tr>
+    <tr><td>账号定位</td><td class="score-val">{{账号定位得分}}</td><td class="max-val">10</td><td class="reason">{{账号定位简述原因}}</td></tr>
+    <tr><td>粉丝画像与需求</td><td class="score-val">{{粉丝画像与需求得分}}</td><td class="max-val">15</td><td class="reason">{{粉丝画像与需求简述原因}}</td></tr>
+    <tr><td>选题体系</td><td class="score-val">{{选题体系得分}}</td><td class="max-val">15</td><td class="reason">{{选题体系简述原因}}</td></tr>
+    <tr><td>封面风格</td><td class="score-val">{{封面风格得分}}</td><td class="max-val">10</td><td class="reason">{{封面风格简述原因}}</td></tr>
+    <tr><td>爆文能力</td><td class="score-val">{{爆文能力得分}}</td><td class="max-val">15</td><td class="reason">{{爆文能力简述原因}}</td></tr>
+    <tr><td>互动规模</td><td class="score-val">{{互动规模得分}}</td><td class="max-val">20</td><td class="reason">{{互动规模简述原因}}</td></tr>
+    <tr><td>更新产能</td><td class="score-val">{{更新产能得分}}</td><td class="max-val">15</td><td class="reason">{{更新产能简述原因}}</td></tr>
+  </table>
+</div>
+
+<!-- 综合诊断结论 -->
+<div class="card">
+  <div class="section-title"><span class="icon">📋</span>综合诊断结论</div>
+  <div class="conclusion-text">{{综合诊断结论内容}}</div>
+  <div class="pros-cons">
+    <div class="item pros"><strong>可借鉴的优点：</strong>{{可借鉴的优点}}</div>
+    <div class="item cons"><strong>可成长的地方：</strong>{{可成长的地方}}</div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- 账号定位 -->
+<div class="card">
+  <div class="section-title"><span class="icon">🎯</span>账号定位 | {{账号定位得分}}分/10</div>
+  <div class="info-row"><span class="label">TA是谁：</span><span class="value">{{TA是谁}}</span></div>
+  <div class="info-row"><span class="label">心智占位：</span><span class="value">{{心智占位}}</span></div>
+  <div class="info-row"><span class="label">核心身份：</span><span class="value">{{核心身份}}</span></div>
+  <div class="info-row"><span class="label">价值观锚点：</span><span class="value">{{价值观锚点}}</span></div>
+  <div class="info-row"><span class="label">吸引力类型：</span><span class="value">{{吸引力类型}}</span></div>
+  <div class="advantage-box">
+    <div class="sub-title">差异化优势</div>
+    <div class="point">赛道痛点：{{赛道痛点}}</div>
+    <div class="point">你的优势：{{你的优势}}</div>
+    <!-- SECTION_CAN_ENHANCE_START -->
+    <div class="point" style="color:#FAAD14; font-weight:600;">可强化："{{可强化}}"</div>
+    <!-- SECTION_CAN_ENHANCE_END -->
+  </div>
+</div>
+
+<!-- 粉丝画像与需求 -->
+<div class="card">
+  <div class="section-title"><span class="icon">👥</span>粉丝画像与需求 | {{粉丝画像与需求得分}}分/15</div>
+  <div class="info-row"><span class="label">粉丝构成：</span><span class="value">{{粉丝构成}}</span></div>
+  <div class="sub-title">核心需求反推</div>
+  <table class="needs-table">
+    <tr><th>画像特征</th><th>推断需求</th><th>内容匹配度</th></tr>
+    <tr><td>{{核心需求反推[0].画像特征}}</td><td>{{核心需求反推[0].推断需求}}</td><td>{{核心需求反推[0].内容匹配度}}</td></tr>
+    <tr><td>{{核心需求反推[1].画像特征}}</td><td>{{核心需求反推[1].推断需求}}</td><td>{{核心需求反推[1].内容匹配度}}</td></tr>
+    <tr><td>{{核心需求反推[2].画像特征}}</td><td>{{核心需求反推[2].推断需求}}</td><td>{{核心需求反推[2].内容匹配度}}</td></tr>
+  </table>
+</div>
+
+<!-- 选题体系 -->
+<div class="card">
+  <div class="section-title"><span class="icon">📝</span>选题体系 | {{选题体系得分}}分/15</div>
+  <div class="info-row"><span class="label">选题方向：</span><span class="value">{{选题方向}}</span></div>
+  <div class="info-row"><span class="label">表达风格：</span><span class="value">{{表达风格}}</span></div>
+  <div class="info-row"><span class="label">叙事手法：</span><span class="value">{{叙事手法}}</span></div>
+  <div class="info-row"><span class="label">人格一致性：</span><span class="value">{{人格一致性}}</span></div>
+</div>
+
+<!-- 封面风格 -->
+<div class="card">
+  <div class="section-title"><span class="icon">🎨</span>封面风格 | {{封面风格得分}}分/10</div>
+  <div class="info-row"><span class="label">视觉特征：</span><span class="value">{{视觉特征}}</span></div>
+  <div class="info-row"><span class="label">信息层级：</span><span class="value">{{信息层级}}</span></div>
+  <div class="info-row"><span class="label">一致性：</span><span class="value">{{一致性}}</span></div>
+</div>
+
+<!-- 爆文能力 -->
+<!-- SECTION_VIRAL_START -->
+<div class="card">
+  <div class="section-title"><span class="icon">🔥</span>爆文能力 | {{爆文能力得分}}分/15</div>
+  <div class="info-row"><span class="label">爆文率：</span><span class="value">{{爆文率}}%（{{爆文数}}篇）</span></div>
+  <div class="info-row"><span class="label">爆文标准：</span><span class="value">{{账号标识}}互动>{{爆文标准}}</span></div>
+  <div class="sub-title">爆文特征分析</div>
+  <div class="info-row"><span class="label">标题：</span><span class="value">{{标题规律}}</span></div>
+  <div class="info-row"><span class="label">内容：</span><span class="value">{{爆文内容规律}}</span></div>
+  <div class="info-row"><span class="label">情绪：</span><span class="value">{{情绪特点}}</span></div>
+  {{爆文列表表格}}
+  <div class="info-row"><span class="label">非爆文平均互动：</span><span class="value">{{非爆文平均互动}}</span></div>
+  <div class="info-row"><span class="label">爆文放大倍数：</span><span class="value viral-warning">{{爆文放大倍数}}倍 → {{爆文放大倍数判断}}</span></div>
+</div>
+<!-- SECTION_VIRAL_END -->
+
+<!-- 互动规模 -->
+<div class="card">
+  <div class="section-title"><span class="icon">💬</span>互动规模 | {{互动规模得分}}分/20</div>
+  <div class="info-row"><span class="label">近30天互动量：</span><span class="value">{{近30天互动量}} | {{账号标识}} | 官方等级：{{官方等级}}</span></div>
+  <div class="info-row"><span class="label">互动率：</span><span class="value">{{互动率}}% = 近30天作品互动量 / 粉丝数 * 100%</span></div>
+  <div class="info-row"><span class="label">收藏率：</span><span class="value">{{收藏率}}% = 总收藏数 / 总点赞数 * 100%</span></div>
+  <div class="info-row"><span class="label">互动结构：</span><span class="value">点赞{{互动结构_点赞占比}}% | 收藏{{互动结构_收藏占比}}%</span></div>
+  <div class="info-row"><span class="label">类型判断：</span><span class="value">{{类型判断}}</span></div>
+  <div class="sub-title">水平衡量</div>
+  <table class="benchmark-table">
+    <tr><th>指标</th><th>当前值</th><th>等级</th><th>中位数参考</th><th>优秀值参考</th></tr>
+    <tr><td>近30天互动量</td><td>{{近30天互动量}}</td><td>{{水平衡量_互动数等级}}</td><td>{{水平衡量_互动数中位数参考}}</td><td>{{水平衡量_互动数优秀值参考}}</td></tr>
+    <tr><td>总收藏数</td><td>{{总收藏数}}</td><td>{{水平衡量_收藏数等级}}</td><td>{{水平衡量_收藏数中位数参考}}</td><td>{{水平衡量_收藏数优秀值参考}}</td></tr>
+  </table>
+</div>
+
+<!-- 更新产能 -->
+<div class="card">
+  <div class="section-title"><span class="icon">🚀</span>更新产能 | {{更新产能得分}}分/15</div>
+  <div class="info-row"><span class="label">近30天：</span><span class="value">{{近30天发作品数}}篇 | 周均{{周更频率}}篇</span></div>
+  <div class="info-row"><span class="label">频率分析：</span><span class="value">{{频率分析}}</span></div>
+  <div class="sub-title">水平衡量</div>
+  <table class="benchmark-table">
+    <tr><th>指标</th><th>当前值</th><th>等级</th><th>中位数参考</th><th>优秀值参考</th></tr>
+    <tr><td>周均发布</td><td>{{周更频率}}篇</td><td>{{水平衡量_周更频率等级}}</td><td>{{水平衡量_周更频率中位数参考}}篇</td><td>{{水平衡量_周更频率优秀值参考}}篇</td></tr>
+  </table>
+</div>
+
+<hr class="section-divider">
+
+<!-- 行动处方 -->
+<div class="card">
+  <div class="section-title"><span class="icon">🎯</span>行动处方</div>
+  <div class="action-box">
+    <div class="action-title">问题归因：</div>
+    <div class="problem-item">{{问题归因1}}</div>
+    <div class="problem-item">{{问题归因2}}</div>
+    <div style="font-size:13px; font-weight:600; margin:6px 0;">具体动作：</div>
+    <div class="action-step">1. {{具体动作1}}</div>
+    <div class="action-step">2. {{具体动作2}}</div>
+    <div class="action-step">3. {{具体动作3}}</div>
+  </div>
+
+  <div class="sub-title">反常识发现</div>
+  <div class="discovery-box">
+    <div>1. {{反常识发现1}}</div>
+    <div>2. {{反常识发现2}}</div>
+  </div>
+</div>
+
+<!-- 相似账号 -->
+<!-- SIMILAR_START -->
+<div class="card">
+  <div class="section-title"><span class="icon">🔍</span>相似账号推荐</div>
+  {{similar_accounts_cards}}
+</div>
+<!-- SIMILAR_END -->
+
+</div>
+
+<!-- 悬浮导出按钮 -->
+<button id="exportBtn" class="export-btn" onclick="exportImage()">导出图片</button>
+
+</div>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+function exportImage() {
+  var btn = document.getElementById('exportBtn');
+  btn.innerText = '生成中...';
+  btn.disabled = true;
+  
+  var container = document.querySelector('.container');
+  
+  html2canvas(container, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#F5F5F5',
+    scrollX: 0,
+    scrollY: 0
+  }).then(function(canvas) {
+    var link = document.createElement('a');
+    link.download = '{{账号名}}-账号诊断报告.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    
+    btn.innerText = '导出图片';
+    btn.disabled = false;
+  }).catch(function(err) {
+    alert('导出失败，请重试');
+    btn.innerText = '导出图片';
+    btn.disabled = false;
+  });
+}
+</script>
+</body>
+</html>
