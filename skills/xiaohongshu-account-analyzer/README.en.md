@@ -1,221 +1,178 @@
-# Xiaohongshu Account Analyzer
-
----
+# Xiaohongshu Account Diagnostics / xiaohongshu-account-analyzer
 
 ## Introduction
 
-A diagnostic specialist deeply versed in Xiaohongshu account analysis, skilled at letting data speak and helping you uncover your account's real issues.
+A Xiaohongshu account analyst who speaks with data — helping you uncover your account's real issues.
 
 **Core Value**
 
-From vague positioning to monetization struggles, from topic confusion to update bottlenecks — get a data-driven seven-dimension quantitative score (positioning, followers, topics, covers, viral posts, engagement, output capacity) benchmarked against industry averages, an actionable diagnostic report with optimization recommendations, and similar account suggestions.
+From unclear positioning to monetization struggles, from topic confusion to update bottlenecks — get a data-backed seven-dimension quantitative score (positioning, followers, topics, covers, viral posts, engagement, output capacity), a diagnostic report benchmarked against industry averages, actionable optimization advice, and similar account recommendations.
 
 **Who It's For**
 
-- 📱 Xiaohongshu creators — Diagnose account health, identify issues and find optimization directions
-- 📦 Content operators — Evaluate commercial value, develop account growth plans
-- 🏢 Brands — Evaluate influencer partnership value, match advertising candidates
-- 🔍 Competitor analysis — Compare and analyze competitor accounts, formulate competitive strategies
-
----
+- 📱 Xiaohongshu creators — Diagnose account health, find issues, and get optimization direction
+- 📦 Content operations — Evaluate commercial value and plan account growth
+- 🏢 Brands — Assess influencer partnership value and match ad candidates
+- 🔍 Competitor analysis — Compare competitor accounts and shape competitive strategy
 
 ## Core Capabilities
 
-- **Seven-dimension scoring diagnosis**: Account positioning, follower profile, topic system, cover style, viral post ability, engagement scale, update output
-- **Life cycle analysis**: Evaluate account stage and growth potential based on data
-- **Actionable prescription generation**: Provide implementable optimization suggestions for identified issues
-- **Similar account recommendations**: Suggest 2–5 similar accounts worth learning from
-- **Multi-account comparative analysis**: Compare multiple accounts side-by-side, output key differences and individual development suggestions
-- **HTML visual report**: Generate a diagnostic report with image export support
+- **Seven-dimension scoring**: Account positioning, follower profile, topic system, cover style, viral post ability, engagement scale, update output
+- **Lifecycle analysis**: Assess account stage and growth potential from data
+- **Action prescriptions**: Actionable optimization advice for identified issues
+- **Similar account recommendations**: Recommend 2–5 accounts worth learning from
+- **Multi-account comparison**: Side-by-side comparison with core differences and development advice
+- **HTML visual report**: Diagnostic report exportable as image
 
 ---
 
-## API key source and security
+## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`) for API authentication.
-- Before providing the key, confirm its source, available scope, validity period, and whether reset/revocation is supported.
-- Do not hard-code or expose the key in plaintext within code, prompts, logs, or output files.
-
----
-
-## Prerequisites
-
-### Register a Redfox Hub account to obtain REDFOX_API_KEY
-
-- Get REDFOX_API_KEY (apply at [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github))
-
-### Environment variables
-
-| Variable         | Required | Notes          |
-| ---------------- | -------- | -------------- |
-| `REDFOX_API_KEY` | Yes      | API access key |
-
-**macOS (zsh)**
-
-Append one line to the end of `~/.zshrc` (replace the value in quotes with your key):
-
-```bash
-export REDFOX_API_KEY="your_api_key_here"
-```
-
-Then run:
-
-```bash
-source ~/.zshrc
-```
-
-**Windows (PowerShell)**
-
-- **Current terminal only**: Takes effect immediately after run, **no other commands needed**; lost when the window is closed.
-
-```powershell
-$env:REDFOX_API_KEY = "your_api_key_here"
-```
-
-- **Persist to user environment**: After running `setx`, the **current PowerShell window still won't have the variable**; you need to **close and reopen** the terminal (or restart Cursor / VS Code, etc.) for the new window to read `REDFOX_API_KEY`.
-
-```powershell
-setx REDFOX_API_KEY "your_api_key_here"
-```
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
+- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- Configure `REDFOX_API_KEY` as a device environment variable before using this skill.
+- Before providing your key, confirm its source, available scope, validity period, and whether reset/revocation is supported.
+- Do not hard-code or expose the key in plaintext in code, prompts, logs, or output files.
 
 ---
 
 ## Usage Guide
 
-### Common Phrases Quick Reference
+### Quick phrase reference
 
-| Intent                    | Example phrase                                    | Result                                                                            |
-| ------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------- |
-| Single account diagnosis  | "Analyze Xiaohongshu account 26112666886"         | Output a complete seven-dimension diagnostic report                               |
-| Multi-account comparison  | "Compare ID1 and ID2 for me"                      | Output each account's report + side-by-side comparison summary                    |
-| View similar accounts     | Reply with number "1" to select a similar account | Run a full diagnosis on the selected account                                      |
-| Real-time data collection | When account not found, reply "Push in 30min"     | Triggers real-time collection; auto-pushes the diagnostic report after 30 minutes |
+| Intent                   | Example phrase                                | What you get                                           |
+| ------------------------ | --------------------------------------------- | ------------------------------------------------------ |
+| Single account diagnosis | "Analyze Xiaohongshu account 26112666886"     | Full seven-dimension diagnostic report                 |
+| Multi-account comparison | "Compare and analyze ID1 and ID2"             | Report per account + horizontal comparison summary     |
+| View similar accounts    | Reply with number "1" to select               | Full diagnosis for the selected account                |
+| Real-time data backfill  | When account not found, reply "push in 30min" | Triggers real-time collection; report pushed in 30 min |
 
-### Input Format
+### Input format
 
-**⚠️ Must provide the Xiaohongshu ID (numeric or alphanumeric), not a Chinese nickname**
+**⚠️ You must provide the Xiaohongshu account ID (digits or alphanumeric), not a Chinese nickname**
 ![alt text](image.png)
-| Valid input | Example |
-| --- | --- |
-| Numeric ID | `26112666886` |
-| Alphanumeric ID | `Esther1218`, `abc123` |
-| ❌ Invalid input | `Xiaohongshu Creator`, `Username123` |
+
+| Valid input      | Example                              |
+| ---------------- | ------------------------------------ |
+| Numeric ID       | `26112666886`                        |
+| Alphanumeric ID  | `Esther1218`, `abc123`               |
+| ❌ Invalid input | `Xiaohongshu blogger`, `username123` |
 
 ---
 
-## Output Example
+## Sample output
 
-### Single Account Diagnostic Report
+### Single account diagnostic report
 
-**📊 Overall Score: 78/100**
+**📊 Overall score: 78/100**
 
-| Positioning | Follower Profile | Topic System | Cover Style | Viral Ability | Engagement Scale | Update Output |
-| :---------: | :--------------: | :----------: | :---------: | :-----------: | :--------------: | :-----------: |
-|    8/10     |      12/15       |    11/15     |    7/10     |     12/15     |      16/20       |     12/15     |
-
----
-
-**🎯 Account Positioning (8/10)**
-Detailed analysis
-
-**👥 Follower Profile & Needs (12/15)**
-Detailed analysis
-
-**📝 Topic System (11/15)**
-Detailed analysis
-
-**🖼️ Cover Style (7/10)**
-Detailed analysis
-
-**🔥 Viral Post Ability (12/15)**
-Detailed analysis
-
-**💬 Engagement Scale (16/20)**
-Detailed analysis
-
-**⚡ Update Output (12/15)**
-Detailed analysis
+| Positioning | Followers | Topics | Covers | Viral posts | Engagement | Output |
+| :---------: | :-------: | :----: | :----: | :---------: | :--------: | :----: |
+|    8/10     |   12/15   | 11/15  |  7/10  |    12/15    |   16/20    | 12/15  |
 
 ---
 
-**🏥 Actionable Prescription**
+**🎯 Account positioning (8/10)**
+Detailed analysis
 
-Based on the diagnostic results, the following optimization directions are recommended:
+**👥 Follower profile & needs (12/15)**
+Detailed analysis
+
+**📝 Topic system (11/15)**
+Detailed analysis
+
+**🖼️ Cover style (7/10)**
+Detailed analysis
+
+**🔥 Viral post ability (12/15)**
+Detailed analysis
+
+**💬 Engagement scale (16/20)**
+Detailed analysis
+
+**⚡ Update output (12/15)**
+Detailed analysis
+
+---
+
+**🏥 Action prescription**
+
+Based on the diagnosis, suggested optimization directions:
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ---
 
-**📈 Similar Account Recommendations**
+**📈 Similar account recommendations**
 
 1. **[Account name](https://www.xiaohongshu.com/user/profile/xxx)**
-   | Followers: 8.2w | Total engagement: 32w | Activity score: 85
-   | Reason: Similar topic direction, worth learning from
-   | Posting style: Steady practical content, consistent cover style
+   | Followers: 82K | Total engagement: 320K | Activity score: 85
+   | Why recommended: Similar topic direction, worth learning
+   | Posting traits: Stable practical content output, consistent cover style
    | What to learn: Fixed update rhythm
 
 2. **[Account name](https://www.xiaohongshu.com/user/profile/xxx)**
-   | Followers: 15.6w | Total engagement: 58w | Activity score: 88
-   | Reason: High content quality, high viral post rate
-   | Posting style: Primarily in-depth content, high engagement rate
-   | What to learn: Topic depth and engagement guidance
+   | Followers: 156K | Total engagement: 580K | Activity score: 88
+   | Why recommended: High content quality, strong viral rate
+   | Posting traits: In-depth content, high engagement rate
+   | What to learn: Topic depth and engagement hooks
 
-Reply with the number to continue analysis!
-
----
-
-⚡ **HTML report generated**, click to download and view the full report
+Reply with a number to continue analysis!
 
 ---
 
-### Multi-Account Comparison Report
-
-**Accounts compared**: Account A vs Account B
-
-**📊 Comparison Overview**
-
-| Dimension             | Account A | Account B | Difference analysis               |
-| --------------------- | --------- | --------- | --------------------------------- |
-| Overall score         | 78        | 72        | Account A performs better overall |
-| Followers             | 12.3w     | 8.6w      | A leads in follower count         |
-| Viral post rate       | 18%       | 12%       | A has stronger viral ability      |
-| Weekly post frequency | 3         | 2         | A updates more consistently       |
+⚡ **HTML report generated** — click to download the full report
 
 ---
 
-**Key Differences**
+### Multi-account comparison report
 
-- **Account A**: Clear positioning, steady practical content output, high viral post rate
-- **Account B**: Diverse content but vague positioning, lower follower loyalty
+**Compared accounts**: Account A vs Account B
 
-**Common Issues**
+**📊 Comparison overview**
+
+| Dimension      | Account A | Account B | Difference analysis               |
+| -------------- | --------- | --------- | --------------------------------- |
+| Overall score  | 78        | 72        | Account A performs better overall |
+| Followers      | 123K      | 86K       | A leads in follower count         |
+| Viral rate     | 18%       | 12%       | A has stronger viral ability      |
+| Weekly updates | 3 posts   | 2 posts   | A updates more consistently       |
+
+---
+
+**Core differences**
+
+- **Account A**: Clear positioning, stable practical content output, high viral rate
+- **Account B**: Diverse content but unclear positioning, lower follower stickiness
+
+**Shared issues**
 
 - Cover style consistency needs improvement
 - Topic direction could be more focused
 
-**Development Suggestions**
+**Development advice**
 
-- **Account A**: Maintain steady updates, try more in-depth content
-- **Account B**: Clarify positioning direction, increase content verticality
+- **Account A**: Keep stable updates, try more in-depth content
+- **Account B**: Clarify positioning, improve content verticality
 
 ---
 
 ## Use Cases
 
-| Scenario                        | Role                    | Example question                            | Benefit                                                                    |
-| ------------------------------- | ----------------------- | ------------------------------------------- | -------------------------------------------------------------------------- |
-| Account self-diagnosis          | Xiaohongshu creator     | "Help me analyze my account sssss123"       | Identify issues, get optimization suggestions                              |
-| Competitor account analysis     | Content operator        | "Analyze this competitor account sssss123"  | Understand competitor strengths/weaknesses, formulate competitive strategy |
-| Influencer placement evaluation | Brand                   | "Evaluate this influencer sssss123's value" | Determine suitability for advertising partnership                          |
-| Multi-account comparison        | Operations team         | "Compare sssss123 and sssss456 accounts"    | Side-by-side comparison, develop growth strategy                           |
-| Account health check            | Self-media professional | "Check account sssss123's health"           | Quick overview of account status                                           |
+| Scenario              | Role                | Example question                                 | Benefit                                        |
+| --------------------- | ------------------- | ------------------------------------------------ | ---------------------------------------------- |
+| Self-diagnosis        | Xiaohongshu creator | "Analyze my account sssss123"                    | Find issues and get optimization advice        |
+| Competitor analysis   | Content ops         | "Analyze this competitor account sssss123"       | Understand strengths/weaknesses, plan strategy |
+| Influencer evaluation | Brand               | "Evaluate this creator sssss123 for partnership" | Decide if suitable for ad collaboration        |
+| Multi-account compare | Ops team            | "Compare accounts sssss123 and sssss456"         | Side-by-side comparison for growth strategy    |
+| Health check          | Creator             | "Check health of account sssss123"               | Quick snapshot of account status               |
 
 ---
 
-## Important Data Notes
+## Important data notes
 
-- **Account data scope**: Million-level Xiaohongshu account database. Rare cases may have no account data available.
-- **No account data handling**: When search finds no data, the tool prompts the user to accept a push notification, which triggers real-time collection. The diagnostic report is automatically pushed after 30 minutes.
-- **Analysis data scope**: Based on account data and posts from the past 7 days; updated daily with yesterday's incremental data.
-- **Data discrepancy note**: Data is current as of ingestion time, not real-time; engagement may continue to grow after ingestion
+- **Account data scope**: Million-scale Xiaohongshu account library. Occasionally an account may not be found.
+- **When account data is missing**: Prompt user to accept push; triggers real-time collection. Diagnostic report auto-pushed in 30 minutes.
+- **Analysis data scope**: Based on account data and posts from the past 7 days; daily update with yesterday's incremental data.
+- **Data lag note**: Data cutoff is ingestion time, not real-time; engagement may continue growing after ingestion.

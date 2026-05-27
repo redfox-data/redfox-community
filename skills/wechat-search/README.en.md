@@ -1,118 +1,76 @@
-# WeChat Search
-
----
+# WeChat Hot Article Search / wechat-search
 
 ## Introduction
 
-A WeChat Official Account hot article search tool that helps you quickly find articles with reads > 5,000, gain creative inspiration, and stay on top of content trends.
+A WeChat Official Account hot article search tool — quickly find articles with 5,000+ reads, get creative inspiration, and stay on top of content trends.
 
 **Core Value**
 
-Continuously indexing hot articles with reads > 5,000 from WeChat Official Accounts across the web over the past 30 days, updated daily with yesterday's data. Articles are ranked by a weighted score combining relevance, popularity, and timeliness, bringing together top viral content across all categories. Quickly find quality benchmark content across industries, easily reference trending creative approaches from peers — no more scouring multiple sources for material. A one-stop solution for your daily writing reference needs.
+Based on continuously indexed WeChat articles with 5,000+ reads from the past 30 days across the web, updated daily with yesterday's data. Weighted scoring by relevance, heat, and timeliness aggregates viral articles across all domains. Quickly find quality benchmarks in any industry and reference peer hot content ideas — no more hunting for materials across the web, a one-stop solution for daily writing reference.
 
 **Who It's For**
 
-- 🎯 Content creators — Find topic inspiration, dissect viral article structures
-- 📦 WeChat operators — Track industry hot spots, shape content strategy
-- 🏢 Brands / Business — Understand KOL dynamics, evaluate content marketing directions
-- 📚 Self-media learners — Learn viral patterns, improve writing skills
+- 🎯 Content creators — Find topic inspiration and break down viral article structure
+- 📦 WeChat operators — Track industry trends and shape content strategy
+- 🏢 Brands / business teams — Monitor industry KOL dynamics and evaluate content marketing direction
+- 📚 Self-media learners — Learn viral patterns and improve writing skills
+
+## Features
+
+### Core Capabilities
+
+- **Keyword search**: Query viral WeChat articles related to any keyword
+- **Site-wide hot recommendations**: View recent hottest articles across WeChat without keywords
+- **Smart score ranking**: Weighted by relevance (10 pts), heat (3 pts), and timeliness (2 pts) — max 15 pts total
+- **Query expansion**: Related sub-topic recommendations in search results to broaden topic ideas
+- **Subscription push**: Subscribe to daily scheduled pushes for keyword queries
 
 ---
 
-## Core Capabilities
-
-- **Precise keyword search**: Enter any keyword to query related viral WeChat Official Account articles
-- **Site-wide hot recommendations**: View the most popular recent articles across the platform without a keyword
-- **Smart scoring & ranking**: Weighted scoring across three dimensions — relevance (10 pts), popularity (3 pts), timeliness (2 pts), for a total of 15 pts
-- **Keyword expansion**: Search results include related niche-direction recommendations to broaden topic ideas
-- **Subscription push**: Subscribe to keywords for daily scheduled push notifications
-
----
-
-## API key source and security
+## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`) for API authentication.
-- Before providing the key, confirm its source, available scope, validity period, and whether reset/revocation is supported.
-- Do not hard-code or expose the key in plaintext within code, prompts, logs, or output files.
-
----
-
-## Prerequisites
-
-### Register a Redfox Hub account to obtain REDFOX_API_KEY
-
-- Get REDFOX_API_KEY (apply at [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github))
-
-### Environment variables
-
-| Variable         | Required | Notes          |
-| ---------------- | -------- | -------------- |
-| `REDFOX_API_KEY` | Yes      | API access key |
-
-**macOS (zsh)**
-
-Append one line to the end of `~/.zshrc` (replace the value in quotes with your key):
-
-```bash
-export REDFOX_API_KEY="your_api_key_here"
-```
-
-Then run:
-
-```bash
-source ~/.zshrc
-```
-
-**Windows (PowerShell)**
-
-- **Current terminal only**: Takes effect immediately after run, **no other commands needed**; lost when the window is closed.
-
-```powershell
-$env:REDFOX_API_KEY = "your_api_key_here"
-```
-
-- **Persist to user environment**: After running `setx`, the **current PowerShell window still won't have the variable**; you need to **close and reopen** the terminal (or restart Cursor / VS Code, etc.) for the new window to read `REDFOX_API_KEY`.
-
-```powershell
-setx REDFOX_API_KEY "your_api_key_here"
-```
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
+- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- Configure `REDFOX_API_KEY` as a device environment variable before using this skill.
+- Before providing your key, confirm its source, available scope, validity period, and whether reset/revocation is supported.
+- Do not hard-code or expose the key in plaintext in code, prompts, logs, or output files.
 
 ---
 
 ## Usage Guide
 
-### Common Phrases Quick Reference
+### Quick phrase reference
 
-| Intent                | Example phrase                                              | Result                                             |
-| --------------------- | ----------------------------------------------------------- | -------------------------------------------------- |
-| Search viral articles | "Help me find viral workplace articles"                     | Returns recent hot articles in the workplace track |
-| Search a niche area   | "Find articles about AI startups"                           | Precisely matches niche-keyword articles           |
-| Multi-track query     | "Find viral articles in workplace, emotions, and parenting" | Returns hot articles from all three tracks at once |
-| View site-wide hot    | "What are the hottest articles across the platform lately"  | Shows the most popular recent articles site-wide   |
-| View all results      | "Show all 50 results"                                       | Displays the complete query results                |
-| Subscribe to push     | "Subscribe to workplace articles, push daily at 9 AM"       | Creates a daily scheduled push task                |
+| Intent                | Example phrase                                              | What you get                            |
+| --------------------- | ----------------------------------------------------------- | --------------------------------------- |
+| Search viral articles | "Find workplace-related viral articles for me"              | Recent hot articles in workplace niche  |
+| Niche sub-topic       | "Search for AI startup articles"                            | Precisely matched sub-keyword articles  |
+| Multi-niche query     | "Find viral articles in workplace, emotions, and parenting" | Hot articles from three niches at once  |
+| Site-wide hot         | "What are the hottest site-wide articles lately?"           | Recent hottest articles across the site |
+| View all              | "Show all 50 entries"                                       | Full query results                      |
+| Subscribe             | "Subscribe to workplace articles, push daily at 9 AM"       | Create daily scheduled push task        |
 
-### Output Example
+### Sample output
 
 📅 **Query time range**: May 14 – May 21
 
-💡 **Found 12 related articles, showing the first 10. Would you like to see all?**
+💡 **Found 12 related articles; showing first 10. View all?**
 
-| Article title                                                                                 | Author                       | Reads | Published  | Relevance | Popularity | Timeliness | **Total** |
-| --------------------------------------------------------------------------------------------- | ---------------------------- | ----- | ---------- | --------- | ---------- | ---------- | --------- |
-| [5 must-know tips for new hires to quickly fit into the team](https://mp.weixin.qq.com/s/xxx) | Workplace Growth Hub         | 10.0w | 2026-05-15 | 9.8       | 3.0        | 2.0        | **14.8**  |
-| [3 things you should never say in workplace communication!](https://mp.weixin.qq.com/s/xxx)   | Workplace Tips               | 8.5w  | 2026-05-14 | 9.5       | 2.8        | 2.0        | **14.3**  |
-| [7 meeting efficiency secrets every worker must bookmark](https://mp.weixin.qq.com/s/xxx)     | Workplace Research Institute | 6.2w  | 2026-05-13 | 9.2       | 2.5        | 1.8        | **13.5**  |
-| ...                                                                                           | ...                          | ...   | ...        | ...       | ...        | ...        | ...       |
+| Title                                                                                      | Author           | Reads | Published  | Relevance | Heat | Timeliness | **Total** |
+| ------------------------------------------------------------------------------------------ | ---------------- | ----- | ---------- | --------- | ---- | ---------- | --------- |
+| [Must-read for workplace newcomers: 5 tips to fit in fast](https://mp.weixin.qq.com/s/xxx) | Workplace Growth | 100K  | 2026-05-15 | 9.8       | 3.0  | 2.0        | **14.8**  |
+| [Workplace communication: 3 sentences you must never say!](https://mp.weixin.qq.com/s/xxx) | Workplace Tips   | 85K   | 2026-05-14 | 9.5       | 2.8  | 2.0        | **14.3**  |
+| [Workers must save: 7 secrets to efficient meetings](https://mp.weixin.qq.com/s/xxx)       | Workplace Lab    | 62K   | 2026-05-13 | 9.2       | 2.5  | 1.8        | **13.5**  |
+| ...                                                                                        | ...              | ...   | ...        | ...       | ...  | ...        | ...       |
 
-**🔤 Keyword expansion**: Work, Office worker, Workplace fashion, Workplace tips, Growth, Niche careers, Upward management, Workplace anxiety, Promotion, Financial freedom
+**🔤 Query expansion**: work, office workers, workplace outfits, workplace tips, growth, niche careers, managing up, workplace anxiety, promotion, financial freedom
 
 ---
 
-📬 **Subscription service**
+📬 **Subscription**
 
-1️⃣ Would you like to subscribe to the current search criteria? Articles will be pushed to you on a schedule.
+1️⃣ Subscribe to articles matching your current search? Scheduled pushes after subscription.
 
 2️⃣ Not now
 
@@ -120,38 +78,38 @@ setx REDFOX_API_KEY "your_api_key_here"
 
 ## Use Cases
 
-| Scenario                | Role               | Example question                                                 | Benefit                                   |
-| ----------------------- | ------------------ | ---------------------------------------------------------------- | ----------------------------------------- |
-| Find topic inspiration  | Content creator    | "Help me find trending workplace articles"                       | Quickly discover topic directions         |
-| Dissect viral patterns  | WeChat operator    | "Find viral emotion-category articles and analyze the structure" | Learn viral headline and content formulas |
-| Industry trend analysis | Brand / Business   | "What's trending in the food track lately"                       | Understand industry KOL dynamics          |
-| Multi-track scanning    | Self-media learner | "Show me the hottest articles site-wide"                         | Grasp platform-wide trending directions   |
-| Scheduled tracking      | Content creator    | "Push workplace articles to me every morning"                    | Automated industry hot-spot tracking      |
+| Scenario                | Role               | Example question                                      | Benefit                                |
+| ----------------------- | ------------------ | ----------------------------------------------------- | -------------------------------------- |
+| Topic inspiration       | Content creator    | "What hot workplace articles are there lately?"       | Quickly get topic direction            |
+| Viral pattern breakdown | WeChat operator    | "Find emotional viral articles and analyze structure" | Learn viral title and content patterns |
+| Industry trend analysis | Brand / business   | "What's hot in food niche lately?"                    | Monitor industry KOL dynamics          |
+| Multi-niche scan        | Self-media learner | "Show me site-wide hot articles"                      | Grasp cross-platform hot directions    |
+| Scheduled tracking      | Content creator    | "Push workplace articles to me every morning"         | Automated industry trend tracking      |
 
 ---
 
-## Important Data Notes
+## Important data notes
 
-### Recommended hot tracks (22)
+### Recommended hot niches (22)
 
-Humanities, Knowledge, Wellness, Fashion, Food, Lifestyle, Travel, Humor, Emotions, Sports & Entertainment, Beauty, Digest, Civic News, Wealth & Finance, Tech & Digital, VC & Business, Automotive, Real Estate, Workplace, Education & Exams, Academia
+Humanities, knowledge, wellness, fashion, food, lifestyle, travel, humor, emotions, sports & entertainment, beauty, digest, civic news, wealth & finance, tech & digital, venture & business, automotive, real estate, career, education & exams, academic
 
 ### Data notes
 
-- **Data scope**: Viral articles are those with reads ≥ 5,000
-- **Update schedule**: Updated daily at 7 AM with yesterday's data
-- **Data timeliness**: Article engagement data is current as of ingestion time, not real-time; engagement may continue to grow after ingestion
-- **Query range**: Currently supports querying data from the past 30 days
+- **Data scope**: Viral articles are those with 5,000+ reads
+- **Update time**: Daily 7:00 AM with yesterday's data
+- **Data freshness**: Engagement cutoff is ingestion time, not real-time; may continue growing after ingestion
+- **Query range**: Currently supports data from the past 30 days
 
-### Sorting rules
+### Ranking rules
 
-- **Keyword search**: Sorted by total score (relevance + popularity + timeliness) in descending order; total score max 15 pts
-- **Site-wide hot**: Sorted by read count in descending order
-- **Relevance**: How closely the article matches the keyword (max 10 pts)
-- **Popularity**: The article's overall popularity performance (max 3 pts)
-- **Timeliness**: The article's recency weight (max 2 pts)
+- **Keyword search**: Sorted by total score (relevance + heat + timeliness) descending; max 15 pts
+- **Site-wide hot**: Sorted by read count descending
+- **Relevance**: How well the article matches the keyword (max 10 pts)
+- **Heat**: Overall heat performance (max 3 pts)
+- **Timeliness**: Recency weight (max 2 pts)
 
-### Keyword expansion rules
+### Query expansion rules
 
-- When a broad category word (track keyword) is detected, niche-direction recommendations are automatically provided
-- If no results are found for your keyword, it may be too niche — our inclusion threshold is reads > 5,000. Try the suggested expansion words, extend the time range, or explore other popular tracks for inspiration
+- When a broad category keyword (track keyword) is detected, related sub-directions are recommended automatically
+- When your keyword returns no results, it may be too niche — our indexing threshold is 5,000+ reads. Try expanded terms or a wider time range, or explore other hot niches for inspiration

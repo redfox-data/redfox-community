@@ -33,54 +33,14 @@
 
 ---
 
-## 密钥来源与安全说明
+## 密钥获取与安全说明
 
 - 本技能需要使用环境变量：`REDFOX_API_KEY`。
-- `REDFOX_API_KEY` 由 [红狐 hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`)签发，用于其接口鉴权。
+- `REDFOX_API_KEY` 由 [红狐 hub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`)提供。
+- 请前往 [红狐 hub](https://redfox.hk?souce=github) 注册账号，获取 `REDFOX_API_KEY`。
+- 配置设备环境变量 `REDFOX_API_KEY` 后使用本技能。
 - 在提供密钥前，请先确认密钥来源、可用范围、有效期及是否支持重置/撤销。
 - 禁止在代码、提示词、日志或输出文件中硬编码/明文暴露密钥。
-
----
-
-## 前置条件
-
-### 注册红狐 hub 账号获取 REDFOX_API_KEY
-
-- 获取 REDFOX_API_KEY（前往 [红狐 hub](https://redfox.hk/dashboard/keys?souce=github) 申请）
-
-### 环境变量配置
-
-| 变量名           | 必填 | 说明         |
-| ---------------- | ---- | ------------ |
-| `REDFOX_API_KEY` | 是   | API 访问密钥 |
-
-**macOS（zsh）**
-
-在 `~/.zshrc` 末尾添加一行（将引号内换成你的密钥）：
-
-```bash
-export REDFOX_API_KEY="your_api_key_here"
-```
-
-保存后执行：
-
-```bash
-source ~/.zshrc
-```
-
-**Windows（PowerShell）**
-
-- **仅本次终端有效**：执行后立刻生效，**无需再跑别的命令**；关掉窗口后失效。
-
-```powershell
-$env:REDFOX_API_KEY = "your_api_key_here"
-```
-
-- **写入用户环境变量（持久）**：执行 `setx` 后，**当前这个 PowerShell 窗口里仍然没有该变量**，需要 **关闭并重新打开** 终端（或重启 Cursor / VS Code 等），新开的窗口里才会读到 `REDFOX_API_KEY`。
-
-```powershell
-setx REDFOX_API_KEY "your_api_key_here"
-```
 
 ---
 
@@ -105,11 +65,11 @@ setx REDFOX_API_KEY "your_api_key_here"
 
 📊 **原创爆文推荐**
 
-| 序号 | 作者          | 标题             | 阅读数 |
-| ---- | ------------- | ---------------- | ------ |
-| 1    | [作者A](链接) | [文章标题](链接) | 10w+   |
-| 2    | [作者B](链接) | [文章标题](链接) | 10w+   |
-| …    | …             | …                | …      |
+| 序号 | 作者           | 标题             | 阅读数 |
+| ---- | -------------- | ---------------- | ------ |
+| 1    | [作者 A](链接) | [文章标题](链接) | 10w+   |
+| 2    | [作者 B](链接) | [文章标题](链接) | 10w+   |
+| …    | …              | …                | …      |
 
 共获取到 50 条爆款原创热门文章，当前展示前 20 条。
 
@@ -128,7 +88,7 @@ setx REDFOX_API_KEY "your_api_key_here"
 | ------------ | ------------ | ---------------------- | ------------------------------ |
 | 每日原创选题 | 公众号编辑   | "最新原创爆文"         | 最新原创热门样本 + 可分享 HTML |
 | 垂类对标     | 内容策划     | "科技类原创爆款"       | 按分类筛选的 Top 榜单          |
-| 指定日复盘   | 运营负责人   | "5月3日的原创爆款"     | 某日原创爆文列表 + PDF 导出    |
+| 指定日复盘   | 运营负责人   | "5 月 3 日的原创爆款"  | 某日原创爆文列表 + PDF 导出    |
 | 订阅推送     | 固定节奏运营 | "订阅财经赛道原创文章" | 每日定时推送原创爆文           |
 
 ---

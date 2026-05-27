@@ -1,21 +1,21 @@
-# Douyin Top Account
+# Douyin Top Account Rankings / douyin-top-account
 
 ---
 
-## Overview
+## Introduction
 
 Quickly discover the most influential accounts on Douyin and stay on top of niche trends.
 
 **Core Value**
 
-Based on daily TOP 50 account data across all Douyin niches — covering follower growth, engagement, and growth trends — this tool helps you tackle four key challenges: content topic decisions, benchmark account discovery, competitor monitoring, and niche selection.
+Based on daily TOP 50 account data across all Douyin niches — follower growth, engagement, and growth trends — this skill helps you with topic decisions, benchmark accounts, competitor monitoring, and niche selection.
 
-**Intended Users**
+**Who It's For**
 
-- 🎬 Content creators — understand top account performance in your niche, find benchmarks to learn from
-- 🏢 Brand owners / ad placement teams — efficiently shortlist quality influencers and evaluate partnership value
-- 📦 MCN agencies / content teams — track competitor dynamics and develop operational strategies
-- 📊 Industry analysts — obtain data insights and generate analysis reports
+- 🎬 Content creators — see how top accounts perform in your niche and find benchmarks to learn from
+- 🏢 Brands / ad buyers — efficiently screen quality creators and evaluate partnership value
+- 📦 MCN agencies / content teams — track competitor dynamics and shape operations strategy
+- 📊 Industry analysts — get data insights and generate analysis reports
 
 ---
 
@@ -23,134 +23,94 @@ Based on daily TOP 50 account data across all Douyin niches — covering followe
 
 ### Core Capabilities
 
-- **Ranking queries**: query daily, weekly, and monthly TOP 50 Douyin accounts; default display is TOP 20
-- **Niche filtering**: supports all-category trending or precise queries across 27 content niches, with fuzzy keyword matching
-- **Composite scoring**: weighted calculation based on total followers, new follower growth, and new likes/shares/comments; multi-dimensional, objective ranking out of 100
-- **HTML report generation**: generates a visually styled HTML file with clickable account names linking to Douyin profiles; supports export as image or PDF
-- **Subscription push**: set up scheduled auto-delivery for daily, weekly, or monthly rankings; supports niche-specific subscriptions
+- **Ranking queries**: Daily, weekly, and monthly TOP 50 account rankings; TOP 20 shown by default
+- **Niche filtering**: Query across all hot niches on Douyin or drill into any of 27 track categories with fuzzy keyword matching
+- **Composite score**: Weighted ranking from total followers, new followers, and new likes/shares/comments — objective and credible, scored out of 100
+- **HTML report generation**: Visual HTML reports with clickable account names linking to Douyin profiles; export as image or PDF
+- **Subscription push**: Schedule daily, weekly, or monthly ranking updates, or subscribe by specific niche
 
 ---
 
-## API key source and security
+## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`) for API authentication.
-- Before providing the key, confirm its source, available scope, validity period, and whether reset/revocation is supported.
-- Do not hard-code or expose the key in plaintext within code, prompts, logs, or output files.
-
----
-
-## Prerequisites
-
-### Register a Redfox Hub account to obtain REDFOX_API_KEY
-
-- Get REDFOX_API_KEY (apply at [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github))
-
-### Environment variables
-
-| Variable         | Required | Notes          |
-| ---------------- | -------- | -------------- |
-| `REDFOX_API_KEY` | Yes      | API access key |
-
-**macOS (zsh)**
-
-Append one line to the end of `~/.zshrc` (replace the value in quotes with your key):
-
-```bash
-export REDFOX_API_KEY="your_api_key_here"
-```
-
-Then run:
-
-```bash
-source ~/.zshrc
-```
-
-**Windows (PowerShell)**
-
-- **Current terminal only**: Takes effect immediately after run, **no other commands needed**; lost when the window is closed.
-
-```powershell
-$env:REDFOX_API_KEY = "your_api_key_here"
-```
-
-- **Persist to user environment**: After running `setx`, the **current PowerShell window still won't have the variable**; you need to **close and reopen** the terminal (or restart Cursor / VS Code, etc.) for the new window to read `REDFOX_API_KEY`.
-
-```powershell
-setx REDFOX_API_KEY "your_api_key_here"
-```
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
+- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- Configure `REDFOX_API_KEY` as a device environment variable before using this skill.
+- Before providing your key, confirm its source, available scope, validity period, and whether reset/revocation is supported.
+- Do not hard-code or expose the key in plaintext in code, prompts, logs, or output files.
 
 ---
 
 ## Usage Guide
 
-Simply describe your needs in natural language — no commands to memorize.
+Describe what you need in plain language — no commands to memorize.
 
-### Quick Reference
+### Quick phrase reference
 
-| Intent               | Example phrase                                        | Result                             |
-| -------------------- | ----------------------------------------------------- | ---------------------------------- |
-| Daily ranking        | "What's the latest Douyin daily ranking?"             | Latest all-category daily TOP 20   |
-| Niche weekly ranking | "How did food accounts rank on Douyin last week?"     | Latest food niche weekly TOP 20    |
-| Monthly ranking      | "Show me last month's Douyin gaming account rankings" | Latest gaming monthly TOP 20       |
-| Full ranking list    | "I want to see all 50"                                | Full TOP 50 with generated report  |
-| Download report      | "Generate an HTML report for this ranking"            | Visual HTML file delivered         |
-| Subscribe push       | "I want daily updates on the Douyin food ranking"     | Creates a scheduled auto-push task |
+| Intent               | Example phrase                                          | What you get                       |
+| -------------------- | ------------------------------------------------------- | ---------------------------------- |
+| Daily ranking        | "What's the latest Douyin daily account ranking?"       | Latest all-niche daily TOP 20      |
+| Weekly niche ranking | "How did food accounts rank on Douyin last week?"       | Latest food-niche weekly TOP 20    |
+| Monthly ranking      | "Show me last month's gaming account ranking on Douyin" | Latest gaming-niche monthly TOP 20 |
+| Full ranking         | "I want to see all 50 entries"                          | Full TOP 50 with report            |
+| Download report      | "Generate an HTML report for this ranking"              | Visual HTML file delivered         |
+| Subscribe            | "Send me daily food-niche Douyin ranking updates"       | Scheduled push task created        |
 
-### Output Example
+### Sample output
 
-📊 Douyin Daily Ranking · All Categories
+📊 Douyin Daily Ranking · All niches
 
 Data date: 2025-05-19
 50 accounts on the list (showing TOP 20)
 
-💡 Note: Data is updated daily at 17:30 with the previous day's figures; a time lag from live data exists.
+💡 Ranking note: Data updates daily at 17:30 with yesterday's figures; may differ from real-time data.
 
-📐 Composite score: weighted by total followers, new follower growth, new likes/shares/comments; full score 100:
+📐 Composite score: Weighted from total followers, new followers, and new likes/shares/comments; max 100:
 
-| Rank | Account                  | Score | Total Followers | New Followers | New Likes | New Comments | New Shares |
-| :--: | ------------------------ | :---: | :-------------: | :-----------: | :-------: | :----------: | :--------: |
-| 🥇 1 | Account Name (clickable) |  96   |      2.54M      |     6,919     |   246K    |     67K      |    134K    |
-| 🥈 2 | Account Name (clickable) |  89   |      1.13M      |      19K      |    79K    |    4,787     |    31K     |
-|  …   | …                        |   …   |        …        |       …       |     …     |      …       |     …      |
+| Rank | Account (clickable) | Score | Total followers | New followers | New likes | New comments | New shares |
+| :--: | ------------------- | :---: | :-------------: | :-----------: | :-------: | :----------: | :--------: |
+| 🥇 1 | Account name        |  96   |      2.54M      |     6,919     |   246K    |     67K      |    134K    |
+| 🥈 2 | Account name        |  89   |      1.13M      |     19.1K     |    79K    |    4,787     |   31.2K    |
+|  …   | …                   |   …   |        …        |       …       |     …     |      …       |     …      |
 
-⚡ More Options
-⏺️ This ranking has 50 entries in total. Would you like to see the remaining 30?
+⚡ More actions
+⏺️ This ranking has 50 entries in total. View the remaining 30?
 
 📬 Subscription
-1️⃣ Would you like to subscribe to the latest daily/weekly/monthly Douyin account rankings?
-2️⃣ Would you like to subscribe to account performance for a specific niche?
+1️⃣ Subscribe to daily/weekly/monthly Douyin account ranking updates?
+2️⃣ Subscribe to a specific niche?
 
 ---
 
 ## Use Cases
 
-| Scenario                                   | Role                                  | Example Question                                                            | Benefit                                                                             |
-| ------------------------------------------ | ------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Find benchmark accounts in a niche         | Content creator / individual operator | "Which food accounts are performing well? Show me the latest daily ranking" | Quickly identify industry leaders and clarify content direction                     |
-| Evaluate influencer partnership candidates | Brand / ad placement team             | "Which beauty accounts stood out in last week's Douyin TOP 50?"             | Batch screening for more efficient campaign decisions                               |
-| Monitor competitor niche dynamics          | MCN agency / content team             | "Which gaming accounts grew the fastest this week?"                         | Stay on top of the competitive landscape and respond to market changes in real time |
-| Generate industry analysis reports         | Industry analyst / consultant         | "Generate a March Douyin gaming category ranking report for me"             | One-click visual HTML, easy to share in presentations                               |
-| Track account ranking changes over time    | Operations team                       | "I want the latest travel niche weekly ranking every Monday"                | Automated ranking intelligence via subscription push                                |
+| Scenario                        | Role                    | Example question                                                | Benefit                                             |
+| ------------------------------- | ----------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
+| Find niche benchmark accounts   | Creator / solo operator | "Which food accounts are doing well? Show me the daily ranking" | Quickly spot category leaders and clarify direction |
+| Evaluate creator partnerships   | Brand / ad buyer        | "Who stood out in last week's Douyin beauty TOP 50?"            | Batch screening for faster partnership decisions    |
+| Monitor competitor niches       | MCN / content team      | "Which gaming accounts gained followers fastest this week?"     | Track competitive landscape and respond quickly     |
+| Generate industry reports       | Analyst / consultant    | "Generate a March Douyin gaming ranking report for me"          | One-click visual HTML for sharing and presentations |
+| Track ranking changes regularly | Operations team         | "Send me the latest travel weekly ranking every Monday"         | Automated ranking intelligence via subscription     |
 
 ---
 
-## Important Data Notes
+## Important data notes
 
-### Update Schedule and Data Lookback
+### Update schedule and lookback
 
-| Ranking Type | Update Time                                                     | Lookback Range |
-| ------------ | --------------------------------------------------------------- | -------------- |
-| Daily        | Updated at 17:30 every day with previous day's data             | Past 7 days    |
-| Weekly       | Updated every Monday at 17:30 with last week's data             | Past 3 weeks   |
-| Monthly      | Updated on the 2nd of each month at 9:00 with last month's data | Past 3 months  |
+| Ranking type | Update time                           | Lookback      |
+| ------------ | ------------------------------------- | ------------- |
+| Daily        | Daily 17:30 — yesterday's data        | Past 7 days   |
+| Weekly       | Monday 17:30 — last week's data       | Past 3 weeks  |
+| Monthly      | 2nd of month 9:00 — last month's data | Past 3 months |
 
-### Supported Niches (27)
+### Supported niches (27)
 
-Personal Talent, Life Vlog, Wealth & Finance, ACG/Anime, Home Decor, Education, Short Drama, Tech & Gadgets, Travel, Food, Beauty & Makeup, Animals, Parenting, Automotive, Relationships, Agriculture, Health & Medicine, Fashion & Trends, Dance & Performing Arts, Appearance & Styling, Humanities, Music, Film & TV, Fitness, Sports, Celebrity Entertainment, Gaming
+Personal talent, lifestyle vlog, wealth & finance, anime/2D, home decor, education, short drama, tech, travel, food, beauty, pets, parenting, automotive, relationships, agriculture, health & medicine, fashion, dance, looks & styling, humanities, music, film & TV, fitness, sports, celebrity entertainment, gaming
 
-### Data Freshness
+### Data freshness
 
-Data is not updated in real time. Account engagement figures reflect the values captured at collection time and may differ from live platform data.
+Data is not real-time. Engagement figures reflect the collection moment and may differ from live platform data.
 
 ---
