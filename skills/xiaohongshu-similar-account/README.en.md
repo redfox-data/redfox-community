@@ -32,54 +32,14 @@ Based on follower count, niche, engagement data, and content style, this tool ma
 
 ---
 
-## API Key Source & Security
+## API Key Acquisition & Security
 
-- This skill only requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [Redfox hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`) for API authentication.
+- This skill requires the environment variable: `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`).
+- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain `REDFOX_API_KEY`.
+- Configure `REDFOX_API_KEY` on your device before using this skill.
 - Before providing your key, confirm its source, scope, validity period, and whether it can be reset or revoked.
 - Do not hard-code or expose keys in plain text in code, prompts, logs, or output files.
-
----
-
-## Prerequisites
-
-### Register a Redfox hub account to obtain REDFOX_API_KEY
-
-- Obtain `REDFOX_API_KEY` (apply at [Redfox hub](https://redfox.hk/dashboard/keys?souce=github))
-
-### Environment Variables
-
-| Variable       | Required | Description    |
-| -------------- | -------- | -------------- |
-| REDFOX_API_KEY | Yes      | API access key |
-
-**macOS (zsh)**
-
-Add one line at the end of `~/.zshrc` (replace the quoted value with your key):
-
-```bash
-export REDFOX_API_KEY="your_api_key_here"
-```
-
-Then run:
-
-```bash
-source ~/.zshrc
-```
-
-**Windows (PowerShell)**
-
-- **Current session only**: Takes effect immediately after running; **no further commands needed**; expires when you close the window.
-
-```powershell
-$env:REDFOX_API_KEY = "your_api_key_here"
-```
-
-- **Persist for your user account**: After running `setx`, **this PowerShell window still does not have the variable**; you must **close and reopen** the terminal (or restart Cursor / VS Code, etc.) for new windows to read `REDFOX_API_KEY`.
-
-```powershell
-setx REDFOX_API_KEY "your_api_key_here"
-```
 
 ---
 

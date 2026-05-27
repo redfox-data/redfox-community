@@ -2,22 +2,21 @@
 
 ## 接口基础信息
 
-| 字段 | 值 |
-|------|-----|
-| 接口地址 | `https://redfox.hk/story/api/xhsData/query` |
-| 请求方式 | POST |
-| Content-Type | `application/json` |
-| 认证方式 | `X-API-KEY` Header（从环境变量 `REDFOX_API_KEY` 获取） |
+| 字段         | 值                                                     |
+| ------------ | ------------------------------------------------------ |
+| 接口地址     | `https://redfox.hk/story/api/xhsData/query`            |
+| 请求方式     | POST                                                   |
+| Content-Type | `application/json`                                     |
+| 认证方式     | `X-API-KEY` Header（从环境变量 `REDFOX_API_KEY` 获取） |
 
 ### 鉴权
 
 #### 获取 API Key
-1. 访问 [RedFox 官网](https://redfox.hk/) 了解服务详情
-2. 前往 [注册页面](https://redfox.hk/login) 注册账号
-3. **新注册用户将获赠免费积分**，可立即开始使用 API 服务
-4. 注册登录后，在个人中心获取 API Key，格式为 `ak_xxxxxxxx`
+
+请前往 [红狐hub](https://redfox.hk/settings/api-keys?source=github) 获取API KEY
 
 #### 配置 API Key
+
 - `REDFOX_API_KEY` 从环境变量获取，格式 `ak_xxxxxxxx`
 - 若未设置，提示用户自行配置：`export REDFOX_API_KEY=<你的apikey>`；若用户不会配置，Agent应主动帮用户设置：
   - **macOS/Linux**：将 `export REDFOX_API_KEY=<值>` 追加到 `~/.zshrc`（zsh）或 `~/.bashrc`（bash），然后 `source` 对应文件使其全局生效
@@ -30,25 +29,25 @@
 
 ```json
 {
-  "dateType": 1,            // 榜单日期类型：1=日榜  2=周榜  3=月榜（必填）
+  "dateType": 1, // 榜单日期类型：1=日榜  2=周榜  3=月榜（必填）
   "rankDate": "2026-04-28", // 榜单日期 yyyy-MM-dd（必填）
-                            //   日榜：填当日日期，如 2026-04-28
-                            //   周榜：填该周**周一**日期，如 2026-04-20
-                            //   月榜：填该月第一天，如 2026-03-01
-  "type": "体育锻炼",        // 赛道分类，默认"综合全部"（必填）
-  "source": "小红书指数榜"   // 固定值（必填）
+  //   日榜：填当日日期，如 2026-04-28
+  //   周榜：填该周**周一**日期，如 2026-04-20
+  //   月榜：填该月第一天，如 2026-03-01
+  "type": "体育锻炼", // 赛道分类，默认"综合全部"（必填）
+  "source": "小红书指数榜" // 固定值（必填）
 }
 ```
 
 ### 请求头
 
-| Header | 值 | 说明 |
-|--------|-----|------|
-| Content-Type | `application/json` | 必填 |
-| X-API-KEY | `ak_xxxxxxxx` | 从环境变量 `REDFOX_API_KEY` 获取，必填 |
+| Header       | 值                 | 说明                                   |
+| ------------ | ------------------ | -------------------------------------- |
+| Content-Type | `application/json` | 必填                                   |
+| X-API-KEY    | `ak_xxxxxxxx`      | 从环境变量 `REDFOX_API_KEY` 获取，必填 |
 
 > ⚠️ **重要**：`source` 必须为 `"小红书指数榜"`，使用其他值会导致接口返回空数据！
-> 
+>
 > ⚠️ 注意：`page`/`pageSize` 参数无效，接口每次固定返回 50 条数据。
 
 ---
@@ -60,54 +59,54 @@
   "code": 2000,
   "data": [
     {
-      "accountLink":    "https://www.xiaohongshu.com/user/profile/...",
-      "accountName":    "恋与深空",
+      "accountLink": "https://www.xiaohongshu.com/user/profile/...",
+      "accountName": "恋与深空",
       "accountRanking": 1,
-      "category":       "数码科技",
-      "fansCount":      "254.06w",
-      "fansGrowth":     "6919",
-      "likedGrowth":    "24.64w",
+      "category": "数码科技",
+      "fansCount": "254.06w",
+      "fansGrowth": "6919",
+      "likedGrowth": "24.64w",
       "commentsGrowth": "6.68w",
-      "collectedGrowth":"2.53w",
-      "sharedGrowth":   "13.39w",
-      "newNoteCount":   null,
-      "dataFetchTime":  "2026-04-29 19:00:01",
-      "rankDate":       "2026-04-28",
-      "rankPeriod":     "日榜"
+      "collectedGrowth": "2.53w",
+      "sharedGrowth": "13.39w",
+      "newNoteCount": null,
+      "dataFetchTime": "2026-04-29 19:00:01",
+      "rankDate": "2026-04-28",
+      "rankPeriod": "日榜"
     }
   ]
 }
 ```
 
-> ⚠️ 注意：新接口**不返回** `comprehensiveScore`（综合评分）字段；  
+> ⚠️ 注意：新接口**不返回** `comprehensiveScore`（综合评分）字段；
 > 互动数各字段均为**字符串格式**，如 `"6.68w"`、`"1245"`。
 
 ---
 
 ## 错误码
 
-| code | 含义 |
-|------|------|
+| code | 含义                                     |
+| ---- | ---------------------------------------- |
 | 2000 | **成功**（注意：成功码是 2000 不是 0！） |
-| 其他 | 错误，data 为空数组 |
+| 其他 | 错误，data 为空数组                      |
 
 ---
 
 ## 字段映射（fetch_rank.py normalized JSON）
 
-| 接口原始字段 | normalized 字段 | 含义 |
-|------------|----------------|------|
-| `accountRanking` | `rank` | 排名 |
-| `accountName` | `accountName` | 账号名 |
-| `category` | `category` | 赛道 |
-| `fansCount` | `followers` | 总粉丝数 |
-| `newNoteCount` | `newNoteCount` | 新增笔记数 |
-| `fansGrowth` | `newFans` | 新增粉丝 |
-| `likedGrowth` | `newLikes` | 新增点赞 |
-| `commentsGrowth` | `newComments` | 新增评论 |
-| `collectedGrowth` | `newCollects` | 新增收藏 |
-| `sharedGrowth` | `newShares` | 新增分享 |
-| `accountLink` | `profileUrl` | 主页链接 |
+| 接口原始字段      | normalized 字段 | 含义       |
+| ----------------- | --------------- | ---------- |
+| `accountRanking`  | `rank`          | 排名       |
+| `accountName`     | `accountName`   | 账号名     |
+| `category`        | `category`      | 赛道       |
+| `fansCount`       | `followers`     | 总粉丝数   |
+| `newNoteCount`    | `newNoteCount`  | 新增笔记数 |
+| `fansGrowth`      | `newFans`       | 新增粉丝   |
+| `likedGrowth`     | `newLikes`      | 新增点赞   |
+| `commentsGrowth`  | `newComments`   | 新增评论   |
+| `collectedGrowth` | `newCollects`   | 新增收藏   |
+| `sharedGrowth`    | `newShares`     | 新增分享   |
+| `accountLink`     | `profileUrl`    | 主页链接   |
 
 ---
 
@@ -135,21 +134,21 @@
 
 ## 榜单更新规则
 
-| 榜单类型 | 更新时间 | 统计范围 | rankDate 填写规则 | 示例 |
-|---------|---------|---------|-----------------|------|
-| 日榜 | 每日 19:00 | 前一天 | 填当天日期 | "2026-04-28" |
-| 周榜 | 每周一 15:00 | 上周 | 填该周**周一**日期 | "2026-04-20" |
-| 月榜 | 每月2号 上午9:00 | 上月 | 填该月**2号** | "2026-04-02" |
+| 榜单类型 | 更新时间         | 统计范围 | rankDate 填写规则  | 示例         |
+| -------- | ---------------- | -------- | ------------------ | ------------ |
+| 日榜     | 每日 19:00       | 前一天   | 填当天日期         | "2026-04-28" |
+| 周榜     | 每周一 15:00     | 上周     | 填该周**周一**日期 | "2026-04-20" |
+| 月榜     | 每月2号 上午9:00 | 上月     | 填该月**2号**      | "2026-04-02" |
 
 ### 日期回退计算
 
 根据当前时间判断取第几期数据：
 
-| 榜单类型 | 当前时间 < 更新时间 | 当前时间 >= 更新时间 |
-|---------|-------------------|-------------------|
-| 日榜 (19:00更新) | offset=2 (前2天) | offset=1 (前1天) |
-| 周榜 (周一15:00更新) | offset=2 (前2周) | offset=1 (前1周) |
-| 月榜 (2号09:00更新) | offset=2 (前2月) | offset=1 (前1月) |
+| 榜单类型             | 当前时间 < 更新时间 | 当前时间 >= 更新时间 |
+| -------------------- | ------------------- | -------------------- |
+| 日榜 (19:00更新)     | offset=2 (前2天)    | offset=1 (前1天)     |
+| 周榜 (周一15:00更新) | offset=2 (前2周)    | offset=1 (前1周)     |
+| 月榜 (2号09:00更新)  | offset=2 (前2月)    | offset=1 (前1月)     |
 
 > ⚠️ **月榜必须用每月2号**，实测用月末最后一天（如 "2026-03-31"）返回空数据！
 
@@ -162,6 +161,7 @@
 ### 1. 体育锻炼分类数据为空
 
 部分分类（如体育锻炼）在某些日期可能返回空数据。需要自动回退日期尝试：
+
 ```
 2026-04-29: 0条 → 回退
 2026-04-28: 50条 ✓
@@ -170,6 +170,7 @@
 ### 2. 互动数据计算
 
 最高互动需要自行计算：
+
 ```python
 def parse_num(s):
     s = str(s).replace('w', '').replace('W', '')
