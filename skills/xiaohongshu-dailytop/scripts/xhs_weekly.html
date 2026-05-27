@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书每日爆款笔记 - 时尚穿搭</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .page-wrap {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 12px 12px 24px;
+        }
+
+        .export-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 8px 0 10px;
+        }
+        .btn-export-pdf, .btn-export-img {
+            background: #fff;
+            color: #ff2442;
+            border: 1.5px solid #ff2442;
+            border-radius: 20px;
+            padding: 6px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-export-pdf:hover, .btn-export-img:hover { background: #fff5f6; }
+
+        .pdf-content { background: transparent; }
+
+        .header-wrap {
+            background: linear-gradient(135deg, #ff2442 0%, #ff6b81 100%);
+            border-radius: 12px;
+            padding: 20px 16px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        .header-wrap h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .header-meta {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .category-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            border-radius: 10px;
+            padding: 2px 10px;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        .note-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .note-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #f0f0f0;
+        }
+        .note-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .note-card.top1 { border-left: 3px solid #ff2442; }
+        .note-card.top2 { border-left: 3px solid #ff6b81; }
+        .note-card.top3 { border-left: 3px solid #ffb3c1; }
+
+        .note-row1 {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .rank-num {
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #999;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .note-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .note-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .note-title a {
+            color: #333;
+            text-decoration: none;
+        }
+        .note-title a:hover {
+            color: #ff2442;
+        }
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #999;
+        }
+        .author-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .author-name {
+            color: #666;
+        }
+        .fans-count {
+            color: #999;
+        }
+
+        .note-row2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding-left: 48px;
+            /* 48px = rank-num宽度36px + margin-right 12px，与头像边界对齐 */
+        }
+        .data-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+        }
+        .data-label {
+            color: #999;
+        }
+        .data-value {
+            color: #333;
+            font-weight: 600;
+        }
+        .data-add {
+            color: #ff2442;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: #bbb;
+            margin-top: 16px;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 600px) {
+            .page-wrap { padding: 8px 8px 20px; }
+            .header-wrap { padding: 16px 12px; }
+            .header-wrap h1 { font-size: 20px; }
+            .note-card { padding: 12px; }
+            .note-title { font-size: 15px; }
+            .rank-num { min-width: 32px; height: 32px; font-size: 16px; }
+            .note-row2 { gap: 10px; padding-left: 44px; margin-top: 8px; }
+            .data-item { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrap">
+    <div class="export-bar">
+        <button class="btn-export-img" onclick="exportImage()">导出图片</button>
+        <button class="btn-export-pdf" onclick="exportPdf()">导出 PDF</button>
+    </div>
+
+    <div class="pdf-content" id="pdfContent">
+        <div class="header-wrap">
+            <h1>📱 小红书每日爆款笔记<span class="category-badge">时尚穿搭</span></h1>
+            <div class="header-meta">更新时间：2026-05-24 19:00</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:4px;">*每日爆款笔记指笔记发后第3天比第2天涨的数据由高到低Top50*</div>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-num" id="totalCount">--</div>
+                    <div class="stat-label">笔记总数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" id="maxInteractive">--</div>
+                    <div class="stat-label">最高互动</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" id="avgInteractive">--</div>
+                    <div class="stat-label">平均互动</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-list" id="noteList"></div>
+
+        <div class="footer-note">数据来源：小红书平台 · 时尚穿搭 · 当日热门笔记排行</div>
+    </div>
+</div>
+
+<script>
+(function() {
+    function bindCardClick() {
+        var cards = document.querySelectorAll('.note-card[data-href]');
+        cards.forEach(function(card) {
+            card.addEventListener('click', function(e) {
+                if (e.target.closest('a, button')) return;
+                var url = this.getAttribute('data-href');
+                if (url && url !== '#') window.open(url, '_blank');
+            });
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindCardClick);
+    } else {
+        bindCardClick();
+    }
+})();
+
+(function() {
+    var RAW = [
+  {
+    "index": 1,
+    "userName": "阿涛老师预约在成都",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3129k05p3l2005np5b910bsd8dhmjtag?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5f255a42000000000101f1a8",
+    "fans": "2w+",
+    "title": "",
+    "desc": "当你以为自己的发型很帅时…#阿涛老师预约在成都#中性风#爆改#有个性的发色#鲻鱼头#帅是一种感觉而不是性别",
+    "coverUrl": "https://sns-i8.rednotecdn.com/1040g008320gksjaq5m005np5b910bsd8meh2l18?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a115d95000000000602280a",
+    "publicTime": "2026-05-23 15:56:05",
+    "interactiveCount": "3w+",
+    "addInteractiveount": "2w+",
+    "collectedCount": "3066",
+    "addCollectedCunt": "2770",
+    "useLikeCount": "3w+",
+    "addLikeCount": "2w+",
+    "useCommentCount": "290",
+    "addCommentCount": "284",
+    "useShareCount": "330",
+    "addShareCount": "302"
+  },
+  {
+    "index": 2,
+    "userName": "世界游泳冠军杨丽娜",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3142mjep5h8005or92vf7r7ja9p731f0?imageView2/2/w/80/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/636917de000000001f019e6a",
+    "fans": "46w+",
+    "title": "",
+    "desc": "这几种颜色的泳衣你还在穿吗？#防溺水#防溺水教育#泳衣#安全知识",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/spectrum/1040g34o320gscq0k5i105or92vf7r7jakq3889o?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a119b0100000000080277a2",
+    "publicTime": "2026-05-23 20:18:09",
+    "interactiveCount": "8w+",
+    "addInteractiveount": "2w+",
+    "collectedCount": "5991",
+    "addCollectedCunt": "1682",
+    "useLikeCount": "7w+",
+    "addLikeCount": "2w+",
+    "useCommentCount": "1254",
+    "addCommentCount": "336",
+    "useShareCount": "5759",
+    "addShareCount": "1973"
+  },
+  {
+    "index": 3,
+    "userName": "kvk",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo320hp33apmo005qcp1mi8959p6s8i850?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/69990da40000000021009539",
+    "fans": "11",
+    "title": "Jennie颁奖礼",
+    "desc": "#Jennie#克罗心",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g008320gua7385i005qcp1mi8959p7hr1pio?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a11aab8000000003501dc7a",
+    "publicTime": "2026-05-23 21:25:12",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "2w+",
+    "collectedCount": "931",
+    "addCollectedCunt": "909",
+    "useLikeCount": "2w+",
+    "addLikeCount": "2w+",
+    "useCommentCount": "103",
+    "addCommentCount": "101",
+    "useShareCount": "85",
+    "addShareCount": "83"
+  },
+  {
+    "index": 4,
+    "userName": "时初.",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo32003i8pbii5g5p5bq02n5cvugn2mdp0?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/64abd005000000001c02b3fe",
+    "fans": "2113",
+    "title": "师父的掌控程度恐怕在我之上",
+    "desc": "#超能路人甲#车银优#朴恩斌#韩剧#带入感很强#占有欲#好剧推荐",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g008320gd1ra95m605p5bq02n5cvu93kv8j0?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a111e25000000003803704d",
+    "publicTime": "2026-05-23 11:25:25",
+    "interactiveCount": "4w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "7025",
+    "addCollectedCunt": "2729",
+    "useLikeCount": "3w+",
+    "addLikeCount": "1w+",
+    "useCommentCount": "264",
+    "addCommentCount": "105",
+    "useShareCount": "1377",
+    "addShareCount": "556"
+  },
+  {
+    "index": 5,
+    "userName": "神田优作",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/5e868151737a330001bb3f37.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5b6a90ad93e7f20001feb0bf",
+    "fans": "43w+",
+    "title": "就这样爬进她的镜头里",
+    "desc": "#氛围感#男生穿搭#慵懒风#每日穿搭#情侣日常#抽象",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g2sg320go3edhlc704ab2oq8arc5v8h1lo68?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a1179120000000035023679",
+    "publicTime": "2026-05-23 17:53:22",
+    "interactiveCount": "12w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "9085",
+    "addCollectedCunt": "952",
+    "useLikeCount": "11w+",
+    "addLikeCount": "1w+",
+    "useCommentCount": "1295",
+    "addCommentCount": "146",
+    "useShareCount": "7006",
+    "addShareCount": "696"
+  },
+  {
+    "index": 6,
+    "userName": "Blueberry",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rkt0vluig005nn0cbr08or71m9fguo?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5ee062f60000000001006367",
+    "fans": "335",
+    "title": "古典玩偶上半场走秀",
+    "desc": "#古典玩偶#古典玩偶新品#古典玩偶走秀#古典玩偶新品发布",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g008320glff92me005nn0cbr08or72s4agpo?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a1163c70000000037035d2e",
+    "publicTime": "2026-05-23 16:22:31",
+    "interactiveCount": "3w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "1128",
+    "addCollectedCunt": "489",
+    "useLikeCount": "2w+",
+    "addLikeCount": "1w+",
+    "useCommentCount": "452",
+    "addCommentCount": "145",
+    "useShareCount": "1682",
+    "addShareCount": "557"
+  },
+  {
+    "index": 7,
+    "userName": "山猫vintage",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/67493fc07efbab7034733960.jpg?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5ad69f64e8ac2b2ec93741bb",
+    "fans": "4521",
+    "title": "复古连衣裙战袍，经过时间的沉淀才是耐看的",
+    "desc": "#时髦捕手#吉赛尔打歌服#小众连衣裙#jimkennet新品裙子#复古连衣裙#复古是时尚的轮回#宝藏连衣裙#度假连衣裙#复古风穿搭#气质连衣裙",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/notes_pre_post/1040g3k8320gofooc68l04a4kbqfm8gdr3k6md28?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a117b21000000000603658f",
+    "publicTime": "2026-05-23 18:02:09",
+    "interactiveCount": "1w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "4517",
+    "addCollectedCunt": "3087",
+    "useLikeCount": "1w+",
+    "addLikeCount": "8555",
+    "useCommentCount": "140",
+    "addCommentCount": "89",
+    "useShareCount": "671",
+    "addShareCount": "427"
+  },
+  {
+    "index": 8,
+    "userName": "大阿奔奔奔奔奔",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/630573e95af979d4753af584.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5be2b7f9d9355a0001e15c42",
+    "fans": "43w+",
+    "title": "长狼尾的各种样子❗️准备好一起戴假发了吗",
+    "desc": "哦莫，这个发根染的长狼尾我太爱了，好喜欢亚麻金的发色🤤好有混血感最近越来越喜欢戴这种帅帅的长发———，你们觉得哪种形态最好看呢？#狼尾发型#这都拿不下你吗#满分发型抄作业#无性别#少年感发型#中性风#假发#金发#盐巴快跑#女生帅起来",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g2sg320gpmflqm8e04bonhnrvin22fk23fjg?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a1184d300000000360320b7",
+    "publicTime": "2026-05-23 18:43:31",
+    "interactiveCount": "3w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "3849",
+    "addCollectedCunt": "1319",
+    "useLikeCount": "2w+",
+    "addLikeCount": "9393",
+    "useCommentCount": "433",
+    "addCommentCount": "129",
+    "useShareCount": "890",
+    "addShareCount": "319"
+  },
+  {
+    "index": 9,
+    "userName": "看海",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31tsn84gd6u005q6omlm8d8q8nmb0dno?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/68d8b56c000000002102a348",
+    "fans": "6801",
+    "title": "被追到的后果",
+    "desc": "#穿搭#走拍",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g008320grk0286e005q6omlm8d8q8uv6ktj0?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a119557000000003601bf0d",
+    "publicTime": "2026-05-23 19:53:59",
+    "interactiveCount": "4w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "4210",
+    "addCollectedCunt": "1066",
+    "useLikeCount": "3w+",
+    "addLikeCount": "9114",
+    "useCommentCount": "1383",
+    "addCommentCount": "218",
+    "useShareCount": "2943",
+    "addShareCount": "724"
+  },
+  {
+    "index": 10,
+    "userName": "兔仔吃饱饱",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/62f50eed8bd513f042c163e4.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5c338b30000000000501cb43",
+    "fans": "35w+",
+    "title": "7件带袖不露腿长长长裙！！不漏胸口！不漏腋下",
+    "desc": "通勤度假的款式都有～不一样的风格呀！每件都有自己的特色✨！#气质长裙#长裙#长款连衣裙#夏季连衣裙#连衣裙分享#长裙有袖#宝藏连衣裙#氛围感连衣裙#夏日最爱连衣裙#温柔连衣裙",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g2sg320gjqfenlm7g5n1jhco1biq31bb1cfo?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a115a3800000000080249bb",
+    "publicTime": "2026-05-23 20:01:10",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "9650",
+    "addCollectedCunt": "3587",
+    "useLikeCount": "1w+",
+    "addLikeCount": "6762",
+    "useCommentCount": "137",
+    "addCommentCount": "32",
+    "useShareCount": "636",
+    "addShareCount": "259"
+  },
+  {
+    "index": 11,
+    "userName": "佚晴晴",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/6177b9fa1b7dfc000125b9a5.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5b5ff3bfe8ac2b0b7880818a",
+    "fans": "21w+",
+    "title": "方圆脸卷发的正确打开方式…",
+    "desc": "#方圆脸#方圆脸拍照#氛围感卷发#我的日常",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g008320gpno9vlc004a7n5gprv0ca5ck241g?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a118555000000003502718d",
+    "publicTime": "2026-05-23 18:45:41",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "4141",
+    "addCollectedCunt": "1353",
+    "useLikeCount": "1w+",
+    "addLikeCount": "8560",
+    "useCommentCount": "364",
+    "addCommentCount": "114",
+    "useShareCount": "333",
+    "addShareCount": "107"
+  },
+  {
+    "index": 12,
+    "userName": "和田小野子",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vulvr9siq6g5o46bgk091g6r59qchg?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/60865c280000000001008606",
+    "fans": "48w+",
+    "title": "无性别穿搭法则⚫️不斩男，但一定斩女",
+    "desc": "夏天真的太适合穿宽宽松松的大背心！凉快又清爽吃瓜R水洗的设计也很有质感，夏天运动时候穿也没问题女生穿这种大背心真的很飒，搭配上耳机我就是最拽的姐得意R#无性别穿搭#夏季穿搭#Ootd#无定义穿搭#中性风",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/spectrum/1040g34o320gmo7uo5i705o46bgk091g6vhusmto?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a116d10000000003502556a",
+    "publicTime": "2026-05-23 17:02:08",
+    "interactiveCount": "9477",
+    "addInteractiveount": "8391",
+    "collectedCount": "3095",
+    "addCollectedCunt": "3095",
+    "useLikeCount": "6303",
+    "addLikeCount": "5297",
+    "useCommentCount": "79",
+    "addCommentCount": "-1",
+    "useShareCount": "3",
+    "addShareCount": "0"
+  },
+  {
+    "index": 13,
+    "userName": "小八不能再吃了",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/604c75498602060e62115538.jpg?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5aeb404e4eacab473a370cf1",
+    "fans": "6w+",
+    "title": "你从车上摔下来的时候我心都碎了",
+    "desc": "对不起lo伞是我没保护好你#吃我一波Lolita安利#抽象",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g2sg320gvlvti6ee04a51e104s37hn5k31lo?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a11b6440000000038034c1f",
+    "publicTime": "2026-05-23 22:14:28",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "8170",
+    "collectedCount": "2573",
+    "addCollectedCunt": "737",
+    "useLikeCount": "2w+",
+    "addLikeCount": "7388",
+    "useCommentCount": "267",
+    "addCommentCount": "45",
+    "useShareCount": "424",
+    "addShareCount": "107"
+  },
+  {
+    "index": 14,
+    "userName": "omom",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vjcdb8cig5g5pm4kvrnedlt97gaeug?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/66c4a7f7000000001d0336bd",
+    "fans": "47",
+    "title": "已经很帅了……我草。（fd发型nb）",
+    "desc": "最适配此梗的男人出现了#日乙#9rip#秋月香羊#发型对一个人的改变",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g008320h078kulm5g5pm4kvrnedlttmtt330?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a11bae40000000036032db5",
+    "publicTime": "2026-05-23 22:34:12",
+    "interactiveCount": "1w+",
+    "addInteractiveount": "7185",
+    "collectedCount": "507",
+    "addCollectedCunt": "339",
+    "useLikeCount": "1w+",
+    "addLikeCount": "6788",
+    "useCommentCount": "132",
+    "addCommentCount": "58",
+    "useShareCount": "726",
+    "addShareCount": "316"
+  },
+  {
+    "index": 15,
+    "userName": "线线",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30qms2usngo005nh9c9sg95g9b27vd0o?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5e2962790000000001009609",
+    "fans": "13w+",
+    "title": "扁头专属纹理感侧麻花‼️不掏洞一根皮筋搞定",
+    "desc": "#发型教程#编发教程#编发#麻花辫#手残党也能学会的发型#侧麻花辫#扁头发型#春夏发型#夏日清凉发型#简单好看发型",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g008320gq778f6o005nh9c9sg95g9h61rl58?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a118972000000003502e9f8",
+    "publicTime": "2026-05-23 19:03:14",
+    "interactiveCount": "1w+",
+    "addInteractiveount": "6970",
+    "collectedCount": "6530",
+    "addCollectedCunt": "3128",
+    "useLikeCount": "8062",
+    "addLikeCount": "3817",
+    "useCommentCount": "41",
+    "addCommentCount": "32",
+    "useShareCount": "443",
+    "addShareCount": "218"
+  },
+  {
+    "index": 16,
+    "userName": "司康脆脆鲨",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31gj7613bjo005perb1p1e4gqq5dnee0?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/65db5872000000000503121a",
+    "fans": "16w+",
+    "title": "提醒过你要适量救世主",
+    "desc": "#德哈#cos#ooc致歉#哈利波特",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g008320gcltk8lm005perb1p1e4gqvtvh7n8?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a111a3e00000000070287e8",
+    "publicTime": "2026-05-23 11:08:46",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "6717",
+    "collectedCount": "3412",
+    "addCollectedCunt": "873",
+    "useLikeCount": "2w+",
+    "addLikeCount": "5777",
+    "useCommentCount": "404",
+    "addCommentCount": "67",
+    "useShareCount": "553",
+    "addShareCount": "154"
+  },
+  {
+    "index": 17,
+    "userName": "这是游子！",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/60d18fd627ab811c510bfd12.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/607563310000000001002dab",
+    "fans": "67w+",
+    "title": "谁不想用270元急头白脸地买一堆电子产品",
+    "desc": "#盲盒#数码科技#拍照",
+    "coverUrl": "https://sns-i11.rednotecdn.com/spectrum/1040g0k0320g9miaelk005o3lccog8bdb265t6j8?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a1102310000000035020f37",
+    "publicTime": "2026-05-23 12:00:00",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "6255",
+    "collectedCount": "3908",
+    "addCollectedCunt": "1108",
+    "useLikeCount": "1w+",
+    "addLikeCount": "5025",
+    "useCommentCount": "510",
+    "addCommentCount": "122",
+    "useShareCount": "739",
+    "addShareCount": "202"
+  },
+  {
+    "index": 18,
+    "userName": "小呆狸猫",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n3h0t046m005ok3jmroctu4huh589g?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/62839db700000000210277c4",
+    "fans": "1647",
+    "title": "固色焚决",
+    "desc": "#发色#固色分享#固色#漂染#fyp#蜥蜴绿#蓝发#白金",
+    "coverUrl": "https://sns-i28.rednotecdn.com/1040g2sg320go10nu62005ok3jmroctu4lef1mf0?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a117755000000003601e100",
+    "publicTime": "2026-05-23 17:45:57",
+    "interactiveCount": "3w+",
+    "addInteractiveount": "5791",
+    "collectedCount": "6552",
+    "addCollectedCunt": "1324",
+    "useLikeCount": "2w+",
+    "addLikeCount": "4446",
+    "useCommentCount": "102",
+    "addCommentCount": "21",
+    "useShareCount": "845",
+    "addShareCount": "155"
+  },
+  {
+    "index": 19,
+    "userName": "娱星火火",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31k2gjfuu365g5nkupb4g82k71b2dsj0?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5e9ecac90000000001000a87",
+    "fans": "100w+",
+    "title": "天啦谁懂我一副珍珠耳环配所有",
+    "desc": "#耳环#耳饰#搭配#教程#耳饰搭配",
+    "coverUrl": "https://sns-i10.rednotecdn.com/spectrum/1040g0k0320gjqg04li005nkupb4g82k7adv5ppg?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a1155010000000006032a48",
+    "publicTime": "2026-05-23 15:19:29",
+    "interactiveCount": "12w+",
+    "addInteractiveount": "5697",
+    "collectedCount": "4w+",
+    "addCollectedCunt": "2259",
+    "useLikeCount": "7w+",
+    "addLikeCount": "3433",
+    "useCommentCount": "104",
+    "addCommentCount": "5",
+    "useShareCount": "1771",
+    "addShareCount": "72"
+  },
+  {
+    "index": 20,
+    "userName": "脑洞爆炸红",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/5fc24d64d92efc0001405040.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5dc90cbc00000000010006c8",
+    "fans": "41w+",
+    "title": "《女生穿男装，真香！》",
+    "desc": "1.有的男装穿起来竟然不用穿内衣（不想穿内衣的时候，又多一个选择了哈哈）2.微正式场合有衣服穿了（中性男性风，确实很适合面试！）#无差别穿搭#男装女穿#有趣的穿搭#微正式穿搭#职场穿搭#面试穿搭",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g008320gneono62005ne91iu081m84mbl820?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a1182ac00000000080037a9",
+    "publicTime": "2026-05-23 18:34:20",
+    "interactiveCount": "1w+",
+    "addInteractiveount": "5336",
+    "collectedCount": "3729",
+    "addCollectedCunt": "1454",
+    "useLikeCount": "1w+",
+    "addLikeCount": "3785",
+    "useCommentCount": "266",
+    "addCommentCount": "97",
+    "useShareCount": "760",
+    "addShareCount": "309"
+  }
+];
+
+    var totalCount = RAW.length;
+    var maxInteractive = 0, sumInteractive = 0;
+
+    function parseInteractive(val) {
+        if (typeof val === 'string') {
+            if (val.indexOf('w') !== -1 || val.indexOf('W') !== -1) {
+                return parseFloat(val) * 10000;
+            } else if (val.indexOf('亿') !== -1) {
+                return parseFloat(val) * 100000000;
+            }
+            return parseFloat(val) || 0;
+        }
+        return val || 0;
+    }
+
+    function fmtNum(val) {
+        if (typeof val === 'string') {
+            if (val.indexOf('w') !== -1 || val.indexOf('W') !== -1 || val.indexOf('亿') !== -1) {
+                return val;
+            }
+        }
+        var n = parseInt(val) || 0;
+        if (n >= 10000) {
+            return (n / 10000).toFixed(1) + 'w';
+        }
+        return n.toString();
+    }
+
+    for (var i = 0; i < RAW.length; i++) {
+        var interactive = parseInteractive(RAW[i].interactiveCount);
+        if (interactive > maxInteractive) maxInteractive = interactive;
+        sumInteractive += interactive;
+    }
+    var avgInteractive = totalCount > 0 ? sumInteractive / totalCount : 0;
+
+    document.getElementById('totalCount').textContent = totalCount;
+    document.getElementById('maxInteractive').textContent = fmtNum(maxInteractive);
+    document.getElementById('avgInteractive').textContent = fmtNum(Math.round(avgInteractive));
+
+    var html = '';
+    for (var i = 0; i < RAW.length && i < 20; i++) {
+        var d = RAW[i];
+        var rank = i + 1;
+        var cardCls = 'note-card';
+
+        if (rank === 1) cardCls += ' top1';
+        else if (rank === 2) cardCls += ' top2';
+        else if (rank === 3) cardCls += ' top3';
+
+        var noteUrl = (d.photoJumpUrl || '#').replace(/ /g, '%20');
+        var avatar = d.userHeadUrl || '';
+        var userName = (d.userName || '--').replace(/ /g, '');
+        var userUrl = (d.userJumpUrl || '#').replace(/ /g, '%20');
+        var fans = (d.fans || '').replace(/ /g, '');
+        var title = (d.title || '--').replace(/ /g, '');
+
+        var interactive = (d.interactiveCount || '0').replace(/ /g, '');
+        var addInteractive = (d.addInteractiveount || '0').replace(/ /g, '');
+        var likeCount = (d.useLikeCount || '0').replace(/ /g, '');
+        var addLikeCount = (d.addLikeCount || '0').replace(/ /g, '');
+        var commentCount = (d.useCommentCount || '0').replace(/ /g, '');
+        var addCommentCount = (d.addCommentCount || '0').replace(/ /g, '');
+        var collected = (d.collectedCount || '0').replace(/ /g, '');
+        var addCollected = (d.addCollectedCunt || '0').replace(/ /g, '');
+        var shareCount = (d.useShareCount || '0').replace(/ /g, '');
+        var addShareCount = (d.addShareCount || '0').replace(/ /g, '');
+
+        var rankHtml = '';
+        if (rank === 1) {
+            rankHtml = '<div class="rank-num">🥇</div>';
+        } else if (rank === 2) {
+            rankHtml = '<div class="rank-num">🥈</div>';
+        } else if (rank === 3) {
+            rankHtml = '<div class="rank-num">🥉</div>';
+        } else {
+            rankHtml = '<div class="rank-num">' + rank + '</div>';
+        }
+
+        html += '<div class="' + cardCls + '" data-href="' + noteUrl + '">'
+            + '<div class="note-row1">'
+            + rankHtml
+            + '<div class="note-info">'
+            + '<div class="note-title"><a href="' + noteUrl + '" target="_blank" onclick="event.stopPropagation()">' + title + '</a></div>'
+            + '<div class="author-info">'
+            + (avatar ? '<img class="author-avatar" src="' + avatar + '" onerror="this.style.display=\'none\'">' : '')
+            + '<span class="author-name">' + (userUrl && userUrl !== '#' ? '<a href="' + userUrl + '" target="_blank" onclick="event.stopPropagation()">' + userName + '</a>' : userName) + '</span>'
+            + (fans ? '<span class="fans-count">·' + fans + '粉丝</span>' : '')
+            + '</div>'
+            + '</div>'
+            + '</div>'
+            + '<div class="note-row2">'
+            + '<div class="data-item"><span class="data-label">互动</span><span class="data-value">' + fmtNum(interactive) + '</span><span class="data-add">↑' + fmtNum(addInteractive) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">点赞</span><span class="data-value">' + fmtNum(likeCount) + '</span><span class="data-add">↑' + fmtNum(addLikeCount) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">评论</span><span class="data-value">' + fmtNum(commentCount) + '</span><span class="data-add">↑' + fmtNum(addCommentCount) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">收藏</span><span class="data-value">' + fmtNum(collected) + '</span><span class="data-add">↑' + fmtNum(addCollected) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">分享</span><span class="data-value">' + fmtNum(shareCount) + '</span><span class="data-add">↑' + fmtNum(addShareCount) + '</span></div>'
+            + '</div>'
+            + '</div>';
+    }
+
+    document.getElementById('noteList').innerHTML = html;
+})();
+
+function exportImage() {
+    var btn = document.querySelector('.btn-export-img');
+    btn.textContent = '生成中...';
+    btn.style.pointerEvents = 'none';
+
+    var target = document.getElementById('pdfContent');
+
+    html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#f5f5f5',
+        logging: false,
+        windowWidth: target.scrollWidth,
+        windowHeight: target.scrollHeight
+    }).then(function(canvas) {
+        var link = document.createElement('a');
+        link.download = 'xhs_weekly_' + new Date().toISOString().slice(0,10) + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        btn.textContent = '导出图片';
+        btn.style.pointerEvents = '';
+    }).catch(function(err) {
+        alert('图片生成失败：' + err.message);
+        btn.textContent = '导出图片';
+        btn.style.pointerEvents = '';
+    });
+}
+
+function exportPdf() {
+    var btn = document.querySelector('.btn-export-pdf');
+    btn.textContent = '生成中...';
+    btn.style.pointerEvents = 'none';
+
+    var target = document.getElementById('pdfContent');
+
+    html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#f5f5f5',
+        logging: false,
+        windowWidth: target.scrollWidth,
+        windowHeight: target.scrollHeight
+    }).then(function(canvas) {
+        var imgData = canvas.toDataURL('image/png', 1.0);
+
+        // 使用横向 A4 纸
+        var pdf = new jspdf.jsPDF('l', 'mm', 'a4');
+        var pdfW = pdf.internal.pageSize.getWidth();
+        var pdfH = pdf.internal.pageSize.getHeight();
+        var margin = 8;
+        var contentW = pdfW - margin * 2;
+        var contentH = pdfH - margin * 2;
+
+        // 计算图片尺寸以适应横向 A4
+        var imgW = contentW;
+        var imgH = (canvas.height * imgW) / canvas.width;
+
+        // 如果高度仍然超过页面高度，按高度缩放
+        if (imgH > contentH) {
+            imgH = contentH;
+            imgW = (canvas.width * imgH) / canvas.height;
+        }
+
+        // 居中显示
+        var imgX = (pdfW - imgW) / 2;
+        var imgY = (pdfH - imgH) / 2;
+
+        // 所有内容在一页中
+        pdf.addImage(imgData, 'PNG', imgX, imgY, imgW, imgH);
+
+        var now = new Date();
+        var dateStr = now.getFullYear() +
+            String(now.getMonth()+1).padStart(2,'0') +
+            String(now.getDate()).padStart(2,'0') +
+            '_' +
+            String(now.getHours()).padStart(2,'0') +
+            String(now.getMinutes()).padStart(2,'0');
+
+        pdf.save('xhs_weekly_' + dateStr + '.pdf');
+
+        btn.textContent = '导出 PDF';
+        btn.style.pointerEvents = '';
+    }).catch(function(err) {
+        alert('PDF 生成失败：' + err.message);
+        btn.textContent = '导出 PDF';
+        btn.style.pointerEvents = '';
+    });
+}
+</script>
+
+</body>
+</html>
