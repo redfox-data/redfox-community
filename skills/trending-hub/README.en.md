@@ -1,4 +1,4 @@
-# Trending-Hub
+# Trending Hub
 
 ---
 
@@ -47,9 +47,9 @@ One-click access to hot search data across 7 major platforms, updated hourly. Ea
 
 ### Environment variables
 
-| Variable | Required | Notes |
-| --- | --- | --- |
-| `REDFOX_API_KEY` | Yes | API access key |
+| Variable         | Required | Notes          |
+| ---------------- | -------- | -------------- |
+| `REDFOX_API_KEY` | Yes      | API access key |
 
 **macOS (zsh)**
 
@@ -85,15 +85,15 @@ setx REDFOX_API_KEY "your_api_key_here"
 
 ### Common Phrases Quick Reference
 
-| Intent | Example phrase | Result |
-| --- | --- | --- |
-| View cross-platform hot searches | "Hot list", "Trending", "Cross-platform hot searches" | Shows TOP 10 hot searches for each of the 7 platforms |
-| Keyword filtering | "Show me sports-related hot searches" | Only displays hot searches containing the keyword |
-| Specific platform only | "Weibo hot search", "Douyin trending", "Bilibili hot search" | Only shows hot searches for the specified platform |
-| Multi-platform combined query | "Weibo and Douyin hot searches", "Douyin, Bilibili, Zhihu trending" | Shows hot searches from multiple platforms simultaneously |
-| View historical hot searches | "Yesterday's hot list", "Yesterday's hot searches" | Views hot search data for a specified date |
-| View full leaderboard | "Show full Weibo leaderboard" | Outputs all 50 hot search items for that platform |
-| Subscribe to daily push | "Subscribe to daily push" | Creates a daily scheduled push task |
+| Intent                           | Example phrase                                                      | Result                                                    |
+| -------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------- |
+| View cross-platform hot searches | "Hot list", "Trending", "Cross-platform hot searches"               | Shows TOP 10 hot searches for each of the 7 platforms     |
+| Keyword filtering                | "Show me sports-related hot searches"                               | Only displays hot searches containing the keyword         |
+| Specific platform only           | "Weibo hot search", "Douyin trending", "Bilibili hot search"        | Only shows hot searches for the specified platform        |
+| Multi-platform combined query    | "Weibo and Douyin hot searches", "Douyin, Bilibili, Zhihu trending" | Shows hot searches from multiple platforms simultaneously |
+| View historical hot searches     | "Yesterday's hot list", "Yesterday's hot searches"                  | Views hot search data for a specified date                |
+| View full leaderboard            | "Show full Weibo leaderboard"                                       | Outputs all 50 hot search items for that platform         |
+| Subscribe to daily push          | "Subscribe to daily push"                                           | Creates a daily scheduled push task                       |
 
 ### Output Example
 
@@ -106,25 +106,25 @@ setx REDFOX_API_KEY "your_api_key_here"
 
 #### Douyin Hot Search
 
-| Rank | Hot search | Heat |
-|:---:|------|:---:|
-| 1 | [Popular video topic 1](https://...) | 21.56M |
-| 2 | [Popular video topic 2](https://...) | 18.76M |
-| ... | ... | ... |
-| 10 | [Popular video topic 10](https://...) | 6.78M |
+| Rank | Hot search                            |  Heat  |
+| :--: | ------------------------------------- | :----: |
+|  1   | [Popular video topic 1](https://...)  | 21.56M |
+|  2   | [Popular video topic 2](https://...)  | 18.76M |
+| ...  | ...                                   |  ...   |
+|  10  | [Popular video topic 10](https://...) | 6.78M  |
 
 💡 40 more items available for this platform. Reply "View full Douyin leaderboard" to see all data.
 
 #### Baidu Hot Search
 
-| Rank | Hot search | Heat |
-|:---:|------|:---:|
-| 1 | [2026 gaokao essay topics announced](https://...) | 9.86M |
-| 2 | [Celebrity announces relationship](https://...) | 8.75M |
-| 3 | [Gas prices adjusted tonight](https://...) | 6.54M |
-| 4 | [Weather alert issued](https://...) | 5.43M |
-| ... | ... | ... |
-| 10 | [Today's stock market update](https://...) | 2.34M |
+| Rank | Hot search                                        | Heat  |
+| :--: | ------------------------------------------------- | :---: |
+|  1   | [2026 gaokao essay topics announced](https://...) | 9.86M |
+|  2   | [Celebrity announces relationship](https://...)   | 8.75M |
+|  3   | [Gas prices adjusted tonight](https://...)        | 6.54M |
+|  4   | [Weather alert issued](https://...)               | 5.43M |
+| ...  | ...                                               |  ...  |
+|  10  | [Today's stock market update](https://...)        | 2.34M |
 
 💡 40 more items available for this platform. Reply "View full Baidu leaderboard" to see all data.
 
@@ -132,13 +132,13 @@ setx REDFOX_API_KEY "your_api_key_here"
 
 #### Weibo Hot Search
 
-| Rank | Hot search | Heat |
-|:---:|------|:---:|
-| 1 | [Trending topic 1](https://...) | 12.34M |
-| 2 | [Trending topic 2](https://...) | 9.87M |
-| 3 | [Trending topic 3](https://...) | 8.76M |
-| ... | ... | ... |
-| 10 | [Trending topic 10](https://...) | 4.56M |
+| Rank | Hot search                       |  Heat  |
+| :--: | -------------------------------- | :----: |
+|  1   | [Trending topic 1](https://...)  | 12.34M |
+|  2   | [Trending topic 2](https://...)  | 9.87M  |
+|  3   | [Trending topic 3](https://...)  | 8.76M  |
+| ...  | ...                              |  ...   |
+|  10  | [Trending topic 10](https://...) | 4.56M  |
 
 💡 40 more items available for this platform. Reply "View full Weibo leaderboard" to see all data.
 
@@ -146,18 +146,19 @@ setx REDFOX_API_KEY "your_api_key_here"
 
 #### Bilibili Hot Search
 
-| Rank | Hot search | Heat |
-|:---:|------|:---:|
-| 1 | [Popular video 1](https://...) | 5.67M |
-| 2 | [Popular video 2](https://...) | 4.32M |
-| ... | ... | ... |
-| 10 | [Popular video 10](https://...) | 1.23M |
+| Rank | Hot search                      | Heat  |
+| :--: | ------------------------------- | :---: |
+|  1   | [Popular video 1](https://...)  | 5.67M |
+|  2   | [Popular video 2](https://...)  | 4.32M |
+| ...  | ...                             |  ...  |
+|  10  | [Popular video 10](https://...) | 1.23M |
 
 💡 40 more items available for this platform. Reply "View full Bilibili leaderboard" to see all data.
 
 ---
 
 📬 **Subscription push**:
+
 - Reply "Subscribe to daily push" for daily scheduled hot list delivery
 - Reply "Subscribe to weekly push" for weekly trending summary delivery
 
@@ -172,12 +173,12 @@ User says "Weibo hot search":
 > **📅 Statistics period:** Updated hourly; trending items listed between 2026-05-21 15:00 and 2026-05-21 16:00
 > **📊 Platforms covered:** Weibo
 
-| Rank | Hot search | Heat |
-|:---:|------|:---:|
-| 1 | [Trending topic 1](https://...) | 12.34M |
-| 2 | [Trending topic 2](https://...) | 9.87M |
-| ... | ... | ... |
-| 50 | [Trending topic 50](https://...) | 0.89M |
+| Rank | Hot search                       |  Heat  |
+| :--: | -------------------------------- | :----: |
+|  1   | [Trending topic 1](https://...)  | 12.34M |
+|  2   | [Trending topic 2](https://...)  | 9.87M  |
+| ...  | ...                              |  ...   |
+|  50  | [Trending topic 50](https://...) | 0.89M  |
 
 ---
 
@@ -190,26 +191,26 @@ User says "Show me sports-related hot searches":
 > **📅 Statistics period:** Updated hourly; trending items listed between 2026-05-21 00:00 and 2026-05-21 16:00
 > **📊 Keyword:** Sports
 
-| Rank | Hot search | Platform | Heat |
-|:---:|------|:---:|:---:|
-| 1 | [U20 women's football China vs Japan](https://...) | Weibo | 12.34M |
-| 2 | [NBA playoffs update](https://...) | Douyin | 9.87M |
-| 3 | [Champions League final preview](https://...) | Bilibili | 8.76M |
-| ... | ... | ... | ... |
+| Rank | Hot search                                         | Platform |  Heat  |
+| :--: | -------------------------------------------------- | :------: | :----: |
+|  1   | [U20 women's football China vs Japan](https://...) |  Weibo   | 12.34M |
+|  2   | [NBA playoffs update](https://...)                 |  Douyin  | 9.87M  |
+|  3   | [Champions League final preview](https://...)      | Bilibili | 8.76M  |
+| ...  | ...                                                |   ...    |  ...   |
 
 ---
 
 ## Use Cases
 
-| Scenario | Role | Example question | Benefit |
-| --- | --- | --- | --- |
-| Cross-platform scanning | Content creator | "Check today's hot searches across platforms" | Browse 7 platforms' hot searches in one click, find topic inspiration |
-| Specific platform analysis | Operator | "See what's trending on Weibo" | Focus on analyzing a single platform's hot spots |
-| Keyword research | Topic planner | "Search for workplace-related hot searches" | Precisely match topic directions |
-| Multi-platform comparison | Data analyst | "What's the difference between Douyin and Weibo hot searches" | Compare hot topic differences across platforms |
-| Historical data lookback | Competitor analysis | "Check yesterday's hot searches" | Analyze historical hot search performance |
-| Full leaderboard viewing | Market research | "Show full Bilibili hot search leaderboard" | Get all 50 hot search items for that platform |
-| Scheduled tracking | Operator | "Push hot searches to me every morning" | Automated cross-platform hot spot tracking |
+| Scenario                   | Role                | Example question                                              | Benefit                                                               |
+| -------------------------- | ------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Cross-platform scanning    | Content creator     | "Check today's hot searches across platforms"                 | Browse 7 platforms' hot searches in one click, find topic inspiration |
+| Specific platform analysis | Operator            | "See what's trending on Weibo"                                | Focus on analyzing a single platform's hot spots                      |
+| Keyword research           | Topic planner       | "Search for workplace-related hot searches"                   | Precisely match topic directions                                      |
+| Multi-platform comparison  | Data analyst        | "What's the difference between Douyin and Weibo hot searches" | Compare hot topic differences across platforms                        |
+| Historical data lookback   | Competitor analysis | "Check yesterday's hot searches"                              | Analyze historical hot search performance                             |
+| Full leaderboard viewing   | Market research     | "Show full Bilibili hot search leaderboard"                   | Get all 50 hot search items for that platform                         |
+| Scheduled tracking         | Operator            | "Push hot searches to me every morning"                       | Automated cross-platform hot spot tracking                            |
 
 ---
 

@@ -1,4 +1,4 @@
-# xiaohongshu-account-analyzer
+# Xiaohongshu Account Analyzer
 
 ---
 

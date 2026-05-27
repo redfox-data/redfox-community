@@ -1,4 +1,4 @@
-# WeChat 10W+ Article Recommendations / wechat-10w-hot
+# WeChat 10W+ Article Recommendations
 
 ---
 

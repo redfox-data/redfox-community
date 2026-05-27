@@ -1,28 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-wechat-article-style/scripts/rewrite.py
+xiaohongshu-rewriting/scripts/rewrite.py
 
-公众号文案改写辅助脚本
+小红书文案改写辅助脚本
+用途：上报改写记录接口
 
-用途：
-  - prompt：导出规则（无网络）
-  - report：HTTPS POST 至记录接口，JSON 仅含固定字段 source
-
-记录接口（report）：https://onetotenvip.com/story/content/rewriting
-网络实现：http.client + 系统默认 TLS（校验证书与主机名）
+记录接口：https://redfox.hk/story/api/skill/record/save
+网络实现：原生 urllib，默认 SSL 证书验证
+说明：接口仅用于记录，无需鉴权
 
 用法：
-  python rewrite.py prompt    # 输出公众号改写规则 prompt
-  python rewrite.py report    # HTTPS POST，JSON 仅 {"source": "..."}
+  python rewrite.py prompt                  # 输出小红书改写规则 prompt
+  python rewrite.py "<文案内容>"           # 上报改写记录
 """
 
 import sys
 import os
 import re
-import http.client
-import ssl
 import json
+import urllib.request
+import urllib.error
 from typing import Dict, Any
 
 # ── 路径 ──────────────────────────────────────────────────────────────────────
@@ -30,12 +28,10 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 RULES_FILE = os.path.join(SCRIPT_DIR, '..', 'assets', 'platform-rules.md')
 
 # ── 平台 ──────────────────────────────────────────────────────────────────────
-PLATFORM = '公众号'
+PLATFORM = '小红书'
 
 # ── 记录接口配置 ───────────────────────────────────────────────────────────────
-RECORD_HOST = 'onetotenvip.com'
-RECORD_PORT = 443
-RECORD_PATH = '/story/content/rewriting'
+RECORD_URL = 'https://redfox.hk/story/api/skill/record/save'
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -43,7 +39,7 @@ RECORD_PATH = '/story/content/rewriting'
 # ─────────────────────────────────────────────────────────────────────────────
 
 def extract_platform_rules() -> str:
-    """读取规则文件，提取公众号规则块。"""
+    """读取规则文件，提取小红书规则块。"""
     rules_path = os.path.normpath(RULES_FILE)
     if not os.path.exists(rules_path):
         print(f'❌ 规则文件不存在：{rules_path}', file=sys.stderr)
@@ -52,65 +48,59 @@ def extract_platform_rules() -> str:
     with open(rules_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # 提取公众号部分（从 ## 公众号 到文件末尾）
-    match = re.search(r'^## 公众号\n(.*)', content, re.DOTALL | re.MULTILINE)
+    # 提取小红书部分（从 ## 小红书 到文件末尾）
+    match = re.search(r'^## 小红书\n(.*)', content, re.DOTALL | re.MULTILINE)
     if match:
-        return '## 公众号\n' + match.group(1).strip()
+        return '## 小红书\n' + match.group(1).strip()
     return ''
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 记录接口：标准 HTTPS（校验服务端证书，禁止 CERT_NONE）
+# 记录接口：原生 urllib，默认 SSL 证书验证（无需鉴权）
 # ─────────────────────────────────────────────────────────────────────────────
 
-RECORD_SOURCE = '公众号文案改写-GitHub'
-
-
-def report_rewrite() -> Dict[str, Any]:
+def report_rewrite(content: str) -> Dict[str, Any]:
     """
-    向记录接口发送 HTTPS POST。
+    向记录接口发送 POST 请求。
 
-    负载仅包含 source；使用 ssl.create_default_context() 启用证书与主机名校验。
+    技术要点：
+      - 使用原生 urllib.request，默认 SSL 证书验证
+      - 接口仅用于记录，无需鉴权
     """
     payload = json.dumps(
-        {'source': RECORD_SOURCE},
+        {'source': '小红书文案改写-GitHub'},
         ensure_ascii=False
     ).encode('utf-8')
 
-    ctx = ssl.create_default_context()
-    conn = http.client.HTTPSConnection(
-        RECORD_HOST,
-        RECORD_PORT,
-        context=ctx,
-        timeout=10,
+    req = urllib.request.Request(
+        RECORD_URL,
+        data=payload,
+        headers={
+            'Content-Type': 'application/json; charset=utf-8',
+            'User-Agent': 'xiaohongshu-rewriting/1.0',
+        },
+        method='POST',
     )
-    headers = {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Connection': 'close',
-        'User-Agent': 'wechat-article-style/1.0',
-    }
 
     try:
-        conn.request('POST', RECORD_PATH, body=payload, headers=headers)
-        resp = conn.getresponse()
-        status_code = resp.status
-        reason = resp.reason or ''
-        status_line = f'HTTP/1.1 {status_code} {reason}'
-        resp.read()
-    except ssl.SSLError as e:
-        return {'ok': False, 'error': f'SSL error: {e}'}
-    except OSError as e:
-        return {'ok': False, 'error': f'Network error: {e}'}
-    except http.client.HTTPException as e:
-        return {'ok': False, 'error': f'HTTP error: {e}'}
-    finally:
-        conn.close()
-
-    return {
-        'ok':          200 <= status_code < 300,
-        'status_code': status_code,
-        'status_line': status_line,
-    }
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return {
+                'ok': True,
+                'status_code': resp.status,
+                'status_line': f'HTTP {resp.status}',
+            }
+    except urllib.error.HTTPError as e:
+        return {
+            'ok': False,
+            'status_code': e.code,
+            'status_line': f'HTTP {e.code}',
+            'error': str(e),
+        }
+    except Exception as e:
+        return {
+            'ok': False,
+            'error': str(e),
+        }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -118,10 +108,10 @@ def report_rewrite() -> Dict[str, Any]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def cmd_prompt() -> None:
-    """输出公众号改写规则 prompt。"""
+    """输出小红书改写规则 prompt。"""
     rules = extract_platform_rules()
     if not rules:
-        print(f'\n❌ 规则文件中未找到公众号规则\n', file=sys.stderr)
+        print(f'\n❌ 规则文件中未找到小红书规则\n', file=sys.stderr)
         sys.exit(1)
 
     print(f'\n✅ 平台：{PLATFORM}\n')
@@ -130,29 +120,29 @@ def cmd_prompt() -> None:
     print(rules)
 
 
-def cmd_report() -> None:
-    """调用记录接口（仅 source）。"""
-    print(f'\n📡 调用记录接口（HTTPS，校验证书）…')
-    result = report_rewrite()
+def cmd_report(content: str) -> None:
+    """上报改写记录。"""
+    print(f'\n📡 上报改写记录…')
+    result = report_rewrite(content)
     if result.get('ok'):
-        print(f'✅ 成功（HTTP {result.get("status_code")}）')
+        print(f'✅ 上报成功（HTTP {result.get("status_code")}）')
     else:
         print(
-            f'⚠️  失败：{result.get("error") or result.get("status_line")}',
+            f'⚠️  上报失败：{result.get("error") or result.get("status_line")}',
             file=sys.stderr
         )
 
 
 def print_help() -> None:
     print(f"""
-📝 公众号文案改写辅助脚本
+📝 小红书文案改写辅助脚本
 
 用法：
-  python rewrite.py prompt                    # 输出公众号改写规则 prompt
-  python rewrite.py report                    # POST 记录接口（JSON 仅 source）
+  python rewrite.py prompt                    # 输出小红书改写规则 prompt
+  python rewrite.py "<文案内容>"              # 上报改写记录
 
 注意：
-  HTTPS；TLS 校验服务端证书。详见 SKILL.md「六、脚本步骤」。
+  记录接口使用原生 urllib，默认 SSL 证书验证，无需鉴权。
 """)
 
 
@@ -174,16 +164,9 @@ def main() -> None:
         cmd_prompt()
         return
 
-    # ── report：记录接口 ─────────────────────────────────────────────────────
-    if first == 'report':
-        cmd_report()
-        return
-
-    print(
-        '❌ 未知参数。请使用：python rewrite.py prompt | python rewrite.py report',
-        file=sys.stderr,
-    )
-    sys.exit(1)
+    # ── 上报记录 ────────────────────────────────────────────────────────────
+    content = ' '.join(args)
+    cmd_report(content)
 
 
 if __name__ == '__main__':

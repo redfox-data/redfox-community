@@ -1,4 +1,4 @@
-#  Trending-hub-top10
+# Trending hub top10
 
 ---
 
@@ -47,9 +47,9 @@ Rather than simply listing each platform's hot searches, it merges multiple hot 
 
 ### Environment variables
 
-| Variable | Required | Notes |
-| --- | --- | --- |
-| `REDFOX_API_KEY` | Yes | API access key |
+| Variable         | Required | Notes          |
+| ---------------- | -------- | -------------- |
+| `REDFOX_API_KEY` | Yes      | API access key |
 
 **macOS (zsh)**
 
@@ -85,14 +85,14 @@ setx REDFOX_API_KEY "your_api_key_here"
 
 ### Common Phrases Quick Reference
 
-| Intent | Example phrase | Result |
-| --- | --- | --- |
-| View TOP 10 hot topics | "Hot list", "Cross-platform hot topics", "Today's hot topics" | Get the TOP 10 hottest events across the web |
-| View real-time hot topics | "Latest hot topics", "Real-time hot topics" | Get the latest aggregated hot topics |
-| View yesterday's hot topics | "Yesterday's hot topics", "Hot topics from yesterday" | Get yesterday's TOP 10 hot topics |
-| View past 7 days' hot topics | "Hot topics this week", "Past 7 days' hot topics" | Get aggregated hot topics from the past 7 days |
-| Export report | "Export hot topic report", "Generate HTML report" | Generate a visual HTML report |
-| Subscribe to daily push | "Subscribe to daily push" | Daily scheduled push of TOP 10 hot topics |
+| Intent                       | Example phrase                                                | Result                                         |
+| ---------------------------- | ------------------------------------------------------------- | ---------------------------------------------- |
+| View TOP 10 hot topics       | "Hot list", "Cross-platform hot topics", "Today's hot topics" | Get the TOP 10 hottest events across the web   |
+| View real-time hot topics    | "Latest hot topics", "Real-time hot topics"                   | Get the latest aggregated hot topics           |
+| View yesterday's hot topics  | "Yesterday's hot topics", "Hot topics from yesterday"         | Get yesterday's TOP 10 hot topics              |
+| View past 7 days' hot topics | "Hot topics this week", "Past 7 days' hot topics"             | Get aggregated hot topics from the past 7 days |
+| Export report                | "Export hot topic report", "Generate HTML report"             | Generate a visual HTML report                  |
+| Subscribe to daily push      | "Subscribe to daily push"                                     | Daily scheduled push of TOP 10 hot topics      |
 
 ### Output Example
 
@@ -102,12 +102,12 @@ setx REDFOX_API_KEY "your_api_key_here"
 
 #### TOP 10 Hot Topic Leaderboard
 
-| Rank | Hot event | Composite heat | Platforms | Duration | Forecast |
-|:---:|------|:---:|:---:|:---:|:---:|
-| 1 | U20 Women's Football China vs Japan | 15.92M | 🌐🎵📰🎬 | 14h | 🔥🔥🔥 |
-| 2 | 2026 University Rankings Released | 8.76M | 📰📚 | 8h | 🔥🔥 |
-| 3 | Gas Prices Adjusted Tonight | 6.54M | 🔍 | 3h | 🔥 |
-| ... | ... | ... | ... | ... | ... |
+| Rank | Hot event                           | Composite heat | Platforms | Duration | Forecast |
+| :--: | ----------------------------------- | :------------: | :-------: | :------: | :------: |
+|  1   | U20 Women's Football China vs Japan |     15.92M     | 🌐🎵📰🎬  |   14h    |  🔥🔥🔥  |
+|  2   | 2026 University Rankings Released   |     8.76M      |   📰📚    |    8h    |   🔥🔥   |
+|  3   | Gas Prices Adjusted Tonight         |     6.54M      |    🔍     |    3h    |    🔥    |
+| ...  | ...                                 |      ...       |    ...    |   ...    |   ...    |
 
 ---
 
@@ -115,12 +115,12 @@ setx REDFOX_API_KEY "your_api_key_here"
 
 **U20 Women's Football China vs Japan**
 
-| Metric | Value |
-| --- | --- |
-| Composite heat | 15.92M |
+| Metric           | Value                                |
+| ---------------- | ------------------------------------ |
+| Composite heat   | 15.92M                               |
 | Platforms listed | 4 (Weibo, Douyin, Toutiao, Kuaishou) |
-| Duration | 14h |
-| Highest rank | #3 |
+| Duration         | 14h                                  |
+| Highest rank     | #3                                   |
 
 **Cross-platform discussion differences**:
 
@@ -130,6 +130,7 @@ setx REDFOX_API_KEY "your_api_key_here"
 - 🎬 Kuaishou: Enthusiastic fan interaction, positive comment section atmosphere
 
 **Related topics**:
+
 - "[China U20 women's football 0:2 Japan, misses final](url)"
 - "[U20 China vs Japan exciting moments](url)"
 
@@ -141,6 +142,7 @@ setx REDFOX_API_KEY "your_api_key_here"
 📬 **Subscription push service**
 
 Want to continuously track hot topic trends?
+
 - Reply "Subscribe to daily push" for daily scheduled TOP 10 hot topics
 - Reply "Subscribe to weekly push" for weekly trending summary
 
@@ -148,14 +150,14 @@ Want to continuously track hot topic trends?
 
 ## Use Cases
 
-| Scenario | Role | Example question | Benefit |
-| --- | --- | --- | --- |
-| Quickly lock in TOP 10 hot topics | Content creator | "What are the top 10 hottest topics on the web today" | See at a glance what's truly trending across the web |
-| Cross-platform hot topic analysis | Content operator | "Which hot topics recently spanned multiple platforms" | Identify hot events with cross-platform reach |
-| Hot topic trend prediction | Data analyst | "Predict which hot topics will persist" | Predict hot topic life cycles based on multiple dimensions |
-| Historical hot topic review | Topic planner | "Check yesterday's TOP 10 hot topics" | Analyze historical hot topic patterns |
-| Export report for sharing | Operations team | "Export today's hot topic report" | Generate HTML visual report, easy to share |
-| Scheduled tracking | Content operator | "Push hot topics to me every morning" | Automated TOP 10 hot topic tracking |
+| Scenario                          | Role             | Example question                                       | Benefit                                                    |
+| --------------------------------- | ---------------- | ------------------------------------------------------ | ---------------------------------------------------------- |
+| Quickly lock in TOP 10 hot topics | Content creator  | "What are the top 10 hottest topics on the web today"  | See at a glance what's truly trending across the web       |
+| Cross-platform hot topic analysis | Content operator | "Which hot topics recently spanned multiple platforms" | Identify hot events with cross-platform reach              |
+| Hot topic trend prediction        | Data analyst     | "Predict which hot topics will persist"                | Predict hot topic life cycles based on multiple dimensions |
+| Historical hot topic review       | Topic planner    | "Check yesterday's TOP 10 hot topics"                  | Analyze historical hot topic patterns                      |
+| Export report for sharing         | Operations team  | "Export today's hot topic report"                      | Generate HTML visual report, easy to share                 |
+| Scheduled tracking                | Content operator | "Push hot topics to me every morning"                  | Automated TOP 10 hot topic tracking                        |
 
 ---
 

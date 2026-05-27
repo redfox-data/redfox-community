@@ -1,4 +1,4 @@
-# Douyin-Top-Account
+# Douyin Top Account
 
 ---
 

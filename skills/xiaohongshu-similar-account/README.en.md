@@ -1,4 +1,4 @@
-# xiaohongshu-similar-account
+# Xiaohongshu Similar Account
 
 ---
 

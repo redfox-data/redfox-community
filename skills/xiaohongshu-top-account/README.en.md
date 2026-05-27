@@ -1,4 +1,4 @@
-# xiaohongshu-top-account
+# Xiaohongshu Top Account
 
 ---
 
