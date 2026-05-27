@@ -40,6 +40,8 @@ Optional folders such as `references/`, `scripts/`, and `assets/` may sit next t
 
 ## How to use
 
+请前往 [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) get API KEY
+
 ### Local / Cursor
 
 Copy the skill folder you need into your client’s skills directory (e.g. Cursor user skills or project `.cursor/skills/`—follow your client’s docs), or point the client’s “Add skill” flow at that subdirectory.
