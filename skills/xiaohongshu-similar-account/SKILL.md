@@ -24,11 +24,17 @@ description: 小红书创作者对标账号匹配工具，输入小红书账号I
 
 #### 配置 API Key
 
-- `REDFOX_API_KEY` 从环境变量获取，格式 `ak_xxxxxxxx`
-- 若未设置，提示用户自行配置：`export REDFOX_API_KEY=<你的apikey>`；若用户不会配置，Agent应主动帮用户设置：
-  - **macOS/Linux**：将 `export REDFOX_API_KEY=<值>` 追加到 `~/.zshrc`（zsh）或 `~/.bashrc`（bash），然后 `source` 对应文件使其全局生效
-  - **Windows**：使用 `[Environment]::SetEnvironmentVariable("REDFOX_API_KEY", "<值>", "User")` 设置用户级永久环境变量（需重启终端生效）
-  - 配置完成后应验证：`echo $REDFOX_API_KEY`（macOS/Linux）或 `echo %REDFOX_API_KEY%`（Windows），确保换一个skill也能读取到
+方案1: 以OpenClaw为例，将REDFOX_API_KEY添加到~/.openclaw/openclaw.json中，部分内容如下：
+
+```bash
+{ "env": { "REDFOX_API_KEY": "ak_xxxx..." } }
+```
+
+方案2: 终端配置
+
+```bash
+export REDFOX_API_KEY="ak_xxxx..."
+```
 
 ## 操作步骤
 
