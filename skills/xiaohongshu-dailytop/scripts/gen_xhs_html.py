@@ -5,7 +5,7 @@
 
 从API获取日榜数据，生成可独立打开的HTML页面。
 用法：python gen_xhs_html.py [--rank_date YYYY-MM-DD] [--category 分类名] [--top N] [--output PATH]
-输出：xhs_weekly.html（与脚本同目录）
+输出：小红书每日爆款笔记_{分类}_{时间戳}.html
 
 样式特性：
 - 小红书风格（红色主题 #ff2442）
@@ -20,8 +20,10 @@ import json
 import sys
 import os
 from datetime import datetime, timedelta
-from urllib.parse import quote
 import requests
+
+REDFOX_API_BASE = "https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillDataOne"
+REDFOX_API_SOURCE = "小红书单日数据爆款文章-GitHub"
 
 
 def get_redfox_api_key():
@@ -191,16 +193,18 @@ def fetch_xhs_weekly(rank_date=None, category="综合全部"):
 
     api_key = get_redfox_api_key()
 
-    source = quote("小红书单日数据爆款文章-GitHub")
-    category_encoded = quote(category)
-    url = f"https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillDataOne?rankDate={rank_date}&source={source}&category={category_encoded}"
-
     headers = {
-        "X-API-KEY": api_key
+        "X-API-KEY": api_key,
+    }
+    params = {
+        "rankDate": rank_date,
+        "source": REDFOX_API_SOURCE,
+        "category": category,
     }
 
     try:
-        response = requests.get(url, headers=headers, timeout=30)
+        # 接口仅支持 GET（query 参数）；POST 会返回系统错误
+        response = requests.get(REDFOX_API_BASE, params=params, headers=headers, timeout=30)
         if response.status_code >= 400:
             return {"fetch_time": rank_date + " 19:00", "query_type": "日榜", "category": category, "hot_list": []}
 
@@ -782,8 +786,47 @@ if __name__ == "__main__":
     parser.add_argument('--keyword', type=str, help='用户输入的关键词，用于自动匹配分类')
     parser.add_argument('--output', type=str, help='输出文件路径')
     parser.add_argument('--top', type=int, default=20, help='显示条数，默认20，可设为50')
+    parser.add_argument('--input_json', type=str, default=None, help='从 JSON 缓存文件读取数据，跳过 API 调用')
 
     args = parser.parse_args()
+
+    # 优先从 JSON 缓存读取数据
+    if args.input_json and os.path.isfile(args.input_json):
+        try:
+            with open(args.input_json, 'r', encoding='utf-8') as f:
+                cache = json.load(f)
+            cached_articles = cache.get("articles", [])
+            cached_rank_date = cache.get("rank_date", "")
+            cached_category = cache.get("category", "")
+            if cached_articles and cached_rank_date:
+                print(f"从缓存读取数据: {args.input_json}", file=sys.stderr)
+                print(f"缓存日期: {cached_rank_date}, 分类: {cached_category}, 共 {len(cached_articles)} 条", file=sys.stderr)
+                # 使用缓存数据构造 result
+                result = {
+                    "fetch_time": f"{cached_rank_date} 19:00",
+                    "query_type": "日榜",
+                    "rank_date": cached_rank_date,
+                    "category": cached_category or "综合全部",
+                    "hot_list": cached_articles
+                }
+                html = generate_html(result, top_n=args.top)
+                if args.output:
+                    output_path = args.output
+                else:
+                    # 新命名规则：小红书每日爆款笔记_{分类}_唯一时间戳.html
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    safe_category = (cached_category or "综合全部").replace(" ", "_").replace("/", "_")
+                    filename = f"小红书每日爆款笔记_{safe_category}_{timestamp}.html"
+                    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    f.write(html)
+                print(f"已生成：{output_path}", file=sys.stderr)
+                print(f"共 {len(result['hot_list'])} 条日榜数据，展示TOP{args.top}", file=sys.stderr)
+                sys.exit(0)
+            else:
+                print(f"缓存数据无效，回退到 API 调用", file=sys.stderr)
+        except Exception as e:
+            print(f"缓存读取失败: {e}，回退到 API 调用", file=sys.stderr)
 
     # 处理分类
     if args.keyword and not args.category:
@@ -815,7 +858,11 @@ if __name__ == "__main__":
     if args.output:
         output_path = args.output
     else:
-        output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "xhs_weekly.html")
+        # 新命名规则：小红书每日爆款笔记_{分类}_唯一时间戳.html
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_category = category.replace(" ", "_").replace("/", "_")
+        filename = f"小红书每日爆款笔记_{safe_category}_{timestamp}.html"
+        output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
 
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html)

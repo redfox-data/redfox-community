@@ -18,12 +18,12 @@ API_URL = "https://redfox.hk/story/api/cozeSkill/getGzhCozeSkillDataRaise"
 def parse_date(date_str: str) -> str:
     """解析日期参数，支持yesterday/today/YYYY-MM-DD"""
     date_str = date_str.strip().lower()
-    
+
     if date_str == "yesterday":
         return (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
     if date_str == "today":
         return datetime.now().strftime("%Y-%m-%d")
-    
+
     try:
         dt = datetime.strptime(date_str, "%Y-%m-%d")
         today = datetime.now()
@@ -139,14 +139,14 @@ def make_link(title: str, url: str) -> str:
 
 def calc_score_v2(items: list) -> list:
     """计算综合评分指数（8-10分）- 横向对比版本
-    
+
     维度1：总互动量（转发+在看+点赞）→ 权重40%
     维度2：加权互动值（转发*5 + 在看*3 + 点赞*2）→ 权重60%
     使用min-max归一化映射到8-10分
     """
     if not items:
         return []
-    
+
     # 提取所有文章的互动数据
     data_points = []
     for item in items:
@@ -154,22 +154,22 @@ def calc_score_v2(items: list) -> list:
         share = parse_int(max_w.get("shareCount"))
         watch = parse_int(max_w.get("watchCount"))
         like = parse_int(max_w.get("likeCount"))
-        
+
         total_interactions = share + watch + like  # 维度1
         weighted_value = share * 5 + watch * 3 + like * 2  # 维度2
-        
+
         data_points.append({
             "item": item,
             "total_interactions": total_interactions,
             "weighted_value": weighted_value
         })
-    
+
     # 计算min-max
     total_min = min(d["total_interactions"] for d in data_points)
     total_max = max(d["total_interactions"] for d in data_points)
     weighted_min = min(d["weighted_value"] for d in data_points)
     weighted_max = max(d["weighted_value"] for d in data_points)
-    
+
     results = []
     for dp in data_points:
         # 维度1归一化（避免除零）
@@ -177,21 +177,21 @@ def calc_score_v2(items: list) -> list:
             norm_total = 0.5
         else:
             norm_total = (dp["total_interactions"] - total_min) / (total_max - total_min)
-        
+
         # 维度2归一化
         if weighted_max == weighted_min:
             norm_weighted = 0.5
         else:
             norm_weighted = (dp["weighted_value"] - weighted_min) / (weighted_max - weighted_min)
-        
+
         # 综合得分 = 维度1*0.4 + 维度2*0.6
         combined = norm_total * 0.4 + norm_weighted * 0.6
-        
+
         # 映射到8-10分
         score = 8 + combined * 2
-        
+
         results.append((dp["item"], score))
-    
+
     return results
 
 
@@ -203,58 +203,70 @@ def render_table(data_list: list) -> str:
         "| 序号 | 作者 | 最高阅读数文章 | 在看数 | 点赞数 | 转发数 | 阅读数 | 发布时间 | 综合评分指数 |",
         "| :---: | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |"
     ]
-    
+
     # 使用min-max归一化计算综合评分指数
     scored_data = calc_score_v2(data_list)
-    
+
     # 按综合评分指数降序排序
     scored_data.sort(key=lambda x: x[1], reverse=True)
-    
+
     for rank_num, (acc, score) in enumerate(scored_data, 1):
         max_w = acc.get("maxWork") or {}
         user = safe_str(acc.get("userName"))
-        
+
         lines.append(
             f"| {rank_num} | {user} | {make_link(max_w.get('title'), max_w.get('oriUrl'))} | "
             f"{format_count(max_w.get('watchCount'))} | {format_count(max_w.get('likeCount'))} | "
             f"{format_count(max_w.get('shareCount'))} | {safe_str(max_w.get('clicksCount'))} | "
             f"{safe_str(max_w.get('publicTime'))} | {score:.2f} |"
         )
-    
+
     return "\n".join(lines)
 
 
 def main():
     parser = argparse.ArgumentParser(description="获取公众号阅读增长率排行榜")
     parser.add_argument("--rankDate", required=True, help="榜单日期")
-    parser.add_argument("--source", required=True, help="数据源")
+    parser.add_argument("--source", default="公众号阅读增长榜-GitHub", help="数据源（内部参数，使用默认值即可）")
     args = parser.parse_args()
 
     try:
         rank_date = parse_date(args.rankDate)
-        result = fetch_data(rank_date, args.source)
-        
-        if result.get("code") != 2000:
-            raise Exception(f"API错误: {result.get('message', '未知错误')}")
-        
-        data = result.get("data", [])
-        
-        # 昨日无数据自动查前天
-        if not data and args.rankDate.strip().lower() == "yesterday":
-            day_before = (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
-            result = fetch_data(day_before, args.source)
-            if result.get("code") == 2000 and result.get("data"):
-                data = result["data"]
-                rank_date = day_before
-        
+        data = []
+        api_calls = 0
+        max_retry_days = 30
+
+        # 数据为空时向前追溯，直到找到数据或超过30天上限
+        current_date = rank_date
+        today = datetime.now().strftime("%Y-%m-%d")
+        earliest = (datetime.now() - timedelta(days=max_retry_days)).strftime("%Y-%m-%d")
+
+        for offset in range(max_retry_days + 1):
+            try_date = (datetime.strptime(rank_date, "%Y-%m-%d") - timedelta(days=offset)).strftime("%Y-%m-%d")
+            if try_date < earliest or try_date > today:
+                break
+
+            result = fetch_data(try_date, args.source)
+            api_calls += 1
+
+            if result.get("code") != 2000:
+                continue
+
+            batch = result.get("data", [])
+            if batch:
+                data = batch
+                rank_date = try_date
+                # 找到数据立即停止，不再继续调用接口
+                break
+
         if not data:
-            print(f"\n榜单日期: {rank_date} | 暂无数据\n")
+            print(f"\n榜单日期: {rank_date} | 近{max_retry_days}天暂无数据\n")
             return
-        
-        print(f"\n榜单日期: {rank_date} | 榜单数量: {len(data)} 个账号\n")
+
+        print(f"\n榜单日期: {rank_date} | 榜单数量: {len(data)} 个账号 | API调用次数: {api_calls}\n")
         print(render_table(data))
         print("\n数据获取完成")
-        
+
     except Exception as e:
         print(f"错误: {e}", file=sys.stderr)
         sys.exit(1)

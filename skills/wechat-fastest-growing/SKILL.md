@@ -31,7 +31,7 @@ version: 1.0.0
 
 - **⏰ 日期语义**：支持口语化「最新/昨天」与指定日；`rankDate` 支持 `"yesterday"`、`"today"`、`"YYYY-MM-DD"`（映射与默认规则见核心流程）
 - **🔒 数据真实性**：强制走 `scripts/fetch_growth_rank.py`；**脚本 stdout 须原样展示**，不得改写或重排表格
-- **📅 查询窗口**：仅支持**最近 30 天内**的 `rankDate`；查最新时若昨日无数据会**自动回退前天**（见核心流程）
+- **📅 查询窗口**：仅支持**最近 30 天内**的 `rankDate`；查最新时若昨日无数据会**自动向前追溯**（逐天查询，找到即停，见核心流程）
 
 ## 一键安装
 
@@ -61,7 +61,7 @@ version: 1.0.0
 
 ```bash
 pip install requests
-python scripts/fetch_growth_rank.py --rankDate yesterday --source "公众号阅读增长榜"
+python scripts/fetch_growth_rank.py --rankDate yesterday
 ```
 
 安装完成后，访问 [红狐 Hub](https://redfox.hk/)网站 [登录](https://redfox.hk/login) 注册并获取 API Key（新用户获赠免费积分），配置环境变量 `REDFOX_API_KEY`（见下方），重启终端即可在对话中发起查询。
@@ -116,7 +116,7 @@ source ~/.zshrc
 
 > 用户：公众号增长榜
 >
-> 助手：已按核心流程使用 `rankDate="yesterday"`、`source="公众号阅读增长榜"` 拉取；以下为脚本输出的完整表格（原样）。…
+> 助手：已按核心流程使用 `rankDate="yesterday"`拉取；以下为脚本输出的完整表格（原样）。…
 
 #### 2. 查看榜单结果
 
@@ -141,7 +141,7 @@ source ~/.zshrc
 在项目目录执行（参数名与取值须一致）：
 
 ```bash
-python scripts/fetch_growth_rank.py --rankDate "<yesterday|today|YYYY-MM-DD>" --source "公众号阅读增长榜"
+python scripts/fetch_growth_rank.py --rankDate "<yesterday|today|YYYY-MM-DD>"
 ```
 
 #### 3. 结构化增长解读
@@ -158,10 +158,10 @@ python scripts/fetch_growth_rank.py --rankDate "<yesterday|today|YYYY-MM-DD>" --
 
 | 用户说法 / 命令 | 功能 |
 |---|---|
-| 「最新 / 今日 / 公众号增长榜」 | `rankDate` 按核心流程映射（多为 `yesterday`）；`source` 为 `公众号阅读增长榜` |
-| 「昨天 / 指定某日期的增长榜」 | `rankDate` 为 `YYYY-MM-DD` 或规则允许的别名；`source` 为 `公众号阅读增长榜` |
+| 「最新 / 今日 / 公众号增长榜」 | `rankDate` 按核心流程映射（多为 `yesterday`） |
+| 「昨天 / 指定某日期的增长榜」 | `rankDate` 为 `YYYY-MM-DD` 或规则允许的别名 |
 | 「增长趋势 / 特点 / 规律」 | 脚本表格原样 + 核心流程规定的 3 段分析 |
-| `python scripts/fetch_growth_rank.py --rankDate yesterday --source "公众号阅读增长榜"` | 命令行拉取昨日增长榜 |
+| `python scripts/fetch_growth_rank.py --rankDate yesterday` | 命令行拉取昨日增长榜 |
 
 ## 使用场景
 
@@ -281,7 +281,7 @@ wechat-fastest-growing/
 
 **Q4：`rankDate` 支持哪些写法？**
 
-支持 `"yesterday"`、`"today"`、`"YYYY-MM-DD"`。口语「最新/增长榜」等多映射为 `yesterday`；昨日无数据时自动回退前天（见核心流程）。
+支持 `"yesterday"`、`"today"`、`"YYYY-MM-DD"`。口语「最新/增长榜」等多映射为 `yesterday`；数据为空时自动向前一天追溯，逐天查询直到找到有数据的日期，找到后立即停止（见核心流程）。
 
 **Q5：可以查询多久以前的数据？**
 
@@ -301,7 +301,7 @@ wechat-fastest-growing/
 
 **Q8：脚本返回空数据或失败？**
 
-确认 `REDFOX_API_KEY` 有效、日期在 30 天窗口内、`--source` 为 `"公众号阅读增长榜"`。查看脚本 stderr 错误信息，勿用模型补齐排行。
+确认 `REDFOX_API_KEY` 有效、日期在 30 天窗口内。查看脚本 stderr 错误信息，勿用模型补齐排行。
 
 ---
 

@@ -25,7 +25,7 @@
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
 | rankDate | String | 是 | 榜单日期（YYYY-MM-DD格式，如"2026-04-15"；支持相对日期"yesterday"/"today"） |
-| source | String | 是 | 数据源（"公众号阅读增长榜"） |
+| source | String | 是 | 数据源（"公众号阅读增长榜-GitHub"） |
 
 **时间参数说明**：
 - **yesterday**: 昨天（用于查询昨日榜单）
@@ -35,12 +35,12 @@
 
 ### 示例1：获取昨日增长榜
 ```
-GET https://redfox.hk/story/api/cozeSkill/getGzhCozeSkillDataRaise?rankDate=2026-04-15&source=公众号阅读增长榜
+GET https://redfox.hk/story/api/cozeSkill/getGzhCozeSkillDataRaise?rankDate=2026-04-15&source=公众号阅读增长榜-GitHub
 ```
 
 ### 示例2：获取指定日期增长榜
 ```
-GET https://redfox.hk/story/api/cozeSkill/getGzhCozeSkillDataRaise?rankDate=2026-04-01&source=公众号阅读增长榜
+GET https://redfox.hk/story/api/cozeSkill/getGzhCozeSkillDataRaise?rankDate=2026-04-01&source=公众号阅读增长榜-GitHub
 ```
 
 ## 返回数据

@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书近七日热门笔记 - 综合全部</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .page-wrap {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 12px 12px 24px;
+        }
+
+        .export-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 8px 0 10px;
+        }
+        .btn-export-pdf, .btn-export-img {
+            background: #fff;
+            color: #ff2442;
+            border: 1.5px solid #ff2442;
+            border-radius: 20px;
+            padding: 6px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-export-pdf:hover, .btn-export-img:hover { background: #fff5f6; }
+
+        .pdf-content { background: transparent; }
+
+        .header-wrap {
+            background: linear-gradient(135deg, #ff2442 0%, #ff6b81 100%);
+            border-radius: 12px;
+            padding: 20px 16px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        .header-wrap h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .header-meta {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .category-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            border-radius: 10px;
+            padding: 2px 10px;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        .note-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .note-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #f0f0f0;
+        }
+        .note-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .note-card.top1 { border-left: 3px solid #ff2442; }
+        .note-card.top2 { border-left: 3px solid #ff6b81; }
+        .note-card.top3 { border-left: 3px solid #ffb3c1; }
+
+        .note-row1 {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .rank-num {
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #999;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .note-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .note-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .note-title a {
+            color: #333;
+            text-decoration: none;
+        }
+        .note-title a:hover {
+            color: #ff2442;
+        }
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #999;
+        }
+        .author-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .author-name {
+            color: #666;
+        }
+        .fans-count {
+            color: #999;
+        }
+
+        .note-row2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding-left: 48px;
+            /* 48px = rank-num宽度36px + margin-right 12px，与头像边界对齐 */
+        }
+        .data-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+        }
+        .data-label {
+            color: #999;
+        }
+        .data-value {
+            color: #333;
+            font-weight: 600;
+        }
+        .data-add {
+            color: #ff2442;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: #bbb;
+            margin-top: 16px;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 600px) {
+            .page-wrap { padding: 8px 8px 20px; }
+            .header-wrap { padding: 16px 12px; }
+            .header-wrap h1 { font-size: 20px; }
+            .note-card { padding: 12px; }
+            .note-title { font-size: 15px; }
+            .rank-num { min-width: 32px; height: 32px; font-size: 16px; }
+            .note-row2 { gap: 10px; padding-left: 44px; margin-top: 8px; }
+            .data-item { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrap">
+    <div class="export-bar">
+        <button class="btn-export-img" onclick="exportImage()">导出图片</button>
+        <button class="btn-export-pdf" onclick="exportPdf()">导出 PDF</button>
+    </div>
+
+    <div class="pdf-content" id="pdfContent">
+        <div class="header-wrap">
+            <h1>📱 小红书近七日热门笔记<span class="category-badge">综合全部</span></h1>
+            <div class="header-meta">更新时间：2026-05-28 15:33:15</div>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-num" id="totalCount">--</div>
+                    <div class="stat-label">笔记总数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" id="maxInteractive">--</div>
+                    <div class="stat-label">最高互动</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" id="avgInteractive">--</div>
+                    <div class="stat-label">平均互动</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-list" id="noteList"></div>
+
+        <div class="footer-note">数据来源：小红书平台 · 综合全部 · 近7天热门笔记排行</div>
+    </div>
+</div>
+
+<script>
+(function() {
+    function bindCardClick() {
+        var cards = document.querySelectorAll('.note-card[data-href]');
+        cards.forEach(function(card) {
+            card.addEventListener('click', function(e) {
+                if (e.target.closest('a, button')) return;
+                var url = this.getAttribute('data-href');
+                if (url && url !== '#') window.open(url, '_blank');
+            });
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindCardClick);
+    } else {
+        bindCardClick();
+    }
+})();
+
+(function() {
+    var RAW = [
+  {
+    "index": 1,
+    "userName": "Gyokee",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/645c6d69701f3a04c8541d42.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/599ebde282ec396c6113b476",
+    "fans": "29w+",
+    "title": "“核污排海的第1000天我还在坚持”",
+    "desc": "第1000天了我把这两年多创作的100多个装置作品一张一张拼进这个视频里开头是2023年8月的那些新闻——正式宣布核污排海那时候我以为，愤怒会很快被行动接住后来发现，行动只有我自己第1000天，也是我坚持创作的第940天黑色针织线、蓝色谎言、饮水机、花洒、地球冰淇淋、ICU盲盒、鱼缸里的钓鱼竿……100多个装置，100多种沉默的喊叫没人叫停排海，那我就不停地做视频里没有声嘶力竭，只有画面叠着画面：黑线从地球仪流到地面，从花洒垂到肩膀，从水壶倒进枯盆一个接一个，像排海的日子一样停不下来\t第1000天，我还在坚持不是因为我有答案是因为如果连我也不做了那些黑色的线，就真的只是线了@艺术薯#核污水排海第1000天#我还在坚持#100个装置#第940天创作#装置艺术#大海在哭泣#我的艺术出道作#小红书线上毕业展",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g2sg320cr3l7kmee049olsuuu5d3m9ikebv0?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d77d7000000000803cf3e",
+    "publicTime": "2026-05-20 16:59:03",
+    "interactiveCount": "61w+",
+    "addInteractiveount": "44w+",
+    "collectedCount": "2w+",
+    "addCollectedCunt": "2w+",
+    "useLikeCount": "57w+",
+    "addLikeCount": "41w+",
+    "useCommentCount": "1w+",
+    "addCommentCount": "1w+",
+    "useShareCount": "2884",
+    "addShareCount": "2293"
+  },
+  {
+    "index": 2,
+    "userName": "七颗猩猩",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/6022643db4a79387903ffdef.jpg?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5f9847230000000001007825",
+    "fans": "100w+",
+    "title": "完全尊重自己，就会非常幸福",
+    "desc": "#七颗猩猩#剧情#搞笑",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g008320cqib1ame005nso8shg8u1520r8np8?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d799300000000360301e8",
+    "publicTime": "2026-05-20 17:06:27",
+    "interactiveCount": "50w+",
+    "addInteractiveount": "22w+",
+    "collectedCount": "3w+",
+    "addCollectedCunt": "1w+",
+    "useLikeCount": "45w+",
+    "addLikeCount": "20w+",
+    "useCommentCount": "1w+",
+    "addCommentCount": "2922",
+    "useShareCount": "7408",
+    "addShareCount": "3153"
+  },
+  {
+    "index": 3,
+    "userName": "是圈总",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo312335lou3u004btoghvfj1rpm9b2h0o?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5bfa3ef9f1a8c70001688779",
+    "fans": "100w+",
+    "title": "拍完这条视频犬子跟我绝交了",
+    "desc": "#反向带娃#智慧母子#亲子日常#吃商天花板#对抗路母子",
+    "coverUrl": "https://sns-na-i4.xhscdn.com/spectrum/1040g0k0320cfa7flli004btoghvfj1rpfdhbei8?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d17b5000000003701fef4",
+    "publicTime": "2026-05-20 10:08:53",
+    "interactiveCount": "44w+",
+    "addInteractiveount": "27w+",
+    "collectedCount": "6w+",
+    "addCollectedCunt": "3w+",
+    "useLikeCount": "37w+",
+    "addLikeCount": "22w+",
+    "useCommentCount": "3916",
+    "addCommentCount": "2084",
+    "useShareCount": "1w+",
+    "addShareCount": "9914"
+  },
+  {
+    "index": 4,
+    "userName": "小胡同学呀",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2kfk0luaj20005o2kdst0948hu4feqh8?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/60546f3a0000000001009111",
+    "fans": "100w+",
+    "title": "这帅哥太有西域那味了",
+    "desc": "#胡有姬#好视频扶持计划#化妆就是玩儿#敦煌",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g008320cp169s68005o2kdst0948hq601er0?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d6719000000000702d7b9",
+    "publicTime": "2026-05-20 17:48:03",
+    "interactiveCount": "42w+",
+    "addInteractiveount": "31w+",
+    "collectedCount": "8w+",
+    "addCollectedCunt": "6w+",
+    "useLikeCount": "33w+",
+    "addLikeCount": "25w+",
+    "useCommentCount": "6996",
+    "addCommentCount": "4489",
+    "useShareCount": "1w+",
+    "addShareCount": "8964"
+  },
+  {
+    "index": 5,
+    "userName": "极品晓丽",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31d1j0qfigu6g5nuuva5g98nldnoi8eg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5fdefa8b000000000100a2f5",
+    "fans": "25w+",
+    "title": "遇见这种室友怎么办",
+    "desc": "当我的室友都是顶级富姐#剧情#搞笑#宿舍#RED新生代创作大赛#新笑场",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g008320cug3mq62005nuuva5g98nll96upj0?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d93ad0000000037037e4b",
+    "publicTime": "2026-05-20 18:57:49",
+    "interactiveCount": "41w+",
+    "addInteractiveount": "20w+",
+    "collectedCount": "5w+",
+    "addCollectedCunt": "2w+",
+    "useLikeCount": "35w+",
+    "addLikeCount": "17w+",
+    "useCommentCount": "8747",
+    "addCommentCount": "3683",
+    "useShareCount": "1w+",
+    "addShareCount": "9757"
+  },
+  {
+    "index": 6,
+    "userName": "柳阿姨",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo310rbdmmcmi405o4tksh09758u1ntddg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/609da7220000000001009ca8",
+    "fans": "38w+",
+    "title": "以后想吃火腿肠就自己做",
+    "desc": "婆婆今天用一斤猪肉给两个娃做了一大盘火腿肠，自己做特别简单，煎一下和夜市卖的香煎火腿肠没有一点区别，家里有孩子的一定要试试喔~#自己动手做美食",
+    "coverUrl": "https://sns-i11.rednotecdn.com/spectrum/1040g0k0320cln7qp5e005o4tksh097581flhf4o?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d4e7a000000000702701b",
+    "publicTime": "2026-05-20 14:02:34",
+    "interactiveCount": "38w+",
+    "addInteractiveount": "33w+",
+    "collectedCount": "22w+",
+    "addCollectedCunt": "19w+",
+    "useLikeCount": "15w+",
+    "addLikeCount": "13w+",
+    "useCommentCount": "2721",
+    "addCommentCount": "2292",
+    "useShareCount": "5w+",
+    "addShareCount": "5w+"
+  },
+  {
+    "index": 7,
+    "userName": "金毛骆驼",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2qs80r5kk800g4a5itdeo3c5nhe5tnq8?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5b04dd81e8ac2b78386fb0b7",
+    "fans": "18w+",
+    "title": "友谊差点崩塌",
+    "desc": "#金毛",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g008320ctlv4b6i0g4a5itdeo3c5nlium58o?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0db3dd0000000036003b92",
+    "publicTime": "2026-05-20 21:15:09",
+    "interactiveCount": "34w+",
+    "addInteractiveount": "21w+",
+    "collectedCount": "1w+",
+    "addCollectedCunt": "8997",
+    "useLikeCount": "33w+",
+    "addLikeCount": "20w+",
+    "useCommentCount": "1901",
+    "addCommentCount": "1090",
+    "useShareCount": "6562",
+    "addShareCount": "3930"
+  },
+  {
+    "index": 8,
+    "userName": "韩皮卡的装修日记",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30s7815kuiq005oamd790kodb1ubh7cg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/615669d200000000020261ab",
+    "fans": "6w+",
+    "title": "懒人爱惨‼️极度舒适的100个生活爽点",
+    "desc": "#小红书居住趋势#顺应身体的家#提升幸福感的家居好物#懒人神器#居家生活提升#家居#人类智慧的产物#生活爽点#小户型收纳#买了不后悔的家居神器@家居薯@装修薯",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g2sg320cnfon6me705oamd790kodbu02hlg8?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d5afb00000000080326ee",
+    "publicTime": "2026-05-20 18:03:09",
+    "interactiveCount": "29w+",
+    "addInteractiveount": "23w+",
+    "collectedCount": "13w+",
+    "addCollectedCunt": "10w+",
+    "useLikeCount": "15w+",
+    "addLikeCount": "12w+",
+    "useCommentCount": "823",
+    "addCommentCount": "651",
+    "useShareCount": "1w+",
+    "addShareCount": "1w+"
+  },
+  {
+    "index": 9,
+    "userName": "一颗大苹果",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/63789aa3f9b4e1f217d17ce7.jpg?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/61d954d2000000000201ad87",
+    "fans": "1w+",
+    "title": "70万个小姐妹催的跟练清单整理好啦！",
+    "desc": "#减肥#居家锻炼#廋腿廋腰廋肚子#瘦背#苹果型身材#居家运动",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g008320d16odd68005oepaj90jbc70n9h6to?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0da9dd000000000701079b",
+    "publicTime": "2026-05-20 20:32:29",
+    "interactiveCount": "28w+",
+    "addInteractiveount": "24w+",
+    "collectedCount": "16w+",
+    "addCollectedCunt": "13w+",
+    "useLikeCount": "12w+",
+    "addLikeCount": "10w+",
+    "useCommentCount": "465",
+    "addCommentCount": "384",
+    "useShareCount": "7274",
+    "addShareCount": "6331"
+  },
+  {
+    "index": 10,
+    "userName": "古怪小琦",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30o7v8tvai4005om8uan0vgr1ljgjqa0?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/62c8f2ae000000000303c361",
+    "fans": "100w+",
+    "title": "",
+    "desc": "和猛兽“住”一晚是种什么体验！？#古怪小琦#猛兽酒店#保护动物",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g2sg320cs8auum2e05om8uan0vgr1segasqg?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d8172000000000803c8ca",
+    "publicTime": "2026-05-20 17:40:02",
+    "interactiveCount": "25w+",
+    "addInteractiveount": "14w+",
+    "collectedCount": "6w+",
+    "addCollectedCunt": "3w+",
+    "useLikeCount": "19w+",
+    "addLikeCount": "11w+",
+    "useCommentCount": "1908",
+    "addCommentCount": "717",
+    "useShareCount": "5158",
+    "addShareCount": "2947"
+  },
+  {
+    "index": 11,
+    "userName": "羽盈",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/5e8fbe1000000000010098dd.jpg?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5e8fbe1000000000010098dd",
+    "fans": "2021",
+    "title": "走着走着天就亮了",
+    "desc": "一个月的蜕变#女性励志#女性#这一路的颠沛流离#路总得迈出第一步才能出发#自信#自强#未来的路还很长#不放弃#坚持#大女人",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g2sg320ckgl2jlekg5nkfno80966tdtgialo?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d42bb000000003502e9a0",
+    "publicTime": "2026-05-20 13:12:27",
+    "interactiveCount": "25w+",
+    "addInteractiveount": "11w+",
+    "collectedCount": "1w+",
+    "addCollectedCunt": "8065",
+    "useLikeCount": "24w+",
+    "addLikeCount": "10w+",
+    "useCommentCount": "743",
+    "addCommentCount": "251",
+    "useShareCount": "903",
+    "addShareCount": "411"
+  },
+  {
+    "index": 12,
+    "userName": "潘潘弘毅",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31va34lbb2i005nklapo08mi3p3vopl8?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5e9556700000000001005a43",
+    "fans": "12w+",
+    "title": "鸭嘴夹用法！一夹一翻一推！",
+    "desc": "#潘潘弘毅#鸭嘴夹#发型",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g2sg320d4dsnmlse05nklapo08mi33k97fio?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0dc43b000000003603115e",
+    "publicTime": "2026-05-20 22:24:59",
+    "interactiveCount": "24w+",
+    "addInteractiveount": "21w+",
+    "collectedCount": "7w+",
+    "addCollectedCunt": "6w+",
+    "useLikeCount": "17w+",
+    "addLikeCount": "15w+",
+    "useCommentCount": "909",
+    "addCommentCount": "792",
+    "useShareCount": "3415",
+    "addShareCount": "2901"
+  },
+  {
+    "index": 13,
+    "userName": "白色向内",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/644387e688c2f4203792d950.jpg?imageView2/2/w/80/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/61853d3a0000000021026a8f",
+    "fans": "39w+",
+    "title": "“蝴蝶不会停留在疯狂抖动的花朵上。”",
+    "desc": "*\t今天来手作一封情书。\t在这个伸手就能拿到成品的时代，手工是情深意重的代名词。\t手搓礼物的温度只增不减。\t*\t姜思达说，\t“蝴蝶不会停留在疯狂抖动的花朵上。”\t我很赞同。\t*\t爱是接近“神性”的东西，只能等待它的降临。但我们首先要先种花，再等待爱的降临。\t*\t爱有极强的偶然性、命运性，降临感。\t于是，真正重要的是你先不再剧烈晃动，并沉淀为一片柔软的着陆地。\t*\t生命中每一个敞开的过程，都可以种下你的花朵。\t*\t爱的本质非常轻，只落在安静、留白，能否等待的生命状态里。\t*以上，今天也谢谢你来。\t#写一封古法情书#手写情书#审美#手帐\t@视频薯@手工薯",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g2sg320cie3ap5ml05oc57kt8cqkfij0u35g?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d32be0000000006021135",
+    "publicTime": "2026-05-20 12:04:14",
+    "interactiveCount": "24w+",
+    "addInteractiveount": "16w+",
+    "collectedCount": "2w+",
+    "addCollectedCunt": "2w+",
+    "useLikeCount": "21w+",
+    "addLikeCount": "13w+",
+    "useCommentCount": "1543",
+    "addCommentCount": "879",
+    "useShareCount": "6034",
+    "addShareCount": "3757"
+  },
+  {
+    "index": 14,
+    "userName": "刘油果🥑（鸟人）",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/63926bb93d2efa947043dedc.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/548235a7d6e4a9168345a7b2",
+    "fans": "100w+",
+    "title": "2000w人催的掏下水道薄背瘦背全程跟练版",
+    "desc": "#00:48时刻#掏下水道注意事项#01:25时刻#无负重激活动作细节#02:03时刻#动作一：激活腋下暂住地跟练#04:51时刻#负重掏下水道动作细节讲解#05:38时刻#动作二：掏下水道右侧100s#07:31时刻#动作三：掏下水道左侧100s#09:34时刻#后续搭配的升华版练背跟练\t#沉肩#体态改善#体态调整#小基数减肥#驼背#瘦背#开肩美背#身材管理#练背",
+    "coverUrl": "https://sns-i14-ae.rednotecdn.com/1040g2sg320ct1lsmlse0400q2rqqf9ti8ajiqig?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d8b8b0000000007012336",
+    "publicTime": "2026-05-20 18:23:07",
+    "interactiveCount": "24w+",
+    "addInteractiveount": "15w+",
+    "collectedCount": "11w+",
+    "addCollectedCunt": "7w+",
+    "useLikeCount": "12w+",
+    "addLikeCount": "8w+",
+    "useCommentCount": "1097",
+    "addCommentCount": "542",
+    "useShareCount": "9157",
+    "addShareCount": "5723"
+  },
+  {
+    "index": 15,
+    "userName": "陆毅",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vi7cpnhia5g5op41jslb7pnakbnvo8?imageView2/2/w/80/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/63240cf90000000015019f37",
+    "fans": "41w+",
+    "title": "来自女儿们的视角~",
+    "desc": "爸爸妈妈的恩爱他们看在眼里，爱是生活里的头等小事#520#日常vlog#明星不止AB面#镜头反转对准爱#快乐蕾达",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g2sg320bjao7m5krg5o678qqg8o6lgh5p8vo?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0c3204000000003501cbd7",
+    "publicTime": "2026-05-20 13:15:20",
+    "interactiveCount": "22w+",
+    "addInteractiveount": "12w+",
+    "collectedCount": "1w+",
+    "addCollectedCunt": "6546",
+    "useLikeCount": "20w+",
+    "addLikeCount": "11w+",
+    "useCommentCount": "1w+",
+    "addCommentCount": "4405",
+    "useShareCount": "4w+",
+    "addShareCount": "1w+"
+  },
+  {
+    "index": 16,
+    "userName": "徐某",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3128avkrc1k005of32ohocvni8330tug?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/61e316230000000021027ef2",
+    "fans": "20w+",
+    "title": "暴君",
+    "desc": "#女生男相#氛围感#低像素#制服",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g008320cttnoa5k005of32ohocvnii63405g?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d8ef70000000035021f6f",
+    "publicTime": "2026-05-20 18:37:43",
+    "interactiveCount": "21w+",
+    "addInteractiveount": "21w+",
+    "collectedCount": "3w+",
+    "addCollectedCunt": "3w+",
+    "useLikeCount": "18w+",
+    "addLikeCount": "17w+",
+    "useCommentCount": "1107",
+    "addCommentCount": "1058",
+    "useShareCount": "4752",
+    "addShareCount": "4596"
+  },
+  {
+    "index": 17,
+    "userName": "Kip.",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31puvirvt72005pjrvs91okkamadkot0?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/667bff12000000000700528a",
+    "fans": "4w+",
+    "title": "",
+    "desc": "“人民的名画”",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g2sg320cmf8006ieg5pjrvs91okka9od5qfg?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d51e100000000350223d9",
+    "publicTime": "2026-05-20 14:17:05",
+    "interactiveCount": "21w+",
+    "addInteractiveount": "17w+",
+    "collectedCount": "1w+",
+    "addCollectedCunt": "1w+",
+    "useLikeCount": "19w+",
+    "addLikeCount": "16w+",
+    "useCommentCount": "564",
+    "addCommentCount": "453",
+    "useShareCount": "1564",
+    "addShareCount": "1258"
+  },
+  {
+    "index": 18,
+    "userName": "黄姥姥",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31u3l2o0si4005p3hp8ak3s3bfvagmoo?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/6471ca15000000001001f06b",
+    "fans": "3w+",
+    "title": "",
+    "desc": "生活的柴米油盐#抗住了柴米油盐的麻烦#转场",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g2sg320cri2rv5m705p3hp8ak3s3bsgkq6u0?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d7b8b000000003803499a",
+    "publicTime": "2026-05-20 17:14:51",
+    "interactiveCount": "20w+",
+    "addInteractiveount": "16w+",
+    "collectedCount": "1w+",
+    "addCollectedCunt": "9529",
+    "useLikeCount": "18w+",
+    "addLikeCount": "15w+",
+    "useCommentCount": "532",
+    "addCommentCount": "312",
+    "useShareCount": "664",
+    "addShareCount": "565"
+  },
+  {
+    "index": 19,
+    "userName": "黑猫厨房",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/601fcedebf5ee768789dbcd6.jpg?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5bfc262ef1a8c700018ae9fb",
+    "fans": "100w+",
+    "title": "这是什么新品种？",
+    "desc": "压扁的水果系列，灵感来自世界著名画家达利和最近的AI印章压扁水果#追觅s60pro#追觅扫地机器人#扫地机器人推荐#AI美食#创意美食",
+    "coverUrl": "https://sns-i11.rednotecdn.com/spectrum/1040g34o320bkuclblc1g4bu7euj2tqfr3qiqapg?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0c417e0000000007010ab7",
+    "publicTime": "2026-05-20 17:01:13",
+    "interactiveCount": "20w+",
+    "addInteractiveount": "14w+",
+    "collectedCount": "2w+",
+    "addCollectedCunt": "1w+",
+    "useLikeCount": "18w+",
+    "addLikeCount": "13w+",
+    "useCommentCount": "1181",
+    "addCommentCount": "728",
+    "useShareCount": "3123",
+    "addShareCount": "2277"
+  },
+  {
+    "index": 20,
+    "userName": "娱乐小红帽",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vb5an7hiq005opefqbosuecb67a1n0?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/632e7e9700000000230279cc",
+    "fans": "6w+",
+    "title": "原来不止我一个人这样啊",
+    "desc": "#情感#女性#万万没想到#情绪#心理#内容过于真实",
+    "coverUrl": "https://sns-na-i1.xhscdn.com/spectrum/1040g34o320csq34ile105opefqbosuecoi9umpo?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/6a0d8ce1000000003601b776",
+    "publicTime": "2026-05-20 20:32:01",
+    "interactiveCount": "20w+",
+    "addInteractiveount": "14w+",
+    "collectedCount": "4w+",
+    "addCollectedCunt": "3w+",
+    "useLikeCount": "15w+",
+    "addLikeCount": "11w+",
+    "useCommentCount": "3853",
+    "addCommentCount": "2749",
+    "useShareCount": "1w+",
+    "addShareCount": "7416"
+  }
+];
+
+    var totalCount = RAW.length;
+    var maxInteractive = 0, sumInteractive = 0;
+
+    function parseInteractive(val) {
+        if (typeof val === 'string') {
+            if (val.indexOf('w') !== -1 || val.indexOf('W') !== -1) {
+                return parseFloat(val) * 10000;
+            } else if (val.indexOf('亿') !== -1) {
+                return parseFloat(val) * 100000000;
+            }
+            return parseFloat(val) || 0;
+        }
+        return val || 0;
+    }
+
+    function fmtNum(val) {
+        if (typeof val === 'string') {
+            if (val.indexOf('w') !== -1 || val.indexOf('W') !== -1 || val.indexOf('亿') !== -1) {
+                return val;
+            }
+        }
+        var n = parseInt(val) || 0;
+        if (n >= 10000) {
+            return (n / 10000).toFixed(1) + 'w';
+        }
+        return n.toString();
+    }
+
+    for (var i = 0; i < RAW.length; i++) {
+        var interactive = parseInteractive(RAW[i].interactiveCount);
+        if (interactive > maxInteractive) maxInteractive = interactive;
+        sumInteractive += interactive;
+    }
+    var avgInteractive = totalCount > 0 ? sumInteractive / totalCount : 0;
+
+    document.getElementById('totalCount').textContent = totalCount;
+    document.getElementById('maxInteractive').textContent = fmtNum(maxInteractive);
+    document.getElementById('avgInteractive').textContent = fmtNum(Math.round(avgInteractive));
+
+    var html = '';
+    for (var i = 0; i < RAW.length && i < 20; i++) {
+        var d = RAW[i];
+        var rank = i + 1;
+        var cardCls = 'note-card';
+
+        if (rank === 1) cardCls += ' top1';
+        else if (rank === 2) cardCls += ' top2';
+        else if (rank === 3) cardCls += ' top3';
+
+        var noteUrl = (d.photoJumpUrl || '#').replace(/ /g, '%20');
+        var avatar = d.userHeadUrl || '';
+        var userName = (d.userName || '--').replace(/ /g, '');
+        var fans = (d.fans || '').replace(/ /g, '');
+        var title = (d.title || '--').replace(/ /g, '');
+
+        var interactive = (d.interactiveCount || '0').replace(/ /g, '');
+        var addInteractive = (d.addInteractiveount || '0').replace(/ /g, '');
+        var likeCount = (d.useLikeCount || '0').replace(/ /g, '');
+        var addLikeCount = (d.addLikeCount || '0').replace(/ /g, '');
+        var commentCount = (d.useCommentCount || '0').replace(/ /g, '');
+        var addCommentCount = (d.addCommentCount || '0').replace(/ /g, '');
+        var collected = (d.collectedCount || '0').replace(/ /g, '');
+        var addCollected = (d.addCollectedCunt || '0').replace(/ /g, '');
+        var shareCount = (d.useShareCount || '0').replace(/ /g, '');
+        var addShareCount = (d.addShareCount || '0').replace(/ /g, '');
+
+        var rankHtml = '';
+        if (rank === 1) {
+            rankHtml = '<div class="rank-num">🥇</div>';
+        } else if (rank === 2) {
+            rankHtml = '<div class="rank-num">🥈</div>';
+        } else if (rank === 3) {
+            rankHtml = '<div class="rank-num">🥉</div>';
+        } else {
+            rankHtml = '<div class="rank-num">' + rank + '</div>';
+        }
+
+        html += '<div class="' + cardCls + '" data-href="' + noteUrl + '">'
+            + '<div class="note-row1">'
+            + rankHtml
+            + '<div class="note-info">'
+            + '<div class="note-title"><a href="' + noteUrl + '" target="_blank" onclick="event.stopPropagation()">' + title + '</a></div>'
+            + '<div class="author-info">'
+            + (avatar ? '<img class="author-avatar" src="' + avatar + '" onerror="this.style.display=\'none\'">' : '')
+            + '<span class="author-name">' + userName + '</span>'
+            + (fans ? '<span class="fans-count">·' + fans + '粉丝</span>' : '')
+            + '</div>'
+            + '</div>'
+            + '</div>'
+            + '<div class="note-row2">'
+            + '<div class="data-item"><span class="data-label">互动</span><span class="data-value">' + fmtNum(interactive) + '</span><span class="data-add">↑' + fmtNum(addInteractive) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">点赞</span><span class="data-value">' + fmtNum(likeCount) + '</span><span class="data-add">↑' + fmtNum(addLikeCount) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">评论</span><span class="data-value">' + fmtNum(commentCount) + '</span><span class="data-add">↑' + fmtNum(addCommentCount) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">收藏</span><span class="data-value">' + fmtNum(collected) + '</span><span class="data-add">↑' + fmtNum(addCollected) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">分享</span><span class="data-value">' + fmtNum(shareCount) + '</span><span class="data-add">↑' + fmtNum(addShareCount) + '</span></div>'
+            + '</div>'
+            + '</div>';
+    }
+
+    document.getElementById('noteList').innerHTML = html;
+})();
+
+function exportImage() {
+    var btn = document.querySelector('.btn-export-img');
+    btn.textContent = '生成中...';
+    btn.style.pointerEvents = 'none';
+
+    var target = document.getElementById('pdfContent');
+
+    html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#f5f5f5',
+        logging: false,
+        windowWidth: target.scrollWidth,
+        windowHeight: target.scrollHeight
+    }).then(function(canvas) {
+        var link = document.createElement('a');
+        link.download = 'xhs_weekly_' + new Date().toISOString().slice(0,10) + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        btn.textContent = '导出图片';
+        btn.style.pointerEvents = '';
+    }).catch(function(err) {
+        alert('图片生成失败：' + err.message);
+        btn.textContent = '导出图片';
+        btn.style.pointerEvents = '';
+    });
+}
+
+function exportPdf() {
+    var btn = document.querySelector('.btn-export-pdf');
+    btn.textContent = '生成中...';
+    btn.style.pointerEvents = 'none';
+
+    var target = document.getElementById('pdfContent');
+
+    html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#f5f5f5',
+        logging: false,
+        windowWidth: target.scrollWidth,
+        windowHeight: target.scrollHeight
+    }).then(function(canvas) {
+        var imgData = canvas.toDataURL('image/png', 1.0);
+
+        // 使用横向 A4 纸
+        var pdf = new jspdf.jsPDF('l', 'mm', 'a4');
+        var pdfW = pdf.internal.pageSize.getWidth();
+        var pdfH = pdf.internal.pageSize.getHeight();
+        var margin = 8;
+        var contentW = pdfW - margin * 2;
+        var contentH = pdfH - margin * 2;
+
+        // 计算图片尺寸以适应横向 A4
+        var imgW = contentW;
+        var imgH = (canvas.height * imgW) / canvas.width;
+
+        // 如果高度仍然超过页面高度，按高度缩放
+        if (imgH > contentH) {
+            imgH = contentH;
+            imgW = (canvas.width * imgH) / canvas.height;
+        }
+
+        // 居中显示
+        var imgX = (pdfW - imgW) / 2;
+        var imgY = (pdfH - imgH) / 2;
+
+        // 所有内容在一页中
+        pdf.addImage(imgData, 'PNG', imgX, imgY, imgW, imgH);
+
+        var now = new Date();
+        var dateStr = now.getFullYear() +
+            String(now.getMonth()+1).padStart(2,'0') +
+            String(now.getDate()).padStart(2,'0') +
+            '_' +
+            String(now.getHours()).padStart(2,'0') +
+            String(now.getMinutes()).padStart(2,'0');
+
+        pdf.save('xhs_weekly_' + dateStr + '.pdf');
+
+        btn.textContent = '导出 PDF';
+        btn.style.pointerEvents = '';
+    }).catch(function(err) {
+        alert('PDF 生成失败：' + err.message);
+        btn.textContent = '导出 PDF';
+        btn.style.pointerEvents = '';
+    });
+}
+</script>
+
+</body>
+</html>

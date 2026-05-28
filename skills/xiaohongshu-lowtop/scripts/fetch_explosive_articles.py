@@ -1079,6 +1079,11 @@ def main():
         with open(md_output, 'w', encoding='utf-8') as f:
             f.write(full_output_text)
 
+        # 保存数据缓存文件，供后续HTML生成复用，避免重复请求API
+        cache_file = f"./{file_base}_cache.json"
+        with open(cache_file, 'w', encoding='utf-8') as f:
+            json.dump(articles, f, ensure_ascii=False, indent=2)
+
         # 同时输出到stdout
         print(full_output_text)
 

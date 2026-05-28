@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-小红书近七日热门笔记HTML生成器
+小红书七日爆款笔记HTML生成器
 
-从API获取周榜数据，生成可独立打开的HTML页面。
-用法：python gen_xhs_html.py [--rank_date YYYY-MM-DD] [--category 分类名] [--top N] [--output PATH]
-输出：xhs_weekly.html（与脚本同目录）
+从已获取的JSON数据文件读取数据，生成可独立打开的HTML页面。
+用法：python gen_xhs_html.py --data_file <JSON数据文件> --category "分类名" --top N [--output PATH]
+输出：小红书七日爆款笔记_{分类}_{时间戳}.html（与脚本同目录）
 
 样式特性：
 - 小红书风格（红色主题 #ff2442）
@@ -19,106 +19,7 @@
 import json
 import sys
 import os
-from datetime import datetime, timedelta
-from urllib.parse import quote
-import requests
-
-
-def get_api_key() -> str:
-    """
-    获取 REDFOX_API_KEY
-
-    三级认证回退机制：
-    1. 从当前设备环境变量 REDFOX_API_KEY 中获取
-    2. 若未获取到，自动从 shell 配置文件中读取
-    3. 仍然没有则提示用户配置
-
-    Returns:
-        API Key 字符串
-
-    Raises:
-        ValueError: 未找到 API Key 时抛出，附带配置指引
-    """
-    import platform
-    import re as re_mod
-
-    # 第一级：环境变量
-    api_key = os.environ.get("REDFOX_API_KEY", "").strip()
-    if api_key:
-        return api_key
-
-    # 第二级：Shell 配置文件
-    home = os.path.expanduser("~")
-    config_files = []
-
-    if platform.system() == "Windows":
-        config_files = [
-            os.path.join(home, "Documents", "WindowsPowerShell", "Microsoft.PowerShell_profile.ps1"),
-            os.path.join(home, "Documents", "PowerShell", "Microsoft.PowerShell_profile.ps1"),
-        ]
-    else:
-        config_files = [
-            os.path.join(home, ".zshrc"),
-            os.path.join(home, ".bashrc"),
-            os.path.join(home, ".bash_profile"),
-            os.path.join(home, ".profile"),
-        ]
-
-    for cf in config_files:
-        if os.path.isfile(cf):
-            try:
-                with open(cf, "r", encoding="utf-8", errors="ignore") as f:
-                    content = f.read()
-                match = re_mod.search(
-                    r'REDFOX_API_KEY\s*[=:]\s*["\']?([a-zA-Z0-9_\-]+)["\']?',
-                    content
-                )
-                if match:
-                    return match.group(1).strip()
-            except Exception:
-                continue
-
-    # 第三级：提示用户配置
-    raise ValueError(
-        "未找到 REDFOX_API_KEY。请按以下步骤配置：\n"
-        "1. 访问 https://redfox.hk/login 注册并获取 API Key\n"
-        "2. 设置环境变量：\n"
-        "   macOS/Linux: export REDFOX_API_KEY=<你的apikey>\n"
-        "   Windows PowerShell: [Environment]::SetEnvironmentVariable('REDFOX_API_KEY', '<值>', 'User')\n"
-        "3. 配置后重启终端使其生效"
-    )
-
-
-def get_query_date(user_date: str = None) -> tuple:
-    """
-    根据用户输入和当前时间确定查询日期
-
-    规则：
-    1. 用户指定了日期 → 直接使用
-    2. 未指定日期：
-       - 当前时间 >= 19:00 → 查询昨日数据（当日19:00已更新）
-       - 当前时间 < 19:00 → 查询前天数据（等待当日19:00更新）
-
-    Args:
-        user_date: 用户指定的日期（格式：yyyy-MM-dd）
-
-    Returns:
-        (查询日期, 是否为自动推断)
-    """
-    if user_date:
-        return user_date, False
-
-    now = datetime.now()
-    cutoff_time = now.replace(hour=19, minute=0, second=0, microsecond=0)
-
-    if now >= cutoff_time:
-        # 超过19:00，查询昨日（当日已更新）
-        query_date = (now - timedelta(days=1)).strftime("%Y-%m-%d")
-    else:
-        # 未超过19:00，查询前天（等待当日更新）
-        query_date = (now - timedelta(days=2)).strftime("%Y-%m-%d")
-
-    return query_date, True
+from datetime import datetime
 
 
 def clean_text(text: str) -> str:
@@ -151,191 +52,47 @@ def clean_text(text: str) -> str:
     return text.strip()
 
 
-# 分类关键词映射（包含产品词映射）
-CATEGORY_KEYWORDS = {
-    "综合全部": ["综合", "全部", "热门", "推荐", "随便", "随便看看", "总榜", "整体"],
-    "出行代步": ["出行", "代步", "交通", "汽车", "打车", "地铁", "公交", "开车", "驾车", "出行方式", "通勤", "自驾", "新能源车", "电动车"],
-    "休闲爱好": ["休闲", "爱好", "兴趣", "娱乐", "休闲活动", "兴趣爱", "业余", "消遣", "手工", "DIY", "收藏"],
-    "影视娱乐": ["影视", "娱乐", "电影", "电视剧", "综艺", "明星", "追剧", "看剧", "演员", "导演", "剧集", "追星", "综艺"],
-    "数码科技": ["数码", "科技", "手机", "电脑", "数码产品", "科技产品", "智能", "电子", "硬件", "软件", "app", "APP", "iPhone", "安卓", "平板", "耳机", "键盘", "鼠标"],
-    "医疗保健": ["医疗", "保健", "健康", "医院", "医生", "看病", "养生", "保健", "体检", "治疗", "药品", "中医", "减肥", "瘦身"],
-    "综合杂项": ["杂项", "其他", "综合杂项", "杂货", "综合类"],
-    "星座情感": ["星座", "情感", "爱情", "恋爱", "感情", "星座运势", "情感咨询", "脱单", "表白", "分手", "复合", "塔罗", "占卜"],
-    "时尚穿搭": ["时尚", "穿搭", "衣服", "服装", "搭配", "穿衣", "时装", "潮流穿搭", "服饰", "OOTD", "ootd", "裙子", "裤子", "外套", "大衣", "西装", "毛衣", "T恤"],
-    "婚庆婚礼": ["婚庆", "婚礼", "结婚", "婚纱", "婚宴", "求婚", "订婚", "婚庆策划", "新娘", "新郎", "伴娘", "钻戒"],
-    "拍摄记录": ["拍摄", "记录", "摄影", "拍照", "照片", "视频", "vlog", "Vlog", "VLOG", "摄像", "短视频", "相机", "镜头"],
-    "学习教育": ["学习", "教育", "培训", "课程", "考试", "学校", "教育机构", "学习方法", "考研", "考公", "留学", "英语", "编程", "技能"],
-    "化妆美容": ["化妆", "美容", "美妆", "妆容", "护肤", "彩妆", "化妆品", "美容护肤", "化妆教程", "美颜", "睫毛膏", "口红", "粉底", "眉笔", "眼影", "腮红", "遮瑕", "定妆", "精华", "面霜", "水乳", "防晒", "面膜"],
-    "居家装修": ["居家", "装修", "家居", "家装", "房子装修", "室内设计", "软装", "硬装", "家居好物", "家具", "收纳", "整理"],
-    "旅行度假": ["旅行", "度假", "旅游", "出游", "旅行攻略", "景点", "旅游攻略", "自由行", "跟团游", "自驾游", "酒店", "民宿"],
-    "亲子育儿": ["亲子", "育儿", "宝宝", "儿童", "带娃", "育儿经", "亲子活动", "母婴", "幼儿", "小孩", "奶粉", "尿布", "玩具"],
-    "个人护理": ["个人护理", "护理", "护肤", "身体护理", "美容护理", "护理产品", "个人清洁", "洗发水", "沐浴露", "牙膏", "卫生巾"],
-    "美味佳肴": ["美味", "佳肴", "美食", "做饭", "烹饪", "菜谱", "美食推荐", "餐厅", "探店", "食谱", "好吃", "甜品", "烘焙", "奶茶", "咖啡", "零食"],
-    "职业发展": ["职业", "发展", "工作", "职场", "求职", "面试", "职业规划", "跳槽", "升职", "加薪", "简历", "副业", "创业"],
-    "宠物天地": ["宠物", "猫", "狗", "养猫", "养狗", "萌宠", "宠物猫", "宠物狗", "铲屎官", "喵星人", "汪星人", "猫粮", "狗粮"],
-    "潮流鞋包": ["潮流", "鞋包", "鞋子", "包包", "潮鞋", "名牌包", "运动鞋", "高跟鞋", "手提包", "球鞋", "帆布鞋", "靴子"],
-    "日常生活": ["日常", "生活", "日常记录", "生活日常", "vlog日常", "生活分享", "好物推荐"],
-    "科学探索": ["科学", "探索", "科普", "科学知识", "实验", "发现", "研究", "科技探索"],
-    "新闻资讯": ["新闻", "资讯", "热点", "时事", "新闻报道", "新闻资讯", "最新消息"],
-    "体育锻炼": ["体育", "锻炼", "运动", "健身", "减肥", "瘦身", "体育运动", "健身房", "瑜伽", "跑步", "游泳", "篮球", "足球"],
-}
-
-
-def match_category(user_input: str) -> str:
+def load_data_from_file(data_file: str) -> list:
     """
-    根据用户输入匹配分类
+    从JSON数据文件加载笔记数据
+
+    支持两种格式：
+    1. {"hot_list": [...]} - xhs_weekly_fetcher.py 输出格式
+    2. [...] - 纯列表格式
 
     Args:
-        user_input: 用户输入的关键词或描述
+        data_file: JSON数据文件路径
 
     Returns:
-        匹配的分类名称，默认返回"综合全部"
+        笔记数据列表
     """
-    if not user_input:
-        return "综合全部"
+    with open(data_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
 
-    user_input = user_input.lower().strip()
+    if isinstance(data, list):
+        return data
+    elif isinstance(data, dict):
+        # 尝试从常见字段提取
+        for key in ['hot_list', 'data', 'list', 'articles']:
+            if key in data and isinstance(data[key], list):
+                return data[key]
+        # 如果都没有，返回空
+        return []
 
-    # 遍历分类关键词进行匹配
-    for category, keywords in CATEGORY_KEYWORDS.items():
-        for keyword in keywords:
-            if keyword.lower() in user_input:
-                return category
-
-    # 如果没有匹配到，返回综合全部
-    return "综合全部"
-
-
-def fetch_xhs_weekly(rank_date=None, category="综合全部"):
-    """获取小红书平台周榜数据"""
-    if not rank_date:
-        rank_date = datetime.now().strftime("%Y-%m-%d")
-
-    credential = get_api_key()
-
-    source = quote("小红书七日数据爆款文章-GitHub")
-    category_encoded = quote(category)
-    url = f"https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillDataSeven?rankDate={rank_date}&source={source}&category={category_encoded}"
-
-    headers = {
-        "Content-Type": "application/json",
-        "X-API-KEY": credential
-    }
-
-    try:
-        response = requests.get(url, headers=headers, timeout=30)
-        if response.status_code >= 400:
-            raise Exception(f"HTTP请求失败: {response.status_code}, {response.text}")
-
-        api_response = response.json()
-    except Exception as e:
-        raise Exception(f"请求失败: {str(e)}")
-
-    # 检查API返回的错误信息
-    if isinstance(api_response, dict) and "code" in api_response and api_response["code"] != 2000:
-        error_msg = api_response.get("msg", api_response.get("message", "未知错误"))
-        raise Exception(f"API错误: {error_msg}")
-
-    # 提取数据
-    if isinstance(api_response, dict):
-        data = api_response.get("data", [])
-    elif isinstance(api_response, list):
-        data = api_response
-    else:
-        data = []
-
-    # 如果数据为空，返回空列表
-    if not data:
-        return {"fetch_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "query_type": "周榜", "category": category, "hot_list": []}
-
-    def parse_count(value) -> int:
-        """解析计数值，支持 "2w+" 格式"""
-        if isinstance(value, int):
-            return value
-        if isinstance(value, str):
-            if 'w+' in value.lower():
-                num = float(value.lower().replace('w+', '').replace('w', ''))
-                return int(num * 10000)
-            try:
-                return int(value)
-            except:
-                return 0
-        return 0
-
-    # 按互动数排序（与xhs_weekly_fetcher.py保持一致）
-    def get_interaction_score(article):
-        # 优先从anaAdd对象获取互动数
-        ana_add = article.get("anaAdd", {})
-        interactive_count = ana_add.get("interactiveCount", 0) or article.get("interactiveCount", 0)
-        # 处理 "2w+" 这样的格式
-        if isinstance(interactive_count, str):
-            if 'w+' in interactive_count.lower():
-                num = float(interactive_count.lower().replace('w+', '').replace('w', ''))
-                return int(num * 10000)
-            try:
-                return int(interactive_count)
-            except:
-                pass
-        if interactive_count and int(interactive_count) > 0:
-            return int(interactive_count)
-        # 备用计算：点赞 + 收藏*2 + 评论*3 + 分享*5
-        like_count = parse_count(ana_add.get("useLikeCount", 0) or article.get("useLikeCount", 0))
-        collected_count = parse_count(ana_add.get("collectedCount", 0) or article.get("collectedCount", 0))
-        comment_count = parse_count(ana_add.get("useCommentCount", 0) or article.get("useCommentCount", 0))
-        share_count = parse_count(ana_add.get("useShareCount", 0) or article.get("useShareCount", 0))
-        return like_count + collected_count * 2 + comment_count * 3 + share_count * 5
-
-    sorted_data = sorted(data, key=get_interaction_score, reverse=True)
-
-    # 格式化数据
-    hot_list = []
-    for idx, item in enumerate(sorted_data):
-        ana_add = item.get("anaAdd", {})
-        hot_list.append({
-            "index": idx + 1,
-            "userName": clean_text(item.get("userName", "")),
-            "userHeadUrl": item.get("userHeadUrl", ""),
-            "userJumpUrl": item.get("userJumpUrl", ""),
-            "fans": clean_text(str(item.get("fans", ""))),
-            "title": clean_text(item.get("title", "")),
-            "desc": clean_text(item.get("desc", "")),
-            "coverUrl": item.get("coverUrl", ""),
-            "photoJumpUrl": (item.get("photoJumpUrl", "") or "").replace(" ", "%20"),
-            "publicTime": item.get("publicTime", ""),
-            "interactiveCount": clean_text(str(ana_add.get("interactiveCount", "0") or "0")),
-            "addInteractiveount": clean_text(str(ana_add.get("addInteractiveount", "0") or "0")),
-            "collectedCount": clean_text(str(ana_add.get("collectedCount", "0") or "0")),
-            "addCollectedCunt": clean_text(str(ana_add.get("addCollectedCunt", "0") or "0")),
-            "useLikeCount": clean_text(str(ana_add.get("useLikeCount", "0") or "0")),
-            "addLikeCount": clean_text(str(ana_add.get("addLikeCount", "0") or "0")),
-            "useCommentCount": clean_text(str(ana_add.get("useCommentCount", "0") or "0")),
-            "addCommentCount": clean_text(str(ana_add.get("addCommentCount", "0") or "0")),
-            "useShareCount": clean_text(str(ana_add.get("useShareCount", "0") or "0")),
-            "addShareCount": clean_text(str(ana_add.get("addShareCount", "0") or "0"))
-        })
-
-    return {
-        "fetch_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "query_type": "周榜",
-        "rank_date": rank_date,
-        "category": category,
-        "hot_list": hot_list
-    }
+    return []
 
 
-def generate_html(result, top_n=20):
+def generate_html(hot_list: list, category: str = "综合全部", top_n: int = 20) -> str:
     """生成HTML页面 - 小红书风格
 
     Args:
-        result: 周榜数据结果
-        top_n: 显示条数，默认20，可设为50
+        hot_list: 笔记数据列表
+        category: 分类名称
+        top_n: 显示条数，默认20
 
     重要：只传递实际需要展示的数据到HTML，确保统计数据与展示数据一致
     """
-    hot_list = result["hot_list"]
-    fetch_time = result["fetch_time"]
-    rank_date = result.get("rank_date", "")
-    category = result.get("category", "综合全部")
+    fetch_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # 限制显示条数 - 必须先截取，确保统计数据准确
     top_n = min(top_n, len(hot_list), 50)  # 最大支持TOP50
@@ -343,7 +100,7 @@ def generate_html(result, top_n=20):
 
     js_data = json.dumps(hot_list, ensure_ascii=False, indent=2)
 
-    page_title = f"小红书近七日热门笔记 - {category}"
+    page_title = f"小红书七日爆款笔记 - {category}"
 
     html = f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -574,7 +331,7 @@ def generate_html(result, top_n=20):
 
     <div class="pdf-content" id="pdfContent">
         <div class="header-wrap">
-            <h1>📱 小红书近七日热门笔记<span class="category-badge">{category}</span></h1>
+            <h1>📱 小红书七日爆款笔记<span class="category-badge">{category}</span></h1>
             <div class="header-meta">更新时间：{fetch_time}</div>
             <div class="stats-row">
                 <div class="stat-item">
@@ -594,7 +351,7 @@ def generate_html(result, top_n=20):
 
         <div class="note-list" id="noteList"></div>
 
-        <div class="footer-note">数据来源：小红书平台 · {category} · 近7天热门笔记排行</div>
+        <div class="footer-note">数据来源：小红书平台 · {category} · 七日爆款笔记排行</div>
     </div>
 </div>
 
@@ -738,7 +495,7 @@ function exportImage() {{
         windowHeight: target.scrollHeight
     }}).then(function(canvas) {{
         var link = document.createElement('a');
-        link.download = 'xhs_weekly_' + new Date().toISOString().slice(0,10) + '.png';
+        link.download = '小红书七日爆款笔记_' + new Date().toISOString().slice(0,10) + '.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
 
@@ -801,7 +558,7 @@ function exportPdf() {{
             String(now.getHours()).padStart(2,'0') +
             String(now.getMinutes()).padStart(2,'0');
 
-        pdf.save('xhs_weekly_' + dateStr + '.pdf');
+        pdf.save('小红书七日爆款笔记_' + dateStr + '.pdf');
 
         btn.textContent = '导出 PDF';
         btn.style.pointerEvents = '';
@@ -825,49 +582,48 @@ function exportPdf() {{
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='生成小红书近七日热门笔记HTML页面')
-    parser.add_argument('--rank_date', type=str, help='查询日期，格式 YYYY-MM-DD')
-    parser.add_argument('--category', type=str, default=None, help='分类名称')
-    parser.add_argument('--keyword', type=str, help='用户输入的关键词，用于自动匹配分类')
+    parser = argparse.ArgumentParser(description='生成小红书七日爆款笔记HTML页面')
+    parser.add_argument('--data_file', type=str, required=True, help='已获取的JSON数据文件路径')
+    parser.add_argument('--category', type=str, default='综合全部', help='分类名称')
+    parser.add_argument('--keyword', type=str, help='用户输入的关键词（仅用于兼容，不影响数据读取）')
     parser.add_argument('--output', type=str, help='输出文件路径')
     parser.add_argument('--top', type=int, default=20, help='显示条数，默认20，可设为50')
 
     args = parser.parse_args()
 
-    # 处理分类
-    if args.keyword and not args.category:
-        category = match_category(args.keyword)
-        print(f"根据关键词【{args.keyword}】匹配到分类：【{category}】", file=sys.stderr)
-    elif args.category:
-        category = args.category
-    else:
-        category = "综合全部"
+    # 检查数据文件是否存在
+    if not os.path.isfile(args.data_file):
+        print(f"错误：数据文件不存在 - {args.data_file}", file=sys.stderr)
+        sys.exit(1)
 
-    # 处理日期
-    rank_date, is_auto = get_query_date(args.rank_date)
+    # 从JSON文件加载数据（不再调用API）
+    print(f"从数据文件加载数据: {args.data_file}", file=sys.stderr)
+    hot_list = load_data_from_file(args.data_file)
 
-    print(f"正在获取小红书平台周榜数据...", file=sys.stderr)
-    print(f"当前时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", file=sys.stderr)
-    if is_auto:
-        cutoff_time = datetime.now().replace(hour=19, minute=0, second=0, microsecond=0)
-        if datetime.now() >= cutoff_time:
-            print(f"当前已过19:00，查询昨日数据", file=sys.stderr)
-        else:
-            print(f"当前未过19:00，查询前天数据", file=sys.stderr)
-    print(f"查询日期: {rank_date}", file=sys.stderr)
+    if not hot_list:
+        print("错误：数据文件为空或格式不正确", file=sys.stderr)
+        sys.exit(1)
+
+    category = args.category
+
     print(f"分类：{category}", file=sys.stderr)
+    print(f"共加载 {len(hot_list)} 条数据，展示TOP{args.top}", file=sys.stderr)
 
-    result = fetch_xhs_weekly(rank_date=rank_date, category=category)
+    # 生成HTML
+    html = generate_html(hot_list, category=category, top_n=args.top)
 
-    html = generate_html(result, top_n=args.top)
-
+    # 确定输出路径
     if args.output:
         output_path = args.output
     else:
-        output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "xhs_weekly.html")
+        # 生成唯一时间戳文件名
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        safe_category = category.replace("/", "_").replace("\\", "_")
+        filename = f"小红书七日爆款笔记_{safe_category}_{timestamp}.html"
+        output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
 
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html)
 
     print(f"已生成：{output_path}", file=sys.stderr)
-    print(f"共 {len(result['hot_list'])} 条周榜数据，展示TOP{args.top}", file=sys.stderr)
+    print(f"共 {len(hot_list)} 条数据，展示TOP{args.top}", file=sys.stderr)

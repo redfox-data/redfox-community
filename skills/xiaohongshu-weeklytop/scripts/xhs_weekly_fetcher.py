@@ -439,7 +439,7 @@ def format_ranking_list(articles: list, category: str = "综合全部") -> str:
     output_lines = []
 
     # 表头 - 加粗并添加图标
-    output_lines.append(f"**🔥 【{clean_text(category)}】实时热榜**")
+    output_lines.append(f"**🔥 【{clean_text(category)}】七日爆款笔记**")
     output_lines.append("| 排名 | 笔记信息 | 互动数 | 点赞 | 评论 | 收藏 | 分享 |")
     output_lines.append("|:---:|:---|:---:|:---:|:---:|:---:|:---:|")
 
@@ -613,6 +613,7 @@ def main():
     parser.add_argument("--category", required=False, default=None, help="分类名称（如：时尚穿搭、美食佳肴等），不传则根据关键词匹配")
     parser.add_argument("--keyword", required=False, default=None, help="用户输入的关键词，用于自动匹配分类")
     parser.add_argument("--top_n", type=int, default=10, help="返回前N条数据（默认10）")
+    parser.add_argument("--save_json", type=str, default=None, help="将原始API数据保存到指定JSON文件路径")
     parser.add_argument("--list_categories", action="store_true", help="列出所有可用分类")
 
     args = parser.parse_args()
@@ -651,6 +652,20 @@ def main():
 
         # 获取数据
         data = fetch_explosive_articles(rank_date, category)
+
+        # 自动保存原始API数据到临时文件（供后续HTML生成复用，避免重复请求）
+        # 如果指定了 --save_json，使用指定路径；否则自动保存到临时目录
+        if args.save_json:
+            save_path = args.save_json
+        else:
+            temp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".cache")
+            os.makedirs(temp_dir, exist_ok=True)
+            safe_category = "".join(c for c in category if c.isalnum() or c in ('_', '-'))
+            save_path = os.path.join(temp_dir, f"xhs_weekly_{safe_category}_{rank_date}.json")
+        os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
+        with open(save_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"原始数据已保存到: {save_path}")
 
         # 处理并排序
         articles = process_ranking_data(data, args.top_n)

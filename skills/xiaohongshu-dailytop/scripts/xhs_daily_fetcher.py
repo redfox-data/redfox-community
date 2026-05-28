@@ -18,8 +18,10 @@ import json
 import sys
 import os
 from datetime import datetime, timedelta
-from urllib.parse import quote
 import requests
+
+REDFOX_API_BASE = "https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillDataOne"
+REDFOX_API_SOURCE = "小红书单日数据爆款文章-GitHub"
 
 
 def get_redfox_api_key():
@@ -170,16 +172,18 @@ def fetch_explosive_articles(rank_date: str, category: str = "综合全部") -> 
     """
     api_key = get_redfox_api_key()
 
-    source = quote("小红书单日数据爆款文章-GitHub")
-    category_encoded = quote(category)
-    url = f"https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillDataOne?rankDate={rank_date}&source={source}&category={category_encoded}"
-
     headers = {
-        "X-API-KEY": api_key
+        "X-API-KEY": api_key,
+    }
+    params = {
+        "rankDate": rank_date,
+        "source": REDFOX_API_SOURCE,
+        "category": category,
     }
 
     try:
-        response = requests.get(url, headers=headers, timeout=30)
+        # 接口仅支持 GET（query 参数）；POST 会返回系统错误
+        response = requests.get(REDFOX_API_BASE, params=params, headers=headers, timeout=30)
         if response.status_code >= 400:
             raise Exception(f"HTTP请求失败: {response.status_code}, {response.text}")
 
@@ -575,6 +579,7 @@ def main():
     parser.add_argument("--keyword", required=False, default=None, help="用户输入的关键词，用于自动匹配分类")
     parser.add_argument("--top_n", type=int, default=10, help="返回前N条数据（默认10）")
     parser.add_argument("--list_categories", action="store_true", help="列出所有可用分类")
+    parser.add_argument("--output_json", required=False, default=None, help="将获取到的原始数据写入指定 JSON 缓存文件，供 gen_html 复用")
 
     args = parser.parse_args()
 
@@ -615,6 +620,32 @@ def main():
 
         # 处理数据（保持接口原始顺序）
         articles = process_ranking_data(data, args.top_n)
+
+        # 无数据回退逻辑：仅回退一次
+        if len(articles) == 0 and is_auto:
+            prev_date = (datetime.strptime(rank_date, "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
+            print(f"默认日期 {rank_date} 无数据，回退一天尝试 {prev_date}")
+            print("-" * 60)
+            data = fetch_explosive_articles(prev_date, category)
+            articles = process_ranking_data(data, args.top_n)
+            if articles:
+                rank_date = prev_date  # 更新有效日期
+
+        # 写入 JSON 缓存文件（有数据时）
+        if args.output_json and len(articles) > 0:
+            raw_articles = process_ranking_data(data, 50)  # 取全量50条写入缓存
+            cache_data = {
+                "rank_date": rank_date,
+                "category": category,
+                "articles": raw_articles
+            }
+            try:
+                os.makedirs(os.path.dirname(os.path.abspath(args.output_json)), exist_ok=True)
+                with open(args.output_json, "w", encoding="utf-8") as f:
+                    json.dump(cache_data, f, ensure_ascii=False, indent=2)
+                print(f"数据已缓存至: {args.output_json}", file=sys.stderr)
+            except Exception as e:
+                print(f"缓存写入失败: {e}", file=sys.stderr)
 
         # 检查数据量是否足够
         if len(articles) < 10:
