@@ -1,40 +1,44 @@
-# WeChat Top Account Rankings / wechat-top-account
+# WeChat Top Accounts / wechat-top-account
 
 ---
 
 ## Introduction
 
-Instantly retrieve the TOP50 WeChat Official Account rankings by overall performance, with support for daily/weekly/monthly views and filtering across 23 vertical categories. Displays composite scores and detailed engagement metrics, with HTML visual report export and scheduled push subscriptions.
+Quickly access the WeChat Official Account comprehensive ranking TOP 50, helping operators and brands understand the reading and engagement data of top accounts in their niche — supporting operational benchmarking and competitor tracking.
 
 **Core Value**
 
-- Covers 23 vertical categories with day/week/month ranking tiers, capturing the competitive landscape at a glance
-- Composite scores are calculated from reads, likes, "Top Reads", and forwards — objective and quantifiable
-- Beyond rankings, get three deep-dive analysis perspectives: content ecosystem, viral impact, and blue-ocean tracks
+- Covers TOP 50 rankings across 23 vertical categories, with flexible switching between daily, weekly, and monthly charts
+- A comprehensive scoring system based on multiple metrics including reads, likes, in-views, and shares, with a maximum score of 100
+- Automatically outputs three types of in-depth analysis: content ecosystem shifts, hot topic impact, and blue-ocean niche discovery
+- One-click generation of a visual report page with image and PDF export support
+- Subscribe to daily, weekly, or monthly rankings for automated delivery on each update
 
 **Who It's For**
 
-- 📱 WeChat account operators — understand top account output and engagement in your category, identify benchmarks
-- 🏢 Brand marketing teams — track competitor ranking changes and adjust content strategy in time
-- 📊 MCN agencies — subscribe to scheduled pushes and export visual reports for reviews and client presentations
+- 📱 **WeChat Official Account Operators** — Understand top account performance in your niche to optimize topic selection and publishing cadence
+- 🏢 **MCN Operations Teams** — Monitor the competitive landscape across managed accounts and generate regular data reports
+- 🏷️ **Brand Marketing Managers** — Track competitor account rankings and engagement shifts to adjust content strategy
+- 🚀 **Content Entrepreneurs** — Evaluate competition levels and reading demand across candidate niches to identify blue-ocean opportunities
 
 ---
 
 ## Features
 
-### Core Capabilities
+### Core Functions
 
-- **Multi-dimension rankings**: Query TOP50 across 23 categories by day, week, or month; keyword input auto-matches category
-- **Composite scoring system**: Score calculated from reads, likes, "Top Reads", and forwards on a 100-point scale
-- **Deep-dive analysis**: Three analytical perspectives — content ecosystem changes, viral impact quantification, blue-ocean track discovery
-- **HTML visual reports**: Generate visual ranking pages exportable as images or PDF
-- **Scheduled subscriptions**: Subscribe to daily/weekly/monthly rankings for automatic delivery at update time
+- **Multi-Dimensional Ranking Query**: Query TOP 50 across 23 categories by daily, weekly, or monthly chart — keywords automatically match the right category
+- **Comprehensive Scoring System**: A composite score (max 100) based on post count, reads, likes, in-views, shares, and more
+- **In-Depth Analysis**: Three analytical perspectives: content ecosystem changes, hot topic impact quantification, and blue-ocean niche discovery
+- **Visual Report Export**: One-click generation of a visual ranking page with image and PDF export support
+- **Scheduled Subscription Push**: Subscribe to daily, weekly, or monthly rankings for automatic delivery on each update cycle
 
 ### Highlights
 
-- Daily rankings refresh at 17:30 every day, weekly every Monday at 17:30, monthly on the 3rd at 23:00 — always up to date
-- Ranking tables and HTML reports share the same data source, ensuring full consistency
-- Daily data available for the past 7 days, weekly for 3 weeks, monthly for 3 months; out-of-range queries auto-adjust with a notice
+- **Scheduled Updates**: Daily chart refreshes at 17:30, weekly chart every Monday at 17:30, monthly chart on the 3rd at 23:00
+- **Controlled Lookback**: Daily charts span the past 7 days, weekly the past 3 weeks, monthly the past 3 months — out-of-range requests auto-adjust with a prompt
+- **Data Consistency**: The ranking table and visual report share the same data source, with identical order and content
+- **On-Demand Expansion**: The ranking table outputs directly without confirmation; analysis, reports, and subscriptions are user-initiated
 
 ---
 
@@ -42,39 +46,55 @@ Instantly retrieve the TOP50 WeChat Official Account rankings by overall perform
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
 - `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Visit [RedFoxHub](https://redfox.hk?souce=github) to register and obtain your `REDFOX_API_KEY`.
-- Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
-- Before using a key, confirm its source, scope, expiry, and whether it supports reset or revocation.
-- Never hard-code or expose the key in plaintext within code, prompts, logs, or output files.
+- Register an account at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- Configure the device environment variable `REDFOX_API_KEY` before using this skill.
+- Before providing a key, confirm its source, scope, expiration, and whether it supports reset/revocation.
+- Never hardcode or expose the key in plaintext in code, prompts, logs, or output files.
 
 ---
 
 ## Usage Guide
 
-Describe your needs in natural language — no commands to memorize.
+Just describe your need in plain language — no commands to memorize.
 
 ### Quick Reference
 
-| Intent | Example phrase | Result |
+| Intent | Example Phrase | Result |
 | ------ | -------------- | ------ |
-| Query category daily rankings | `Show me the tech category daily rankings` | Outputs Tech & Digital daily TOP50 with composite scores and engagement metrics |
-| Query category weekly rankings | `Top WeChat accounts in food this week` | Outputs Food & Dining weekly TOP50 with data period labeled |
-| Get deep-dive analysis | Reply `1` after rankings are output | Outputs content ecosystem, viral impact, and blue-ocean track analysis based on TOP50 data |
-| Generate HTML report | Reply `2` after rankings are output | Generates a visual rankings page exportable as image or PDF |
-| Subscribe to scheduled push | `Subscribe to weekly rankings` | Automatically delivers the latest rankings at the corresponding update time |
-| List all categories | `What categories are available?` | Lists all 23 available vertical categories |
+| Query daily chart by category | "Show the tech category daily ranking" | Outputs the Tech & Digital daily TOP 50 with composite scores and engagement metrics |
+| Query weekly chart by category | "This week's food category ranking" | Outputs the Food & Dining weekly TOP 50 with time range noted |
+| Query monthly chart by category | "Finance category monthly ranking" | Outputs the Finance monthly TOP 50 |
+| Get in-depth analysis | (After chart output) reply "1" | Outputs three analysis types: content ecosystem, hot topic impact, and blue-ocean niches |
+| Generate visual report | (After chart output) reply "2" | Generates a visual page exportable as image or PDF |
+| Subscribe to updates | "Subscribe to weekly ranking" | Sets up automated weekly delivery of the latest chart |
+| Subscribe to all | "Subscribe to all" | Enables daily, weekly, and monthly chart subscriptions at once |
 
-### Output Example
+### Sample Output
 
-Rankings are output directly as a table with columns for rank, account name (clickable), composite score, article count, total reads, lead article reads, highest reads, total likes, total "Top Reads", and total forwards. A feature prompt follows for selecting analysis, reports, or subscriptions.
+After querying "Tech category daily ranking", you will receive:
+
+1. **Ranking Table**: Rank, account name (clickable), composite score, post count, total reads, headline reads, peak reads, total likes, total in-views, total shares
+2. **Extension Prompt**: Reply "1" for in-depth analysis, "2" for a visual report, "3" or say "Subscribe to daily/weekly/monthly" to enable scheduled delivery
 
 ---
 
 ## Use Cases
 
-| Scenario | Role | Example question | Benefit |
-| -------- | ---- | ---------------- | ------- |
-| Daily operations reference | Account operator | `Show this week's education category rankings` | Compare top account publish frequency and engagement rates to refine topics and cadence |
-| Competitor tracking | Brand marketing manager | `Subscribe to finance weekly rankings` | Stay on top of competitor ranking shifts and content moves |
-| Track assessment | Content entrepreneur | `Pull monthly rankings for a few candidate categories` | Compare account count and average scores to find low-competition, high-demand niches |
-| Data reporting | MCN agency | `Generate an HTML report for the tech daily rankings` | Export visual charts to boost efficiency of internal reviews and client presentations |
+| Scenario | Role | Example Query | Benefit |
+| -------- | ---- | ------------- | ------- |
+| Daily operations reference | Account Operator | "Show tech category daily ranking" | Compare posting frequency and engagement rates to benchmark and optimize topic cadence |
+| Competitor tracking | Brand Marketing Manager | "This week's FMCG category ranking" | Track competitor ranking shifts and content direction to adjust your own strategy |
+| Niche evaluation | Content Entrepreneur | "Compare food and travel monthly rankings" | Assess competition levels across candidate niches and pick a blue-ocean direction |
+| Regular data reporting | MCN Operations | "Subscribe to monthly ranking" | Export monthly visual reports with consistent and traceable data |
+
+---
+
+## Key Data Notes
+
+| Chart | Update Time | Data Range |
+| ----- | ----------- | ---------- |
+| Daily | Every day at 17:30 | Yesterday's data, past 7 days |
+| Weekly | Every Monday at 17:30 | Last week's data, past 3 weeks |
+| Monthly | 3rd of each month at 23:00 | Last month's data, past 3 months |
+
+Covers 23 vertical categories, including Overall, Tech & Digital, Food & Dining, Finance, Education, Fashion, Health & Wellness, Emotional & Psychology, Career Development, and more. Just enter a keyword to automatically match the right category.

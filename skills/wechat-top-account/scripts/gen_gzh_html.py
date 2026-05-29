@@ -59,7 +59,7 @@ CATEGORY_KEYWORDS = {
     "美容美体": ["美容", "美体", "护肤", "化妆", "美妆", "彩妆"],
     "美食餐饮": ["美食", "餐饮", "做饭", "烹饪", "餐厅", "探店", "食谱"],
     "职场发展": ["职场", "工作", "求职", "面试", "跳槽", "升职", "加薪", "简历"],
-    "财富理财": ["财富", "理财", "投资", "基金", "股票", "保险", "财务", "赚钱"],
+    "财富理财": ["财富", "理财", "财经", "投资", "基金", "股票", "保险", "财务", "赚钱"],
 }
 
 # 榜单更新时间规则
@@ -254,7 +254,7 @@ def match_category(user_input):
 
 # ===== 认证 =====
 def _get_redfox_api_key():
-    """三级认证回退获取 RedFox API Key
+    """三级认证回退获取 红狐Hub API Key
 
     优先级：
     1. 环境变量 REDFOX_API_KEY
@@ -334,7 +334,7 @@ def fetch_gzh_growth(rank_type="day", rank_date=None, category="人文资讯"):
     credential = _get_redfox_api_key()
     if not credential:
         print(
-            "未检测到 RedFox API Key。请按以下步骤配置：\n"
+            "未检测到 红狐Hub API Key。请按以下步骤配置：\n"
             "1. 访问 https://redfox.hk/ 了解服务详情\n"
             "2. 前往 https://redfox.hk/login 注册账号（新用户获赠免费积分）\n"
             "3. 注册登录后在个人中心获取 API Key（格式 ak_xxxxxxxx）\n"
@@ -462,6 +462,37 @@ def _get_update_time_label(rank_type, rank_date):
             update_day = datetime(d.year, d.month + 1, MONTH_UPDATE_DAY)
         return f"{update_day.strftime('%Y-%m-%d')} 23:00"
     return rank_date
+
+
+# ===== 数据转换 =====
+def raw_data_to_account_list(raw_data):
+    """将 gzh_growth_fetcher 的 raw_data 转换为 generate_html 所需的 account_list 格式
+
+    Args:
+        raw_data: gzh_growth_fetcher 输出 JSON 中的 raw_data 数组
+
+    Returns:
+        list: generate_html 所需的 account_list 格式
+    """
+    account_list = []
+    for idx, item in enumerate(raw_data):
+        account_list.append({
+            "index": idx + 1,
+            "rankPosition": item.get("rankPosition", idx + 1),
+            "accountName": item.get("accountName", ""),
+            "accountId": item.get("accountId", ""),
+            "accountAvatar": item.get("accountAvatar", ""),
+            "category": item.get("category", ""),
+            "compositeScore": item.get("compositeScore", 0),
+            "totalReadCount": item.get("totalReadCount", 0),
+            "headlineReadCount": item.get("headlineReadCount", 0),
+            "maxReadCount": item.get("maxReadCount", 0),
+            "totalLikeCount": item.get("totalLikeCount", 0),
+            "totalForwardCount": item.get("totalForwardCount", 0),
+            "totalInSeeCount": item.get("totalInSeeCount", 0),
+            "publishCount": item.get("publishCount", "-"),
+        })
+    return account_list
 
 
 # ===== HTML生成 =====
@@ -945,41 +976,84 @@ if __name__ == "__main__":
     parser.add_argument('--keyword', type=str, help='用户输入的关键词，用于自动匹配分类')
     parser.add_argument('--output', type=str, help='输出文件路径')
     parser.add_argument('--top', type=int, default=50, help='显示条数，默认50')
+    parser.add_argument('--input_json_file', type=str, default=None,
+                        help='预取数据JSON文件路径（来自gzh_growth_fetcher输出），指定后不再调用API')
 
     args = parser.parse_args()
 
-    # 处理分类
-    if args.keyword and not args.category:
-        category = match_category(args.keyword)
-        print(f"根据关键词【{args.keyword}】匹配到分类：【{category}】", file=sys.stderr)
-    elif args.category:
-        category = args.category
+    if args.input_json_file:
+        # 使用预取数据，不调用 API
+        if not os.path.isfile(args.input_json_file):
+            print(f"错误: 文件不存在: {args.input_json_file}", file=sys.stderr)
+            sys.exit(1)
+        try:
+            with open(args.input_json_file, 'r', encoding='utf-8') as f:
+                fetched = json.load(f)
+        except Exception as e:
+            print(f"错误: 读取文件失败: {e}", file=sys.stderr)
+            sys.exit(1)
+
+        raw_data = fetched.get("raw_data", [])
+        if not raw_data:
+            print("错误: 输入文件中无 raw_data 数据", file=sys.stderr)
+            sys.exit(1)
+
+        account_list = raw_data_to_account_list(raw_data)
+        rank_type = fetched.get("rank_type", "day")
+        rank_date = fetched.get("rank_date", "")
+        category = fetched.get("category", "人文资讯")
+        rank_type_label = {"day": "日榜", "week": "周榜", "month": "月榜"}.get(rank_type, "日榜")
+
+        if args.keyword or args.category:
+            print("注意: 已指定 --input_json_file，忽略 --keyword/--category 参数", file=sys.stderr)
+
+        result = {
+            "fetch_time": fetched.get("update_time", ""),
+            "rank_type": rank_type,
+            "rank_date": rank_date,
+            "category": category,
+            "time_range": _get_data_time_range(rank_type, rank_date),
+            "account_list": account_list
+        }
+
+        print(f"使用预取数据生成HTML（不调用API）...", file=sys.stderr)
+        print(f"榜单类型: {rank_type_label}", file=sys.stderr)
+        print(f"查询日期: {rank_date}", file=sys.stderr)
+        print(f"分类：{category}", file=sys.stderr)
     else:
-        category = "人文资讯"
+        # 原有逻辑：调用 API 获取数据
+        # 处理分类
+        if args.keyword and not args.category:
+            category = match_category(args.keyword)
+            print(f"根据关键词【{args.keyword}】匹配到分类：【{category}】", file=sys.stderr)
+        elif args.category:
+            category = args.category
+        else:
+            category = "人文资讯"
 
-    # 处理日期
-    rank_date, is_auto, reminder = get_query_date(args.rank_type, args.rank_date)
+        # 处理日期
+        rank_date, is_auto, reminder = get_query_date(args.rank_type, args.rank_date)
 
-    rank_type_label = {"day": "日榜", "week": "周榜", "month": "月榜"}.get(args.rank_type, "日榜")
+        rank_type_label = {"day": "日榜", "week": "周榜", "month": "月榜"}.get(args.rank_type, "日榜")
 
-    print(f"正在获取公众号综合实力{rank_type_label}数据...", file=sys.stderr)
-    print(f"当前时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", file=sys.stderr)
-    if reminder:
-        print(f"提醒: {reminder}", file=sys.stderr)
-    print(f"榜单类型: {rank_type_label}", file=sys.stderr)
-    print(f"查询日期: {rank_date}", file=sys.stderr)
-    print(f"分类：{category}", file=sys.stderr)
+        print(f"正在获取公众号综合实力{rank_type_label}数据...", file=sys.stderr)
+        print(f"当前时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", file=sys.stderr)
+        if reminder:
+            print(f"提醒: {reminder}", file=sys.stderr)
+        print(f"榜单类型: {rank_type_label}", file=sys.stderr)
+        print(f"查询日期: {rank_date}", file=sys.stderr)
+        print(f"分类：{category}", file=sys.stderr)
 
-    result = fetch_gzh_growth(rank_type=args.rank_type, rank_date=rank_date, category=category)
+        result = fetch_gzh_growth(rank_type=args.rank_type, rank_date=rank_date, category=category)
 
     html = generate_html(result, top_n=args.top)
 
     if args.output:
         output_path = args.output
     else:
-        rank_short = {"day": "日", "week": "周", "month": "月"}.get(args.rank_type, "日")
+        rank_short = {"day": "日", "week": "周", "month": "月"}.get(result.get("rank_type", args.rank_type), "日")
         timestamp_str = datetime.now().strftime("%Y%m%d")[-8:] + f"{datetime.now().strftime('%H%M%S')}"
-        filename = f"公众号综合实力{rank_short}_{category}_{timestamp_str}.html"
+        filename = f"公众号综合实力{rank_short}_{result.get('category', category)}_{timestamp_str}.html"
         output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
 
     with open(output_path, 'w', encoding='utf-8') as f:

@@ -254,7 +254,7 @@ def get_today_query_reminder(rank_type="day"):
 
 # ===== 认证 =====
 def _get_redfox_api_key():
-    """三级认证回退获取 RedFox API Key
+    """三级认证回退获取 红狐Hub API Key
 
     优先级：
     1. 环境变量 REDFOX_API_KEY
@@ -327,7 +327,7 @@ def _get_api_headers():
     api_key = _get_redfox_api_key()
     if not api_key:
         raise ValueError(
-            "未检测到 RedFox API Key。请按以下步骤配置：\n"
+            "未检测到 红狐Hub API Key。请按以下步骤配置：\n"
             "1. 访问 https://redfox.hk/ 了解服务详情\n"
             "2. 前往 https://redfox.hk/login 注册账号（新用户获赠免费积分）\n"
             "3. 注册登录后在个人中心获取 API Key（格式 ak_xxxxxxxx）\n"
@@ -381,6 +381,33 @@ def fetch_ranking_data(rank_type="day", rank_date=None, category="人文资讯")
 
 
 # ===== 分类匹配 =====
+CATEGORY_KEYWORDS = {
+    "总排名": ["总排名", "综合", "全部", "热门", "推荐", "随便", "总榜", "整体"],
+    "乐活生活": ["乐活", "生活", "日常", "生活方式", "生活日常", "好物推荐"],
+    "人文资讯": ["人文", "资讯", "文化", "历史", "哲学", "人文社科"],
+    "企业品牌": ["企业", "品牌", "公司", "商业品牌", "品牌营销"],
+    "体育娱乐": ["体育", "娱乐", "运动", "健身", "篮球", "足球", "综艺", "明星"],
+    "健康养生": ["健康", "养生", "保健", "中医", "调理", "减肥", "瘦身"],
+    "创投商业": ["创投", "商业", "投资", "创业", "融资", "商业模式"],
+    "学术研究": ["学术", "研究", "论文", "科研", "学报"],
+    "情感心理": ["情感", "心理", "恋爱", "婚姻", "情绪", "心理咨询"],
+    "房产楼市": ["房产", "楼市", "买房", "房价", "地产", "租房", "装修"],
+    "搞笑幽默": ["搞笑", "幽默", "段子", "吐槽", "沙雕", "表情包"],
+    "教育考试": ["教育", "考试", "培训", "考研", "考公", "留学", "英语", "学习"],
+    "文摘精选": ["文摘", "精选", "美文", "散文", "故事", "文章精选"],
+    "旅游出行": ["旅游", "出行", "旅行", "攻略", "景点", "酒店", "度假"],
+    "时尚潮流": ["时尚", "潮流", "穿搭", "服饰", "OOTD", "ootd", "搭配"],
+    "民生资讯": ["民生", "社会", "热点", "时事", "政策", "民生新闻"],
+    "汽车交通": ["汽车", "交通", "车", "新能源", "电动车", "买车"],
+    "知识百科": ["知识", "百科", "科普", "常识", "冷知识"],
+    "科技数码": ["科技", "数码", "手机", "电脑", "智能", "AI", "互联网", "软件", "硬件"],
+    "美容美体": ["美容", "美体", "护肤", "化妆", "美妆", "彩妆"],
+    "美食餐饮": ["美食", "餐饮", "做饭", "烹饪", "餐厅", "探店", "食谱"],
+    "职场发展": ["职场", "工作", "求职", "面试", "跳槽", "升职", "加薪", "简历"],
+    "财富理财": ["财富", "理财", "财经", "基金", "股票", "保险", "财务", "赚钱"],
+}
+
+
 def match_category(keyword):
     """根据关键词匹配分类
 
@@ -388,15 +415,23 @@ def match_category(keyword):
         keyword: 搜索关键词
 
     Returns:
-        str or None: 匹配到的分类名
+        str or None: 匹配到的分类名，多个匹配时返回列表
     """
+    # 精确匹配分类名
     if keyword in CATEGORIES:
         return keyword
+    # 子串匹配分类名
     matches = [c for c in CATEGORIES if keyword in c]
     if len(matches) == 1:
         return matches[0]
     if len(matches) > 1:
         return matches
+    # 关键词映射匹配
+    keyword_lower = keyword.lower().strip()
+    for category, keywords in CATEGORY_KEYWORDS.items():
+        for kw in keywords:
+            if kw.lower() in keyword_lower or keyword_lower in kw.lower():
+                return category
     return None
 
 
@@ -430,7 +465,7 @@ def get_comprehensive_score(item):
 
 
 def format_ranking_table(data_list, top_n=50, start=1):
-    """格式化榜单为Markdown表格
+    """格式化榜单为Markdown表格（严格遵循core_workflow.md标准模板）
 
     表格字段: 排名 | 账号名称 | 综合评分(满分100) | 发布数/文章数 | 总阅读数 | 头条阅读数 | 最高阅读数 | 总点赞 | 总在看 | 总转发
 
@@ -446,11 +481,12 @@ def format_ranking_table(data_list, top_n=50, start=1):
     items = data_list[start-1:start-1+top_n]
 
     header = "| 排名 | 账号名称 | 综合评分(满分100) | 发布数/文章数 | 总阅读数 | 头条阅读数 | 最高阅读数 | 总点赞 | 总在看 | 总转发 |"
-    separator = "| ---: | :--- | ---: | :---: | ---: | ---: | ---: | ---: | ---: | ---: |"
+    separator = "|:---:|:---|---:|:---:|---:|---:|---:|---:|:---:|---:|"
 
     rows = []
-    for item in items:
-        rank = item.get("rankPosition", "-")
+    for idx, item in enumerate(items):
+        # 使用实际索引位置判断奖牌，避免API返回的rankPosition重复
+        display_rank = start + idx
         name = item.get("accountName", "-")
         account_id = item.get("accountId", "")
         name_link = f"[{name}](https://open.weixin.qq.com/qr/code?username={quote(account_id)})"
@@ -464,13 +500,73 @@ def format_ranking_table(data_list, top_n=50, start=1):
         forward_count = format_number(item.get("totalForwardCount", 0))
 
         rank_medals = {1: "🥇", 2: "🥈", 3: "🥉"}
-        if isinstance(rank, int) and rank in rank_medals:
-            row = f"| {rank_medals[rank]} | **{name_link}** | **{score}** | {publish} | **{total_read}** | **{headline_read}** | **{max_read}** | **{like_count}** | **{in_see_count}** | **{forward_count}** |"
+        if display_rank in rank_medals:
+            # TOP3: 账号名称加粗，综合评分/总阅读/头条阅读/最高阅读/总点赞/总转发加粗
+            row = f"| {rank_medals[display_rank]} | **{name_link}** | **{score}** | {publish} | **{total_read}** | **{headline_read}** | **{max_read}** | **{like_count}** | **{in_see_count}** | **{forward_count}** |"
         else:
-            row = f"| {rank} | {name_link} | {score} | {publish} | {total_read} | {headline_read} | {max_read} | {like_count} | {in_see_count} | {forward_count} |"
+            # 非TOP3: 账号名称不加粗，但综合评分/总阅读/头条阅读/最高阅读/总点赞/总转发仍需加粗
+            row = f"| {display_rank} | {name_link} | **{score}** | {publish} | **{total_read}** | **{headline_read}** | **{max_read}** | **{like_count}** | **{in_see_count}** | **{forward_count}** |"
         rows.append(row)
 
     return "\n".join([header, separator] + rows)
+
+
+# 功能询问文案模板（一字不改，遵循core_workflow.md）
+FEATURE_PROMPT = """技能还支持以下功能：
+
+1️⃣ 支持对以上数据进行分析。其中包含**内容生态变化分析**、**热点影响力量化**、**蓝海赛道挖掘**三种分析角度，方便您了解公众号阅读数据或获取运营参考时使用。
+
+2️⃣ 可生成公众号风格的html文件包。支持**导出图片**、**导出PDF**，方便阅读、保存和分享。
+
+3️⃣ 支持订阅每日/周/月的公众号账号最新排名，订阅后将定时推送给您（日榜将在每日17点30更新/周榜将在每周一17:30准时更新/月榜将在每月3号23:00准时推送）。直接回复"订阅日/周/月榜"即可订阅相关榜单，或者"全部订阅"将会为您推送全部类型的榜单。
+
+回复数字即可~"""
+
+
+def format_full_output(rank_label, category, update_time, data_description,
+                       time_range, reminder, data_list, top_n=50, start=1):
+    """格式化完整的榜单输出（严格遵循core_workflow.md标准模板）
+
+    输出顺序：标题 → 数据说明 → reminder → 表格 → 功能询问文案
+
+    Args:
+        rank_label: 榜单标签（日榜/周榜/月榜）
+        category: 分类名
+        update_time: 更新时间
+        data_description: 数据说明文本
+        time_range: 数据统计时间周期
+        reminder: 日期提醒（可为空）
+        data_list: API返回的data数组
+        top_n: 显示前N条
+        start: 起始排名
+
+    Returns:
+        str: 完整的Markdown输出
+    """
+    parts = []
+
+    # 标题（二级标题）
+    parts.append(f"## 公众号热门账号推荐榜{rank_label} - {category} （更新时间：{update_time}）")
+    parts.append("")
+
+    # 数据说明（斜体，在标题后、表格前）
+    parts.append(f"*公众号综合实力{rank_label}，基于阅读、点赞、转发、在看等多维数据综合排名*")
+    parts.append(f"*数据统计时间周期：{time_range}*")
+    parts.append("")
+
+    # reminder（如有）
+    if reminder:
+        parts.append(reminder)
+        parts.append("")
+
+    # 榜单表格
+    parts.append(format_ranking_table(data_list, top_n, start))
+    parts.append("")
+
+    # 功能询问文案（一字不改）
+    parts.append(FEATURE_PROMPT)
+
+    return "\n".join(parts)
 
 
 def format_analysis(data_list, rank_type="day", top_n=3):
@@ -574,14 +670,83 @@ def main():
                         help="列出所有可用分类")
     parser.add_argument("--raw", action="store_true",
                         help="输出原始JSON数据")
+    parser.add_argument("--input_json_file", type=str, default=None,
+                        help="预取数据JSON文件路径（来自本脚本之前的输出），指定后不再调用API")
 
     args = parser.parse_args()
 
+    # 使用预取数据模式
+    if args.input_json_file:
+        if not os.path.isfile(args.input_json_file):
+            print(f"错误: 文件不存在: {args.input_json_file}", file=sys.stderr)
+            sys.exit(1)
+        try:
+            with open(args.input_json_file, 'r', encoding='utf-8') as f:
+                fetched = json.load(f)
+        except Exception as e:
+            print(f"错误: 读取文件失败: {e}", file=sys.stderr)
+            sys.exit(1)
+
+        raw_data = fetched.get("raw_data", [])
+        if not raw_data:
+            print("错误: 输入文件中无 raw_data 数据", file=sys.stderr)
+            sys.exit(1)
+
+        rank_type = fetched.get("rank_type", "day")
+        rank_date = fetched.get("rank_date", "")
+        category = fetched.get("category", "人文资讯")
+        rank_label = fetched.get("rank_label", RANK_TYPE_MAP.get(rank_type, "日榜"))
+        update_time = fetched.get("update_time", "")
+        reminder = fetched.get("reminder", "")
+
+        print(f"使用预取数据重新处理（不调用API）...", file=sys.stderr)
+        print(f"榜单类型: {rank_label}", file=sys.stderr)
+        print(f"查询日期: {rank_date}", file=sys.stderr)
+        print(f"分类: {category}", file=sys.stderr)
+
+        # 从预取数据重新格式化
+        data_list = raw_data
+        top_n = min(args.top_n, len(data_list))
+
+        time_range = get_data_time_range(rank_type, rank_date)
+
+        output = {
+            "status": "success",
+            "rank_type": rank_type,
+            "rank_label": rank_label,
+            "rank_date": rank_date,
+            "category": category,
+            "data_description": fetched.get("data_description", ""),
+            "total_count": fetched.get("total_count", len(data_list)),
+            "top_n": top_n,
+            "update_time": update_time,
+            "reminder": reminder,
+            "ranking_table": format_ranking_table(data_list, args.top_n, args.start),
+            "analysis": format_analysis(data_list, rank_type),
+            "raw_data": data_list,
+            "formatted_markdown": format_full_output(
+                rank_label, category, update_time,
+                fetched.get("data_description", ""), time_range,
+                reminder, data_list, args.top_n, args.start
+            ),
+        }
+
+        # 输出JSON到stdout，确保Windows下GBK终端也能正确输出
+        json_str = json.dumps(output, ensure_ascii=False)
+        try:
+            sys.stdout.write(json_str + "\n")
+            sys.stdout.flush()
+        except UnicodeEncodeError:
+            # Windows GBK终端无法编码emoji等字符时，回退到UTF-8编码
+            sys.stdout.buffer.write(json_str.encode('utf-8', errors='replace') + b"\n")
+            sys.stdout.buffer.flush()
+        return
+
     # 列出分类
     if args.list_categories:
-        print("可用分类列表：")
+        print("可用分类列表：", file=sys.stderr)
         for i, cat in enumerate(CATEGORIES, 1):
-            print(f"  {i}. {cat}")
+            print(f"  {i}. {cat}", file=sys.stderr)
         return
 
     # 确定分类
@@ -591,19 +756,19 @@ def main():
     elif args.keyword:
         matched = match_category(args.keyword)
         if matched is None:
-            print(f"未找到匹配'{args.keyword}'的分类，可用分类：{', '.join(CATEGORIES)}")
+            print(f"未找到匹配'{args.keyword}'的分类，可用分类：{', '.join(CATEGORIES)}", file=sys.stderr)
             return
         elif isinstance(matched, list):
-            print(f"关键词'{args.keyword}'匹配到多个分类：{', '.join(matched)}，请指定更精确的分类名")
+            print(f"关键词'{args.keyword}'匹配到多个分类：{', '.join(matched)}，请指定更精确的分类名", file=sys.stderr)
             return
         else:
             category = matched
-            print(f"根据关键词【{args.keyword}】匹配到分类：【{category}】")
+            print(f"根据关键词【{args.keyword}】匹配到分类：【{category}】", file=sys.stderr)
 
     # 确定查询日期
     rank_label = RANK_TYPE_MAP.get(args.rank_type, "日榜")
-    print(f"正在获取公众号综合实力{rank_label}数据...")
-    print(f"当前时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"正在获取公众号综合实力{rank_label}数据...", file=sys.stderr)
+    print(f"当前时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", file=sys.stderr)
 
     reminder = ""
 
@@ -613,8 +778,8 @@ def main():
         rank_date = validation["adjusted_date"]
         if validation["is_adjusted"]:
             reminder = validation["reminder"]
-            print(f"用户指定日期: {args.rank_date} → 调整为: {rank_date}")
-            print(f"提醒: {reminder}")
+            print(f"用户指定日期: {args.rank_date} → 调整为: {rank_date}", file=sys.stderr)
+            print(f"提醒: {reminder}", file=sys.stderr)
     else:
         # 自动计算最新可查询日期
         rank_date = get_latest_query_date(args.rank_type)
@@ -622,12 +787,12 @@ def main():
         today_reminder = get_today_query_reminder(args.rank_type)
         if today_reminder:
             reminder = today_reminder
-            print(f"提醒: {reminder}")
+            print(f"提醒: {reminder}", file=sys.stderr)
 
-    print(f"榜单类型: {rank_label}")
-    print(f"查询日期: {rank_date}")
-    print(f"分类: {category}")
-    print("-" * 60)
+    print(f"榜单类型: {rank_label}", file=sys.stderr)
+    print(f"查询日期: {rank_date}", file=sys.stderr)
+    print(f"分类: {category}", file=sys.stderr)
+    print("-" * 60, file=sys.stderr)
 
     try:
         result = fetch_ranking_data(
@@ -636,12 +801,12 @@ def main():
             category=category,
         )
     except Exception as e:
-        print(f"错误: {e}")
+        print(f"错误: {e}", file=sys.stderr)
         return
 
     data_list = result.get("data", [])
     if not data_list:
-        print("未获取到数据")
+        print("未获取到数据", file=sys.stderr)
         return
 
     # 原始输出
@@ -658,6 +823,7 @@ def main():
         scored_data.append(item_copy)
 
     update_time = get_update_time_label(args.rank_type, rank_date)
+    time_range = get_data_time_range(args.rank_type, rank_date)
 
     output = {
         "status": "success",
@@ -665,7 +831,7 @@ def main():
         "rank_label": rank_label,
         "rank_date": rank_date,
         "category": category,
-        "data_description": DATA_DESCRIPTION_TEMPLATE.format(rank_label=rank_label, time_range=get_data_time_range(args.rank_type, rank_date)),
+        "data_description": DATA_DESCRIPTION_TEMPLATE.format(rank_label=rank_label, time_range=time_range),
         "total_count": len(data_list),
         "top_n": min(args.top_n, len(data_list)),
         "update_time": update_time,
@@ -673,9 +839,22 @@ def main():
         "ranking_table": format_ranking_table(data_list, args.top_n, args.start),
         "analysis": format_analysis(data_list, args.rank_type),
         "raw_data": scored_data,
+        "formatted_markdown": format_full_output(
+            rank_label, category, update_time,
+            DATA_DESCRIPTION_TEMPLATE.format(rank_label=rank_label, time_range=time_range),
+            time_range, reminder, data_list, args.top_n, args.start
+        ),
     }
 
-    print(json.dumps(output, ensure_ascii=False))
+    # 输出JSON到stdout，确保Windows下GBK终端也能正确输出
+    json_str = json.dumps(output, ensure_ascii=False)
+    try:
+        sys.stdout.write(json_str + "\n")
+        sys.stdout.flush()
+    except UnicodeEncodeError:
+        # Windows GBK终端无法编码emoji等字符时，回退到ASCII编码
+        sys.stdout.buffer.write(json_str.encode('utf-8', errors='replace') + b"\n")
+        sys.stdout.buffer.flush()
 
 
 if __name__ == "__main__":
