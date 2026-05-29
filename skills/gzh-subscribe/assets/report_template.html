@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>微信公众号文章订阅 · 日报 - {{DATE}}</title>
+
+<!-- Fonts: Archivo Black (display) + Space Grotesk (body) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════
+   CSS CUSTOM PROPERTIES — DARK TABLE PRESET
+   ═══════════════════════════════════════════════ */
+:root {
+    --bg-primary: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-card: #1e1e1e;
+    --bg-card-hover: #252525;
+    --text-primary: #f0ece6;
+    --text-secondary: #9a9590;
+    --text-muted: #666;
+    --accent: #4FC3F7;
+    --accent-light: #81D4FA;
+    --accent-glow: rgba(79, 195, 247, 0.12);
+    --accent-border: rgba(79, 195, 247, 0.25);
+    --accent-green: #66BB6A;
+    --accent-orange: #FFB74D;
+    --accent-pink: #F06292;
+    --border: rgba(255, 255, 255, 0.06);
+
+    --font-display: 'Archivo Black', Impact, sans-serif;
+    --font-body: 'Space Grotesk', -apple-system, sans-serif;
+
+    --title-size: clamp(1.8rem, 4vw, 3rem);
+    --h2-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    --h3-size: clamp(1rem, 1.8vw, 1.2rem);
+    --body-size: clamp(0.78rem, 1.2vw, 0.9rem);
+    --small-size: clamp(0.68rem, 0.9vw, 0.78rem);
+
+    --radius: 10px;
+    --radius-sm: 6px;
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: var(--font-body);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* ═══════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════ */
+.header {
+    text-align: center;
+    padding: 3rem 1.5rem 2rem;
+    position: relative;
+}
+.header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+}
+.header h1 {
+    font-family: var(--font-display);
+    font-size: var(--title-size);
+    color: var(--accent);
+    letter-spacing: -0.02em;
+}
+.header .subtitle {
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    font-size: var(--body-size);
+}
+
+/* ═══════════════════════════════════════════════
+   STATS
+   ═══════════════════════════════════════════════ */
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    padding: 1.5rem 1rem;
+    margin: 0 auto;
+    max-width: 600px;
+    flex-wrap: wrap;
+}
+.stat-item {
+    text-align: center;
+    min-width: 70px;
+}
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--accent);
+}
+.stat-label {
+    font-size: var(--small-size);
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ═══════════════════════════════════════════════
+   CATEGORY SECTION
+   ═══════════════════════════════════════════════ */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 2rem;
+}
+.category-section {
+    margin-bottom: 2rem;
+}
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+}
+.category-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.category-dot.competitor { background: var(--accent-pink); }
+.category-dot.similar { background: var(--accent-orange); }
+.category-dot.following { background: var(--accent); }
+.category-dot.other { background: var(--accent-green); }
+.category-name {
+    font-family: var(--font-display);
+    font-size: var(--h3-size);
+    letter-spacing: -0.01em;
+}
+.category-count {
+    font-size: var(--small-size);
+    color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════
+   TABLE
+   ═══════════════════════════════════════════════ */
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--small-size);
+}
+thead th {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-align: left;
+    padding: 0.7rem 0.8rem;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+tbody td {
+    padding: 0.65rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+tbody tr:last-child td {
+    border-bottom: none;
+}
+tbody tr:hover {
+    background: var(--bg-card-hover);
+}
+td.date {
+    white-space: nowrap;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+td.author {
+    white-space: nowrap;
+    font-weight: 500;
+}
+td.title {
+    min-width: 200px;
+}
+td.title a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+td.title a:hover {
+    color: var(--accent);
+}
+td.summary {
+    color: var(--text-secondary);
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+td.reads, td.likes {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+td.reads { color: var(--accent); }
+td.likes { color: var(--accent-pink); }
+td.link a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color 0.15s;
+}
+td.link a:hover {
+    color: var(--accent-light);
+    text-decoration: underline;
+}
+
+/* ═══════════════════════════════════════════════
+   EMPTY STATE
+   ═══════════════════════════════════════════════ */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+}
+.empty-state .icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+    opacity: 0.5;
+}
+.empty-state p {
+    font-size: var(--body-size);
+}
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════ */
+.footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: var(--small-size);
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .header { padding: 2rem 1rem 1.5rem; }
+    .stats { gap: 1.5rem; }
+    .container { padding: 0.5rem 0.8rem 1.5rem; }
+    td.summary { max-width: 150px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>微信公众号文章订阅</h1>
+    <p class="subtitle">{{DATE_CN}} &middot; 共追踪 {{ACCOUNT_COUNT}} 个公众号 &middot; {{ARTICLE_COUNT}} 篇文章</p>
+</div>
+
+<div class="stats">
+    <div class="stat-item">
+        <div class="stat-value">{{ACCOUNT_COUNT}}</div>
+        <div class="stat-label">订阅公众号</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ARTICLE_COUNT}}</div>
+        <div class="stat-label">今日发文</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{AVG_READS}}</div>
+        <div class="stat-label">平均阅读</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{TOTAL_LIKES}}</div>
+        <div class="stat-label">总点赞</div>
+    </div>
+</div>
+
+<div class="container">
+    {{CATEGORY_SECTIONS}}
+</div>
+
+<div class="footer">
+    由微信公众号文章订阅 Skill 生成 &middot; {{TIMESTAMP}}
+</div>
+
+</body>
+</html>

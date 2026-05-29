@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公众号搜索 · {{KEYWORD}} | {{DATE}}</title>
+
+<!-- Fonts: Space Grotesk (body) + Inter (fallback) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════
+   CSS CUSTOM PROPERTIES — EMERALD SEARCH
+   ═══════════════════════════════════════════════ */
+:root {
+    --bg-primary: #0a0f0a;
+    --bg-secondary: #0f1a0f;
+    --bg-card: #141f14;
+    --bg-card-hover: #1a2a1a;
+    --text-primary: #e8efe8;
+    --text-secondary: #8a9a8a;
+    --text-muted: #556655;
+    --accent: #2ECC71;
+    --accent-light: #58D68D;
+    --accent-glow: rgba(46, 204, 113, 0.12);
+    --accent-border: rgba(46, 204, 113, 0.25);
+    --border: rgba(255, 255, 255, 0.05);
+    --border-hover: rgba(46, 204, 113, 0.3);
+    --success: #27AE60;
+    --warning: #F39C12;
+    --error: #E74C3C;
+
+    --font-body: 'Space Grotesk', -apple-system, sans-serif;
+
+    --radius: 12px;
+    --radius-sm: 8px;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: var(--font-body);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ═══════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════ */
+.main-header {
+    text-align: center;
+    padding: 2.5rem 1.5rem 1.5rem;
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.main-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+    opacity: 0.5;
+}
+
+.main-header h1 {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+}
+
+.main-header .subtitle {
+    color: var(--text-secondary);
+    font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+    font-weight: 300;
+}
+
+/* ═══════════════════════════════════════════════
+   STATS BAR
+   ═══════════════════════════════════════════════ */
+.stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1rem 1rem;
+    margin: 0 auto;
+    max-width: 600px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+    min-width: 60px;
+}
+
+.stat-value {
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.stat-label {
+    font-size: clamp(0.65rem, 0.8vw, 0.75rem);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ═══════════════════════════════════════════════
+   SEARCH BAR
+   ═══════════════════════════════════════════════ */
+.search-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(180deg, var(--bg-primary) 80%, transparent);
+    padding: 1rem 1.5rem 1.5rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.search-wrapper {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.75rem 1.2rem;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+    outline: none;
+    transition: all 0.2s var(--ease-out);
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.search-info {
+    margin-top: 0.6rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════
+   RESULTS GRID
+   ═══════════════════════════════════════════════ */
+.results-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0.5rem 1.5rem 2rem;
+}
+
+.results-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* ── Article Card ── */
+.article-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 0.9rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.15s var(--ease-out);
+    position: relative;
+}
+
+.article-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translateX(2px);
+}
+
+.article-card:active {
+    transform: scale(0.995);
+}
+
+/* ── Card Left: Avatar ── */
+.card-avatar {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    user-select: none;
+}
+
+/* ── Card Right: Content ── */
+.card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.card-title {
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.card-meta .author {
+    color: var(--accent-light);
+    font-weight: 500;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-meta .metric {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    white-space: nowrap;
+}
+
+.card-meta .pub-time {
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+/* ═══════════════════════════════════════════════
+   STATUS & LOADING
+   ═══════════════════════════════════════════════ */
+.status-message {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.status-message.loading {
+    color: var(--accent);
+}
+
+.status-message.error {
+    color: var(--error);
+}
+
+.status-message.empty {
+    color: var(--text-muted);
+}
+
+.loading-dots::after {
+    content: '';
+    animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+    0%   { content: ''; }
+    25%  { content: '.'; }
+    50%  { content: '..'; }
+    75%  { content: '...'; }
+    100% { content: ''; }
+}
+
+/* ═══════════════════════════════════════════════
+   LOAD MORE
+   ═══════════════════════════════════════════════ */
+.load-more-bar {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 1rem 3rem;
+}
+
+.load-more-btn {
+    padding: 0.65rem 2.2rem;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.2s var(--ease-out);
+}
+
+.load-more-btn:hover {
+    border-color: var(--accent-border);
+    color: var(--accent);
+    background: var(--bg-card-hover);
+}
+
+.load-more-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════ */
+.footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    border-top: 1px solid var(--border);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════ */
+@media (max-width: 640px) {
+    .main-header { padding: 1.8rem 1rem 1rem; }
+    .search-wrapper { flex-direction: column; }
+    .search-input { padding: 0.7rem 1rem; }
+    .article-card { padding: 0.75rem 0.8rem; gap: 0.7rem; }
+    .card-title { font-size: 0.85rem; }
+    .card-meta { font-size: 0.7rem; gap: 0.4rem 0.6rem; }
+    .card-meta .pub-time { margin-left: 0; }
+    .stats-bar { gap: 1.2rem; }
+}
+
+/* ═══════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════ */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.article-card {
+    animation: fadeInUp 0.3s var(--ease-out) both;
+}
+
+.article-card:nth-child(1)  { animation-delay: 0.00s; }
+.article-card:nth-child(2)  { animation-delay: 0.03s; }
+.article-card:nth-child(3)  { animation-delay: 0.06s; }
+.article-card:nth-child(4)  { animation-delay: 0.09s; }
+.article-card:nth-child(5)  { animation-delay: 0.12s; }
+.article-card:nth-child(6)  { animation-delay: 0.15s; }
+.article-card:nth-child(7)  { animation-delay: 0.18s; }
+.article-card:nth-child(8)  { animation-delay: 0.21s; }
+.article-card:nth-child(9)  { animation-delay: 0.24s; }
+.article-card:nth-child(10) { animation-delay: 0.27s; }
+.article-card:nth-child(n+11) { animation-delay: 0.30s; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header class="main-header">
+    <h1>公众号文章搜索</h1>
+    <p class="subtitle">{{DATE}} | 输入关键词实时搜索微信公众号文章</p>
+</header>
+
+<!-- ═══════════ STATS ═══════════ -->
+<div class="stats-bar" id="statsBar">
+    <div class="stat-item">
+        <div class="stat-value" id="statTotal">{{TOTAL_COUNT}}</div>
+        <div class="stat-label">结果总数</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="statKeyword">{{KEYWORD}}</div>
+        <div class="stat-label">当前关键词</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="statLoaded">{{TOTAL_COUNT}}</div>
+        <div class="stat-label">已加载</div>
+    </div>
+</div>
+
+<!-- ═══════════ SEARCH BAR ═══════════ -->
+<div class="search-container">
+    <div class="search-wrapper">
+        <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="输入关键词搜索公众号文章..."
+            value="{{KEYWORD}}"
+            autofocus
+        >
+    </div>
+    <div class="search-info" id="searchInfo">
+        输入关键词后自动搜索（300ms 防抖） | 点击文章跳转原文阅读
+    </div>
+</div>
+
+<!-- ═══════════ RESULTS ═══════════ -->
+<main class="results-container">
+    <div class="results-grid" id="resultsGrid">
+        <!-- 动态填充 -->
+    </div>
+
+    <div class="status-message loading" id="statusMsg" style="display:none;">
+        <span class="loading-dots">搜索中</span>
+    </div>
+
+    <div class="status-message empty" id="emptyMsg" style="display:none;">
+        暂无搜索结果，请尝试其他关键词
+    </div>
+
+    <div class="load-more-bar" id="loadMoreBar" style="display:none;">
+        <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">加载更多结果</button>
+    </div>
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+    Generated at {{TIMESTAMP}} by 公众号搜索 Skill | Powered by redfox.hk
+</footer>
+
+<!-- ═══════════ SCRIPTS ═══════════ -->
+<script>
+// ─── 配置 ────────────────────────────────────────────────────────────────────
+const API_URL = '{{API_URL}}';
+const API_KEY = '{{API_KEY}}';
+const SOURCE = '{{SOURCE}}';
+const INITIAL_DATA = {{INITIAL_DATA}};
+
+// ─── 状态 ────────────────────────────────────────────────────────────────────
+let currentKeyword = '{{KEYWORD}}';
+let currentOffset = 0;
+let hasMore = true;
+let totalCount = {{TOTAL_COUNT}};
+let isLoading = false;
+let accumulatedArticles = [];
+
+// ─── DOM 引用 ─────────────────────────────────────────────────────────────────
+const resultsGrid = document.getElementById('resultsGrid');
+const statusMsg = document.getElementById('statusMsg');
+const emptyMsg = document.getElementById('emptyMsg');
+const loadMoreBar = document.getElementById('loadMoreBar');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
+const searchInput = document.getElementById('searchInput');
+const searchInfo = document.getElementById('searchInfo');
+const statTotal = document.getElementById('statTotal');
+const statLoaded = document.getElementById('statLoaded');
+const statKeyword = document.getElementById('statKeyword');
+
+// ─── 工具函数 ─────────────────────────────────────────────────────────────────
+function formatNum(n) {
+    if (n == null || n === undefined) return '0';
+    n = Number(n);
+    if (isNaN(n)) return '0';
+    if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+    return String(n);
+}
+
+function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+}
+
+function getAvatarChar(title) {
+    if (!title) return '文';
+    // 取第一个非标点非空格的中文或英文字符
+    const cleaned = title.replace(/[^\w\u4e00-\u9fff]/g, '').trim();
+    return cleaned.charAt(0) || '文';
+}
+
+// ─── 渲染文章列表 ─────────────────────────────────────────────────────────────
+function renderArticleCard(article) {
+    const title = article.title || '无标题';
+    const author = article.author || '未知作者';
+    const reads = formatNum(article.readCount || article.clicksCount);
+    const likes = formatNum(article.likeCount);
+    const shares = formatNum(article.shareCount);
+    const collects = formatNum(article.collectCount);
+    const pubTime = (article.publishTime || article.publicTime || '').slice(0, 10);
+    const url = article.workUrl || article.url || '#';
+    const cover = article.coverUrl || '';
+    const avatar = getAvatarChar(title);
+
+    let avatarHTML;
+    if (cover) {
+        avatarHTML = `<img src="${cover}" alt="" loading="lazy">`;
+    } else {
+        avatarHTML = escapeHTML(avatar);
+    }
+
+    const card = document.createElement('a');
+    card.className = 'article-card';
+    card.href = url;
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
+    card.innerHTML = `
+        <div class="card-avatar">${avatarHTML}</div>
+        <div class="card-content">
+            <div class="card-title">${escapeHTML(title)}</div>
+            <div class="card-meta">
+                <span class="author" title="${escapeHTML(author)}">${escapeHTML(author)}</span>
+                <span class="metric">👁 ${reads}</span>
+                <span class="metric">👍 ${likes}</span>
+                <span class="metric">📤 ${shares}</span>
+                <span class="metric">⭐ ${collects}</span>
+                ${pubTime ? `<span class="pub-time">${pubTime}</span>` : ''}
+            </div>
+        </div>`;
+    return card;
+}
+
+function renderArticles(articles, append) {
+    if (!append) {
+        resultsGrid.innerHTML = '';
+    }
+    articles.forEach(article => {
+        resultsGrid.appendChild(renderArticleCard(article));
+    });
+}
+
+function updateUI() {
+    statTotal.textContent = totalCount || accumulatedArticles.length;
+    statLoaded.textContent = accumulatedArticles.length;
+    statKeyword.textContent = currentKeyword || '-';
+    loadMoreBar.style.display = hasMore ? 'flex' : 'none';
+}
+
+// ─── 数据获取 ─────────────────────────────────────────────────────────────────
+function fetchArticles(keyword, offset, append) {
+    return fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-API-KEY': API_KEY,
+        },
+        body: JSON.stringify({
+            keyword: keyword,
+            offset: offset,
+            sortType: 'default',
+            source: SOURCE,
+        }),
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.code === 200 || res.code === 2000) {
+            const data = res.data || {};
+            const list = data.list || [];
+            hasMore = data.hasMore === 1;
+            totalCount = list.length > 0 ? (totalCount || list.length) : totalCount;
+            return list;
+        } else {
+            throw new Error(res.msg || 'API 返回错误');
+        }
+    });
+}
+
+function setLoading(loading) {
+    isLoading = loading;
+    if (loading) {
+        statusMsg.style.display = 'block';
+        emptyMsg.style.display = 'none';
+        loadMoreBtn.disabled = true;
+    } else {
+        statusMsg.style.display = 'none';
+        loadMoreBtn.disabled = false;
+    }
+}
+
+function showError(msg) {
+    statusMsg.style.display = 'block';
+    statusMsg.className = 'status-message error';
+    statusMsg.textContent = msg;
+    isLoading = false;
+    loadMoreBtn.disabled = false;
+}
+
+// ─── 搜索 ─────────────────────────────────────────────────────────────────────
+function doSearch() {
+    const kw = searchInput.value.trim();
+    if (!kw) {
+        showEmpty();
+        return;
+    }
+
+    // 重置状态
+    currentKeyword = kw;
+    currentOffset = 0;
+    hasMore = true;
+    totalCount = 0;
+    accumulatedArticles = [];
+
+    resultsGrid.innerHTML = '';
+    setLoading(true);
+    updateUI();
+
+    fetchArticles(kw, 0, false)
+        .then(articles => {
+            if (!articles || articles.length === 0) {
+                showEmpty();
+                return;
+            }
+            accumulatedArticles = articles;
+            currentOffset = articles.length;
+            renderArticles(articles, false);
+            setLoading(false);
+            updateUI();
+            searchInfo.textContent = `关键词 "${kw}" · 已加载 ${articles.length} 条结果`;
+        })
+        .catch(err => {
+            showError('搜索失败: ' + err.message);
+        });
+}
+
+function loadMore() {
+    if (isLoading || !hasMore) return;
+    setLoading(true);
+
+    fetchArticles(currentKeyword, currentOffset, true)
+        .then(articles => {
+            if (!articles || articles.length === 0) {
+                hasMore = false;
+                setLoading(false);
+                updateUI();
+                return;
+            }
+            accumulatedArticles = accumulatedArticles.concat(articles);
+            currentOffset += articles.length;
+            renderArticles(articles, true);
+            setLoading(false);
+            updateUI();
+            searchInfo.textContent = `关键词 "${currentKeyword}" · 已加载 ${accumulatedArticles.length} 条结果`;
+        })
+        .catch(err => {
+            showError('加载失败: ' + err.message);
+        });
+}
+
+function showEmpty() {
+    resultsGrid.innerHTML = '';
+    statusMsg.style.display = 'none';
+    emptyMsg.style.display = 'block';
+    loadMoreBar.style.display = 'none';
+    statTotal.textContent = '0';
+    statLoaded.textContent = '0';
+}
+
+// ─── 防抖搜索 ─────────────────────────────────────────────────────────────────
+let debounceTimer;
+searchInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(doSearch, 300);
+});
+
+searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        clearTimeout(debounceTimer);
+        doSearch();
+    }
+});
+
+// ─── 初始化 ───────────────────────────────────────────────────────────────────
+function init() {
+    if (INITIAL_DATA && INITIAL_DATA.length > 0) {
+        accumulatedArticles = INITIAL_DATA;
+        currentOffset = INITIAL_DATA.length;
+        totalCount = INITIAL_DATA.length;
+        renderArticles(INITIAL_DATA, false);
+        updateUI();
+        searchInfo.textContent = `初始结果 · 共 ${INITIAL_DATA.length} 条 | 输入新关键词自动搜索`;
+        // 初始数据加载后，hasMore 取决于 API 返回，此处设为可能有更多
+        statusMsg.style.display = 'none';
+    } else {
+        showEmpty();
+        searchInfo.textContent = '输入关键词开始搜索公众号文章';
+    }
+}
+
+init();
+</script>
+
+</body>
+</html>
