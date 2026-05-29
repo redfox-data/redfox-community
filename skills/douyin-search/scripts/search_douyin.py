@@ -24,8 +24,28 @@ def get_api_key() -> str:
     sys.exit(1)
 
 
-def search(keyword: str) -> list:
-    """调用搜索接口，返回作品列表"""
+def format_articles(articles: list) -> list:
+    """将原始 articles 数据转换为统一格式"""
+    items = []
+    for art in articles:
+        items.append({
+            "title": art.get("title", "").strip(),
+            "author": art.get("accountName", "").strip(),
+            "like_count": art.get("likeCount", 0) or 0,
+            "comment_count": art.get("commentCount", 0) or 0,
+            "share_count": art.get("shareCount", 0) or 0,
+            "collect_count": art.get("collectCount", 0) or 0,
+            "work_url": art.get("workUrl", ""),
+            "publish_time": art.get("publishTime", ""),
+            "follower_count": art.get("followerCount", 0) or 0,
+        })
+    # 按点赞数降序排列
+    items.sort(key=lambda x: x["like_count"], reverse=True)
+    return items
+
+
+def search(keyword: str) -> dict:
+    """调用搜索接口，返回完整数据（articles, latestHotArticles, hotTopics）"""
     api_key = get_api_key()
     payload = json.dumps({"keyword": keyword, "source": "抖音作品查询-GitHub"}).encode("utf-8")
 
@@ -61,26 +81,12 @@ def search(keyword: str) -> list:
         sys.exit(1)
 
     data = result.get("data") or {}
-    articles = data.get("articles") or []
 
-    # 提取需要的字段并统一格式
-    items = []
-    for art in articles:
-        items.append({
-            "title": art.get("title", "").strip(),
-            "author": art.get("accountName", "").strip(),
-            "like_count": art.get("likeCount", 0) or 0,
-            "comment_count": art.get("commentCount", 0) or 0,
-            "share_count": art.get("shareCount", 0) or 0,
-            "collect_count": art.get("collectCount", 0) or 0,
-            "work_url": art.get("workUrl", ""),
-            "publish_time": art.get("publishTime", ""),
-            "follower_count": art.get("followerCount", 0) or 0,
-        })
-
-    # 按点赞数降序排列
-    items.sort(key=lambda x: x["like_count"], reverse=True)
-    return items
+    return {
+        "articles": format_articles(data.get("articles") or []),
+        "latestHotArticles": format_articles(data.get("latestHotArticles") or []),
+        "hotTopics": data.get("hotTopics") or [],
+    }
 
 
 def main():
@@ -93,8 +99,8 @@ def main():
         print("[error] 关键词不能为空", file=sys.stderr)
         sys.exit(1)
 
-    items = search(keyword)
-    print(json.dumps(items, ensure_ascii=False, indent=2))
+    result = search(keyword)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
