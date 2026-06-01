@@ -25,7 +25,7 @@ CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
 PUBLIC_API_KEY = "ak_783ee098b4934f539e0259d98d2a0f90"
-SOURCE = "GPT image2-SkillHub"
+SOURCE = "GPT image2-GitHub"
 
 POLL_INTERVAL = 3  # seconds
 MAX_POLL_ATTEMPTS = 60  # max ~3 minutes

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-公众号文章搜索 — 关键字搜索微信公众号文章
+公众号搜索爬虫 — 关键字搜索微信公众号文章
 =========================================
 输入关键词，实时搜索公众号文章，终端表格展示，
 自动导出 CSV + 生成带搜索框的交互式 HTML 报告。
@@ -19,7 +19,7 @@ import subprocess
 import sys
 import time
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
@@ -36,7 +36,7 @@ CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "X_API_KEY"
 PUBLIC_API_KEY = "ak_db0e200c049b44288d46da0e758d53dd"
-SOURCE = "公众号搜索SkillHub"
+SOURCE = "公众号搜索爬虫-GitHub"
 
 DEFAULT_OUTPUT_DIR = Path.home() / "Downloads" / "QoderGzhSearch"
 DEFAULT_COUNT = 20
@@ -194,6 +194,23 @@ def fetch_articles(session, keyword, max_count=20, sort_type="default"):
     return {"articles": all_articles[:max_count], "hasMore": 1 if (has_more or len(all_articles) >= max_count) else 0}
 
 
+def fetch_fallback_articles(session, keyword):
+    """零结果时用宽泛词 + 热门词兜底搜索"""
+    candidates = set()
+    if len(keyword) >= 2:
+        candidates.add(keyword[:2])
+    if len(keyword) >= 1:
+        candidates.add(keyword[:1])
+    candidates.add("AI")
+    candidates.discard(keyword)
+
+    for broad_kw in sorted(candidates, key=len, reverse=True):
+        r = fetch_articles(session, broad_kw, max_count=10)
+        if r and r["articles"]:
+            return r["articles"]
+    return []
+
+
 def format_number(n):
     if n is None:
         return "0"
@@ -204,6 +221,68 @@ def format_number(n):
     return str(n)
 
 
+# ─── 三因子评分 ────────────────────────────────────────────────────────────────────
+def score_relevance(keyword, article):
+    """相关性得分 0-10：关键词在标题 > 摘要中的命中情况"""
+    kw = keyword.lower().strip()
+    title = (_title(article) or "").lower()
+    summary = (_summary(article) or "").lower()
+    if not kw:
+        return 5.0
+    if kw == title:
+        return 10.0
+    if title.startswith(kw):
+        return 9.0
+    if kw in title:
+        return 8.0
+    words = [w for w in kw.split() if len(w) >= 2]
+    title_matches = sum(1 for w in words if w in title)
+    if title_matches >= len(words) * 0.5 and len(words) >= 2:
+        return 6.0
+    if summary and kw in summary[:len(summary)//3]:
+        return 5.0
+    if summary and kw in summary:
+        return 4.0
+    if title_matches > 0:
+        return 3.0
+    if summary and any(w in summary for w in words):
+        return 2.0
+    return 1.0
+
+
+def score_heat(article):
+    """热度得分 0.5-3.0：基于阅读数"""
+    r = _reads(article)
+    if r >= 100000: return 3.0
+    if r >= 50000:  return 2.5
+    if r >= 10000:  return 2.0
+    if r >= 5000:   return 1.5
+    if r >= 1000:   return 1.0
+    return 0.5
+
+
+def score_freshness(article):
+    """时效得分 0-2.0：基于发布时间"""
+    pt = _pub_time(article)
+    if not pt:
+        return 0
+    try:
+        pub_dt = datetime.fromisoformat(pt[:19])
+        days = (datetime.now() - pub_dt).days
+        if days <= 7:   return 2.0
+        if days <= 15:  return 1.5
+        if days <= 30:  return 1.0
+        if days <= 60:  return 0.5
+        return 0
+    except Exception:
+        return 0
+
+
+def calculate_score(keyword, article):
+    """综合评分 = 相关性 + 热度 + 时效（满分 15）"""
+    return score_relevance(keyword, article) + score_heat(article) + score_freshness(article)
+
+
 # ─── 终端表格 ──────────────────────────────────────────────────────────────────────
 def print_terminal_table(articles, keyword):
     if not articles:
@@ -211,15 +290,15 @@ def print_terminal_table(articles, keyword):
         return
 
     count = len(articles)
-    print(f"\n{BOLD}{'=' * 100}{RESET}")
-    print(f"{BOLD}  公众号搜索 · \"{keyword}\" · 共 {count} 条结果{RESET}")
-    print(f"{BOLD}{'=' * 100}{RESET}")
+    print(f"\n{BOLD}{'=' * 120}{RESET}")
+    print(f"{BOLD}  公众号搜索爬虫 · \"{keyword}\" · 共 {count} 条结果{RESET}")
+    print(f"{BOLD}{'=' * 120}{RESET}")
 
-    header = (f"  {'序号':<4}{'标题':<32}{'作者':<14}"
-              f"{'阅读':>7}{'点赞':>6}{'分享':>6}{'收藏':>6}{'发布时间':<12}")
-    print(f"  {YELLOW}{'─' * 93}{RESET}")
+    header = (f"  {'序号':<4}{'标题':<26}{'作者':<12}"
+              f"{'阅读':>7}{'点赞':>5}{'分享':>5}{'收藏':>5}{'发布时间':<12}{'文章链接':<36}")
+    print(f"  {YELLOW}{'─' * 112}{RESET}")
     print(f"  {YELLOW}{header}{RESET}")
-    print(f"  {YELLOW}{'─' * 93}{RESET}")
+    print(f"  {YELLOW}{'─' * 112}{RESET}")
 
     for i, a in enumerate(articles, 1):
         title = _title(a)
@@ -229,14 +308,24 @@ def print_terminal_table(articles, keyword):
         shares = format_number(_shares(a))
         collects = format_number(_collects(a))
         pub_time = _pub_time(a)[:10] if _pub_time(a) else ""
+        link = _url(a)
 
-        display_title = title[:30] + ".." if len(title) > 32 else title
-        display_author = author[:12] + ".." if len(author) > 14 else author
+        display_title = title[:24] + ".." if len(title) > 26 else title
+        display_author = author[:10] + ".." if len(author) > 12 else author
+        display_link = link[:34] + ".." if len(link) > 36 else link
 
-        print(f"  {i:<4}{display_title:<32}{display_author:<14}"
-              f"{reads:>7}{likes:>6}{shares:>6}{collects:>6}{pub_time:<12}")
+        print(f"  {i:<4}{display_title:<26}{display_author:<12}"
+              f"{reads:>7}{likes:>5}{shares:>5}{collects:>5}{pub_time:<12}{display_link:<36}")
 
-    print(f"  {YELLOW}{'─' * 93}{RESET}\n")
+    print(f"  {YELLOW}{'─' * 112}{RESET}")
+
+    # 分层提示
+    if count <= 2:
+        print(f"  {YELLOW}💡 相关结果较少 (仅 {count} 条)，建议尝试更短或更宽泛的关键词{RESET}")
+    elif count <= 9:
+        print(f"  {YELLOW}💡 仅找到 {count} 条结果，以下为您展示全部{RESET}")
+
+    print()
 
 
 # ─── CSV 导出 ──────────────────────────────────────────────────────────────────────
@@ -430,7 +519,7 @@ body {
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="main-header"><h1>公众号文章搜索</h1><p class="subtitle">{{DATE}} | 输入关键词实时搜索微信公众号文章</p></div>
+<div class="main-header"><h1>公众号搜索爬虫</h1><p class="subtitle">{{DATE}} | 输入关键词实时搜索微信公众号文章</p></div>
 <div class="stats-bar">
     <div class="stat-item"><div class="stat-value" id="statTotal">{{TOTAL_COUNT}}</div><div class="stat-label">结果总数</div></div>
     <div class="stat-item"><div class="stat-value" id="statKeyword">{{KEYWORD}}</div><div class="stat-label">当前关键词</div></div>
@@ -730,7 +819,7 @@ def start_server(output_dir, api_key, port=8766):
 # ─── 主流程 ────────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
-        description="公众号文章搜索 — 关键字搜索微信公众号文章",
+        description="公众号搜索爬虫 — 关键字搜索微信公众号文章",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -753,7 +842,7 @@ Examples:
 
     banner = f"""{CYAN}{BOLD}
   ╔══════════════════════════════════════════╗
-  ║       公众号文章搜索 · GZH Search        ║
+  ║       公众号搜索爬虫 · GZH Crawler        ║
   ║     关键词查询 · 数据导出 · 交互报告     ║
   ╚══════════════════════════════════════════╝{RESET}
 """
@@ -781,6 +870,11 @@ Examples:
             sys.exit(1)
 
     keyword = args.keyword
+
+    if len(keyword) > 10:
+        error(f"关键词长度不能超过 10 个字符（当前 {len(keyword)} 个），请精简后重试")
+        sys.exit(1)
+
     max_count = args.count
     sort_type = args.sort_type
     output_dir = args.output_dir or str(DEFAULT_OUTPUT_DIR)
@@ -799,17 +893,34 @@ Examples:
     articles = result["articles"]
     has_more = result["hasMore"]
 
-    print_terminal_table(articles, keyword)
+    # ── 客户端排序（相关性优先、同分按阅读量降序）──
+    if articles:
+        articles.sort(key=lambda a: (calculate_score(keyword, a), _reads(a)), reverse=True)
 
+    # ── 零结果处理 ──
     if not articles:
-        warn("未获取到任何文章，请尝试其他关键词")
-        warn("如需搜索全量公众号内容，请访问 redfox.hk")
-        sys.exit(0)
+        print(f"\n{YELLOW}[✗] 抱歉，未找到与「{BOLD}{keyword}{RESET}{YELLOW}」直接相关的内容{RESET}\n")
+        step("尝试搜索热门内容...")
+        fallback = fetch_fallback_articles(session, keyword)
+        if fallback:
+            fallback.sort(key=lambda a: (calculate_score("", a), _reads(a)), reverse=True)
+            info(f"为您推荐 {len(fallback)} 篇热门文章（非直接相关）：")
+            print_terminal_table(fallback, keyword)
+            articles = fallback
+        else:
+            print(f"  {YELLOW}建议:{RESET} 尝试更短的关键词（如「{keyword[:2] if len(keyword)>=2 else 'AI'}」）")
+            print(f"  {YELLOW}建议:{RESET} 使用英文关键词重试")
+            warn("如需搜索全量公众号内容，请访问 redfox.hk")
+            sys.exit(0)
+
+    # 表格展示（有结果时）
+    if articles:
+        print_terminal_table(articles, keyword)
 
     reads_list = [_reads(a) for a in articles]
     total_reads = sum(reads_list)
     max_reads = max(reads_list) if reads_list else 0
-    print(f"  {BOLD}统计:{RESET} 共 {len(articles)} 条 | 总阅读 {format_number(total_reads)} | "
+    print(f"  {BOLD}统计:{RESET} 共 {len(articles)} 条 (按综合评分排序) | 总阅读 {format_number(total_reads)} | "
           f"最高阅读 {format_number(max_reads)} | {'还有更多数据' if has_more else '已加载全部'}")
 
     step("导出 CSV ...")
