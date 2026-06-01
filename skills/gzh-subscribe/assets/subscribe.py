@@ -38,7 +38,7 @@ CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "X_API_KEY"
 PUBLIC_API_KEY = "ak_db0e200c049b44288d46da0e758d53dd"
-SOURCE = "公众号账号订阅SkillHub"
+SOURCE = "公众号账号订阅-GitHub"
 
 SUBSCRIPTIONS_FILE = Path.home() / ".qoder" / "gzh_subscriptions.json"
 MAX_SUBSCRIPTIONS = 20
