@@ -37,7 +37,6 @@ export REDFOX_API_KEY="ak_xxxx..."
 
 - **接口地址**：`POST https://redfox.hk/story/api/dy/search/likesRank`
 - **认证方式**：请求头 `X-API-KEY`，值从环境变量 `REDFOX_API_KEY` 获取
-- **固定参数**：`source=点赞排行榜`
 - **可选参数**：`type`（赛道）、`startTime`、`endTime`（日期范围）
 
 详见 [api-config.md](api-config.md)。
