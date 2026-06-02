@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AI公众号热门爆款 — 每日热门内容聚类
+AI公众号信息源 — 每日热门内容聚类
 ====================================
 每天扫描 AI 公众号热门文章，自动聚类后生成 HTML 日报。
 
@@ -35,14 +35,14 @@ CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "X_API_KEY"
 PUBLIC_API_KEY = "ak_783ee098b4934f539e0259d98d2a0f90"
-SOURCE = "AI公众号热门爆款-SkillHub"
+SOURCE = "AI公众号信息源-GitHub"
 
 DEFAULT_KEYWORDS = ["AI", "人工智能", "大模型", "GPT", "Agent", "AI绘画"]
 DEFAULT_OUTPUT_DIR = Path.home() / "Downloads" / "QoderReports"
 PAGES_PER_KEYWORD = 5
 PAGE_SIZE = 20
 
-PLIST_LABEL = "com.qoder.ai-daily-report"
+PLIST_LABEL = "com.qoder.gzh-ai-feed"
 PLIST_DIR = Path.home() / "Library" / "LaunchAgents"
 
 # ─── 终端颜色 ──────────────────────────────────────────────────────────────────────
@@ -396,7 +396,7 @@ def format_number(n):
 def print_article_table(clusters):
     """在终端打印分类文章表格"""
     print(f"\n{BOLD}{'='*78}{RESET}")
-    print(f"{BOLD}  AI公众号热门爆款 · 分类文章一览{RESET}")
+    print(f"{BOLD}  AI公众号信息源 · 分类文章一览{RESET}")
     print(f"{BOLD}{'='*78}{RESET}\n")
 
     for i, cluster in enumerate(clusters, 1):
@@ -526,7 +526,7 @@ def get_fallback_template():
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI公众号热门爆款 - {{DATE}}</title>
+<title>AI公众号信息源 - {{DATE}}</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, sans-serif; background: #1a1a1a; color: #e8e4df; padding: 2rem; }
@@ -556,7 +556,7 @@ body { font-family: -apple-system, sans-serif; background: #1a1a1a; color: #e8e4
 </head>
 <body>
 <div class="header">
-    <h1>AI公众号热门爆款</h1>
+    <h1>AI公众号信息源</h1>
     <p>{{DATE_CN}} | 共 {{TOTAL_COUNT}} 篇热门文章</p>
 </div>
 <div class="stats">
@@ -566,7 +566,7 @@ body { font-family: -apple-system, sans-serif; background: #1a1a1a; color: #e8e4
     <div class="stat-item"><div class="stat-value">{{TOTAL_LIKES}}</div><div class="stat-label">总点赞</div></div>
 </div>
 <div class="cards">{{CATEGORY_CARDS}}</div>
-<div class="footer">Generated at {{TIMESTAMP}} by AI公众号热门爆款 Skill</div>
+<div class="footer">Generated at {{TIMESTAMP}} by AI公众号信息源 Skill</div>
 </body>
 </html>'''
 
@@ -746,7 +746,7 @@ def start_server(output_dir, api_key, port=8765):
 # ─── 主流程 ────────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
-        description="AI公众号热门爆款 — 每日热门内容聚类日报",
+        description="AI公众号信息源 — 每日热门内容聚类日报",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -772,7 +772,7 @@ Examples:
     # ── Banner ──
     banner = f"""{CYAN}{BOLD}
   ╔══════════════════════════════════════╗
-  ║     AI公众号热门爆款 · 日报生成       ║
+  ║     AI公众号信息源 · 日报生成       ║
   ║     每日热门内容聚类 · 爆款一网打尽   ║
   ╚══════════════════════════════════════╝{RESET}
 """

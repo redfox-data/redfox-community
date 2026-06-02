@@ -1,151 +1,20 @@
 #!/usr/bin/env python3
 """
-小红书热门数据查询脚本（最终版 - 禁用 SNI + 支持 chunked + gzip）
+小红书热门数据查询脚本
+接口地址：https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillData
 """
 
+import os
 import sys
 import argparse
 import json
-import socket
-import ssl
-import gzip
 
-
-def decode_chunked(data):
-    """解码 chunked 传输编码"""
-    chunks = []
-    idx = 0
-
-    while idx < len(data):
-        # 读取 chunk 大小
-        line_end = data.find(b'\r\n', idx)
-        if line_end == -1:
-            break
-
-        chunk_size_line = data[idx:line_end]
-        try:
-            chunk_size = int(chunk_size_line, 16)
-        except:
-            break
-
-        if chunk_size == 0:
-            break
-
-        # 读取 chunk 数据
-        chunk_start = line_end + 2
-        chunk_end = chunk_start + chunk_size
-
-        if chunk_end > len(data):
-            break
-
-        chunk = data[chunk_start:chunk_end]
-        chunks.append(chunk)
-
-        # 移动到下一个 chunk
-        idx = chunk_end + 2  # 跳过 \r\n
-
-    return b''.join(chunks)
-
-
-def fetch_via_no_sni(base_url: str, params: dict, headers: dict, timeout: int = 60):
-    """
-    使用原生 socket 实现 HTTPS 请求（不发送 SNI）
-
-    关键：服务器在 SNI 扩展中检测到域名后主动断开连接
-    解决：不发送 SNI 扩展
-    """
-    # 解析 URL
-    if "://" in base_url:
-        base_url = base_url.split("://", 1)[1]
-    host, path = base_url.split("/", 1)
-
-    # 构建 query string
-    if params:
-        from urllib.parse import quote
-        query = "&".join(f"{quote(str(k))}={quote(str(v))}" for k, v in params.items())
-        path = f"{path}?{query}"
-
-    # 创建 TCP 连接
-    sock = socket.create_connection((host, 443), timeout=timeout)
-
-    # 创建 SSL 上下文（不使用 SNI）
-    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-    context.check_hostname = False
-    context.verify_mode = ssl.CERT_NONE
-
-    # 包装 socket（不传递 server_hostname，避免发送 SNI）
-    ssl_sock = context.wrap_socket(sock)
-
-    # 构建 HTTP 请求
-    request_lines = [
-        f"GET /{path} HTTP/1.1",
-        f"Host: {host}",
-    ]
-    for k, v in headers.items():
-        request_lines.append(f"{k}: {v}")
-    request_lines.append("")
-    request_lines.append("")
-
-    request = "\r\n".join(request_lines)
-
-    # 发送请求
-    ssl_sock.send(request.encode())
-
-    # 接收响应
-    response_data = b""
-    while True:
-        try:
-            chunk = ssl_sock.recv(8192)
-            if not chunk:
-                break
-            response_data += chunk
-        except:
-            break
-
-    ssl_sock.close()
-
-    # 解析响应头
-    response_str = response_data.decode('utf-8', errors='ignore')
-    lines = response_str.split('\r\n')
-
-    # 提取状态码
-    status_code = int(lines[0].split()[1])
-
-    # 提取响应头
-    headers_dict = {}
-    for i, line in enumerate(lines[1:]):
-        if line == '':
-            break
-        if ':' in line:
-            key, value = line.split(':', 1)
-            headers_dict[key.strip().lower()] = value.strip()
-
-    # 分离头部和正文
-    header_end = response_data.find(b'\r\n\r\n')
-    if header_end != -1:
-        body_bytes = response_data[header_end + 4:]
-    else:
-        body_bytes = b""
-
-    # 处理 chunked 编码
-    if headers_dict.get('transfer-encoding', '').lower() == 'chunked':
-        body_bytes = decode_chunked(body_bytes)
-
-    # 处理 gzip 压缩
-    if headers_dict.get('content-encoding', '').lower() == 'gzip':
-        try:
-            body_bytes = gzip.decompress(body_bytes)
-        except:
-            pass
-
-    response_body = body_bytes.decode('utf-8', errors='ignore')
-
-    return status_code, response_body
+import requests
 
 
 def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, start_date: str = None):
     """
-    调用新接口获取小红书热门数据
+    调用接口获取小红书热门数据
 
     Args:
         keyword: 搜索关键词（多个关键词用逗号分隔，最多5个，总长度不超过200）
@@ -159,7 +28,13 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
     Raises:
         Exception: 当API调用失败时抛出异常
     """
-    base_url = "https://onetotenvip.com/skill/cozeSkill/getXhsCozeSkillData"
+    url = "https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillData"
+
+    # 从环境变量获取 API Key
+    api_key = os.getenv("REDFOX_API_KEY")
+    if not api_key:
+        raise Exception("未找到 REDFOX_API_KEY 环境变量，请先配置 API Key。参考文档中的鉴权说明进行配置。")
+
     params = {
         "keyword": keyword,
         "source": "小红书爆款标题创作-GitHub"
@@ -168,12 +43,13 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
     # 添加开始日期参数
     if start_date:
         params["startDate"] = start_date
+
     headers = {
+        "Content-Type": "application/json",
+        "X-API-KEY": api_key,
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
         "Accept-Language": "zh-CN,zh;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Connection": "close",
     }
 
     last_error = None
@@ -182,16 +58,15 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
             if debug:
                 print(f"\n=== DEBUG: 第 {attempt + 1} 次尝试 ===", file=sys.stderr)
 
-            status_code, body = fetch_via_no_sni(base_url, params, headers)
+            response = requests.get(url, params=params, headers=headers, timeout=30)
 
             if debug:
-                print(f"状态码: {status_code}", file=sys.stderr)
-                print(f"响应长度: {len(body)} 字节", file=sys.stderr)
+                print(f"状态码: {response.status_code}", file=sys.stderr)
 
-            if status_code >= 400:
-                raise Exception(f"HTTP请求失败: 状态码 {status_code}")
+            if response.status_code >= 400:
+                raise Exception(f"HTTP请求失败: 状态码 {response.status_code}, {response.text[:200]}")
 
-            data = json.loads(body)
+            data = response.json()
 
             if "data" not in data:
                 error_msg = data.get("msg", "未知错误")
@@ -211,6 +86,14 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
                 "weekly_increment": result_data.get("sevenDaysOfIncrements", [])
             }
 
+        except requests.exceptions.RequestException as e:
+            last_error = f"请求失败: {str(e)}"
+            if debug:
+                print(f"  错误: {type(e).__name__}: {str(e)[:100]}", file=sys.stderr)
+            import time
+            if attempt < max_retries - 1:
+                time.sleep(2 ** attempt)
+            continue
         except Exception as e:
             last_error = str(e)
             if debug:
@@ -258,7 +141,7 @@ def format_output(data: dict, max_items: int = None, start_date: str = None):
         max_items: 每类爆款数据最多展示数量，None 表示展示所有数据
         start_date: 开始日期，格式 yyyy-MM-dd，用于计算统计时间范围
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     # 计算统计时间范围
     def get_time_range(start_date):
@@ -311,7 +194,6 @@ def format_output(data: dict, max_items: int = None, start_date: str = None):
         """格式化发布时间为 X月X日"""
         pub_time = item.get('publicTime', '')
         if pub_time:
-            # publicTime 格式: "2026-03-06 13:03:56"
             try:
                 month = int(pub_time[5:7])
                 day = int(pub_time[8:10])
@@ -413,7 +295,6 @@ def format_output(data: dict, max_items: int = None, start_date: str = None):
         output.append("|------|----------|------|------|------|------|------|------|-------------|")
 
         for idx, item in enumerate(items, 1):
-            user_id = item.get('userId', '')
             user_id = item.get('userId', '')
             user_name = item.get('userName', '未知')
             fans = item.get('fans', 0)

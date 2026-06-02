@@ -396,13 +396,54 @@ body {
 .article-card:nth-child(9)  { animation-delay: 0.24s; }
 .article-card:nth-child(10) { animation-delay: 0.27s; }
 .article-card:nth-child(n+11) { animation-delay: 0.30s; }
+
+/* ── Layered Banner ── */
+.layered-banner {
+    display: none; max-width: 900px; margin: 0 auto 1rem; padding: 0.7rem 1.2rem;
+    border-radius: var(--radius-sm); font-size: 0.82rem; text-align: center;
+}
+.layered-banner.warning {
+    display: block; background: rgba(243,156,18,0.08); border: 1px solid rgba(243,156,18,0.2);
+    color: var(--warning);
+}
+.layered-banner.info {
+    display: block; background: rgba(52,152,219,0.08); border: 1px solid rgba(52,152,219,0.2);
+    color: #5DADE2;
+}
+
+/* ── Enhanced Empty State ── */
+.empty-guidance {
+    display: none; max-width: 500px; margin: 2rem auto; text-align: center; padding: 2rem;
+}
+.empty-guidance .guidance-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.empty-guidance .guidance-title { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.8rem; }
+.empty-guidance .guidance-tips { list-style: none; font-size: 0.8rem; color: var(--text-muted); margin: 1rem 0; }
+.empty-guidance .guidance-tips li { margin: 0.4rem 0; }
+.empty-guidance .guidance-tips li::before { content: '\270F  '; color: var(--accent); }
+
+.suggestion-tags { margin-top: 1.5rem; }
+.suggestion-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.6rem; }
+.tag-cloud { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+.suggestion-tag {
+    padding: 0.35rem 0.9rem; border: 1px solid var(--accent-border);
+    border-radius: 20px; font-size: 0.78rem; color: var(--accent-light);
+    cursor: pointer; transition: all 0.15s; background: var(--bg-card);
+}
+.suggestion-tag:hover { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+
+.fallback-list { margin-top: 1rem; }
+.fallback-list a {
+    display: block; padding: 0.5rem 0.8rem; font-size: 0.82rem; color: var(--text-secondary);
+    text-decoration: none; border-radius: 6px; transition: background 0.15s;
+}
+.fallback-list a:hover { background: var(--bg-card-hover); color: var(--accent); }
 </style>
 </head>
 <body>
 
 <!-- ═══════════ HEADER ═══════════ -->
 <header class="main-header">
-    <h1>公众号文章搜索</h1>
+    <h1>公众号搜索爬虫</h1>
     <p class="subtitle">{{DATE}} | 输入关键词实时搜索微信公众号文章</p>
 </header>
 
@@ -429,7 +470,7 @@ body {
             type="text"
             class="search-input"
             id="searchInput"
-            placeholder="输入关键词搜索公众号文章..."
+            placeholder="输入关键词搜索公众号文章（不超过 10 个字）..."
             value="{{KEYWORD}}"
             autofocus
         >
@@ -451,6 +492,24 @@ body {
 
     <div class="status-message empty" id="emptyMsg" style="display:none;">
         暂无搜索结果，请尝试其他关键词
+    </div>
+
+    <!-- 分层提示横幅 -->
+    <div class="layered-banner" id="layeredBanner"></div>
+    <!-- 零结果增强引导 -->
+    <div class="empty-guidance" id="emptyGuidance">
+        <div class="guidance-icon">&#128269;</div>
+        <div class="guidance-title" id="guidanceTitle">抱歉，未找到相关结果</div>
+        <ul class="guidance-tips">
+            <li>尝试更短或更宽泛的关键词</li>
+            <li>使用英文关键词重试</li>
+            <li>浏览下方的热门话题</li>
+        </ul>
+        <div class="suggestion-tags" id="suggestionTags">
+            <div class="suggestion-label">&#128293; 热门话题参考</div>
+            <div class="tag-cloud" id="tagCloud"></div>
+        </div>
+        <div class="fallback-list" id="fallbackList"></div>
     </div>
 
     <div class="load-more-bar" id="loadMoreBar" style="display:none;">
@@ -512,6 +571,49 @@ function getAvatarChar(title) {
     // 取第一个非标点非空格的中文或英文字符
     const cleaned = title.replace(/[^\w\u4e00-\u9fff]/g, '').trim();
     return cleaned.charAt(0) || '文';
+}
+
+// ─── 三因子评分 ─────────────────────────────────────────────────────────────
+function scoreRelevance(keyword, article) {
+    const kw = (keyword || '').toLowerCase().trim();
+    const title = (article.title || '').toLowerCase();
+    const summary = (article.summary || '').toLowerCase();
+    if (!kw) return 5;
+    if (kw === title) return 10;
+    if (title.startsWith(kw)) return 9;
+    if (title.includes(kw)) return 8;
+    const words = kw.split(/\s+/).filter(w => w.length >= 2);
+    const titleHits = words.filter(w => title.includes(w)).length;
+    if (titleHits >= Math.ceil(words.length * 0.5) && words.length >= 2) return 6;
+    if (summary && summary.slice(0, Math.floor(summary.length/3)).includes(kw)) return 5;
+    if (summary && summary.includes(kw)) return 4;
+    if (titleHits > 0) return 3;
+    if (summary && words.some(w => summary.includes(w))) return 2;
+    return 1;
+}
+function scoreHeat(article) {
+    const r = article.readCount || article.clicksCount || 0;
+    if (r >= 100000) return 3;
+    if (r >= 50000) return 2.5;
+    if (r >= 10000) return 2;
+    if (r >= 5000) return 1.5;
+    if (r >= 1000) return 1;
+    return 0.5;
+}
+function scoreFreshness(article) {
+    try {
+        const pt = (article.publishTime || article.publicTime || '').slice(0,10);
+        if (!pt) return 0;
+        const days = (Date.now() - new Date(pt).getTime()) / 86400000;
+        if (days <= 7) return 2;
+        if (days <= 15) return 1.5;
+        if (days <= 30) return 1;
+        if (days <= 60) return 0.5;
+        return 0;
+    } catch(e) { return 0; }
+}
+function calculateScore(kw, article) {
+    return scoreRelevance(kw, article) + scoreHeat(article) + scoreFreshness(article);
 }
 
 // ─── 渲染文章列表 ─────────────────────────────────────────────────────────────
@@ -620,6 +722,52 @@ function showError(msg) {
     loadMoreBtn.disabled = false;
 }
 
+// ─── 分层 UI ─────────────────────────────────────────────────────────────────
+function showLayeredBanner(count, keyword) {
+    const banner = document.getElementById('layeredBanner');
+    const guidance = document.getElementById('emptyGuidance');
+    guidance.style.display = 'none';
+    if (count >= 10) { banner.style.display = 'none'; return; }
+    banner.style.display = 'block';
+    if (count <= 2) {
+        banner.className = 'layered-banner info';
+        banner.textContent = '💡 相关结果较少（仅 ' + count + ' 条），建议尝试更短或更宽泛的关键词';
+    } else {
+        banner.className = 'layered-banner warning';
+        banner.textContent = '仅找到 ' + count + ' 条结果，以下为您展示全部';
+    }
+}
+
+function showEnhancedEmpty(keyword, fallbackArticles) {
+    document.getElementById('resultsGrid').innerHTML = '';
+    document.getElementById('statusMsg').style.display = 'none';
+    document.getElementById('loadMoreBar').style.display = 'none';
+    document.getElementById('layeredBanner').style.display = 'none';
+    const guidance = document.getElementById('emptyGuidance');
+    guidance.style.display = 'block';
+    document.getElementById('guidanceTitle').textContent = '抱歉，未找到与「' + keyword + '」直接相关的内容';
+    // suggestion tags
+    const defaultTags = ['AI', 'DeepSeek', '大模型', 'Claude', 'ChatGPT', '科技', '创业', '副业'];
+    const tc = document.getElementById('tagCloud');
+    tc.innerHTML = defaultTags.map(t => '<span class="suggestion-tag" onclick="quickSearch(\'' + t + '\')">' + t + '</span>').join('');
+    // fallback list
+    const fl = document.getElementById('fallbackList');
+    if (fallbackArticles && fallbackArticles.length) {
+        fl.innerHTML = '<div class="suggestion-label" style="margin-top:1rem">📄 热门文章推荐</div>' +
+            fallbackArticles.slice(0, 5).map(function(a) {
+                return '<a href="' + (a.workUrl || a.url || '#') + '" target="_blank">' +
+                    escapeHTML(a.title || '无标题') + ' — ' + (a.author || '') + '</a>';
+            }).join('');
+    } else {
+        fl.innerHTML = '';
+    }
+}
+
+function quickSearch(kw) {
+    document.getElementById('searchInput').value = kw;
+    doSearch();
+}
+
 // ─── 搜索 ─────────────────────────────────────────────────────────────────────
 function doSearch() {
     const kw = searchInput.value.trim();
@@ -636,21 +784,36 @@ function doSearch() {
     accumulatedArticles = [];
 
     resultsGrid.innerHTML = '';
+    document.getElementById('layeredBanner').style.display = 'none';
+    document.getElementById('emptyGuidance').style.display = 'none';
     setLoading(true);
     updateUI();
 
     fetchArticles(kw, 0, false)
         .then(articles => {
             if (!articles || articles.length === 0) {
-                showEmpty();
+                // 尝试兜底搜索
+                fetchArticles(kw.slice(0,2) || 'AI', 0, false).then(function(fallback) {
+                    showEnhancedEmpty(kw, fallback || []);
+                }).catch(function() {
+                    showEnhancedEmpty(kw, []);
+                });
+                setLoading(false);
                 return;
             }
+            // 客户端评分排序（相关性优先、同分按阅读量降序）
+            articles.sort(function(a, b) {
+                var sd = calculateScore(kw, b) - calculateScore(kw, a);
+                if (sd !== 0) return sd;
+                return (b.readCount || b.clicksCount || 0) - (a.readCount || a.clicksCount || 0);
+            });
             accumulatedArticles = articles;
             currentOffset = articles.length;
             renderArticles(articles, false);
             setLoading(false);
             updateUI();
-            searchInfo.textContent = `关键词 "${kw}" · 已加载 ${articles.length} 条结果`;
+            showLayeredBanner(articles.length, kw);
+            searchInfo.textContent = '关键词 "' + kw + '" · 已加载 ' + articles.length + ' 条 (按综合评分排序)';
         })
         .catch(err => {
             showError('搜索失败: ' + err.message);
@@ -674,7 +837,7 @@ function loadMore() {
             renderArticles(articles, true);
             setLoading(false);
             updateUI();
-            searchInfo.textContent = `关键词 "${currentKeyword}" · 已加载 ${accumulatedArticles.length} 条结果`;
+            searchInfo.textContent = `关键词 "${currentKeyword}" · 已加载 ${accumulatedArticles.length} 条 (按综合评分排序)`;
         })
         .catch(err => {
             showError('加载失败: ' + err.message);
@@ -712,7 +875,7 @@ function init() {
         totalCount = INITIAL_DATA.length;
         renderArticles(INITIAL_DATA, false);
         updateUI();
-        searchInfo.textContent = `初始结果 · 共 ${INITIAL_DATA.length} 条 | 输入新关键词自动搜索`;
+        searchInfo.textContent = `初始结果 · 共 ${INITIAL_DATA.length} 条 (按综合评分排序) | 输入新关键词自动搜索`;
         // 初始数据加载后，hasMore 取决于 API 返回，此处设为可能有更多
         statusMsg.style.display = 'none';
     } else {

@@ -1,151 +1,19 @@
 #!/usr/bin/env python3
 """
-小红书热门数据查询脚本（最终版 - 禁用 SNI + 支持 chunked + gzip）
+小红书热门数据查询脚本
+从环境变量 REDFOX_API_KEY 获取凭证，请求头新增 X-API-KEY
 """
 
+import os
 import sys
 import argparse
 import json
-import socket
-import ssl
-import gzip
-
-
-def decode_chunked(data):
-    """解码 chunked 传输编码"""
-    chunks = []
-    idx = 0
-
-    while idx < len(data):
-        # 读取 chunk 大小
-        line_end = data.find(b'\r\n', idx)
-        if line_end == -1:
-            break
-
-        chunk_size_line = data[idx:line_end]
-        try:
-            chunk_size = int(chunk_size_line, 16)
-        except:
-            break
-
-        if chunk_size == 0:
-            break
-
-        # 读取 chunk 数据
-        chunk_start = line_end + 2
-        chunk_end = chunk_start + chunk_size
-
-        if chunk_end > len(data):
-            break
-
-        chunk = data[chunk_start:chunk_end]
-        chunks.append(chunk)
-
-        # 移动到下一个 chunk
-        idx = chunk_end + 2  # 跳过 \r\n
-
-    return b''.join(chunks)
-
-
-def fetch_via_no_sni(base_url: str, params: dict, headers: dict, timeout: int = 60):
-    """
-    使用原生 socket 实现 HTTPS 请求（不发送 SNI）
-
-    关键：服务器在 SNI 扩展中检测到域名后主动断开连接
-    解决：不发送 SNI 扩展
-    """
-    # 解析 URL
-    if "://" in base_url:
-        base_url = base_url.split("://", 1)[1]
-    host, path = base_url.split("/", 1)
-
-    # 构建 query string
-    if params:
-        from urllib.parse import quote
-        query = "&".join(f"{quote(str(k))}={quote(str(v))}" for k, v in params.items())
-        path = f"{path}?{query}"
-
-    # 创建 TCP 连接
-    sock = socket.create_connection((host, 443), timeout=timeout)
-
-    # 创建 SSL 上下文（不使用 SNI）
-    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-    context.check_hostname = False
-    context.verify_mode = ssl.CERT_NONE
-
-    # 包装 socket（不传递 server_hostname，避免发送 SNI）
-    ssl_sock = context.wrap_socket(sock)
-
-    # 构建 HTTP 请求
-    request_lines = [
-        f"GET /{path} HTTP/1.1",
-        f"Host: {host}",
-    ]
-    for k, v in headers.items():
-        request_lines.append(f"{k}: {v}")
-    request_lines.append("")
-    request_lines.append("")
-
-    request = "\r\n".join(request_lines)
-
-    # 发送请求
-    ssl_sock.send(request.encode())
-
-    # 接收响应
-    response_data = b""
-    while True:
-        try:
-            chunk = ssl_sock.recv(8192)
-            if not chunk:
-                break
-            response_data += chunk
-        except:
-            break
-
-    ssl_sock.close()
-
-    # 解析响应头
-    response_str = response_data.decode('utf-8', errors='ignore')
-    lines = response_str.split('\r\n')
-
-    # 提取状态码
-    status_code = int(lines[0].split()[1])
-
-    # 提取响应头
-    headers_dict = {}
-    for i, line in enumerate(lines[1:]):
-        if line == '':
-            break
-        if ':' in line:
-            key, value = line.split(':', 1)
-            headers_dict[key.strip().lower()] = value.strip()
-
-    # 分离头部和正文
-    header_end = response_data.find(b'\r\n\r\n')
-    if header_end != -1:
-        body_bytes = response_data[header_end + 4:]
-    else:
-        body_bytes = b""
-
-    # 处理 chunked 编码
-    if headers_dict.get('transfer-encoding', '').lower() == 'chunked':
-        body_bytes = decode_chunked(body_bytes)
-
-    # 处理 gzip 压缩
-    if headers_dict.get('content-encoding', '').lower() == 'gzip':
-        try:
-            body_bytes = gzip.decompress(body_bytes)
-        except:
-            pass
-
-    response_body = body_bytes.decode('utf-8', errors='ignore')
-
-    return status_code, response_body
+import requests
 
 
 def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, start_date: str = None):
     """
-    调用新接口获取小红书热门数据
+    调用接口获取小红书热门数据
 
     Args:
         keyword: 搜索关键词（多个关键词用逗号分隔，最多5个，总长度不超过200）
@@ -159,21 +27,28 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
     Raises:
         Exception: 当API调用失败时抛出异常
     """
-    base_url = "https://onetotenvip.com/skill/cozeSkill/getXhsCozeSkillData"
+    # 获取凭证
+    api_key = os.getenv("REDFOX_API_KEY")
+    if not api_key:
+        raise ValueError("缺少凭证配置，请配置环境变量 REDFOX_API_KEY")
+
+    # 接口地址
+    url = "https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillData"
+
+    # 构建请求参数
     params = {
         "keyword": keyword,
         "source": "小红书笔记创作-GitHub"
     }
-
-    # 添加开始日期参数
     if start_date:
         params["startDate"] = start_date
+
+    # 构建请求头
     headers = {
+        "Content-Type": "application/json",
+        "X-API-KEY": api_key,
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "zh-CN,zh;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Connection": "close",
     }
 
     last_error = None
@@ -182,16 +57,16 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
             if debug:
                 print(f"\n=== DEBUG: 第 {attempt + 1} 次尝试 ===", file=sys.stderr)
 
-            status_code, body = fetch_via_no_sni(base_url, params, headers)
+            response = requests.get(url, params=params, headers=headers, timeout=30)
 
             if debug:
-                print(f"状态码: {status_code}", file=sys.stderr)
-                print(f"响应长度: {len(body)} 字节", file=sys.stderr)
+                print(f"状态码: {response.status_code}", file=sys.stderr)
+                print(f"响应长度: {len(response.text)} 字节", file=sys.stderr)
 
-            if status_code >= 400:
-                raise Exception(f"HTTP请求失败: 状态码 {status_code}")
+            if response.status_code >= 400:
+                raise Exception(f"HTTP请求失败: 状态码 {response.status_code}, {response.text}")
 
-            data = json.loads(body)
+            data = response.json()
 
             if "data" not in data:
                 error_msg = data.get("msg", "未知错误")
@@ -211,6 +86,14 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
                 "weekly_increment": result_data.get("sevenDaysOfIncrements", [])
             }
 
+        except requests.exceptions.RequestException as e:
+            last_error = f"请求失败: {str(e)}"
+            if debug:
+                print(f"  错误: {str(e)[:100]}", file=sys.stderr)
+            import time
+            if attempt < max_retries - 1:
+                time.sleep(2 ** attempt)
+            continue
         except Exception as e:
             last_error = str(e)
             if debug:
@@ -348,9 +231,7 @@ def format_output(data: dict, max_items: int = None):
             output.append(f"| {idx} | {title} | {author_str} | **{item.get('interactiveCount', 0)}** | {item.get('collectedCount', 0)} | {item.get('useShareCount', 0)} | {item.get('useCommentCount', 0)} | {item.get('useLikeCount', 0)} |")
 
     # 2. 当日点赞爆款
-    items = data.get("daily_like_top500", [])
-    if max_items is not None:
-        items = items[:max_items]
+    items = daily_like_items[:max_items] if max_items is not None else daily_like_items
 
     output.append(f"\n### - **当日点赞爆款**（共 {len(items)} 条）")
     output.append(f"统计时间：近30天\n")
@@ -377,9 +258,7 @@ def format_output(data: dict, max_items: int = None):
             output.append(f"| {idx} | {title} | {author_str} | **{item.get('useLikeCount', 0)}** | {item.get('collectedCount', 0)} | {item.get('useShareCount', 0)} | {item.get('useCommentCount', 0)} |")
 
     # 3. 当日增长爆款
-    items = data.get("daily_increment", [])
-    if max_items is not None:
-        items = items[:max_items]
+    items = daily_increment_items[:max_items] if max_items is not None else daily_increment_items
 
     output.append(f"\n### - **当日增长爆款**（共 {len(items)} 条）")
     output.append(f"统计时间：近30天\n")
@@ -403,27 +282,13 @@ def format_output(data: dict, max_items: int = None):
 
             title = process_title(item)
 
-            # 从 anaAdd 对象获取新增互动数据
             ana_add = item.get('anaAdd', {})
-            if ana_add:
-                total = ana_add.get('addInteractiveount', 0)
-                collected = ana_add.get('addCollectedCunt', 0)
-                share = ana_add.get('addShareCount', 0)
-                comment = ana_add.get('addCommentCount', 0)
-                like = ana_add.get('addLikeCount', 0)
-            else:
-                total = 0
-                collected = 0
-                share = 0
-                comment = 0
-                like = 0
+            add_interactive = ana_add.get('addInteractiveount', 0)
 
-            output.append(f"| {idx} | {title} | {author_str} | {collected} | {share} | {comment} | {like} | **{total}** |")
+            output.append(f"| {idx} | {title} | {author_str} | {ana_add.get('collectedCount', 0)} | {ana_add.get('addShareCount', 0)} | {ana_add.get('addCommentCount', 0)} | {ana_add.get('addLikeCount', 0)} | **{add_interactive}** |")
 
     # 4. 持续增长爆款
-    items = data.get("weekly_increment", [])
-    if max_items is not None:
-        items = items[:max_items]
+    items = weekly_increment_items[:max_items] if max_items is not None else weekly_increment_items
 
     output.append(f"\n### - **持续增长爆款**（共 {len(items)} 条）")
     output.append(f"统计时间：近30天\n")
@@ -447,56 +312,39 @@ def format_output(data: dict, max_items: int = None):
 
             title = process_title(item)
 
-            # 从 anaAdd 对象获取新增互动数据
             ana_add = item.get('anaAdd', {})
-            if ana_add:
-                total = ana_add.get('addInteractiveount', 0)
-                collected = ana_add.get('addCollectedCunt', 0)
-                share = ana_add.get('addShareCount', 0)
-                comment = ana_add.get('addCommentCount', 0)
-                like = ana_add.get('addLikeCount', 0)
-            else:
-                total = 0
-                collected = 0
-                share = 0
-                comment = 0
-                like = 0
+            add_interactive = ana_add.get('addInteractiveount', 0)
 
-            output.append(f"| {idx} | {title} | {author_str} | {collected} | {share} | {comment} | {like} | **{total}** |")
+            output.append(f"| {idx} | {title} | {author_str} | {ana_add.get('collectedCount', 0)} | {ana_add.get('addShareCount', 0)} | {ana_add.get('addCommentCount', 0)} | {ana_add.get('addLikeCount', 0)} | **{add_interactive}** |")
 
     return "\n".join(output)
 
 
 def main():
-    """主函数"""
-    parser = argparse.ArgumentParser(description='小红书热门数据查询工具')
-    parser.add_argument('--keyword', required=True, help='搜索关键词')
-    parser.add_argument('--max-items', type=int, default=10,
-                       help='每类爆款内容最多展示数量（默认10条）')
-    parser.add_argument('--output-format', choices=['text', 'json', 'markdown'],
-                       default='markdown', help='输出格式：text（文本表格）、json（JSON格式）或 markdown（Markdown格式，默认）')
-    parser.add_argument('--start-date', type=str, default=None,
-                       help='开始日期，格式 yyyy-MM-dd（默认最近30天）')
-    parser.add_argument('--debug', action='store_true', help='启用调试模式')
-    parser.add_argument('--max-retries', type=int, default=3,
-                       help='最大重试次数（默认3次）')
+    parser = argparse.ArgumentParser(description="获取小红书热门数据")
+    parser.add_argument("--keyword", required=True, help="搜索关键词")
+    parser.add_argument("--start-date", help="开始日期，格式 yyyy-MM-dd")
+    parser.add_argument("--max-items", type=int, default=50, help="每类内容最多展示数量")
+    parser.add_argument("--output-format", choices=["text", "json", "markdown"], default="markdown", help="输出格式")
+    parser.add_argument("--debug", action="store_true", help="调试模式")
 
     args = parser.parse_args()
 
     try:
-        data = fetch_xhs_trends(args.keyword, debug=args.debug, max_retries=args.max_retries, start_date=args.start_date)
+        data = fetch_xhs_trends(
+            keyword=args.keyword,
+            debug=args.debug,
+            start_date=args.start_date
+        )
 
-        # 生成输出内容
-        if args.output_format == 'json':
-            output_content = json.dumps(data, ensure_ascii=False, indent=2)
+        if args.output_format == "json":
+            print(json.dumps(data, ensure_ascii=False, indent=2))
         else:
-            output_content = format_output(data, max_items=args.max_items)
-
-        # 直接输出到控制台
-        print(output_content)
+            output = format_output(data, max_items=args.max_items)
+            print(output)
 
     except Exception as e:
-        print(f"❌ 错误: {str(e)}", file=sys.stderr)
+        print(f"错误: {str(e)}", file=sys.stderr)
         sys.exit(1)
 
 

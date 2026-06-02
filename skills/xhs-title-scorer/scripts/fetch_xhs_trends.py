@@ -1,39 +1,18 @@
 #!/usr/bin/env python3
 """
-小红书热门数据查询脚本（标准 HTTPS 安全版）
+小红书热门数据查询脚本
 """
 
+import os
 import sys
 import argparse
 import json
-from urllib.parse import urlparse
-
 import requests
-
-
-ALLOWED_API_HOSTS = {
-    "onetotenvip.com",
-}
-
-
-def fetch_secure_https(base_url: str, params: dict, headers: dict, timeout: int = 60):
-    """使用 requests 发起标准 HTTPS 请求（启用证书与主机名校验）"""
-    parsed = urlparse(base_url)
-    if parsed.scheme != "https":
-        raise ValueError("仅允许 HTTPS 接口")
-
-    host = parsed.hostname or ""
-    if host not in ALLOWED_API_HOSTS:
-        raise ValueError(f"不允许的接口域名: {host}")
-
-    response = requests.get(base_url, params=params, headers=headers, timeout=timeout)
-    response.raise_for_status()
-    return response.status_code, response.text
 
 
 def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, start_date: str = None):
     """
-    调用新接口获取小红书热门数据
+    调用接口获取小红书热门数据
 
     Args:
         keyword: 搜索关键词（多个关键词用逗号分隔，最多5个，总长度不超过200）
@@ -47,7 +26,11 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
     Raises:
         Exception: 当API调用失败时抛出异常
     """
-    base_url = "https://onetotenvip.com/skill/cozeSkill/getXhsCozeSkillData"
+    credential = os.getenv("REDFOX_API_KEY")
+    if not credential:
+        raise ValueError("缺少凭证配置，请检查环境变量 REDFOX_API_KEY")
+
+    base_url = "https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillData"
     params = {
         "keyword": keyword,
         "source": "小红书爆款标题创作-GitHub"
@@ -56,12 +39,12 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
     # 添加开始日期参数
     if start_date:
         params["startDate"] = start_date
+
     headers = {
+        "X-API-KEY": credential,
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
         "Accept-Language": "zh-CN,zh;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Connection": "close",
     }
 
     last_error = None
@@ -70,16 +53,16 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
             if debug:
                 print(f"\n=== DEBUG: 第 {attempt + 1} 次尝试 ===", file=sys.stderr)
 
-            status_code, body = fetch_secure_https(base_url, params, headers)
+            response = requests.get(base_url, params=params, headers=headers, timeout=60)
 
             if debug:
-                print(f"状态码: {status_code}", file=sys.stderr)
-                print(f"响应长度: {len(body)} 字节", file=sys.stderr)
+                print(f"状态码: {response.status_code}", file=sys.stderr)
+                print(f"响应长度: {len(response.text)} 字节", file=sys.stderr)
 
-            if status_code >= 400:
-                raise Exception(f"HTTP请求失败: 状态码 {status_code}")
+            if response.status_code >= 400:
+                raise Exception(f"HTTP请求失败: 状态码 {response.status_code}, {response.text[:200]}")
 
-            data = json.loads(body)
+            data = response.json()
 
             if "data" not in data:
                 error_msg = data.get("msg", "未知错误")
@@ -99,6 +82,14 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
                 "weekly_increment": result_data.get("sevenDaysOfIncrements", [])
             }
 
+        except requests.exceptions.RequestException as e:
+            last_error = f"请求失败: {str(e)}"
+            if debug:
+                print(f"  错误: {type(e).__name__}: {str(e)[:100]}", file=sys.stderr)
+            import time
+            if attempt < max_retries - 1:
+                time.sleep(2 ** attempt)
+            continue
         except Exception as e:
             last_error = str(e)
             if debug:
@@ -302,7 +293,6 @@ def format_output(data: dict, max_items: int = None, start_date: str = None):
 
         for idx, item in enumerate(items, 1):
             user_id = item.get('userId', '')
-            user_id = item.get('userId', '')
             user_name = item.get('userName', '未知')
             fans = item.get('fans', 0)
 
@@ -352,13 +342,6 @@ def format_output(data: dict, max_items: int = None, start_date: str = None):
 
             title = process_title(item)
             pub_time = format_time(item)
-
-            # 封面图
-            cover_url = item.get('coverUrl', '')
-            if cover_url:
-                cover_str = f"[查看封面]({cover_url})"
-            else:
-                cover_str = "--"
 
             # 标题添加作品链接
             photo_id = item.get('photoId', '')

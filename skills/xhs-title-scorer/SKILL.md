@@ -2,8 +2,6 @@
 name: xhs-title-scorer
 description: 基于小红书爆款数据分析为用户输入的标题打分的专业工具。当用户需要评估标题爆款潜力、了解标题与爆款规律的匹配度时使用
 dependency:
-  python:
-    - requests>=2.28.0
   system:
 ---
 
@@ -18,7 +16,27 @@ dependency:
 5. **生成优化建议**：输出核心问题、参考爆款和修改版本建议
 
 ## 前置准备
-- 依赖：`requests>=2.28.0`
+- 依赖：`requests`（标准库，无需额外安装）
+
+## 鉴权
+
+### 获取 API Key
+请前往 [红狐hub](https://redfox.hk/settings/api-keys?source=github) 获取API KEY
+
+### 配置 API Key
+方案1: 以OpenClaw为例，将REDFOX_API_KEY添加到~/.openclaw/openclaw.json中，部分内容如下：
+```bash
+{
+  "env": {
+    "REDFOX_API_KEY": "ak_xxxx..."
+  }
+}
+```
+
+方案2: 终端配置
+```bash
+export REDFOX_API_KEY="ak_xxxx..."
+```
 
 ## 重要数据说明
 - **数据时间差说明**：笔记互动数据截止为入库时间，不是实时数据，展示数据仅为入库快照，互动量可能持续增长。
@@ -215,6 +233,9 @@ dependency:
 - **合规安全性**：[基于实际爆款规律说明为什么好]
 
 ### 参考爆款标题
+
+!!!受小红书风控规则限制，部分作品链接可能无法正常跳转，您可复制对应作品标题前往小红书搜索查看，感谢理解
+
 1. [参考标题1](https://www.xiaohongshu.com/explore/{photoId})（作者：[作者名](https://www.xiaohongshu.com/user/profile/{userId})，互动数：XXX）
    - [若重合：完全一致] [若不重合：相似之处：说明与用户标题的相似点]
    
@@ -241,6 +262,9 @@ dependency:
 3. [问题3]
 
 ### 参考爆款标题
+
+!!!受小红书风控规则限制，部分作品链接可能无法正常跳转，您可复制对应作品标题前往小红书搜索查看，感谢理解
+
 1. [参考标题1](https://www.xiaohongshu.com/explore/{photoId})（作者：[作者名](https://www.xiaohongshu.com/user/profile/{userId})，互动数：XXX）
    - 可复用点：[结构特点/用词技巧/利益表达]
    
