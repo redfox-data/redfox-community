@@ -7,7 +7,7 @@ wechat-article-style/scripts/rewrite.py
 用途：上报改写记录接口
 
 记录接口：https://redfox.hk/story/api/skill/record/save
-网络实现：原生 socket + ssl，不传 server_hostname（即不发送 SNI）
+网络实现：使用 requests 库，开启 SSL 证书验证
 
 用法：
   python rewrite.py prompt                  # 输出公众号改写规则 prompt
@@ -17,10 +17,14 @@ wechat-article-style/scripts/rewrite.py
 import sys
 import os
 import re
-import socket
-import ssl
 import json
 from typing import Dict, Any
+
+try:
+    import requests
+except ImportError:
+    print('❌ 缺少 requests 依赖，请执行: pip install requests', file=sys.stderr)
+    sys.exit(1)
 
 # ── 路径 ──────────────────────────────────────────────────────────────────────
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,9 +34,8 @@ RULES_FILE = os.path.join(SCRIPT_DIR, '..', 'assets', 'platform-rules.md')
 PLATFORM = '公众号'
 
 # ── 记录接口配置 ───────────────────────────────────────────────────────────────
-RECORD_HOST = 'redfox.hk'
-RECORD_PORT = 443
-RECORD_PATH = '/story/api/skill/record/save'
+RECORD_URL = 'https://redfox.hk/story/api/skill/record/save'
+REQUEST_TIMEOUT = 10
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -57,7 +60,7 @@ def extract_platform_rules() -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 记录接口：原生 socket + ssl，不传 server_hostname（不发送 SNI）
+# 记录接口：使用 requests 库，开启 SSL 证书验证
 # ─────────────────────────────────────────────────────────────────────────────
 
 def report_rewrite(content: str) -> Dict[str, Any]:
@@ -65,76 +68,37 @@ def report_rewrite(content: str) -> Dict[str, Any]:
     向记录接口发送 POST 请求。
 
     技术要点：
-      - 使用原生 socket 连接 443 端口
-      - ssl.SSLContext.wrap_socket 不传 server_hostname
-        → TLS ClientHello 中不包含 SNI 扩展
-      - 纯手工构造 HTTP/1.1 请求报文，不依赖 urllib/requests
+      - 使用 requests 库发送 POST 请求
+      - verify=True（默认），开启 SSL 证书验证
+      - 超时 10 秒
     """
-    payload = json.dumps(
-        {'source': '公众号文案改写-GitHub'},
-        ensure_ascii=False
-    ).encode('utf-8')
-
-    request_head = (
-        f'POST {RECORD_PATH} HTTP/1.1\r\n'
-        f'Host: {RECORD_HOST}\r\n'
-        'Content-Type: application/json; charset=utf-8\r\n'
-        f'Content-Length: {len(payload)}\r\n'
-        'Connection: close\r\n'
-        'User-Agent: wechat-article-style/1.0\r\n'
-        '\r\n'
-    ).encode('utf-8')
-
-    raw_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    raw_sock.settimeout(10)
-
-    try:
-        raw_sock.connect((RECORD_HOST, RECORD_PORT))
-    except OSError as e:
-        return {'ok': False, 'error': f'TCP connect failed: {e}'}
-
-    # ── SSL 握手：不传 server_hostname → 不发送 SNI ──────────────────────
-    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    ctx.check_hostname = False
-    ctx.verify_mode    = ssl.CERT_NONE
-
-    try:
-        ssl_sock = ctx.wrap_socket(raw_sock)   # 故意不传 server_hostname
-    except ssl.SSLError as e:
-        raw_sock.close()
-        return {'ok': False, 'error': f'SSL handshake failed: {e}'}
-
-    try:
-        ssl_sock.sendall(request_head + payload)
-    except OSError as e:
-        ssl_sock.close()
-        return {'ok': False, 'error': f'Send failed: {e}'}
-
-    response_bytes = b''
-    try:
-        while True:
-            chunk = ssl_sock.recv(4096)
-            if not chunk:
-                break
-            response_bytes += chunk
-    except OSError:
-        pass
-    finally:
-        ssl_sock.close()
-
-    try:
-        head = response_bytes.split(b'\r\n\r\n', 1)[0]
-        status_line = head.split(b'\r\n')[0].decode('utf-8', errors='replace')
-        status_code = int(status_line.split(' ')[1])
-    except Exception:
-        status_code = -1
-        status_line = response_bytes[:80].decode('utf-8', errors='replace')
-
-    return {
-        'ok':          200 <= status_code < 300,
-        'status_code': status_code,
-        'status_line': status_line,
+    payload = {'source': '公众号文案改写-GitHub'}
+    headers = {
+        'Content-Type': 'application/json; charset=utf-8',
+        'User-Agent': 'wechat-article-style/1.0',
     }
+
+    try:
+        resp = requests.post(
+            RECORD_URL,
+            json=payload,
+            headers=headers,
+            timeout=REQUEST_TIMEOUT,
+            verify=True,
+        )
+        return {
+            'ok': resp.ok,
+            'status_code': resp.status_code,
+            'status_line': f'HTTP {resp.status_code} {resp.reason}',
+        }
+    except requests.exceptions.SSLError as e:
+        return {'ok': False, 'error': f'SSL certificate verification failed: {e}'}
+    except requests.exceptions.ConnectionError as e:
+        return {'ok': False, 'error': f'Connection failed: {e}'}
+    except requests.exceptions.Timeout as e:
+        return {'ok': False, 'error': f'Request timeout: {e}'}
+    except requests.exceptions.RequestException as e:
+        return {'ok': False, 'error': f'Request failed: {e}'}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -156,7 +120,7 @@ def cmd_prompt() -> None:
 
 def cmd_report(content: str) -> None:
     """上报改写记录。"""
-    print(f'\n📡 上报改写记录（不发送 SNI）…')
+    print(f'\n📡 上报改写记录…')
     result = report_rewrite(content)
     if result.get('ok'):
         print(f'✅ 上报成功（HTTP {result.get("status_code")}）')
@@ -176,7 +140,7 @@ def print_help() -> None:
   python rewrite.py "<文案内容>"              # 上报改写记录
 
 注意：
-  记录接口使用原生 socket + ssl，不传 server_hostname（不发送 SNI 扩展）。
+  记录接口使用 requests 库，开启 SSL 证书验证。
 """)
 
 
