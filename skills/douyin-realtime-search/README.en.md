@@ -25,7 +25,7 @@ Enter any keyword to instantly retrieve the latest content data from Douyin — 
 
 - **Keyword real-time search**: Enter a niche keyword and instantly pull the live content list from Douyin
 - **Multi-dimensional filtering**: Combine sorting method and time range freely for precise results
-- **Table display**: Shows up to 20 results by default; reply "Show all" to load the rest
+- **Full results display**: All search results are shown at once, no pagination needed
 - **Filter transparency**: After each result, shows the active sorting and time parameters with switch instructions
 - **Daily subscription**: Subscribe to a keyword for automatic daily pushes at 10:00 AM
 

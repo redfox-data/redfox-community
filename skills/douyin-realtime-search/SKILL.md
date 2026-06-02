@@ -95,7 +95,7 @@ python3 ~/.agents/skills/douyin-realtime-search/scripts/search_douyin_realtime.p
 
 > 📊 关键词「**XXX**」实时查询到 **N 条**作品（排序：{sort_type_label} | 时间范围：{publish_time_label}），以下是详细数据：
 
-**A2. 渲染 Markdown 表格（默认前 20 条）**
+**A2. 渲染 Markdown 表格（全部展示）**
 
 ```markdown
 | #   | 作品标题             | 作者   | 点赞数 | 评论数 | 分享数 | 收藏数 |
@@ -109,23 +109,7 @@ python3 ~/.agents/skills/douyin-realtime-search/scripts/search_douyin_realtime.p
 
 **标题规则：** `[标题](work_url)`；超过 30 字截断并加 `...`
 
-**A3. 若总条数 > 20，表格下方追加（不等待，立刻继续输出 A4）：**
-
-> 以上展示了前 20 条数据，还剩 **N 条**未展示。需要查看全部数据吗？回复「查看全部」即可。
-
-用户回复「查看全部」时：从第 21 条起续接展示，编号连续递增。
-
-**A4. 仅在 articles 总条数 ≤ 10 时执行：展示 `latestHotArticles`（非空时，最多 10 条）**
-
-> 🔥 **近期热门推荐作品**（格式同 A2 表格）
-
-**A5. 仅在 articles 总条数 ≤ 10 时执行：展示 `hotTopics`（非空时）**
-
-> 🏷️ **热门话题**
-> - #话题1
-> - #话题2
-
-**A6. 筛选能力提示（紧接在 A5 之后，每次必须输出）**
+**A3. 筛选能力提示（紧接在表格之后，每次必须输出）**
 
 > 🔧 **支持筛选，回复以下指令可切换条件重新搜索：**
 > - **排序方式**：综合排序 / 最新发布 / 最多点赞（当前：{sort_type_label}）
@@ -133,7 +117,7 @@ python3 ~/.agents/skills/douyin-realtime-search/scripts/search_douyin_realtime.p
 >
 > 示例：「按最新发布、最近30天重新搜索」
 
-**⚠️ A1~A6 必须在同一轮输出中连续完成，输出 A6 后紧跟 Step 4 订阅提示，不得中断。**
+**⚠️ A1~A3 必须在同一轮输出中连续完成，输出 A3 后紧跟 Step 4 订阅提示，不得中断。**
 
 #### 情况 B：articles 数量 = 0（无匹配结果）
 
@@ -143,15 +127,9 @@ python3 ~/.agents/skills/douyin-realtime-search/scripts/search_douyin_realtime.p
 
 AI 必须生成**固定 10 个**扩展词，2~6 字，英文逗号分隔，不得少于 10 个。
 
-**B2. 展示 `latestHotArticles`（非空时）**
+**B2. 筛选能力提示（紧接在 B1 之后，每次必须输出，格式同 A3）**
 
-> 💡 为您推荐近期其他热门作品供参考：（表格格式同 A2）
-
-**B3. 展示 `hotTopics`（非空时），格式同 A5**
-
-**B4. 筛选能力提示（紧接在 B3 之后，每次必须输出，格式同 A6）**
-
-**⚠️ B1~B4 必须在同一轮输出中连续完成，输出 B4 后紧跟 Step 4 订阅提示，不得中断。**
+**⚠️ B1~B2 必须在同一轮输出中连续完成，输出 B2 后紧跟 Step 4 订阅提示，不得中断。**
 
 ### Step 4：提示订阅
 
