@@ -107,7 +107,7 @@ DATA_CACHE_FILE = os.path.join(os.path.expanduser("~"), ".workbuddy", "cache", "
 BILL_NOTE_TEMPLATES = {
     "day": "💡 榜单说明：抖音日榜每日18:00更新前一日数据，本次排名数据的获取时间为{fetch_date}，与实时数据存在差异。",
     "week": "💡 榜单说明：抖音周榜每周一18:00更新前一周数据，本次排名数据的获取时间为{fetch_date}，与实时数据存在差异。",
-    "month": "💡 榜单说明：抖音月榜每月1号18:00更新上一月数据，本次排名数据的获取时间为{fetch_date}，与实时数据存在差异。",
+    "month": "💡 榜单说明：抖音月榜每月3号18:00更新上一月数据，本次排名数据的获取时间为{fetch_date}，与实时数据存在差异。",
 }
 
 # 日期查询范围限制
@@ -448,8 +448,32 @@ def format_ranking_table(data_list, top_n=50, start=1):
     return "\n".join([header, separator] + rows)
 
 
-def format_analysis(data_list, rank_type="day", top_n=3):
-    """格式化涨粉推荐分析
+def _safe_float(val, default=0.0):
+    """安全转换为float"""
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return default
+
+
+def _median(values):
+    """计算中位数"""
+    if not values:
+        return 0.0
+    sorted_vals = sorted(values)
+    n = len(sorted_vals)
+    mid = n // 2
+    if n % 2 == 0:
+        return (sorted_vals[mid - 1] + sorted_vals[mid]) / 2
+    return sorted_vals[mid]
+
+
+def format_analysis(data_list, rank_type="day", top_n=50):
+    """格式化涨粉推荐分析（3维度结构化输出）
+
+    维度一：涨粉态势概览（全量数据统计）
+    维度二：增长模式分析（分层对比洞察）
+    维度三：运营洞察建议（可执行决策参考）
 
     Args:
         data_list: API返回的data数组
@@ -465,31 +489,151 @@ def format_analysis(data_list, rank_type="day", top_n=3):
     if not items:
         return "暂无数据可供分析。"
 
-    lines = [f"**{rank_label}涨粉推荐分析**\n"]
+    lines = [f"### 抖音涨粉账号推荐{rank_label}分析\n"]
+    lines.append("以下内容分析基于获取的全部数据（TOP50）进行~\n")
 
-    for i, item in enumerate(items):
-        name = item.get("nickname", "未知")
-        follower_count = format_number(item.get("followerCount", 0))
-        fans_incr_rate = format_rate(item.get("fansIncrRate", 0))
-        add_follower = format_number(item.get("addFollowerCount", 0))
+    # ===== 维度一：涨粉态势概览 =====
+    rates = [_safe_float(item.get("fansIncrRate", 0)) for item in items]
+    increments = [_safe_float(item.get("addFollowerCount", 0)) for item in items]
 
-        lines.append(f"**第{i+1}名：{name}（涨粉率：{fans_incr_rate}）**")
-        lines.append(f"- 规模：总粉丝{follower_count}，粉丝增量{add_follower}")
-        lines.append(f"- 增长：涨粉率{fans_incr_rate}")
+    avg_rate = sum(rates) / len(rates) if rates else 0
+    median_rate = _median(rates)
+    total_increment = sum(increments)
+    top10_increment = sum(sorted(increments, reverse=True)[:min(10, len(increments))])
+    concentration = (top10_increment / total_increment * 100) if total_increment > 0 else 0
 
-        # 分析建议
-        try:
-            rate_val = float(item.get("fansIncrRate", 0))
-        except (ValueError, TypeError):
-            rate_val = 0
+    # 增量分层
+    tier_10w = sum(1 for v in increments if v >= 100000)
+    tier_5w = sum(1 for v in increments if 50000 <= v < 100000)
+    tier_1w = sum(1 for v in increments if 10000 <= v < 50000)
+    tier_below = sum(1 for v in increments if v < 10000)
 
-        if rate_val >= 0.1:
-            lines.append(f"- 建议：涨粉率超10%，处于高速增长期，可作为涨粉标杆研究")
-        elif rate_val >= 0.03:
-            lines.append(f"- 建议：涨粉率稳定，关注内容策略和发布节奏")
+    lines.append("#### 一、涨粉态势概览（全量数据统计）")
+    lines.append(f"- **平均涨粉率**：{avg_rate * 100:.1f}%")
+    lines.append(f"- **中位数涨粉率**：{median_rate * 100:.1f}%")
+    if avg_rate > median_rate * 1.5:
+        lines.append(f"  > 平均值远高于中位数，说明涨粉分化严重，少数高增长账号拉高了整体水平")
+    lines.append(f"- **增量集中度**：TOP10占比{concentration:.0f}%" + ("（头部集中度高）" if concentration > 50 else "（分布相对均衡）"))
+    lines.append(f"- **增量分层分布**：10万+ {tier_10w}个 | 5-10万 {tier_5w}个 | 1-5万 {tier_1w}个 | 1万以下 {tier_below}个")
+    lines.append("")
+
+    # ===== 维度二：增长模式分析 =====
+    # 按粉丝基数分3层
+    tier_head = [item for item in items if _safe_float(item.get("followerCount", 0)) >= 5000000]
+    tier_mid = [item for item in items if 1000000 <= _safe_float(item.get("followerCount", 0)) < 5000000]
+    tier_tail = [item for item in items if _safe_float(item.get("followerCount", 0)) < 1000000]
+
+    def _tier_stats(tier_items, tier_name):
+        if not tier_items:
+            return f"- **{tier_name}**：0个账号"
+        tier_rates = [_safe_float(it.get("fansIncrRate", 0)) for it in tier_items]
+        tier_increments = [_safe_float(it.get("addFollowerCount", 0)) for it in tier_items]
+        avg_r = sum(tier_rates) / len(tier_rates) * 100
+        avg_inc = sum(tier_increments) / len(tier_increments)
+        # 找该层涨粉率最高的账号
+        best = max(tier_items, key=lambda x: _safe_float(x.get("fansIncrRate", 0)))
+        best_name = best.get("nickname", "未知")
+        best_rate = format_rate(best.get("fansIncrRate", 0))
+        return (f"- **{tier_name}**：{len(tier_items)}个账号，平均涨粉率{avg_r:.1f}%，"
+                f"平均粉丝增量{format_number(int(avg_inc))}，涨粉率最高：{best_name}（{best_rate}）")
+
+    lines.append("#### 二、增长模式分析（分层对比洞察）")
+    lines.append("")
+    lines.append(_tier_stats(tier_head, "头部大号（≥500万）"))
+    lines.append(_tier_stats(tier_mid, "中腰部号（100-500万）"))
+    lines.append(_tier_stats(tier_tail, "尾部小号（<100万）"))
+    lines.append("")
+
+    # 判断增长模式
+    head_avg_rate = sum(_safe_float(it.get("fansIncrRate", 0)) for it in tier_head) / len(tier_head) if tier_head else 0
+    tail_avg_rate = sum(_safe_float(it.get("fansIncrRate", 0)) for it in tier_tail) / len(tier_tail) if tier_tail else 0
+
+    if tail_avg_rate > head_avg_rate * 3 and tail_avg_rate > 0.1:
+        mode = "小号爆发型"
+        mode_desc = "尾部小号涨粉率远超头部，增长主要由新锐账号驱动"
+    elif head_avg_rate >= tail_avg_rate * 0.7 and head_avg_rate > 0:
+        mode = "大号稳增型"
+        mode_desc = "头部大号保持稳定增长，粉丝基数仍是增量主力"
+    else:
+        mode = "混合增长型"
+        mode_desc = "各层级账号均有增长动力，无单一主导模式"
+    lines.append(f"- **主导增长模式**：{mode} — {mode_desc}")
+    lines.append("")
+
+    # ===== 维度三：运营洞察建议 =====
+    lines.append("#### 三、运营洞察建议（可执行决策参考）")
+    lines.append("")
+
+    # 涨粉标杆：涨粉率TOP3 且 粉丝增量TOP10
+    by_rate = sorted(items, key=lambda x: _safe_float(x.get("fansIncrRate", 0)), reverse=True)
+    top3_by_rate = by_rate[:3]
+    top10_by_increment = sorted(items, key=lambda x: _safe_float(x.get("addFollowerCount", 0)), reverse=True)[:10]
+    top10_names = {it.get("nickname") for it in top10_by_increment}
+    benchmarks = [it for it in top3_by_rate if it.get("nickname") in top10_names]
+    if not benchmarks:
+        benchmarks = top3_by_rate[:2]  # fallback
+
+    lines.append("**🎯 涨粉标杆（值得研究的账号）**")
+    for it in benchmarks:
+        name = it.get("nickname", "未知")
+        r = format_rate(it.get("fansIncrRate", 0))
+        inc = format_number(it.get("addFollowerCount", 0))
+        rate_val = _safe_float(it.get("fansIncrRate", 0))
+        fc = _safe_float(it.get("followerCount", 0))
+        if rate_val >= 0.3:
+            driver = "爆款内容/热点事件驱动"
+        elif rate_val >= 0.1:
+            driver = "内容策略优化/话题借势"
+        elif fc >= 5000000:
+            driver = "粉丝基数驱动/品牌营销"
         else:
-            lines.append(f"- 建议：涨粉率偏低，可分析其粉丝基数和内容稳定性")
-        lines.append("")
+            driver = "稳步增长"
+        lines.append(f"- {name}：涨粉率{r}，粉丝增量{inc}，增长驱动力：{driver}")
+    lines.append("")
+
+    # 潜力账号：粉丝基数<100万 且 涨粉率>10% 且 粉丝增量>3万
+    potentials = [
+        it for it in items
+        if _safe_float(it.get("followerCount", 0)) < 1000000
+        and _safe_float(it.get("fansIncrRate", 0)) > 0.1
+        and _safe_float(it.get("addFollowerCount", 0)) > 30000
+    ]
+    # 按涨粉率降序
+    potentials.sort(key=lambda x: _safe_float(x.get("fansIncrRate", 0)), reverse=True)
+
+    lines.append("**🚀 潜力账号（适合合作/投放）**")
+    if potentials:
+        for it in potentials[:5]:  # 最多展示5个
+            name = it.get("nickname", "未知")
+            fc = format_number(it.get("followerCount", 0))
+            r = format_rate(it.get("fansIncrRate", 0))
+            inc = format_number(it.get("addFollowerCount", 0))
+            lines.append(f"- {name}：总粉丝{fc}，涨粉率{r}，粉丝增量{inc}，推荐理由：高增长势头+中等粉丝基数性价比高")
+    else:
+        lines.append("- 本期无符合筛选条件的潜力账号")
+    lines.append("")
+
+    # 风险信号：涨粉率<1% 且 排名TOP30以后
+    risks = [
+        it for it in items
+        if _safe_float(it.get("fansIncrRate", 0)) < 0.01
+        and _safe_float(it.get("ranking", 0)) > 30
+    ]
+
+    lines.append("**⚠️ 风险信号（需关注异常）**")
+    if risks:
+        for it in risks[:3]:  # 最多展示3个
+            name = it.get("nickname", "未知")
+            r = format_rate(it.get("fansIncrRate", 0))
+            fc = _safe_float(it.get("followerCount", 0))
+            if fc >= 5000000:
+                reason = "粉丝基数过大导致增长放缓"
+            else:
+                reason = "可能存在内容断更/舆情等问题"
+            lines.append(f"- {name}：涨粉率{r}，{reason}")
+    else:
+        lines.append("- 本期无显著风险信号")
+    lines.append("")
 
     return "\n".join(lines)
 
@@ -533,6 +677,8 @@ def main():
                         help="列出所有可用分类")
     parser.add_argument("--raw", action="store_true",
                         help="输出原始JSON数据")
+    parser.add_argument("--from_cache", action="store_true",
+                        help="从本地缓存文件读取数据（查看更多时使用，避免重复调用API）")
 
     args = parser.parse_args()
 
@@ -541,6 +687,59 @@ def main():
         print("可用分类列表：")
         for i, cat in enumerate(CATEGORIES, 1):
             print(f"  {i}. {cat}")
+        return
+
+    # 从缓存读取数据（查看更多时使用）
+    if args.from_cache:
+        if not os.path.isfile(DATA_CACHE_FILE):
+            print(f"错误：缓存文件不存在，请先查询一次榜单数据")
+            return
+        try:
+            with open(DATA_CACHE_FILE, "r", encoding="utf-8") as f:
+                cached = json.load(f)
+        except Exception as e:
+            print(f"错误：读取缓存文件失败: {e}")
+            return
+
+        data_list = cached.get("account_list", [])
+        if not data_list:
+            print("错误：缓存数据为空")
+            return
+
+        rank_type = cached.get("rank_type", args.rank_type)
+        rank_date = cached.get("rank_date", "")
+        category = cached.get("category", "全部")
+        rank_label = RANK_TYPE_MAP.get(rank_type, "日榜")
+        reminder = cached.get("reminder", "")
+
+        print(f"从缓存读取数据（{rank_label} - {category} - {rank_date}）")
+        print("-" * 60)
+
+        update_time = cached.get("update_time", "")
+        time_range = cached.get("time_range", "")
+        data_description = cached.get("data_description", "")
+
+        output = {
+            "status": "success",
+            "rank_type": rank_type,
+            "rank_label": rank_label,
+            "rank_date": rank_date,
+            "category": category,
+            "data_description": data_description,
+            "total_count": len(data_list),
+            "top_n": min(args.top_n, len(data_list)),
+            "update_time": update_time,
+            "time_range": time_range,
+            "reminder": reminder,
+            "ranking_table": format_ranking_table(data_list, args.top_n, args.start),
+            "analysis": format_analysis(data_list, rank_type),
+            "account_list": data_list,
+        }
+
+        if args.raw:
+            print(json.dumps(output, ensure_ascii=False, indent=2))
+        else:
+            print(json.dumps(output, ensure_ascii=False))
         return
 
     # 确定分类
