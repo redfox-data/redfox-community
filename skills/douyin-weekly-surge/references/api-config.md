@@ -10,10 +10,10 @@ REDFOX_API_KEY=your_api_key_here
 
 ## 接口说明
 
-### 查询点赞排行榜
+### 查询七日点赞飙升榜
 
 ```
-POST https://redfox.hk/story/api/dy/search/likesRank
+POST https://redfox.hk/story/api/dy/search/hotContentRank
 Content-Type: application/json
 ```
 
@@ -28,8 +28,7 @@ Content-Type: application/json
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | type | string | 否 | 赛道分类，默认"全部"，见下方分类列表 |
-| startTime | string | 否 | 查询起始时间，格式 YYYY-MM-DD |
-| endTime | string | 否 | 查询结束时间，格式 YYYY-MM-DD |
+| startTime | string | 否 | 查询日期，格式 YYYY-MM-DD |
 | source | string | 是 | 固定参数（值见脚本） |
 
 **请求示例：**
@@ -38,8 +37,8 @@ Content-Type: application/json
 curl -X POST \
   -H "X-API-KEY: $REDFOX_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"source":"<见脚本>","type":"美食","startTime":"2026-05-28","endTime":"2026-05-28"}' \
-  "https://redfox.hk/story/api/dy/search/likesRank"
+  -d '{"source":"<见脚本>","type":"美食","startTime":"2026-05-28"}' \
+  "https://redfox.hk/story/api/dy/search/hotContentRank"
 ```
 
 **响应示例：**
@@ -47,24 +46,26 @@ curl -X POST \
 ```json
 {
   "code": 2000,
-  "data": [
-    {
-      "accountId": "1234567890",
-      "accountName": "账号名",
-      "avatarUrl": "https://p3.douyinpic.com/aweme-avatar/xxx.jpeg",
-      "category": "美食",
-      "followerCount": 1000000,
-      "collectCount": 100000,
-      "commentCount": 50000,
-      "shareCount": 30000,
-      "likeCount": 500000,
-      "title": "作品标题",
-      "content": "作品正文",
-      "publishTime": "2026-05-28 12:00:00",
-      "workId": "7644570847852254031",
-      "workUrl": "https://www.iesdouyin.com/share/video/7644570847852254031"
-    }
-  ]
+  "data": {
+    "weeklyRank": [
+      {
+        "accountId": "1234567890",
+        "accountName": "账号名",
+        "avatarUrl": "https://p3.douyinpic.com/aweme-avatar/xxx.jpeg",
+        "category": "美食",
+        "followerCount": 1000000,
+        "collectCount": 100000,
+        "commentCount": 50000,
+        "shareCount": 30000,
+        "likeCount": 500000,
+        "title": "作品标题",
+        "content": "作品正文",
+        "publishTime": "2026-05-28 12:00:00",
+        "workId": "7644570847852254031",
+        "workUrl": "https://www.iesdouyin.com/share/video/7644570847852254031"
+      }
+    ]
+  }
 }
 ```
 
@@ -94,5 +95,5 @@ curl -X POST \
 
 ## 数据更新时间
 
-- 每日 06:00 更新昨日全天数据
+- 每日 06:00 更新过去七日数据
 - 可回溯范围：最近 30 天
