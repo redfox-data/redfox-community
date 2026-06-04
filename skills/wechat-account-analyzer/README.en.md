@@ -36,8 +36,8 @@ Perform a four-dimension quantitative scoring on any WeChat Official Account, be
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Register at [RedFoxHub](https://redfox.hk?source=github) to obtain your `REDFOX_API_KEY`.
 - Set `REDFOX_API_KEY` as a device environment variable before using this skill.
 - Before sharing your key, confirm its source, scope, expiry, and whether it supports reset/revocation.
 - Never hard-code or expose the key in code, prompts, logs, or output files.
@@ -50,12 +50,12 @@ Simply describe your request in natural language — no commands to memorize.
 
 ### Quick Phrase Reference
 
-| Intent | Example phrase | Result |
-| ------ | -------------- | ------ |
-| Single account diagnosis | "Diagnose the WeChat account 'Shi Dian Du Shu'" | Full five-section diagnostic report with scores, suggestions, and benchmarks |
-| Multi-account comparison | "Compare 'Shi Dian Du Shu' and 'Dongjian'" | Individual reports plus a cross-account summary table with differentiated suggestions |
-| Query by account ID | "Diagnose the account with ID 'gh_xxxxxxxx'" | Accurate lookup by official account ID to avoid name ambiguity |
-| Self-check | "Show me how this account is performing" | Diagnostic report with industry benchmark and prioritized optimization areas |
+| Intent                   | Example phrase                                  | Result                                                                                |
+| ------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Single account diagnosis | "Diagnose the WeChat account 'Shi Dian Du Shu'" | Full five-section diagnostic report with scores, suggestions, and benchmarks          |
+| Multi-account comparison | "Compare 'Shi Dian Du Shu' and 'Dongjian'"      | Individual reports plus a cross-account summary table with differentiated suggestions |
+| Query by account ID      | "Diagnose the account with ID 'gh_xxxxxxxx'"    | Accurate lookup by official account ID to avoid name ambiguity                        |
+| Self-check               | "Show me how this account is performing"        | Diagnostic report with industry benchmark and prioritized optimization areas          |
 
 ### Output Example
 
@@ -75,9 +75,9 @@ After diagnosis you will receive a fixed five-section report:
 
 ## Use Cases
 
-| Scenario | Role | Example request | Benefit |
-| -------- | ---- | --------------- | ------- |
-| Self-check & optimization | Account operator | "Diagnose my account and find its weak spots" | Understand account health, quantify improvement directions, avoid blind operation |
-| Competitor benchmarking | New-media operator | "Analyze account 'XX', check its data performance" | Understand competitor tactics, draw on successful patterns, refine your own strategy |
-| MCN batch evaluation | MCN agency | "Compare account A and account B" | Data-driven signing decisions, quantified commercial value |
-| Content strategy planning | Content planner | "Based on the diagnosis, what should I adjust in my content?" | Evidence-based content planning, improved overall operational efficiency |
+| Scenario                  | Role               | Example request                                               | Benefit                                                                              |
+| ------------------------- | ------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Self-check & optimization | Account operator   | "Diagnose my account and find its weak spots"                 | Understand account health, quantify improvement directions, avoid blind operation    |
+| Competitor benchmarking   | New-media operator | "Analyze account 'XX', check its data performance"            | Understand competitor tactics, draw on successful patterns, refine your own strategy |
+| MCN batch evaluation      | MCN agency         | "Compare account A and account B"                             | Data-driven signing decisions, quantified commercial value                           |
+| Content strategy planning | Content planner    | "Based on the diagnosis, what should I adjust in my content?" | Evidence-based content planning, improved overall operational efficiency             |

@@ -45,8 +45,8 @@ Quickly access the WeChat Official Account comprehensive ranking TOP 50, helping
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Register an account at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Register an account at [RedFoxHub](https://redfox.hk?source=github) to obtain your `REDFOX_API_KEY`.
 - Configure the device environment variable `REDFOX_API_KEY` before using this skill.
 - Before providing a key, confirm its source, scope, expiration, and whether it supports reset/revocation.
 - Never hardcode or expose the key in plaintext in code, prompts, logs, or output files.
@@ -59,15 +59,15 @@ Just describe your need in plain language — no commands to memorize.
 
 ### Quick Reference
 
-| Intent | Example Phrase | Result |
-| ------ | -------------- | ------ |
-| Query daily chart by category | "Show the tech category daily ranking" | Outputs the Tech & Digital daily TOP 50 with composite scores and engagement metrics |
-| Query weekly chart by category | "This week's food category ranking" | Outputs the Food & Dining weekly TOP 50 with time range noted |
-| Query monthly chart by category | "Finance category monthly ranking" | Outputs the Finance monthly TOP 50 |
-| Get in-depth analysis | (After chart output) reply "1" | Outputs three analysis types: content ecosystem, hot topic impact, and blue-ocean niches |
-| Generate visual report | (After chart output) reply "2" | Generates a visual page exportable as image or PDF |
-| Subscribe to updates | "Subscribe to weekly ranking" | Sets up automated weekly delivery of the latest chart |
-| Subscribe to all | "Subscribe to all" | Enables daily, weekly, and monthly chart subscriptions at once |
+| Intent                          | Example Phrase                         | Result                                                                                   |
+| ------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Query daily chart by category   | "Show the tech category daily ranking" | Outputs the Tech & Digital daily TOP 50 with composite scores and engagement metrics     |
+| Query weekly chart by category  | "This week's food category ranking"    | Outputs the Food & Dining weekly TOP 50 with time range noted                            |
+| Query monthly chart by category | "Finance category monthly ranking"     | Outputs the Finance monthly TOP 50                                                       |
+| Get in-depth analysis           | (After chart output) reply "1"         | Outputs three analysis types: content ecosystem, hot topic impact, and blue-ocean niches |
+| Generate visual report          | (After chart output) reply "2"         | Generates a visual page exportable as image or PDF                                       |
+| Subscribe to updates            | "Subscribe to weekly ranking"          | Sets up automated weekly delivery of the latest chart                                    |
+| Subscribe to all                | "Subscribe to all"                     | Enables daily, weekly, and monthly chart subscriptions at once                           |
 
 ### Sample Output
 
@@ -80,21 +80,21 @@ After querying "Tech category daily ranking", you will receive:
 
 ## Use Cases
 
-| Scenario | Role | Example Query | Benefit |
-| -------- | ---- | ------------- | ------- |
-| Daily operations reference | Account Operator | "Show tech category daily ranking" | Compare posting frequency and engagement rates to benchmark and optimize topic cadence |
-| Competitor tracking | Brand Marketing Manager | "This week's FMCG category ranking" | Track competitor ranking shifts and content direction to adjust your own strategy |
-| Niche evaluation | Content Entrepreneur | "Compare food and travel monthly rankings" | Assess competition levels across candidate niches and pick a blue-ocean direction |
-| Regular data reporting | MCN Operations | "Subscribe to monthly ranking" | Export monthly visual reports with consistent and traceable data |
+| Scenario                   | Role                    | Example Query                              | Benefit                                                                                |
+| -------------------------- | ----------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------- |
+| Daily operations reference | Account Operator        | "Show tech category daily ranking"         | Compare posting frequency and engagement rates to benchmark and optimize topic cadence |
+| Competitor tracking        | Brand Marketing Manager | "This week's FMCG category ranking"        | Track competitor ranking shifts and content direction to adjust your own strategy      |
+| Niche evaluation           | Content Entrepreneur    | "Compare food and travel monthly rankings" | Assess competition levels across candidate niches and pick a blue-ocean direction      |
+| Regular data reporting     | MCN Operations          | "Subscribe to monthly ranking"             | Export monthly visual reports with consistent and traceable data                       |
 
 ---
 
 ## Key Data Notes
 
-| Chart | Update Time | Data Range |
-| ----- | ----------- | ---------- |
-| Daily | Every day at 17:30 | Yesterday's data, past 7 days |
-| Weekly | Every Monday at 17:30 | Last week's data, past 3 weeks |
+| Chart   | Update Time                | Data Range                       |
+| ------- | -------------------------- | -------------------------------- |
+| Daily   | Every day at 17:30         | Yesterday's data, past 7 days    |
+| Weekly  | Every Monday at 17:30      | Last week's data, past 3 weeks   |
 | Monthly | 3rd of each month at 23:00 | Last month's data, past 3 months |
 
 Covers 23 vertical categories, including Overall, Tech & Digital, Food & Dining, Finance, Education, Fashion, Health & Wellness, Emotional & Psychology, Career Development, and more. Just enter a keyword to automatically match the right category.

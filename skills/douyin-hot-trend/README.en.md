@@ -39,8 +39,8 @@ A smart hot trend tool that tracks Douyin trending topics in real time, uncovers
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Register an account at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Register an account at [RedFoxHub](https://redfox.hk?source=github) to obtain your `REDFOX_API_KEY`.
 - Configure the device environment variable `REDFOX_API_KEY` before using this skill.
 - Before providing a key, confirm its source, scope, expiration, and whether it supports reset/revocation.
 - Never hardcode or expose the key in plaintext in code, prompts, logs, or output files.
@@ -53,16 +53,16 @@ Just describe your need in plain language — no commands to memorize.
 
 ### Quick Reference
 
-| Intent | Example Phrase | Result |
-| ------ | -------------- | ------ |
-| Check real-time chart | "Douyin trending" / "Today's hot list" | Shows current TOP 20 with heat scores and links, plus a creator insights report |
-| Check yesterday's chart | "Yesterday's hot list" | Retrieves all-day trending data from yesterday |
-| View historical chart | "Hot list from the past 7 days" / "Past 30 days" | Traces trending topics over the selected time range |
-| View a specific date | "Hot list from May 15" | Retrieves the chart for that specific date |
-| Load the full chart | "Load more" / "Continue loading" | Expands from TOP 20 to the full TOP 50 |
-| Compare chart changes | "Compare today's and yesterday's hot list" | Outputs differences between the two days with flagged new entrants and dropouts |
-| Subscribe to updates | "Subscribe to daily hot list push" | Sets up scheduled automatic delivery every day |
-| Cancel subscription | "Cancel subscription" | Stops scheduled delivery |
+| Intent                  | Example Phrase                                   | Result                                                                          |
+| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------- |
+| Check real-time chart   | "Douyin trending" / "Today's hot list"           | Shows current TOP 20 with heat scores and links, plus a creator insights report |
+| Check yesterday's chart | "Yesterday's hot list"                           | Retrieves all-day trending data from yesterday                                  |
+| View historical chart   | "Hot list from the past 7 days" / "Past 30 days" | Traces trending topics over the selected time range                             |
+| View a specific date    | "Hot list from May 15"                           | Retrieves the chart for that specific date                                      |
+| Load the full chart     | "Load more" / "Continue loading"                 | Expands from TOP 20 to the full TOP 50                                          |
+| Compare chart changes   | "Compare today's and yesterday's hot list"       | Outputs differences between the two days with flagged new entrants and dropouts |
+| Subscribe to updates    | "Subscribe to daily hot list push"               | Sets up scheduled automatic delivery every day                                  |
+| Cancel subscription     | "Cancel subscription"                            | Stops scheduled delivery                                                        |
 
 ### Sample Output
 
@@ -80,11 +80,11 @@ After querying "Today's hot list", you will receive:
 
 ## Use Cases
 
-| Scenario | Role | Example Query | Benefit |
-| -------- | ---- | ------------- | ------- |
-| Daily content ideation | Short-video Creator | "Today's hot list" | Quickly identify hot directions and get transferable topics with title formulas |
-| Trend monitoring | MCN Operations | "Past 7 days hot list" | Track a week's trend shifts and inform creator content strategy |
-| Brand hot-topic leverage | Brand Marketing Manager | "Compare this week's chart changes" | Spot sustained topics and plan brand content in advance |
-| Operations learning | Short-video Beginner | "Today's hot list — analyze the title patterns" | Learn viral sentence structures and rapidly build content intuition |
+| Scenario                 | Role                    | Example Query                                   | Benefit                                                                         |
+| ------------------------ | ----------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------- |
+| Daily content ideation   | Short-video Creator     | "Today's hot list"                              | Quickly identify hot directions and get transferable topics with title formulas |
+| Trend monitoring         | MCN Operations          | "Past 7 days hot list"                          | Track a week's trend shifts and inform creator content strategy                 |
+| Brand hot-topic leverage | Brand Marketing Manager | "Compare this week's chart changes"             | Spot sustained topics and plan brand content in advance                         |
+| Operations learning      | Short-video Beginner    | "Today's hot list — analyze the title patterns" | Learn viral sentence structures and rapidly build content intuition             |
 
 ---

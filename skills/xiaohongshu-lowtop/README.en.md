@@ -41,8 +41,8 @@ Each note includes: title, author, follower count, publish date, likes, comments
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Visit [RedFoxHub](https://redfox.hk?souce=github) to register and obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
 - Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
 - Before using a key, confirm its source, scope, expiry, and whether it supports reset or revocation.
 - Never hard-code or expose the key in plaintext within code, prompts, logs, or output files.
@@ -55,12 +55,12 @@ Describe your needs in natural language — no commands to memorize.
 
 ### Quick Reference
 
-| Intent | Example phrase | Result |
-| ------ | -------------- | ------ |
+| Intent                             | Example phrase                               | Result                                                                          |
+| ---------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------- |
 | Query category low-follower virals | `Show me low-follower viral notes in beauty` | Fetches beauty category TOP50, outputs ranking table and viral pattern analysis |
-| Query specific date | `Low-follower home décor virals on April 20` | Queries the specified date for that category |
-| Subscribe to daily push | Reply "subscribe" on the results page | Automatically receives the latest rankings at 19:30 every day |
-| Export file package | Reply `2` on the results page | Generates a full Xiaohongshu-style page exportable as PDF |
+| Query specific date                | `Low-follower home décor virals on April 20` | Queries the specified date for that category                                    |
+| Subscribe to daily push            | Reply "subscribe" on the results page        | Automatically receives the latest rankings at 19:30 every day                   |
+| Export file package                | Reply `2` on the results page                | Generates a full Xiaohongshu-style page exportable as PDF                       |
 
 ### Output Example
 
@@ -70,9 +70,9 @@ Results are delivered in sequence: viral notes table (sorted by engagement) → 
 
 ## Use Cases
 
-| Scenario | Role | Example question | Benefit |
-| -------- | ---- | ---------------- | ------- |
-| Daily topic inspiration | Xiaohongshu creator | `Show low-follower virals in beauty` | Browse TOP50 topics and use viral analysis to quickly find replicable titles and writing approaches |
-| Competitor content monitoring | Content ops | `Check low-follower home décor virals regularly` | Track content topic shifts and title pattern changes to spot emerging topic directions |
-| Viral pattern research | Content strategy analyst | `Query the same category over multiple days` | Compare title type ratios across dates; export file packages for analysis reports |
-| Rising creator discovery | MCN agency | `What low-follower high-engagement food notes are there?` | Identify small accounts breaking through with strong content |
+| Scenario                      | Role                     | Example question                                          | Benefit                                                                                             |
+| ----------------------------- | ------------------------ | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Daily topic inspiration       | Xiaohongshu creator      | `Show low-follower virals in beauty`                      | Browse TOP50 topics and use viral analysis to quickly find replicable titles and writing approaches |
+| Competitor content monitoring | Content ops              | `Check low-follower home décor virals regularly`          | Track content topic shifts and title pattern changes to spot emerging topic directions              |
+| Viral pattern research        | Content strategy analyst | `Query the same category over multiple days`              | Compare title type ratios across dates; export file packages for analysis reports                   |
+| Rising creator discovery      | MCN agency               | `What low-follower high-engagement food notes are there?` | Identify small accounts breaking through with strong content                                        |

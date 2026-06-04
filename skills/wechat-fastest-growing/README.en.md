@@ -39,8 +39,8 @@ Directly connected to the official reading growth rate rankings, browse the top 
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Visit [RedFoxHub](https://redfox.hk?souce=github) to register and obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
 - Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
 - Before using a key, confirm its source, scope, expiry, and whether it supports reset or revocation.
 - Never hard-code or expose the key in plaintext within code, prompts, logs, or output files.
@@ -53,12 +53,12 @@ Describe your needs in natural language — no commands to memorize.
 
 ### Quick Reference
 
-| Intent | Example phrase | Result |
-| ------ | -------------- | ------ |
-| Latest rankings | `WeChat growth rankings` / `latest growth chart` | Fetches yesterday's (or most recent available) rankings and displays the raw table |
-| Specific date | `Show me the growth rankings for March 15` | Fetches with `rankDate=2026-03-15` and displays verbatim |
-| Trend analysis | `Which accounts grew fastest recently, and what do they have in common?` | Outputs rankings first, then two analysis tables and a summary |
-| Viral vs. low-read comparison | `Compare the viral and low-read articles from one account on the list` | Analyzes topic and title differences for the same account using ranking data |
+| Intent                        | Example phrase                                                           | Result                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| Latest rankings               | `WeChat growth rankings` / `latest growth chart`                         | Fetches yesterday's (or most recent available) rankings and displays the raw table |
+| Specific date                 | `Show me the growth rankings for March 15`                               | Fetches with `rankDate=2026-03-15` and displays verbatim                           |
+| Trend analysis                | `Which accounts grew fastest recently, and what do they have in common?` | Outputs rankings first, then two analysis tables and a summary                     |
+| Viral vs. low-read comparison | `Compare the viral and low-read articles from one account on the list`   | Analyzes topic and title differences for the same account using ranking data       |
 
 ### Output Example
 
@@ -68,9 +68,9 @@ Query results are displayed as a raw Markdown table with columns for rank, accou
 
 ## Use Cases
 
-| Scenario | Role | Example question | Benefit |
-| -------- | ---- | ---------------- | ------- |
-| Find benchmark accounts | Account operator | `What accounts are on today's growth chart?` | Quickly identify the fastest-growing accounts and viral topic directions |
-| Topic review | Content editor | `Show the latest rankings and analyze viral article patterns` | Get viral article and content-type analysis tables to inform the next round of topics |
-| Date-specific review | Analyst | `Pull the growth rankings for April 1` | Check single-day data fluctuations and click titles to verify originals |
-| Track observation | Researcher | `Which accounts appear repeatedly across several days of rankings?` | Identify high-frequency accounts and track shifts in track heat |
+| Scenario                | Role             | Example question                                                    | Benefit                                                                               |
+| ----------------------- | ---------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Find benchmark accounts | Account operator | `What accounts are on today's growth chart?`                        | Quickly identify the fastest-growing accounts and viral topic directions              |
+| Topic review            | Content editor   | `Show the latest rankings and analyze viral article patterns`       | Get viral article and content-type analysis tables to inform the next round of topics |
+| Date-specific review    | Analyst          | `Pull the growth rankings for April 1`                              | Check single-day data fluctuations and click titles to verify originals               |
+| Track observation       | Researcher       | `Which accounts appear repeatedly across several days of rankings?` | Identify high-frequency accounts and track shifts in track heat                       |

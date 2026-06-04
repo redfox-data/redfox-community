@@ -34,8 +34,8 @@ Generate viral WeChat Official Account titles based on trending data, or get mul
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Please visit [RedFoxHub](https://redfox.hk?souce=github) to register and obtain `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Please visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain `REDFOX_API_KEY`.
 - Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
 - Before providing a key, please confirm its source, scope of use, validity period, and whether it supports reset/revocation.
 - Never hard-code or expose keys in plain text within code, prompts, logs, or output files.
@@ -48,13 +48,13 @@ Simply describe your needs in natural language — no commands to memorize.
 
 ### Quick Reference
 
-| Intent | Example Prompt | Result |
-|--------|---------------|--------|
-| Generate titles for a topic | "I want to write about skincare, help me come up with some titles" | Matches viral samples by keyword, analyzes first, then outputs 10 candidates |
-| Daily niche update | "Career niche, want to post about promotion strategies, give me some titles" | Pulls niche viral patterns, generates matching new titles |
-| Refine a broad category | "I want to do food content, but haven't decided on a direction" | Recommends sub-directions first, then queries and generates after your confirmation |
-| Catch trending topics | "What titles are trending on WeChat? Help me create a few" | Generates viral titles based on sitewide trending data |
-| Score a title | "Help me evaluate this title: XXX" | Four-dimension scoring with optimization suggestions |
+| Intent                      | Example Prompt                                                               | Result                                                                              |
+| --------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Generate titles for a topic | "I want to write about skincare, help me come up with some titles"           | Matches viral samples by keyword, analyzes first, then outputs 10 candidates        |
+| Daily niche update          | "Career niche, want to post about promotion strategies, give me some titles" | Pulls niche viral patterns, generates matching new titles                           |
+| Refine a broad category     | "I want to do food content, but haven't decided on a direction"              | Recommends sub-directions first, then queries and generates after your confirmation |
+| Catch trending topics       | "What titles are trending on WeChat? Help me create a few"                   | Generates viral titles based on sitewide trending data                              |
+| Score a title               | "Help me evaluate this title: XXX"                                           | Four-dimension scoring with optimization suggestions                                |
 
 ### Output Example
 
@@ -76,13 +76,13 @@ After **Title Scoring**, you'll receive a four-dimension score breakdown, streng
 
 ## Use Cases
 
-| Scenario | Role | Example Prompt | Benefit |
-|----------|------|---------------|---------|
-| Title for a new post | Account owner | "New product launch, help me write a title highlighting cost-effectiveness" | Quickly get multiple publishable candidates, boost CTR |
-| Daily account update | Content operator | "Career niche, posting about promotion strategies this week, give me 10 titles" | Follow niche viral patterns, reduce topic ideation overhead |
-| Exploring a broad category | New creator | "I want to do relationship content, but only know the broad category" | Sub-direction refinement before generation, lower trial-and-error cost |
-| Title optimization | Editor / Director | "Score this title for me: XXX, how can I improve it" | Diagnose bottlenecks across four dimensions, optimize precisely |
-| Adapt trending content | Content strategist | "What titles are trending sitewide? Help me adapt a few" | Apply trending patterns to your specific topics |
+| Scenario                   | Role               | Example Prompt                                                                  | Benefit                                                                |
+| -------------------------- | ------------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Title for a new post       | Account owner      | "New product launch, help me write a title highlighting cost-effectiveness"     | Quickly get multiple publishable candidates, boost CTR                 |
+| Daily account update       | Content operator   | "Career niche, posting about promotion strategies this week, give me 10 titles" | Follow niche viral patterns, reduce topic ideation overhead            |
+| Exploring a broad category | New creator        | "I want to do relationship content, but only know the broad category"           | Sub-direction refinement before generation, lower trial-and-error cost |
+| Title optimization         | Editor / Director  | "Score this title for me: XXX, how can I improve it"                            | Diagnose bottlenecks across four dimensions, optimize precisely        |
+| Adapt trending content     | Content strategist | "What titles are trending sitewide? Help me adapt a few"                        | Apply trending patterns to your specific topics                        |
 
 ---
 

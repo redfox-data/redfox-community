@@ -38,8 +38,8 @@ Scan your copy for Xiaohongshu (Little Red Book) prohibited terms before publish
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Register at [RedFoxHub](https://redfox.hk?source=github) to obtain `REDFOX_API_KEY`.
 - Configure `REDFOX_API_KEY` on your device before using this skill.
 - Before sharing a key, confirm its source, scope, validity, and whether it can be reset or revoked.
 - Do not hard-code or expose keys in code, prompts, logs, or output files.
@@ -52,13 +52,13 @@ Describe what you need in plain language—no fixed commands to memorize. You ca
 
 ### Quick phrase guide
 
-| Intent              | Example prompt                                                                 | What you get                                      |
-| ------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------- |
-| Check note copy     | “Check this note for prohibited words: this whitening product works so well…” | Flagged terms, replacements, and optimized copy   |
-| Check a document    | Upload a TXT, DOC, or DOCX file                                                | Content is read and checked automatically         |
-| Check image text    | Upload a note screenshot or poster                                             | Text is extracted from the image, then checked    |
-| Check a web page    | “Check this page: https://example.com/article”                                 | Page text is read, then checked                   |
-| Long copy options   | After submitting 3,000+ characters, reply 1 / 2 / 3 per the prompt               | First chunk only, full batch check, or cancel       |
+| Intent            | Example prompt                                                                | What you get                                    |
+| ----------------- | ----------------------------------------------------------------------------- | ----------------------------------------------- |
+| Check note copy   | “Check this note for prohibited words: this whitening product works so well…” | Flagged terms, replacements, and optimized copy |
+| Check a document  | Upload a TXT, DOC, or DOCX file                                               | Content is read and checked automatically       |
+| Check image text  | Upload a note screenshot or poster                                            | Text is extracted from the image, then checked  |
+| Check a web page  | “Check this page: https://example.com/article”                                | Page text is read, then checked                 |
+| Long copy options | After submitting 3,000+ characters, reply 1 / 2 / 3 per the prompt            | First chunk only, full batch check, or cancel   |
 
 ### Sample output
 
@@ -86,11 +86,11 @@ If nothing is flagged, you’ll see: no prohibited words detected—copy looks c
 
 ## Use cases
 
-| Scenario              | Role                    | Example ask                                              | Benefit                                      |
-| --------------------- | ----------------------- | -------------------------------------------------------- | -------------------------------------------- |
-| Pre-publish check     | Creator / blogger       | Paste full seeding note and ask for prohibited words     | Fix once, publish with more confidence       |
-| Batch copy sweep      | Brand / e-commerce ops  | Upload a Word file with multiple promo drafts            | Batch detection; fewer post-launch violations |
-| Ad copy screening     | Ads / marketing         | Submit selling points or ad lines one by one             | Faster compliance review and approval        |
-| Page compliance spot  | Growth / content review | Share a landing or H5 URL to check on-page text          | Quick page audit; lower policy risk          |
+| Scenario             | Role                    | Example ask                                          | Benefit                                       |
+| -------------------- | ----------------------- | ---------------------------------------------------- | --------------------------------------------- |
+| Pre-publish check    | Creator / blogger       | Paste full seeding note and ask for prohibited words | Fix once, publish with more confidence        |
+| Batch copy sweep     | Brand / e-commerce ops  | Upload a Word file with multiple promo drafts        | Batch detection; fewer post-launch violations |
+| Ad copy screening    | Ads / marketing         | Submit selling points or ad lines one by one         | Faster compliance review and approval         |
+| Page compliance spot | Growth / content review | Share a landing or H5 URL to check on-page text      | Quick page audit; lower policy risk           |
 
 ---

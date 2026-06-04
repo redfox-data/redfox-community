@@ -32,7 +32,7 @@
 ## 密钥来源与安全说明
 
 - 本技能需要使用环境变量：`REDFOX_API_KEY`。
-- `REDFOX_API_KEY` 由 [红狐 hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`)签发，用于其接口鉴权。
+- `REDFOX_API_KEY` 由 [红狐 hub](https://redfox.hk/dashboard/keys?source=github) (`https://redfox.hk`)签发，用于其接口鉴权。
 - 在提供密钥前，请先确认密钥来源、可用范围、有效期及是否支持重置/撤销。
 - 禁止在代码、提示词、日志或输出文件中硬编码/明文暴露密钥。
 
@@ -42,7 +42,7 @@
 
 ### 注册红狐 hub 账号获取 REDFOX_API_KEY
 
-- 获取 REDFOX_API_KEY（前往 [红狐 hub](https://redfox.hk/dashboard/keys?souce=github) 申请）
+- 获取 REDFOX_API_KEY（前往 [红狐 hub](https://redfox.hk/dashboard/keys?source=github) 申请）
 
 ### 环境变量配置
 

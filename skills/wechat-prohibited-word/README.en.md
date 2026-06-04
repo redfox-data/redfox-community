@@ -43,8 +43,8 @@ Scan WeChat Official Account copy, files, or web pages for prohibited and sensit
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Register at [RedFoxHub](https://redfox.hk?source=github) to obtain your `REDFOX_API_KEY`.
 - Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
 - Before providing a key, confirm its source, scope, validity period, and whether reset/revocation is supported.
 - Do not hard-code or expose keys in plain text in code, prompts, logs, or output files.
@@ -57,13 +57,13 @@ Describe what you need in plain language—no fixed commands to memorize. The pl
 
 ### Quick Phrase Reference
 
-| Intent              | Example prompt                                                                                                      | Outcome                                              |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Paste copy to check | "Check this draft for prohibited words: This whitening miracle really works—you'll see results in three days"     | Hit highlights, replacement table, and optimized copy |
-| Upload a file       | Upload a TXT, DOC, or DOCX file and ask for WeChat prohibited-word detection                                       | File content is read and checked automatically       |
-| Upload an image     | Upload a poster or tweet screenshot and ask to check the text in the image                                         | Text is extracted from the image and checked         |
-| Paste a web URL     | Provide a campaign or article URL and ask to check the page copy                                                     | Page body is fetched and checked automatically       |
-| Batch pre-review    | Upload a file combining multiple short pieces and ask for a unified compliance check                               | All content is checked in batches with merged output |
+| Intent              | Example prompt                                                                                                | Outcome                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Paste copy to check | "Check this draft for prohibited words: This whitening miracle really works—you'll see results in three days" | Hit highlights, replacement table, and optimized copy |
+| Upload a file       | Upload a TXT, DOC, or DOCX file and ask for WeChat prohibited-word detection                                  | File content is read and checked automatically        |
+| Upload an image     | Upload a poster or tweet screenshot and ask to check the text in the image                                    | Text is extracted from the image and checked          |
+| Paste a web URL     | Provide a campaign or article URL and ask to check the page copy                                              | Page body is fetched and checked automatically        |
+| Batch pre-review    | Upload a file combining multiple short pieces and ask for a unified compliance check                          | All content is checked in batches with merged output  |
 
 ### Sample Output
 
@@ -80,10 +80,10 @@ This whitening miracle really **works**—you'll see results in three **days**
 
 **💡 Revision Suggestions**
 
-| Prohibited word | Replacement              | Rationale                                                                 |
-| --------------- | ------------------------ | ------------------------------------------------------------------------- |
-| works           | feels quite nice to use  | "Works" is a banned term; rephrased as a conversational usage experience  |
-| days            | skin tone looks brighter | Implies whitening efficacy; rephrased as an indirect visual description   |
+| Prohibited word | Replacement              | Rationale                                                                |
+| --------------- | ------------------------ | ------------------------------------------------------------------------ |
+| works           | feels quite nice to use  | "Works" is a banned term; rephrased as a conversational usage experience |
+| days            | skin tone looks brighter | Implies whitening efficacy; rephrased as an indirect visual description  |
 
 **✏️ Suggested Optimized Copy**
 
@@ -95,11 +95,11 @@ This whitening miracle really **feels quite nice to use**—you'll see **skin to
 
 ## Use Cases
 
-| Scenario                        | Role                 | Example question                                                          | Benefit                                                          |
-| ------------------------------- | -------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Pre-publish tweet self-check    | WeChat operator      | "Does this post contain superlatives or banned promotional language?"     | Catch compliance risks early; lower takedown risk                  |
-| Batch pre-review of short copy  | New media editor     | "Run a prohibited-word check on these short pieces together"              | Check multiple pieces at once; faster editorial workflow         |
-| Campaign landing page spot-check| Brand / marketing    | "Does the copy on this H5 campaign page have compliance risks?"         | Avoid reports or takedowns due to prohibited wording             |
-| Poster text compliance check    | Designer             | "Do these marketing lines on the poster violate advertising law?"         | Eliminate text risks during design; reduce rework                  |
+| Scenario                         | Role              | Example question                                                      | Benefit                                                  |
+| -------------------------------- | ----------------- | --------------------------------------------------------------------- | -------------------------------------------------------- |
+| Pre-publish tweet self-check     | WeChat operator   | "Does this post contain superlatives or banned promotional language?" | Catch compliance risks early; lower takedown risk        |
+| Batch pre-review of short copy   | New media editor  | "Run a prohibited-word check on these short pieces together"          | Check multiple pieces at once; faster editorial workflow |
+| Campaign landing page spot-check | Brand / marketing | "Does the copy on this H5 campaign page have compliance risks?"       | Avoid reports or takedowns due to prohibited wording     |
+| Poster text compliance check     | Designer          | "Do these marketing lines on the poster violate advertising law?"     | Eliminate text risks during design; reduce rework        |
 
 ---

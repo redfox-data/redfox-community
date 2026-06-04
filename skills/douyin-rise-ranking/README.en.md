@@ -44,8 +44,8 @@ A specialized tool for Douyin follower growth data, tracking real-time follower 
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`)
-- Please visit [RedFoxHub](https://redfox.hk?souce=github) to register and obtain your `REDFOX_API_KEY`
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`)
+- Please visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`
 - Configure the `REDFOX_API_KEY` environment variable on your device before using this skill
 - Before providing your key, verify its source, scope, validity period, and whether it supports reset/revocation
 - Never hardcode or expose your key in code, prompts, logs, or output files
@@ -58,14 +58,14 @@ Simply describe your needs in natural language — no commands to memorize.
 
 ### Quick Reference
 
-| Intent | Example | Result |
-| --- | --- | --- |
-| Daily ranking | Show me food category Douyin follower rankings | TOP20 daily ranking with trend analysis |
-| Weekly ranking | Tech category follower growth this week | Auto-selects weekly ranking for the tech category |
-| Monthly ranking | Beauty category follower growth this month | Auto-selects monthly ranking for the beauty category |
-| Keyword search | Pet category rankings | Auto-matches the Animals category |
-| View more | Show more | Displays remaining TOP21-50 data |
-| Subscribe | Subscribe to daily ranking | Automated scheduled delivery |
+| Intent          | Example                                        | Result                                               |
+| --------------- | ---------------------------------------------- | ---------------------------------------------------- |
+| Daily ranking   | Show me food category Douyin follower rankings | TOP20 daily ranking with trend analysis              |
+| Weekly ranking  | Tech category follower growth this week        | Auto-selects weekly ranking for the tech category    |
+| Monthly ranking | Beauty category follower growth this month     | Auto-selects monthly ranking for the beauty category |
+| Keyword search  | Pet category rankings                          | Auto-matches the Animals category                    |
+| View more       | Show more                                      | Displays remaining TOP21-50 data                     |
+| Subscribe       | Subscribe to daily ranking                     | Automated scheduled delivery                         |
 
 ### Subscription
 
@@ -85,37 +85,37 @@ All, Personal Talent, Lifestyle Vlog, Wealth & Finance, ACG, Home & Decor, Educa
 
 ### Keyword Auto-Matching
 
-| Keyword | Matched Category |
-| --- | --- |
-| Phone / Computer / AI | Tech |
-| Food / Cooking / Restaurant | Food |
-| Fashion / Outfit / Trend | Fashion |
-| Fitness / Sports / Weight Loss | Fitness |
-| Skincare / Makeup / Beauty | Beauty |
-| Gaming / Esports / Mobile Games | Gaming |
-| Pet / Cat / Dog | Animals |
-| Dance | Dance |
-| Singing / Music | Music |
+| Keyword                         | Matched Category |
+| ------------------------------- | ---------------- |
+| Phone / Computer / AI           | Tech             |
+| Food / Cooking / Restaurant     | Food             |
+| Fashion / Outfit / Trend        | Fashion          |
+| Fitness / Sports / Weight Loss  | Fitness          |
+| Skincare / Makeup / Beauty      | Beauty           |
+| Gaming / Esports / Mobile Games | Gaming           |
+| Pet / Cat / Dog                 | Animals          |
+| Dance                           | Dance            |
+| Singing / Music                 | Music            |
 
 ---
 
 ## Use Cases
 
-| Scenario | Role | Example Query | Benefit |
-| --- | --- | --- | --- |
+| Scenario              | Role                    | Example Query                              | Benefit                                      |
+| --------------------- | ----------------------- | ------------------------------------------ | -------------------------------------------- |
 | Competitor Monitoring | Brand Marketing Manager | Show me this week's food category rankings | Identify industry trends, optimize marketing |
-| Content Inspiration | Douyin Creator | Which education accounts are growing fast | Discover trending content angles |
-| Creator Management | MCN Operations | Monthly beauty category TOP50 | Data-driven creator management |
-| Account Selection | Advertiser | High-growth mid-tier tech accounts | Precise targeting, higher ROI |
+| Content Inspiration   | Douyin Creator          | Which education accounts are growing fast  | Discover trending content angles             |
+| Creator Management    | MCN Operations          | Monthly beauty category TOP50              | Data-driven creator management               |
+| Account Selection     | Advertiser              | High-growth mid-tier tech accounts         | Precise targeting, higher ROI                |
 
 ---
 
 ## Data Notes
 
-| Ranking Type | Lookback Range | Update Time |
-| --- | --- | --- |
-| Daily | Last 7 days | Daily at 18:00 (previous day) |
-| Weekly | Last 3 weeks | Every Monday at 18:00 (previous week) |
-| Monthly | Last 3 months | 3rd of each month at 18:00 (previous month) |
+| Ranking Type | Lookback Range | Update Time                                 |
+| ------------ | -------------- | ------------------------------------------- |
+| Daily        | Last 7 days    | Daily at 18:00 (previous day)               |
+| Weekly       | Last 3 weeks   | Every Monday at 18:00 (previous week)       |
+| Monthly      | Last 3 months  | 3rd of each month at 18:00 (previous month) |
 
 Default display shows TOP20 with growth analysis. Reply "Show more" for the remaining 30 entries (TOP50 total). Out-of-range date queries are automatically adjusted to the nearest available date.

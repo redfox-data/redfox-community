@@ -36,8 +36,8 @@ Detect prohibited words in copy, files, or web pages for Douyin (TikTok China), 
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is issued by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Register at [RedFoxHub](https://redfox.hk?source=github) to obtain `REDFOX_API_KEY`.
 - Configure `REDFOX_API_KEY` on your device before using this skill.
 - Before providing your key, confirm its source, scope, validity period, and whether it can be reset or revoked.
 - Do not hard-code or expose keys in plain text in code, prompts, logs, or output files.
@@ -50,13 +50,13 @@ Describe your need in natural language—no commands to memorize. You can paste 
 
 ### Quick Reference
 
-| Intent          | Example phrase                                                                                                      | Result                                                                                  |
-| --------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Paste copy      | "Check this Douyin script for prohibited words: This whitening product really works…"                                 | Detection results, edit suggestions, optimized copy, and a downloadable file            |
-| Upload a file   | "[Upload script.docx] Check this document for me"                                                                   | Text is extracted automatically, then checked                                           |
-| Upload an image | "[Upload subtitle-screenshot.png] Check the text in this image for prohibited words"                                | Text is extracted from the image and checked (text only—no visual analysis)           |
-| Paste a URL     | "Check this page for prohibited words: https://example.com/article"                                                 | Page text is fetched automatically, then checked                                      |
-| Long copy       | When copy exceeds 3,000 characters, you'll be asked how to proceed                                                  | Choose first segment only, batch full check, or cancel                                |
+| Intent          | Example phrase                                                                        | Result                                                                       |
+| --------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Paste copy      | "Check this Douyin script for prohibited words: This whitening product really works…" | Detection results, edit suggestions, optimized copy, and a downloadable file |
+| Upload a file   | "[Upload script.docx] Check this document for me"                                     | Text is extracted automatically, then checked                                |
+| Upload an image | "[Upload subtitle-screenshot.png] Check the text in this image for prohibited words"  | Text is extracted from the image and checked (text only—no visual analysis)  |
+| Paste a URL     | "Check this page for prohibited words: https://example.com/article"                   | Page text is fetched automatically, then checked                             |
+| Long copy       | When copy exceeds 3,000 characters, you'll be asked how to proceed                    | Choose first segment only, batch full check, or cancel                       |
 
 ### Output Example
 
@@ -74,11 +74,11 @@ If no prohibited words are found, you only see: "No prohibited words detected. C
 
 ## Use Cases
 
-| Scenario                    | Role                 | Example question                                                          | Benefit                                                              |
-| --------------------------- | -------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Pre-publish script check    | Creator / editor       | "Check this voiceover script for Douyin prohibited words"                 | Avoid throttling or takedowns caused by risky wording              |
-| Bulk product copy screening | E-commerce operator  | "[Upload product-copy.docx] Screen for prohibited words before listing"   | Batch screening to reduce listing penalties from non-compliant copy  |
-| Live-stream script review   | Live script planner  | "Are there sensitive words in this promo script? How should I fix them?"  | Keep live-room scripts compliant and lower live-stream risk          |
-| Landing page spot check     | Brand / marketing    | "Check whether the copy on this campaign page URL is compliant"           | Fast page copy review before going live                              |
+| Scenario                    | Role                | Example question                                                         | Benefit                                                             |
+| --------------------------- | ------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| Pre-publish script check    | Creator / editor    | "Check this voiceover script for Douyin prohibited words"                | Avoid throttling or takedowns caused by risky wording               |
+| Bulk product copy screening | E-commerce operator | "[Upload product-copy.docx] Screen for prohibited words before listing"  | Batch screening to reduce listing penalties from non-compliant copy |
+| Live-stream script review   | Live script planner | "Are there sensitive words in this promo script? How should I fix them?" | Keep live-room scripts compliant and lower live-stream risk         |
+| Landing page spot check     | Brand / marketing   | "Check whether the copy on this campaign page URL is compliant"          | Fast page copy review before going live                             |
 
 ---

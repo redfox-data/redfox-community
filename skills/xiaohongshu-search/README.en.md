@@ -37,7 +37,7 @@ Continuously indexing trending notes with 1,000+ engagements from Xiaohongshu ac
 ## API key source and security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github) (`https://redfox.hk`) for API authentication.
+- `REDFOX_API_KEY` is issued by [Redfox Hub](https://redfox.hk/dashboard/keys?source=github) (`https://redfox.hk`) for API authentication.
 - Before providing the key, confirm its source, available scope, validity period, and whether reset/revocation is supported.
 - Do not hard-code or expose the key in plaintext within code, prompts, logs, or output files.
 
@@ -47,13 +47,13 @@ Continuously indexing trending notes with 1,000+ engagements from Xiaohongshu ac
 
 ### Register a Redfox Hub account to obtain REDFOX_API_KEY
 
-- Get REDFOX_API_KEY (apply at [Redfox Hub](https://redfox.hk/dashboard/keys?souce=github))
+- Get REDFOX_API_KEY (apply at [Redfox Hub](https://redfox.hk/dashboard/keys?source=github))
 
 ### Environment variables
 
-| Variable | Required | Notes |
-| --- | --- | --- |
-| `REDFOX_API_KEY` | Yes | API access key |
+| Variable         | Required | Notes          |
+| ---------------- | -------- | -------------- |
+| `REDFOX_API_KEY` | Yes      | API access key |
 
 **macOS (zsh)**
 
@@ -91,21 +91,21 @@ Just describe your needs in natural language — no need to memorize any command
 
 ### Quick phrase reference
 
-| Intent | Example phrase | Result |
-| --- | --- | --- |
-| Search by keyword | "Find trending notes on fat-loss meals" | Recognize keyword → query → TOP10 trending notes + HTML report |
-| Site-wide trending | "Show me what's trending on Xiaohongshu" | Empty keyword site-wide query → trending leaderboard |
-| Search by time range | "Workplace fashion trending in the last 15 days" | Filter by specified time window → trending data with date range |
-| Generic keyword expansion | "Search food trending notes" | Detect generic keyword → suggest 10 niche directions → await your confirmation |
-| Niche keyword direct search | "Petite fashion trending notes" | Recognize niche keyword → direct search → precise results |
+| Intent                      | Example phrase                                   | Result                                                                         |
+| --------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Search by keyword           | "Find trending notes on fat-loss meals"          | Recognize keyword → query → TOP10 trending notes + HTML report                 |
+| Site-wide trending          | "Show me what's trending on Xiaohongshu"         | Empty keyword site-wide query → trending leaderboard                           |
+| Search by time range        | "Workplace fashion trending in the last 15 days" | Filter by specified time window → trending data with date range                |
+| Generic keyword expansion   | "Search food trending notes"                     | Detect generic keyword → suggest 10 niche directions → await your confirmation |
+| Niche keyword direct search | "Petite fashion trending notes"                  | Recognize niche keyword → direct search → precise results                      |
 
 ### Output example
 
 📅 Query period: May 8 – May 19
 
-| Note title | Author | Engagement | Published | Relevance | Popularity | Timeliness | **Total** |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| [5 tips for new hires to fit in quickly](https://www.xiaohongshu.com/explore/xxx) | [Career Growth Hub](https://www.xiaohongshu.com/user/profile/xxx) | 10.0w | 2026-05-15 | 9.8 | 3.0 | 2.0 | **14.8** |
+| Note title                                                                        | Author                                                            | Engagement | Published  | Relevance | Popularity | Timeliness | **Total** |
+| --------------------------------------------------------------------------------- | ----------------------------------------------------------------- | ---------- | ---------- | --------- | ---------- | ---------- | --------- |
+| [5 tips for new hires to fit in quickly](https://www.xiaohongshu.com/explore/xxx) | [Career Growth Hub](https://www.xiaohongshu.com/user/profile/xxx) | 10.0w      | 2026-05-15 | 9.8       | 3.0        | 2.0        | **14.8**  |
 
 🔤 Related searches: Workplace communication, Career advancement, Office worker
 
@@ -117,12 +117,12 @@ Just describe your needs in natural language — no need to memorize any command
 
 ## Use cases
 
-| Scenario | Role | Need | How to use |
-| --- | --- | --- | --- |
-| Cold-start topics for new accounts | Creator | Can't find copyable trending samples | Keyword + last 7–30 days query |
-| Brand milestone seeding | Brand operator | Need trending topics and format references before campaigns | Category keyword search; export HTML for internal review |
-| Pre-sign screening | MCN scout | Want high-engagement trajectory, not one-off luck | Multiple samples in a fixed window for comparison |
-| Pitches and weekly reports | Content planner | Client wants "trends + samples" one-pager | Structured summary + HTML; conclusions must match data window |
+| Scenario                           | Role            | Need                                                        | How to use                                                    |
+| ---------------------------------- | --------------- | ----------------------------------------------------------- | ------------------------------------------------------------- |
+| Cold-start topics for new accounts | Creator         | Can't find copyable trending samples                        | Keyword + last 7–30 days query                                |
+| Brand milestone seeding            | Brand operator  | Need trending topics and format references before campaigns | Category keyword search; export HTML for internal review      |
+| Pre-sign screening                 | MCN scout       | Want high-engagement trajectory, not one-off luck           | Multiple samples in a fixed window for comparison             |
+| Pitches and weekly reports         | Content planner | Client wants "trends + samples" one-pager                   | Structured summary + HTML; conclusions must match data window |
 
 ---
 
@@ -130,8 +130,8 @@ Just describe your needs in natural language — no need to memorize any command
 
 ### Update schedule and data lookback
 
-| Data type | Update time | Lookback range |
-| --- | --- | --- |
+| Data type      | Update time                                 | Lookback range          |
+| -------------- | ------------------------------------------- | ----------------------- |
 | Trending notes | Updated at 7 AM daily with yesterday's data | Yesterday – 30 days ago |
 
 ### Supported tracks
@@ -146,11 +146,10 @@ Trending notes inclusion threshold is articles with 1,000+ engagements. Note eng
 
 Keyword searches are sorted by composite score across three weighted dimensions:
 
-| Dimension | Max score | Description |
-| --- | --- | --- |
-| Relevance | 10 pts | Title keyword, content topic, and search term match |
-| Popularity | 3 pts | Likes / saves / comments / shares / total engagement |
-| Timeliness | 2 pts | Proximity of publish date to query time |
+| Dimension  | Max score | Description                                          |
+| ---------- | --------- | ---------------------------------------------------- |
+| Relevance  | 10 pts    | Title keyword, content topic, and search term match  |
+| Popularity | 3 pts     | Likes / saves / comments / shares / total engagement |
+| Timeliness | 2 pts     | Proximity of publish date to query time              |
 
 Site-wide trending (no keyword) is sorted by engagement count with no scoring fields.
-

@@ -40,8 +40,8 @@ Powered by the RedFox data Official Account viral radar, search for trending vir
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`)
-- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is issued by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`)
+- Register at [RedFoxHub](https://redfox.hk?source=github) to obtain `REDFOX_API_KEY`.
 - Configure `REDFOX_API_KEY` on your device before using this skill.
 - Before providing your key, confirm its source, scope, validity period, and whether it can be reset or revoked.
 - Do not hard-code or expose keys in plain text in code, prompts, logs, or output files.
@@ -54,18 +54,19 @@ Simply describe your creative need in natural language—no fixed commands to me
 
 ### Quick Reference
 
-| Intent | Example phrase | Result |
-|--------|---------------|--------|
-| Write an article | "Help me write a WeChat article about career changes" | Search virals by keyword, analyze patterns, then generate a complete article |
-| Recommend a product | "Help me write a WeChat article recommending an AI tool" | Automatically break down differentiation advantages and generate copy around product highlights |
-| Find viral articles | "What articles are trending on WeChat? Career direction" | Return a list of trending viral articles in the niche with pattern analysis |
-| Blend personal style | "Here are some of my daily writings, write in this style" | Analyze your writing style and integrate it into the generated copy |
+| Intent               | Example phrase                                            | Result                                                                                          |
+| -------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Write an article     | "Help me write a WeChat article about career changes"     | Search virals by keyword, analyze patterns, then generate a complete article                    |
+| Recommend a product  | "Help me write a WeChat article recommending an AI tool"  | Automatically break down differentiation advantages and generate copy around product highlights |
+| Find viral articles  | "What articles are trending on WeChat? Career direction"  | Return a list of trending viral articles in the niche with pattern analysis                     |
+| Blend personal style | "Here are some of my daily writings, write in this style" | Analyze your writing style and integrate it into the generated copy                             |
 
 ### Output Example
 
 After analysis, you receive a complete, publish-ready article, roughly like this (illustrative):
 
 **Recommended Titles**
+
 1. 5 truths about career changes—no one tells you the third one
 2. You don't want to change jobs—you just want to be seen
 
@@ -78,6 +79,7 @@ After analysis, you receive a complete, publish-ready article, roughly like this
 #Career #JobChange #CareerDevelopment #SalaryIncrease #Resignation
 
 **Viral Formula Sources**
+
 - **Title patterns**: Number-based titles are most common; questions spark curiosity
 - **Opening patterns**: Personal experience openings build resonance
 - **High-frequency keywords**: Job change (8), Career (6), Salary increase (4)
@@ -86,12 +88,12 @@ After analysis, you receive a complete, publish-ready article, roughly like this
 
 ## Use Cases
 
-| Scenario | Role | Example question | Benefit |
-|----------|------|-----------------|---------|
-| Daily creation | Official account owner | "Help me write a WeChat article about personal finance" | Viral patterns guide creation, boosting article engagement |
-| Product recommendation | Brand / self-media | "Help me write a WeChat article recommending Tool X" | Automatic differentiation analysis; copy anchored on product highlights |
-| Viral pattern research | Content operator | "Analyze recent viral article patterns in the emotional niche" | Multi-dimensional pattern breakdown across titles, openings, structure |
-| Styled writing | Individual account owner | "Write a career advice piece in my usual style" | Personal style blended in for more distinctive content |
+| Scenario               | Role                     | Example question                                               | Benefit                                                                 |
+| ---------------------- | ------------------------ | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Daily creation         | Official account owner   | "Help me write a WeChat article about personal finance"        | Viral patterns guide creation, boosting article engagement              |
+| Product recommendation | Brand / self-media       | "Help me write a WeChat article recommending Tool X"           | Automatic differentiation analysis; copy anchored on product highlights |
+| Viral pattern research | Content operator         | "Analyze recent viral article patterns in the emotional niche" | Multi-dimensional pattern breakdown across titles, openings, structure  |
+| Styled writing         | Individual account owner | "Write a career advice piece in my usual style"                | Personal style blended in for more distinctive content                  |
 
 ---
 
