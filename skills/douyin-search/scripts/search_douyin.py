@@ -2,7 +2,7 @@
 """
 抖音爆款作品搜索脚本
 调用 Redfox API 搜索抖音热门作品数据
-用法: python3 search_douyin.py "<关键词>"
+用法: python3 search_douyin.py "<关键词>" [--start-date YYYY-MM-DD] [--end-date YYYY-MM-DD]
 """
 
 import sys
@@ -44,10 +44,15 @@ def format_articles(articles: list) -> list:
     return items
 
 
-def search(keyword: str) -> dict:
+def search(keyword: str, start_date: str = "", end_date: str = "") -> dict:
     """调用搜索接口，返回完整数据（articles, latestHotArticles, hotTopics）"""
     api_key = get_api_key()
-    payload = json.dumps({"keyword": keyword, "source": "抖音作品查询-GitHub"}).encode("utf-8")
+    payload_dict = {"keyword": keyword, "source": "抖音作品查询-GitHub"}
+    if start_date:
+        payload_dict["startDate"] = start_date
+    if end_date:
+        payload_dict["endDate"] = end_date
+    payload = json.dumps(payload_dict).encode("utf-8")
 
     req = urllib.request.Request(
         API_URL,
@@ -90,16 +95,20 @@ def search(keyword: str) -> dict:
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("用法: python3 search_douyin.py \"<关键词>\"", file=sys.stderr)
-        sys.exit(1)
+    import argparse
 
-    keyword = sys.argv[1].strip()
+    parser = argparse.ArgumentParser(description="抖音爆款作品搜索脚本")
+    parser.add_argument("keyword", help="搜索关键词")
+    parser.add_argument("--start-date", "-s", default="", help="起始日期，格式 YYYY-MM-DD（默认：空字符串）")
+    parser.add_argument("--end-date", "-e", default="", help="结束日期，格式 YYYY-MM-DD（默认：空字符串）")
+    args = parser.parse_args()
+
+    keyword = args.keyword.strip()
     if not keyword:
         print("[error] 关键词不能为空", file=sys.stderr)
         sys.exit(1)
 
-    result = search(keyword)
+    result = search(keyword, start_date=args.start_date, end_date=args.end_date)
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 

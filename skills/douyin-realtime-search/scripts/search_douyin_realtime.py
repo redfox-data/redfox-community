@@ -2,7 +2,7 @@
 """
 抖音作品实时搜索脚本
 调用 Redfox API 实时搜索抖音作品数据
-用法: python3 search_douyin_realtime.py "<关键词>" [--sort 3] [--time 7]
+用法: python3 search_douyin_realtime.py "<关键词>" [--sort 3] [--time 7] [--page 1]
 """
 
 import sys
@@ -56,12 +56,13 @@ def format_articles(articles: list) -> list:
     return items
 
 
-def search(keyword: str, sort_type: str, publish_time: str) -> dict:
+def search(keyword: str, sort_type: str, publish_time: str, page: int = 1) -> dict:
     api_key = get_api_key()
     payload = json.dumps({
         "keyword":     keyword,
         "sortType":    sort_type,
         "publishTime": publish_time,
+        "offset":      page - 1,
         "source":      "抖音作品实时搜索-GitHub",
     }).encode("utf-8")
 
@@ -96,12 +97,20 @@ def search(keyword: str, sort_type: str, publish_time: str) -> dict:
         sys.exit(1)
 
     data = result.get("data") or {}
+    articles_list = data.get("list") or []
+    articles_count = len(articles_list)
+
+    # 翻页逻辑：当前页正好 9 条 → 有下一页；不足 9 条或为空 → 已是最后一页
+    has_next = articles_count == 9
+
     return {
-        "articles":           format_articles(data.get("list") or []),
+        "articles":           format_articles(articles_list),
         "latestHotArticles":  format_articles(data.get("latestHotArticles") or []),
         "hotTopics":          data.get("hotTopics") or [],
         "sort_type_label":    SORT_TYPE_MAP.get(sort_type, sort_type),
         "publish_time_label": PUBLISH_TIME_MAP.get(publish_time, publish_time),
+        "page":               page,
+        "has_next":           has_next,
     }
 
 
@@ -118,14 +127,21 @@ def main():
         choices=["7", "30", "90", "0"],
         help="发布时间筛选：7-最近7天 30-最近30天 90-最近90天 0-不限（默认7）",
     )
+    parser.add_argument(
+        "--page", dest="page", type=int, default=1,
+        help="页码，从1开始（默认1）",
+    )
     args = parser.parse_args()
 
     keyword = args.keyword.strip()
     if not keyword:
         print("[error] 关键词不能为空", file=sys.stderr)
         sys.exit(1)
+    if args.page < 1:
+        print("[error] 页码必须为正整数", file=sys.stderr)
+        sys.exit(1)
 
-    result = search(keyword, args.sort_type, args.publish_time)
+    result = search(keyword, args.sort_type, args.publish_time, args.page)
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
