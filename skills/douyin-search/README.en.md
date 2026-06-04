@@ -24,12 +24,12 @@ Enter a keyword to search for trending viral content on Douyin, presented in a s
 
 ### Core Capabilities
 
-- **Keyword search**: Enter a content topic keyword to retrieve high-engagement viral works on Douyin related to that topic.
-- **Date range filtering**: Filter works by date range, e.g. "food content from May 30 to June 2"—automatically parsed into API parameters for precise queries.
-- **Smart keyword generalization**: Automatically removes modifiers like "today," "trending," or "viral" to extract the core topic, ensuring every search returns results. For example, "today's food trending videos" is automatically queried as "food."
-- **Structured table display**: Shows the top 20 results by default, including clickable work titles, author, likes, comments, shares, saves, and publish time. Numbers above 10,000 are auto-formatted as "x.xw" for quick readability.
-- **View all data**: When results exceed 20, expand to view up to 50 entries in one click.
-- **Keyword subscription**: After a search, subscribe to the keyword and receive automatic daily updates at 10:00 AM with the latest viral works.
+- **Viral Search**: Keyword-based search for Douyin viral works — precisely discover high-engagement content.
+- **Date Filtering**: Filter by date range to pinpoint popular content within a specific timeframe.
+- **Smart Expansion**: Automatically broadens generic keywords into 10 niche terms, avoiding skewed search results.
+- **Hot Recommendations**: Recommends trending works and topics when no results found — never leave empty-handed.
+- **Clickable Links**: Work titles output as hyperlinks — one click to the original Douyin video.
+- **Subscription Push**: Subscribe to keywords for daily automated updates with the latest viral trends.
 
 ### Highlights
 

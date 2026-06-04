@@ -24,19 +24,20 @@ Daily collection of Douyin (TikTok China) works across the entire platform, deli
 
 ### Core Features
 
-- **Category-Based Filtering**: Supports 28 categories (food, ACG, gaming, automotive, etc.) plus an all-category ranking for precise targeting.
-- **Historical Date Lookback**: Query rankings for any date within the past 30 days for trend review and analysis.
-- **All-Category Labels**: In all-category rankings, each item shows its所属category for quick content-type identification.
-- **Paginated Display**: Default TOP 20 to reduce information load; full 50 items available on explicit request.
-- **Direct Work Links**: Every item title includes a clickable Douyin link to view the original work.
+- **Daily Ranking**: Daily TOP50 ranking by likes — quickly get the hottest works on the platform.
+- **Category Filtering**: Supports 28 category filters for precise vertical-niche targeting.
+- **Historical Lookback**: Up to 30 days of historical data for trend review.
+- **Clickable Links**: Work titles output as hyperlinks — one click to the original Douyin video.
+- **Paginated Display**: Defaults to TOP20; full TOP50 available on request.
+- **Subscription Push**: Subscribe by category and time preference for automated daily updates.
 
 ---
 
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Please visit [RedFoxHub](https://redfox.hk?souce=github) to register and obtain `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Please visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain `REDFOX_API_KEY`.
 - Configure the environment variable `REDFOX_API_KEY` on your device before using this skill.
 - Before providing a key, confirm its source, scope, validity period, and whether it supports reset/revocation.
 - Do not hard-code or expose keys in plain text within code, prompts, logs, or output files.

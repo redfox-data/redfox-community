@@ -27,19 +27,20 @@ A weekly content surge monitoring tool that tracks tens of thousands of Douyin w
 
 ### Core Features
 
-- **Multi-Category Querying**: Supports 28 categories (Drama, Food, Gaming, Anime, Celebrity, etc.) plus an all-category consolidated 7-day surge ranking.
-- **Flexible Time Selection**: Query "today" (returns the latest 7-day data as of yesterday), a specific historical date (within 30 days), or the earliest available date.
-- **TOP50 Ranking Output**: Defaults to TOP20 display; request the full 50 entries anytime. Video titles are presented as clickable Douyin links.
-- **7-Day New Interaction Data**: 7-day new likes, 7-day new favorites, 7-day new comments, 7-day new shares, and publish time are clearly displayed for each entry.
-- **Subscription Push**: Subscribe to 7-day surge rankings for any category; automatically pushed after the 06:00 daily update.
+- **Weekly Surge**: Daily TOP50 ranking by 7-day new likes — discover works with sustained weekly growth.
+- **Category Filtering**: Supports 28 category filters for precise vertical-niche targeting.
+- **Historical Lookback**: Up to 30 days of historical data for trend review.
+- **Clickable Links**: Work titles output as hyperlinks — one click to the original Douyin video.
+- **Paginated Display**: Defaults to TOP20; full TOP50 available on request.
+- **Subscription Push**: Subscribe by category and time preference for automated daily updates.
 
 ---
 
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Please register an account at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Please register an account at [RedFoxHub](https://redfox.hk?source=github) to obtain your `REDFOX_API_KEY`.
 - Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
 - Before providing your key, verify its source, scope, validity period, and whether reset/revocation is supported.
 - Never hardcode or expose keys in plain text within code, prompts, logs, or output files.

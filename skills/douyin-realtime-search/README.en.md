@@ -23,19 +23,20 @@ Enter any keyword to instantly retrieve the latest content data from Douyin — 
 
 ### Core Capabilities
 
-- **Keyword real-time search**: Enter a niche keyword and instantly pull the live content list from Douyin
-- **Multi-dimensional filtering**: Combine sorting method and time range freely for precise results
-- **Paginated results**: Search results support pagination — default shows page 1, reply "next page" to browse more
-- **Filter transparency**: After each result, shows the active sorting, time parameters, and current page with switch instructions
-- **Daily subscription**: Subscribe to a keyword for automatic daily pushes at 10:00 AM
+- **Real-time Search**: Keyword-based live search for the latest Douyin works — get non-cached, real-time data.
+- **Multi-dimensional Sorting**: Comprehensive / Latest / Most-liked sorting for discovering quality content by different dimensions.
+- **Time Filtering**: 7-day / 30-day / 90-day / No-limit time ranges for flexible search windows.
+- **Smart Expansion**: Auto-generates 10 alternative keywords when no results found, breaking through search bottlenecks.
+- **Paginated Browsing**: Multi-page results for exploring large search result sets.
+- **Subscription Push**: Subscribe to keywords for daily automated updates.
 
 ---
 
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Visit [RedFoxHub](https://redfox.hk?souce=github) to register and obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
 - Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
 - Before providing your key, confirm its source, scope, expiration, and whether it supports reset/revocation.
 - Never hardcode or expose your key in plaintext within code, prompts, logs, or output files.
