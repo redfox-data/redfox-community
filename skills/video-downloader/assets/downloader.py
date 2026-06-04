@@ -26,7 +26,7 @@ API_URL = "https://redfox.hk/story/api/parseWork/parse"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 
-ENV_KEY = "X_API_KEY"
+ENV_KEY = "REDFOX_API_KEY"
 
 # 内置公共 API Key（免费 10000 次，超出后需自行注册）
 PUBLIC_API_KEY = "ak_783ee098b4934f539e0259d98d2a0f90"
@@ -139,8 +139,8 @@ Examples:
   python3 downloader.py https://b23.tv/xxxxxx --api-key ark_xxxxx
   python3 downloader.py https://xhslink.com/o/xxxxxx -o ~/Videos
 
-也可通过环境变量 X_API_KEY 配置密钥：
-  export X_API_KEY=ark_xxxxx
+也可通过环境变量 REDFOX_API_KEY 配置密钥：
+  export REDFOX_API_KEY=ark_xxxxx
   python3 downloader.py <url>
         """,
     )
@@ -172,7 +172,7 @@ Examples:
         print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
         print(f"{YELLOW}║  使用内置公共 API Key（剩余约 10000 次）     ║{RESET}")
         print(f"{YELLOW}║  超出后请前往 www.redfox.hk 获取 Key：       ║{RESET}")
-        print(f"{YELLOW}║  export X_API_KEY=ark_你的密钥                ║{RESET}")
+        print(f"{YELLOW}║  export REDFOX_API_KEY=ark_你的密钥                ║{RESET}")
         print(f"{YELLOW}║  或：--api-key ark_你的密钥                  ║{RESET}")
         print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
         print()
@@ -218,10 +218,10 @@ Examples:
             if api_key == PUBLIC_API_KEY:
                 error("公共 API Key 已失效（可能超出 10000 次免费限额）")
                 warn("请前往 www.redfox.hk 获取自己的 API Key")
-                print("  配置方式：export X_API_KEY=ark_你的密钥")
+                print("  配置方式：export REDFOX_API_KEY=ark_你的密钥")
             else:
                 error("API Key 无效，请检查是否正确")
-                print("  格式应为 ark_xxx，可通过 export X_API_KEY=ark_你的密钥 设置")
+                print("  格式应为 ark_xxx，可通过 export REDFOX_API_KEY=ark_你的密钥 设置")
         elif code == 400:
             error(f"请求参数错误: {msg}")
         else:

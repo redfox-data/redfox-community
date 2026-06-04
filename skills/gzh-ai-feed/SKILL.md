@@ -57,26 +57,26 @@ python3 "$SKILL_PATH/assets/daily_report.py"
 
 免费额度用完后，前往 [redfox.hk/login](https://www.redfox.hk/login) 注册获取个人 API Token：
 
-| 方式             | 命令                                                           |
-| ---------------- | -------------------------------------------------------------- |
-| 环境变量（推荐） | `export X_API_KEY=ak_你的密钥`                                 |
-| 命令行参数       | `--api-key ak_你的密钥`                                        |
-| 配置文件         | `echo '{"api_key":"ak_你的密钥"}' > ~/.qoder/apis/redfox.json` |
+| 方式 | 命令 |
+|------|------|
+| 环境变量（推荐） | `export REDFOX_API_KEY=ak_你的密钥` |
+| 命令行参数 | `--api-key ak_你的密钥` |
+| 配置文件 | `echo '{"api_key":"ak_你的密钥"}' > ~/.qoder/apis/redfox.json` |
 
 ---
 
 ## 参数说明
 
-| 参数            | 说明                     | 默认值                                |
-| --------------- | ------------------------ | ------------------------------------- |
-| `--keywords`    | 关注的话题方向，逗号分隔 | `AI,人工智能,大模型,GPT,Agent,AI绘画` |
-| `--count`       | 扫描文章数量             | `200`                                 |
-| `--date`        | 指定日期 YYYY-MM-DD      | 今天                                  |
-| `--output-dir`  | 输出目录                 | `~/Downloads/QoderReports`            |
-| `--api-key`     | 指定 API Key             | —                                     |
-| `--subscribe`   | 开启每日订阅             | —                                     |
-| `--unsubscribe` | 关闭每日订阅             | —                                     |
-| `--no-open`     | 不自动打开浏览器         | —                                     |
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `--keywords` | 关注的话题方向，逗号分隔 | `AI,人工智能,大模型,GPT,Agent,AI绘画` |
+| `--count` | 扫描文章数量 | `200` |
+| `--date` | 指定日期 YYYY-MM-DD | 今天 |
+| `--output-dir` | 输出目录 | `~/Downloads/QoderReports` |
+| `--api-key` | 指定 API Key | — |
+| `--subscribe` | 开启每日订阅 | — |
+| `--unsubscribe` | 关闭每日订阅 | — |
+| `--no-open` | 不自动打开浏览器 | — |
 
 ---
 

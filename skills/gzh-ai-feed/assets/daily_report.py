@@ -33,7 +33,7 @@ except ImportError:
 API_URL = "https://redfox.hk/story/api/parseWork/queryAiMsgs"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
-ENV_KEY = "X_API_KEY"
+ENV_KEY = "REDFOX_API_KEY"
 PUBLIC_API_KEY = "ak_783ee098b4934f539e0259d98d2a0f90"
 SOURCE = "AI公众号信息源-GitHub"
 
@@ -798,7 +798,7 @@ Examples:
         print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
         print(f"{YELLOW}║  使用内置公共 API Key                         ║{RESET}")
         print(f"{YELLOW}║  超出额度后请前往 www.redfox.hk 获取 Key：    ║{RESET}")
-        print(f"{YELLOW}║  export X_API_KEY=ak_你的密钥                 ║{RESET}")
+        print(f"{YELLOW}║  export REDFOX_API_KEY=ak_你的密钥                 ║{RESET}")
         print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
         print()
 

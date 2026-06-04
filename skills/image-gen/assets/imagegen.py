@@ -284,7 +284,7 @@ Examples:
         print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
         print(f"{YELLOW}║  使用内置公共 API Key                         ║{RESET}")
         print(f"{YELLOW}║  超出额度后请前往 www.redfox.hk 获取 Key：    ║{RESET}")
-        print(f"{YELLOW}║  export REDFOX_API_KEY=ak_你的密钥            ║{RESET}")
+        print(f"{YELLOW}║  export REDFOX_API_KEY=ak_你的密钥                 ║{RESET}")
         print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
         print()
 

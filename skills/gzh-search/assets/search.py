@@ -34,7 +34,7 @@ except ImportError:
 API_URL = "https://redfox.hk/story/api/gzhData/searchArticle"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
-ENV_KEY = "X_API_KEY"
+ENV_KEY = "REDFOX_API_KEY"
 PUBLIC_API_KEY = "ak_db0e200c049b44288d46da0e758d53dd"
 SOURCE = "公众号搜索爬虫-GitHub"
 
