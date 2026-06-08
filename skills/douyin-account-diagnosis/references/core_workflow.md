@@ -129,7 +129,7 @@ Body: {"accountIds": ["抖音号"], "source": "抖音账号诊断宗师-GitHub"}
 | totalFavorited | Long | 获赞总数 |
 | signature | String | 账号简介 |
 | accountClassifyFirst | String | 账号分类（需映射，见第6节分类映射表） |
-| newrankIndex | Double | 新榜指数 |
+| redfoxIndex | Double | 红狐指数 |
 
 ---
 

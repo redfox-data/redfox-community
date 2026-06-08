@@ -12,20 +12,20 @@ from typing import List, Dict, Optional
 
 class DouyinUserAPI:
     """抖音用户API调用类 - 红狐API /story/api/dyUser/query"""
-    
+
     # API基础地址
     BASE_URL = "https://redfox.hk"
-    
+
     # 接口路径（已验证可用）
     QUERY_ENDPOINT = "/story/api/dyUser/query"
-    
+
     # 环境变量名
     ENV_VAR = "REDFOX_API_KEY"
-    
+
     def __init__(self, api_key: Optional[str] = None):
         """
         初始化API客户端
-        
+
         Args:
             api_key: API密钥（X-API-KEY），格式 ak_xxx，不传则从环境变量读取
         """
@@ -34,7 +34,7 @@ class DouyinUserAPI:
             "Content-Type": "application/json",
             "X-API-KEY": self.api_key
         }
-    
+
     def query_accounts(
         self,
         account_ids: Optional[List[str]] = None,
@@ -43,12 +43,12 @@ class DouyinUserAPI:
     ) -> Dict:
         """
         查询抖音账号信息
-        
+
         Args:
             account_ids: 抖音号列表（unique_id、short_id、uid）
             account_names: 抖音昵称列表（模糊匹配nickname）
             source: 来源标识
-            
+
         Returns:
             dict: {
                 "success": bool,
@@ -58,16 +58,16 @@ class DouyinUserAPI:
             }
         """
         import requests
-        
+
         url = f"{self.BASE_URL}{self.QUERY_ENDPOINT}"
-        
+
         # 构建请求体
         payload = {"source": source}
         if account_ids:
             payload["accountIds"] = account_ids
         if account_names:
             payload["accountNames"] = account_names
-        
+
         if not account_ids and not account_names:
             return {
                 "success": False,
@@ -75,15 +75,15 @@ class DouyinUserAPI:
                 "error": "accountIds 和 accountNames 至少提供一个",
                 "fallback_needed": False
             }
-        
+
         try:
             response = requests.post(url, json=payload, headers=self.headers, timeout=30)
             result = response.json()
-            
+
             code = result.get("code")
             msg = result.get("msg", "")
             data = result.get("data")
-            
+
             # 成功（红狐API成功码为200或2000，兼容新旧版本）
             if code in (200, 2000):
                 accounts = data if isinstance(data, list) else ([data] if data else [])
@@ -93,7 +93,7 @@ class DouyinUserAPI:
                     "error": None,
                     "fallback_needed": False
                 }
-            
+
             # 积分不足 / 调用次数达上限
             if code == 3201 or (code == 500 and ("积分" in msg or "次数" in msg or "上限" in msg)):
                 return {
@@ -102,7 +102,7 @@ class DouyinUserAPI:
                     "error": f"API业务错误: {msg}",
                     "fallback_needed": True
                 }
-            
+
             # 其他业务错误
             return {
                 "success": False,
@@ -110,7 +110,7 @@ class DouyinUserAPI:
                 "error": f"API错误(code={code}): {msg}",
                 "fallback_needed": True
             }
-            
+
         except requests.exceptions.ConnectionError:
             return {
                 "success": False,
@@ -132,7 +132,7 @@ class DouyinUserAPI:
                 "error": f"查询失败: {e}",
                 "fallback_needed": True
             }
-    
+
     def diagnose_account(
         self,
         account_name: Optional[str] = None,
@@ -140,11 +140,11 @@ class DouyinUserAPI:
     ) -> Dict:
         """
         诊断单个抖音账号（查询+数据整合）
-        
+
         Args:
             account_name: 抖音昵称
             account_id: 抖音号
-            
+
         Returns:
             dict: {
                 "success": bool,
@@ -164,19 +164,19 @@ class DouyinUserAPI:
                 "error": "请提供抖音昵称或抖音号",
                 "fallback_needed": False
             }
-        
+
         # 构建查询参数
         account_ids = [account_id] if account_id else None
         account_names = [account_name] if account_name else None
-        
+
         print(f"🔍 正在查询抖音账号: {account_name or account_id}")
-        
+
         # 查询账号信息
         result = self.query_accounts(
             account_ids=account_ids,
             account_names=account_names
         )
-        
+
         if not result["success"]:
             print(f"❌ 查询失败: {result['error']}")
             return {
@@ -187,7 +187,7 @@ class DouyinUserAPI:
                 "error": result["error"],
                 "fallback_needed": result["fallback_needed"]
             }
-        
+
         accounts = result["data"]
         if not accounts:
             print(f"❌ 未查询到抖音账号: {account_name or account_id}")
@@ -199,10 +199,10 @@ class DouyinUserAPI:
                 "error": "未查询到账号",
                 "fallback_needed": True
             }
-        
+
         # 取第一个匹配结果
         account_data = accounts[0]
-        
+
         # 提取数据
         account_info = {
             "nickname": account_data.get("nickname", ""),
@@ -222,13 +222,13 @@ class DouyinUserAPI:
             "redfoxIndex": account_data.get("redfoxIndex"),
             "crawlTime": account_data.get("crawlTime", ""),
         }
-        
+
         works = account_data.get("works", [])
         similar_accounts = account_data.get("similarAccounts", [])
-        
+
         print(f"✅ 查询成功: {account_info['nickname']} (粉丝: {format_number(account_info['followerCount'])})")
         print(f"   作品数: {account_info['awemeCount']} | 近7天作品: {len(works)} | 相似账号: {len(similar_accounts)}")
-        
+
         return {
             "success": True,
             "account": account_info,
@@ -237,16 +237,16 @@ class DouyinUserAPI:
             "error": None,
             "fallback_needed": False
         }
-    
+
     def calculate_works_stats(self, works: List[Dict]) -> Dict:
         """
         基于近7天作品数据计算v4.0统计指标
         四维度：账号体量(35) + 内容表现(35) + 运营活跃度(20) + 平台指数(10)
         不依赖playCount，使用diggCount/commentCount/shareCount
-        
+
         Args:
             works: 作品列表（DyWorkVO格式）
-            
+
         Returns:
             dict: 统计数据
         """
@@ -259,19 +259,19 @@ class DouyinUserAPI:
                 "update_frequency": 0,     # 近7天发布数
                 "publish_periods": [],     # 发布时段列表
             }
-        
+
         total_digg = sum(w.get("diggCount", 0) or 0 for w in works)
         total_comment = sum(w.get("commentCount", 0) or 0 for w in works)
         total_share = sum(w.get("shareCount", 0) or 0 for w in works)
-        
+
         n = len(works)
         avg_digg = total_digg / n
         avg_comment = total_comment / n
         avg_share = total_share / n
-        
+
         # 传播系数 = 分享数/点赞数
         spread_coefficient = (total_share / total_digg * 100) if total_digg > 0 else 0
-        
+
         # 发布时段
         publish_periods = []
         for w in works:
@@ -282,7 +282,7 @@ class DouyinUserAPI:
                     publish_periods.append(hour)
                 except (IndexError, ValueError):
                     pass
-        
+
         return {
             "avg_digg_count": int(avg_digg),
             "avg_comment_count": int(avg_comment),
@@ -301,7 +301,7 @@ def format_number(num) -> str:
         num = int(num)
     except (ValueError, TypeError):
         return str(num)
-    
+
     if num >= 100000000:
         return f"{num/100000000:.1f}亿"
     elif num >= 10000:
@@ -353,7 +353,7 @@ def print_account_summary(result: Dict):
     account = result.get("account", {})
     works = result.get("works", [])
     similar = result.get("similar_accounts", [])
-    
+
     print("\n" + "=" * 60)
     print(f"📋 账号数据摘要")
     print("=" * 60)
@@ -369,7 +369,7 @@ def print_account_summary(result: Dict):
     print(f"获赞总数: {format_number(account.get('totalFavorited'))}")
     print(f"作品总数: {account.get('awemeCount', '-')}")
     print(f"数据更新: {account.get('crawlTime', '-')}")
-    
+
     # 作品数据
     if works:
         api = DouyinUserAPI()
@@ -380,7 +380,7 @@ def print_account_summary(result: Dict):
         print(f"  平均分享数: {format_number(stats['avg_share_count'])}")
         print(f"  传播系数: {stats['spread_coefficient']}%")
         print(f"  更新频率: {stats['update_frequency']}条/7天")
-        
+
         print(f"\n🎬 作品列表:")
         sorted_works = sorted(works, key=lambda w: w.get("diggCount", 0) or 0, reverse=True)
         for i, work in enumerate(sorted_works[:5], 1):
@@ -389,26 +389,26 @@ def print_account_summary(result: Dict):
             comment = format_number(work.get('commentCount'))
             share = format_number(work.get('shareCount'))
             print(f"  {i}. {title} | 点赞:{digg} | 评论:{comment} | 分享:{share}")
-    
+
     # 相似账号
     if similar:
         print(f"\n👥 相似账号（共{len(similar)}个）:")
         for s in similar[:5]:
             classify = CATEGORY_MAP.get(s.get('accountClassifyFirst', ''), s.get('accountClassifyFirst', '-'))
-            print(f"  - {s.get('nickname', '-')} | 粉丝:{format_number(s.get('followerCount'))} | 分类:{classify} | 新榜指数:{s.get('newrankIndex', '-')}")
+            print(f"  - {s.get('nickname', '-')} | 粉丝:{format_number(s.get('followerCount'))} | 分类:{classify} | 红狐指数:{s.get('redfoxIndex', '-')}")
 
 
 # 使用示例
 if __name__ == "__main__":
     api = DouyinUserAPI()
-    
+
     if not api.api_key:
         print(f"❌ 未设置环境变量 {DouyinUserAPI.ENV_VAR}")
         print(f"💡 请先运行: export {DouyinUserAPI.ENV_VAR}=你的API密钥值")
         exit(1)
-    
+
     print(f"✅ API Key已配置: {api.api_key[:8]}...")
-    
+
     # 示例1：通过名称查询
     print("\n=== 示例1：通过名称查询 ===")
     result = api.diagnose_account(account_name="疯狂小杨哥")
@@ -416,9 +416,9 @@ if __name__ == "__main__":
         print_account_summary(result)
     elif result["fallback_needed"]:
         print(f"⚠️ API不可用，需降级为联网搜索: {result['error']}")
-    
+
     print("\n" + "=" * 60 + "\n")
-    
+
     # 示例2：通过抖音号查询
     print("=== 示例2：通过抖音号查询 ===")
     result = api.diagnose_account(account_id="yangge_520")
