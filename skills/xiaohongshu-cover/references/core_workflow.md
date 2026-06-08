@@ -91,6 +91,16 @@
 - 选取前20条数据用于封面图分析
 - 优先保证强相关内容，高互动内容不能压过相关性
 
+5. **⚠️ 数据完整性要求**：
+- 筛选后的20条数据必须保留原始JSON中的所有字段，不可简化或遗漏
+- **userId 字段尤其不可遗漏**，否则步骤6中作者主页链接 `https://www.xiaohongshu.com/user/profile/{userId}` 将不完整导致跳转失败
+- 严禁创建仅含部分字段的简化子集（如仅保留 photoId、coverUrl、title 而丢弃 userId、userName 等）
+
+5. **⚠️ 数据完整性要求**：
+- 筛选后的20条数据必须保留原始JSON中的所有字段，不可简化或遗漏
+- **userId 字段**尤其不可遗漏，否则步骤6中作者主页链接 `https://www.xiaohongshu.com/user/profile/{userId}` 将不完整导致跳转失败
+- 严禁创建仅包含部分字段的简化数据子集（如仅保留 photoId、coverUrl、title 而丢弃 userId、userName 等）
+
 ---
 
 ## 步骤4：AI批量图像分析与特征提取（强制执行）
@@ -112,6 +122,7 @@
 
 2. **提取封面图URL**：从每条数据中提取 `coverUrl` 字段，合并为封面候选池
    - **⚠️ 重要**：直接使用接口返回的原始 `coverUrl`，不要修改或转换URL地址
+   - **⚠️ 重要**：提取封面图时必须同时保留每条数据的 `userId`、`userName`、`photoId`、`title` 等关键字段，不可只提取 coverUrl 而丢弃其他字段。这些字段在步骤6生成方案时用于构建作者链接和笔记链接
 
 3. **按互动量排序筛选**：从高到低选取前20条数据（优先选取总互动量高的笔记）
 
@@ -188,7 +199,7 @@
 
 | 封面 | 标题 | 作者 | 互动数据 |
 |------|------|------|----------|
-| ![封面](从JSON数据中提取的真实coverUrl) | [真实标题](笔记链接) | [真实作者](主页链接) | 点赞：X | 收藏：X | 评论：X |
+| ![封面](从JSON数据中提取的真实coverUrl) | [真实标题](https://www.xiaohongshu.com/explore/{photoId}) | [真实作者](https://www.xiaohongshu.com/user/profile/{userId})（粉丝：{fans}） | 点赞：X | 收藏：X | 评论：X |
 
 **生图提示词**：
 ```
@@ -205,7 +216,7 @@
 
 | 封面 | 标题 | 作者 | 互动数据 |
 |------|------|------|----------|
-| ![封面](从JSON数据中提取的真实coverUrl) | [真实标题](笔记链接) | [真实作者](主页链接) | 点赞：X | 收藏：X | 评论：X |
+| ![封面](从JSON数据中提取的真实coverUrl) | [真实标题](https://www.xiaohongshu.com/explore/{photoId}) | [真实作者](https://www.xiaohongshu.com/user/profile/{userId})（粉丝：{fans}） | 点赞：X | 收藏：X | 评论：X |
 
 **生图提示词**：
 ```
@@ -222,7 +233,7 @@
 
 | 封面 | 标题 | 作者 | 互动数据 |
 |------|------|------|----------|
-| ![封面](从JSON数据中提取的真实coverUrl) | [真实标题](笔记链接) | [真实作者](主页链接) | 点赞：X | 收藏：X | 评论：X |
+| ![封面](从JSON数据中提取的真实coverUrl) | [真实标题](https://www.xiaohongshu.com/explore/{photoId}) | [真实作者](https://www.xiaohongshu.com/user/profile/{userId})（粉丝：{fans}） | 点赞：X | 收藏：X | 评论：X |
 
 **生图提示词**：
 ```
@@ -239,6 +250,13 @@
 - 图像识别使用 `read_image` 工具批量分析
 - 方案卡片需包含：标题链接、作者链接、互动数据
 
+**链接格式规范**：
+- 笔记链接：`https://www.xiaohongshu.com/explore/{photoId}` — photoId 从原始数据中提取
+- 作者主页链接：`https://www.xiaohongshu.com/user/profile/{userId}` — userId 从原始数据中提取
+- ⚠️ **userId 不可遗漏**，否则作者链接变为不完整路径导致跳转失败
+- 粉丝数（fans）应标注在作者名称旁，格式：`[作者名](主页链接)（粉丝：X）`
+- 受小红书风控规则限制，部分链接可能无法直接跳转，需提示用户复制标题在小红书 App 内搜索
+
 ---
 
 ## 步骤7：输出前自检【必须执行】
@@ -253,6 +271,8 @@
 | 封面示例 | 是否展示该分类下所有封面图（每行5张，超出换行） | ☐ |
 | 三种封面设计方案 | 是否输出三种不同风格的封面方案 | ☐ |
 | 案例参考 | 每个方案是否包含真实的coverUrl、标题链接、作者链接、互动数据 | ☐ |
+| 作者链接完整性 | 每个作者链接是否包含有效的 userId（`https://www.xiaohongshu.com/user/profile/{userId}`，userId不为空） | ☐ |
+| 粉丝数标注 | 作者名称旁是否标注粉丝数（格式：`[作者名](主页链接)（粉丝：X）`） | ☐ |
 | 生图提示词 | 每个方案是否包含3:4竖版比例要求及参考封面coverUrl | ☐ |
 | 用户交互 | 是否询问用户是否上传自己的图片并结合方案生成 | ☐ |
 
