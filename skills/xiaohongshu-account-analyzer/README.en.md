@@ -51,7 +51,7 @@ From unclear positioning to monetization struggles, from topic confusion to upda
 ### Input format
 
 **⚠️ You must provide the Xiaohongshu account ID (digits or alphanumeric), not a Chinese nickname**
-![alt text](https://img-newrank.newrank.cn/sq/inner/img/3323217/3323217/2026/05/27/52422bc0109944ada3bf42cc8eb656e1.png)
+![alt text](图片)
 
 | Valid input      | Example                              |
 | ---------------- | ------------------------------------ |
