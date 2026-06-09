@@ -30,6 +30,15 @@ SOURCE = "GPT image2-GitHub"
 POLL_INTERVAL = 3  # seconds
 MAX_POLL_ATTEMPTS = 60  # max ~3 minutes
 
+# 经过测试验证的分辨率白名单：非白名单分辨率可能导致生成过慢或失败
+# 快速档（常规速度）
+FAST_SIZES = {"1024x1024", "1024x1536", "1536x1024", "1792x1024", "1024x1792"}
+# 高清档（画质更高，生成更慢）
+HD_SIZES = {"2048x2048", "2048x1152", "1152x2048"}
+ALLOWED_SIZES = FAST_SIZES | HD_SIZES
+
+MAX_PROMPT_LENGTH = 500  # 提示词最大字数限制
+
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
 RED = "\033[91m"
@@ -244,12 +253,12 @@ Examples:
   python3 imagegen.py "改成赛博朋克风格" --image ref.jpg --fidelity high
         """,
     )
-    parser.add_argument("prompt", help="图片生成/编辑提示词")
+    parser.add_argument("prompt", help="图片生成/编辑提示词 (最多 500 字)")
     parser.add_argument("--api-key", help="API Key (不传则读取环境变量或内置公共 Key)")
     parser.add_argument("-o", "--output-dir", help="输出目录 (默认 ~/Downloads/QoderImages)")
     parser.add_argument("-n", "--count", type=int, default=1, help="生成图片数量 (1-10, 默认 1)")
-    parser.add_argument("--size", default="1024x1024",
-                        help="图片尺寸 (默认 1024x1024, 支持 auto/1024x1024/1024x1792/1792x1024 等)")
+    parser.add_argument("--size", default="1024x1792",
+                        help="图片尺寸 (默认 1024x1792, 可选: 1024x1024/1024x1536/1536x1024/1792x1024/1024x1792/2048x2048/2048x1152/1152x2048)")
     parser.add_argument("--quality", default="medium", choices=["low", "medium", "high", "auto"],
                         help="图片质量 (默认 medium)")
     parser.add_argument("--format", default="png", choices=["png", "jpeg", "webp"],
@@ -268,6 +277,19 @@ Examples:
 
     args = parser.parse_args()
 
+    # ── Validate size ──
+    if args.size not in ALLOWED_SIZES:
+        error(f"当前比例暂不支持: {args.size}")
+        print(f"  该分辨率会影响生图速度，可能导致生成失败。请使用以下尺寸：")
+        print(f"  快速档: {', '.join(sorted(FAST_SIZES))}")
+        print(f"  高清档（画质更高，生成更慢）: {', '.join(sorted(HD_SIZES))}")
+        sys.exit(1)
+
+    # ── Validate prompt length ──
+    if len(args.prompt) > MAX_PROMPT_LENGTH:
+        error(f"提示词过长 ({len(args.prompt)} 字)，请控制在 {MAX_PROMPT_LENGTH} 字以内")
+        sys.exit(1)
+
     # ── Banner ──
     banner = f"""{CYAN}{BOLD}
   ╔══════════════════════════════════════╗
@@ -283,7 +305,8 @@ Examples:
     if api_key == PUBLIC_API_KEY and not args.api_key and not os.environ.get(ENV_KEY):
         print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
         print(f"{YELLOW}║  使用内置公共 API Key                         ║{RESET}")
-        print(f"{YELLOW}║  超出额度后请前往 www.redfox.hk 获取 Key：    ║{RESET}")
+        print(f"{YELLOW}║  超出额度后请前往以下链接获取 Key：          ║{RESET}")
+        print(f"{YELLOW}║  https://redfox.hk/settings/api-keys         ║{RESET}")
         print(f"{YELLOW}║  export REDFOX_API_KEY=ak_你的密钥                 ║{RESET}")
         print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
         print()
