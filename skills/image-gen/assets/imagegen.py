@@ -24,7 +24,7 @@ UPLOAD_URL = "https://redfox.hk/story/api/parseWork/imageGen/uploadImage"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
-PUBLIC_API_KEY = "ak_783ee098b4934f539e0259d98d2a0f90"
+PUBLIC_API_KEY = "ak_b45b6a6881f4400fb321428947eb6661"
 SOURCE = "GPT image2-GitHub"
 
 POLL_INTERVAL = 3  # seconds
