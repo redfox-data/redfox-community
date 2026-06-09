@@ -1089,9 +1089,9 @@ def format_output(current_account, benchmark_accounts, top_accounts, query_avg_p
 def format_account_not_found(account_id):
     """账号未查询到时，输出数据收录提示文案"""
     lines = []
-    lines.append("未查询到当前账号的相关信息，可提交当前抖音账号进行数据收录。")
+    lines.append("未查询到当前账号的相关信息，可提交当前抖音账号进行账号收录。")
     lines.append("")
-    lines.append(f"1. 回复抖音号或抖音昵称（在抖音个人主页显示的ID，如 {account_id}_1234），即可进行数据收录。30分钟后将自动为您推送诊断报告；")
+    lines.append(f"1. 回复抖音号（在抖音个人主页显示的ID，如 {account_id}_1234），即可进行账号收录。30分钟后将自动为您推送相似账号报告~")
     lines.append("2. 下次再说；")
     return "\n".join(lines)
 
@@ -1106,6 +1106,39 @@ def format_subscription_prompt(account_name):
     return "\n".join(lines)
 
 
+def sync_user_notes(account_id):
+    """调用API触发账号数据同步收录
+
+    接口文档：POST /dyUser/syncUserNotes
+    将指定账号加入抖音待同步队列，系统会异步拉取该账号的文章/作品数据。
+    """
+    credential = get_api_key()
+
+    url = "https://redfox.hk/story/api/dyUser/syncUserNotes"
+    headers = {
+        "Content-Type": "application/json",
+        "X-API-KEY": credential
+    }
+
+    payload = {
+        "accountId": account_id,
+        "source": "抖音相似账号推荐"
+    }
+
+    try:
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            result = json.loads(resp.read().decode("utf-8")) if resp.read else None
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        raise Exception(f"账号收录请求失败: {e.code}, {body}")
+    except urllib.error.URLError as e:
+        raise Exception(f"账号收录请求失败: {str(e)}")
+
+    return True
+
+
 # ============================================================
 # 主入口
 # ============================================================
@@ -1113,11 +1146,21 @@ def format_subscription_prompt(account_name):
 def main():
     parser = argparse.ArgumentParser(description="抖音相似账号推荐脚本")
     parser.add_argument("--account_id", help="抖音账号ID或昵称（支持unique_id、short_id、uid、昵称）")
+    parser.add_argument("--sync", action="store_true", help="触发账号数据收录（用户确认收录时使用）")
 
     args = parser.parse_args()
 
     if not args.account_id:
         print("错误：请提供 --account_id 抖音号或昵称")
+        return
+
+    # 用户确认收录：直接调用 syncUserNotes 接口
+    if args.sync:
+        try:
+            sync_user_notes(args.account_id)
+            print(f"已触发账号收录，30分钟后将自动为您推送相似账号报告~")
+        except Exception as e:
+            print(f"账号收录失败: {str(e)}")
         return
 
     try:
@@ -1145,7 +1188,7 @@ def main():
 
     except Exception as e:
         error_msg = str(e)
-        # 账号未找到时，输出数据收录提示
+        # 账号未找到时，输出收录提示，等用户确认后再触发收录
         if "未找到账号" in error_msg:
             print(format_account_not_found(args.account_id))
         else:
