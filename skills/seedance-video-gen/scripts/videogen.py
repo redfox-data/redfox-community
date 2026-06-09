@@ -22,6 +22,7 @@ RESULT_URL = "https://redfox.hk/story/api/parseWork/videoGen/result"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
+PUBLIC_API_KEY = "ak_b45b6a6881f4400fb321428947eb6661"
 SOURCE = "seedance2.0-GitHub"
 DEFAULT_MODEL = "doubao-seedance-2-0-260128"
 
@@ -53,7 +54,7 @@ def step(msg):
 
 
 def get_api_key(cli_key=None):
-    """Get API key: CLI arg > env var > config file. Returns None if not found."""
+    """Get API key: CLI arg > env var > config file > public key."""
     if cli_key:
         return cli_key
     env_key = os.environ.get(ENV_KEY)
@@ -67,7 +68,7 @@ def get_api_key(cli_key=None):
                 return key
         except (json.JSONDecodeError, OSError):
             pass
-    return None
+    return PUBLIC_API_KEY
 
 
 def submit_video_task(session, prompt, params, image_url=None):
@@ -281,26 +282,14 @@ Examples:
     # ── API Key ──
     api_key = get_api_key(cli_key=args.api_key)
 
-    if not api_key:
-        print(f"{RED}╔══════════════════════════════════════════════════╗{RESET}")
-        print(f"{RED}║  未配置 API Key                              ║{RESET}")
-        print(f"{RED}║                                              ║{RESET}")
-        print(f"{RED}║  请先访问以下链接注册并获取 Key：            ║{RESET}")
-        print(f"{RED}║  https://redfox.hk/settings/api-keys         ║{RESET}")
-        print(f"{RED}║                                              ║{RESET}")
-        print(f"{RED}║  方式一 (推荐):                              ║{RESET}")
-        print(f"{RED}║    export REDFOX_API_KEY=ak_你的密钥          ║{RESET}")
-        print(f"{RED}║                                              ║{RESET}")
-        print(f"{RED}║  方式二:                                     ║{RESET}")
-        print(RED + '║    python3 videogen.py "prompt" \\             ║' + RESET)
-        print(f"{RED}║      --api-key ak_你的密钥                   ║{RESET}")
-        print(f"{RED}║                                              ║{RESET}")
-        print(f"{RED}║  方式三:                                     ║{RESET}")
-        print(RED + '║    mkdir -p ~/.qoder/apis && \\               ║' + RESET)
-        print(RED + '║    echo \'{"api_key":"ak_..."}\' > \\           ║' + RESET)
-        print(RED + '║      ~/.qoder/apis/redfox.json              ║' + RESET)
-        print(f"{RED}╚══════════════════════════════════════════════════╝{RESET}")
-        sys.exit(1)
+    if api_key == PUBLIC_API_KEY and not args.api_key and not os.environ.get(ENV_KEY):
+        print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
+        print(f"{YELLOW}║  使用内置公共 API Key                         ║{RESET}")
+        print(f"{YELLOW}║  超出额度后请前往以下链接获取 Key：          ║{RESET}")
+        print(f"{YELLOW}║  https://redfox.hk/settings/api-keys         ║{RESET}")
+        print(f"{YELLOW}║  export REDFOX_API_KEY=ak_你的密钥                 ║{RESET}")
+        print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
+        print()
 
     # ── Session (all requests use HTTPS with SSL verification) ──
     session = requests.Session()
