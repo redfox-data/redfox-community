@@ -1,0 +1,8 @@
+interface:
+  display_name: "Cn Last 30 Days"
+  short_description: "研究过去30天中国社媒平台上任何话题的真实讨论。覆盖小红书、抖音、公众号三大平台，返回跨平台舆情综合分析。"
+  default_prompt: "研究过去30天这个话题在小红书、抖音、公众号上的讨论。综合分析用户在说什么、什么内容被点赞收藏最多、各平台态度有什么差异。"
+  brand_color: "#E63946"
+
+policy:
+  allow_implicit_invocation: true

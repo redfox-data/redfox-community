@@ -9,7 +9,7 @@ A one-click tool that audits and optimizes any SKILL.md against the *Skills MD S
 **Core Value**
 
 - **Better Descriptions**: Automatically fixes the YAML description to include third-person phrasing, WHAT + WHEN context, and trigger keywords, improving Agent trigger accuracy.
-- **Clear Structure**: Enforces the standard opening sections (Introduction + Features + API Key), restructures/merges/removes empty sections for a clean document hierarchy.
+- **Clear Structure**: Enforces the standard opening sections (Introduction + Features), restructures/merges/removes empty sections for a clean document hierarchy.
 - **Lower Token Cost**: Strips redundant explanations and filler text, keeping the main body within 500 lines.
 
 **Ideal For**
@@ -25,22 +25,10 @@ A one-click tool that audits and optimizes any SKILL.md against the *Skills MD S
 ### Core Capabilities
 
 - **YAML Description Fix**: Auto-completes third-person descriptions, trigger scenarios, and trigger keywords within a 1024-character limit.
-- **Section Restructuring**: Enforces the standard opening (📝 Introduction + ✨ Features + 🔑 API Key), merges short sections, splits long sections, and removes empty sections.
+- **Section Restructuring**: Enforces the standard opening (📝 Introduction + ✨ Features), merges short sections, splits long sections, and removes empty sections.
 - **Redundancy Removal**: Strips background knowledge explainers, repeated statements, and filler phrases while preserving core business rules and constraints.
 - **Format Normalization**: Unifies terminology across the document, labels code blocks with language types, uses forward-slash paths, and aligns tables.
 - **Progressive Refactoring**: Suggests moving detailed content to a `references/` directory when the file exceeds 500 lines, keeping the main body lean.
-- **API Key Section Check**: Automatically inserts a standard 🔑 API Key template after Features when the section is missing, ensuring API Key configuration guidance is always visible.
-
----
-
-## API Key Acquisition & Security
-
-- This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
-- Please visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
-- Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
-- Before supplying a key, verify its source, applicable scope, validity period, and whether it supports reset/revocation.
-- Never hardcode or expose keys in code, prompts, logs, or output files.
 
 ---
 
@@ -55,7 +43,6 @@ Simply describe your optimization need in natural language — no commands to me
 | Optimize a specific skill | "Optimize the SKILL.md for my xxx skill" | Reads the target SKILL.md, evaluates all dimensions, and outputs an optimized version |
 | Check format compliance | "Check if this SKILL.md meets the standard format" | Audits each dimension and lists issues with fix suggestions |
 | Fix the description field | "The description is too vague, fix it" | Rewrites in third-person + WHAT + WHEN + trigger keyword format |
-| Add missing API Key section | "The SKILL.md is missing an API Key section, add it" | Automatically inserts the standard API Key template after Features |
 
 ---
 
