@@ -67,23 +67,19 @@ class InsufficientCreditsError(Exception):
 
 
 def get_api_key(cli_key: str | None = None) -> str:
-    """按优先级获取 API Key: 命令行 > 环境变量 > 配置文件 > 公共Key"""
+    """按优先级获取 API Key: 命令行 > 内置公共Key > 环境变量"""
     if cli_key:
         return cli_key
+    # 优先使用内置公共 Key（有免费额度）
+    if PUBLIC_API_KEY:
+        return PUBLIC_API_KEY
+    # 其次从环境变量获取
     for env_name in ("REDFOX_API_KEY", "X_API_KEY"):
         val = os.environ.get(env_name, "").strip()
         if val:
             return val
-    config_path = Path.home() / ".qoder" / "apis" / "redfox.json"
-    if config_path.exists():
-        try:
-            data = json.loads(config_path.read_text(encoding="utf-8"))
-            key = data.get("api_key", "").strip()
-            if key:
-                return key
-        except (json.JSONDecodeError, OSError):
-            pass
-    return PUBLIC_API_KEY
+    # 无可用 Key，返回空字符串触发提示
+    return ""
 
 
 # ─── 数量解析 ───────────────────────────────────────────────────────────────────────
