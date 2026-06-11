@@ -32,32 +32,32 @@ metadata:
       - analysis
 ---
 
-# cn-last30days 中国社媒话题研究
+# Last 30 Days—CN版
 
 ## 📝 简介
 
-cn-last30days 是中国社交媒体话题研究工具，从小红书、抖音、公众号三大平台搜索近30天真实讨论数据，通过跨平台对比分析舆情趋势。支持通用话题研究和实体对比两种模式，输出结构化研究报告和可视化 HTML。
+Last 30 Days—CN版 是中国社交媒体话题研究工具，从小红书、抖音、公众号三大平台搜索近30天真实讨论数据，通过跨平台对比分析舆情趋势。支持通用话题研究和实体对比两种模式，输出结构化研究报告和可视化 HTML。
 
 ## ✨ 功能特性
 
 | 功能模块 | 能力描述 | 核心价值 |
 |---------|---------|---------|
-| 三平台数据源 | 小红书、抖音、公众号实时数据 | 多维度舆情视角 |
+| 三平台数据源 | 小红书、抖音、公众号真实数据 | 多维度舆情视角 |
 | 关键词研究 | 支持多词组合查询（英文逗号分隔） | 灵活话题覆盖 |
 | 跨平台对比 | 自动综合三平台数据生成洞察 | 发现差异化趋势 |
-| 实体对比 | A vs B 结构化对比分析 | 辅助决策判断 |
+| 对比 | A vs B 结构化对比分析 | 辅助决策判断 |
 | HTML 报告 | 交互式可视化报告生成 | 便于分享传播 |
 | 历史回溯 | 支持近30天任意日期数据 | 追踪趋势演变 |
 
 ## 🔑 鉴权
 
-API Key 从 [红狐数据](https://www.redfox.hk/settings/api-keys?source=github) 获取，配置方式：
+脚本内置免费公共 Key，开箱即用。如需更高额度，从 [红狐数据](https://www.redfox.hk/settings/api-keys?source=github) 获取个人 Key 并配置环境变量：
 
 ```bash
 export REDFOX_API_KEY=ak_你的密钥
 ```
 
-优先级：命令行 `--api-key` > `REDFOX_API_KEY` > `X_API_KEY` > `~/.qoder/apis/redfox.json` > 内置公共 Key（有免费额度）。
+优先级：命令行 `--api-key` > 内置公共 Key > `REDFOX_API_KEY` / `X_API_KEY` 环境变量。
 
 ---
 
@@ -67,7 +67,7 @@ export REDFOX_API_KEY=ak_你的密钥
 |------|------|--------|
 | `keyword` | 搜索关键词（必填，多词用英文逗号分隔） | - |
 | `--platforms` | 平台列表（不建议缩减） | `xhs,dy,gzh` |
-| `--count` | 每平台条数，深度研究可增到100 | `50` |
+| `--count` | 每平台条数 | `50` |
 | `--days` | 时间范围，看近期趋势可设7 | `30` |
 | `--output-format` | `json` / `html` / `both` | `json` |
 | `--output-dir` | 输出目录 | `~/Documents/CnLast30Days` |
@@ -86,7 +86,8 @@ export REDFOX_API_KEY=ak_你的密钥
 
 ### 1. 环境检查
 
-如无 `REDFOX_API_KEY` / `X_API_KEY` 环境变量且 `~/.qoder/apis/redfox.json` 不存在，提示用户配置。内置公共 Key 有免费额度，可用则跳过。
+脚本内置公共 Key 有免费额度，直接使用即可。如内置 Key 不可用且无 `REDFOX_API_KEY` / `X_API_KEY` 环境变量，提示用户：
+> 请配置 API Key：`export REDFOX_API_KEY=ak_你的密钥`，注册地址 https://www.redfox.hk/login
 
 ### 2. 关键词质量检查
 
