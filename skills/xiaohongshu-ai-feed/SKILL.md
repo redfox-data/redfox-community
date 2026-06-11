@@ -31,6 +31,9 @@ python3 "$SKILL_PATH/scripts/fetch_xhs_ai.py" --keyword "ChatGPT"
 # 查看历史某天
 python3 "$SKILL_PATH/scripts/fetch_xhs_ai.py" --date 2026-06-09
 
+# 指定时间范围（开始时间含，结束时间不含）
+python3 "$SKILL_PATH/scripts/fetch_xhs_ai.py" --start-time 2026-06-09 --end-time 2026-06-10
+
 # 订阅 / 取消订阅
 python3 "$SKILL_PATH/scripts/fetch_xhs_ai.py" --subscribe
 python3 "$SKILL_PATH/scripts/fetch_xhs_ai.py" --unsubscribe
@@ -64,8 +67,10 @@ python3 "$SKILL_PATH/scripts/fetch_xhs_ai.py" --unsubscribe
 | `--keyword` | 搜索关键词 | `AI` |
 | `--page-size` | 每页条数 | `50` |
 | `--date` | 指定日期 YYYY-MM-DD | 今天 |
+| `--start-time` | 开始时间 YYYY-MM-DD（含） | 根据 --date 自动计算 |
+| `--end-time` | 结束时间 YYYY-MM-DD（不含） | 根据 --date 自动计算 |
 | `--output-dir` | 输出目录 | `~/Downloads/QoderReports` |
-| `--subscribe` | 安装每日定时任务 (09:00) | — |
+| `--subscribe` | 安装每日定时任务 (16:00) | — |
 | `--unsubscribe` | 卸载定时任务 | — |
 | `--no-open` | 不自动打开浏览器 | — |
 

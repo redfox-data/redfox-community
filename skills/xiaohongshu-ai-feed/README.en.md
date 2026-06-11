@@ -26,6 +26,7 @@ Daily auto-scan of AI-related Xiaohongshu posts, filtering the hottest content b
 ### Core Capabilities
 
 - Search Xiaohongshu AI posts by keywords, filtered by engagement metrics
+- Support time-range queries (start time inclusive, end time exclusive) for flexible historical lookback
 - Auto-detect topic directions from content tags and intelligently cluster into category cards
 - Terminal table display: category + title + author + likes / shares / comments
 - Generate a dark-themed visual daily report (Xiaohongshu red style) with cover images, metrics, direct links, and date navigation
@@ -54,6 +55,7 @@ Simply describe your need in natural language — no commands to memorize.
 | View today's AI Xiaohongshu report | "Show me today's Xiaohongshu AI report" | Fetches the hottest AI posts and generates a clustered visual report |
 | Search by custom keyword | "Search Xiaohongshu for ChatGPT content" | Filters by your keyword and generates a tailored report |
 | Look up a past date | "Show me Xiaohongshu AI data from June 5th" | Retrieves the historical daily report for that date |
+| Time range query | "Show me Xiaohongshu AI data from June 1st to June 5th" | Flexible lookback for any time period |
 
 ### Sample Output
 

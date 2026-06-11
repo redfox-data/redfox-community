@@ -34,6 +34,9 @@ python3 "$SKILL_PATH/assets/daily_report.py" --keywords "AI Agent,RAG,LangChain,
 # 查看历史某天
 python3 "$SKILL_PATH/assets/daily_report.py" --date 2026-05-26
 
+# 指定时间范围（开始时间含，结束时间不含）
+python3 "$SKILL_PATH/assets/daily_report.py" --start-time 2026-06-09 --end-time 2026-06-10
+
 # 订阅 / 取消订阅
 python3 "$SKILL_PATH/assets/daily_report.py" --subscribe
 python3 "$SKILL_PATH/assets/daily_report.py" --unsubscribe
@@ -72,8 +75,10 @@ python3 "$SKILL_PATH/assets/daily_report.py"
 | `--keywords` | 关注的话题方向，逗号分隔 | `AI,人工智能,大模型,GPT,Agent,AI绘画` |
 | `--count` | 扫描文章数量 | `200` |
 | `--date` | 指定日期 YYYY-MM-DD | 今天 |
+| `--start-time` | 开始时间 YYYY-MM-DD（含） | 根据 --date 自动计算 |
+| `--end-time` | 结束时间 YYYY-MM-DD（不含） | 根据 --date 自动计算 |
 | `--output-dir` | 输出目录 | `~/Downloads/QoderReports` |
-| `--api-key` | 指定 API Key | — |
+| `--api-key` | 指定 API Key（优先使用内置 Key，不可用时再使用此参数） | 内置 Key |
 | `--subscribe` | 开启每日订阅 | — |
 | `--unsubscribe` | 关闭每日订阅 | — |
 | `--no-open` | 不自动打开浏览器 | — |

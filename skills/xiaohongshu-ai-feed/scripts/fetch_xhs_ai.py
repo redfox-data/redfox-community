@@ -17,7 +17,7 @@ import subprocess
 import sys
 import time
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 try:
@@ -78,7 +78,7 @@ def get_api_key():
 
 
 # ─── 数据获取 ──────────────────────────────────────────────────────────────────────
-def fetch_articles(session, keyword, page_size):
+def fetch_articles(session, keyword, page_size, start_time=None, end_time=None):
     """单次调用接口获取笔记数据，返回实际获取的笔记列表"""
     payload = {
         "keyword": keyword,
@@ -86,6 +86,10 @@ def fetch_articles(session, keyword, page_size):
         "pageSize": page_size,
         "source": SOURCE,
     }
+    if start_time:
+        payload["startTime"] = start_time
+    if end_time:
+        payload["endTime"] = end_time
     print(f"\r  {CYAN}[→]{RESET} 请求中: keyword=\"{keyword}\", pageSize={page_size}", end="", flush=True)
 
     try:
@@ -435,7 +439,7 @@ def install_subscription():
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
-        <integer>9</integer>
+        <integer>16</integer>
         <key>Minute</key>
         <integer>0</integer>
     </dict>
@@ -453,7 +457,7 @@ def install_subscription():
         try:
             subprocess.run(["launchctl", "load", str(plist_path)],
                            check=True, capture_output=True)
-            info("订阅成功! 每天 09:00 自动生成小红书 AI 日报")
+            info("订阅成功! 每天 16:00 自动生成小红书 AI 日报")
             info(f"日报目录: ~/Downloads/QoderReports/")
             info(f"日志: {log_path}")
             return True
@@ -462,13 +466,13 @@ def install_subscription():
             return False
     else:
         script_path = os.path.abspath(__file__)
-        cron_line = f"0 9 * * * /usr/bin/python3 {script_path} --no-open"
+        cron_line = f"0 16 * * * /usr/bin/python3 {script_path} --no-open"
         try:
             subprocess.run(
                 f'(crontab -l 2>/dev/null; echo "{cron_line}") | crontab -',
                 shell=True, check=True, capture_output=True
             )
-            info("订阅成功! 每天 09:00 自动生成小红书 AI 日报 (crontab)")
+            info("订阅成功! 每天 16:00 自动生成小红书 AI 日报 (crontab)")
             info(f"日报目录: ~/Downloads/QoderReports/")
             return True
         except subprocess.CalledProcessError:
@@ -515,6 +519,7 @@ def main():
 Examples:
   python3 fetch_xhs_ai.py
   python3 fetch_xhs_ai.py --keywords "ChatGPT,AI绘画,AI工具"
+  python3 fetch_xhs_ai.py --start-time 2026-06-09 --end-time 2026-06-10
   python3 fetch_xhs_ai.py --subscribe
   python3 fetch_xhs_ai.py --unsubscribe
         """,
@@ -525,10 +530,14 @@ Examples:
                         help=f"每页条数 (默认: {PAGE_SIZE})")
     parser.add_argument("--date", default=datetime.now().strftime("%Y-%m-%d"),
                         help="指定日期 YYYY-MM-DD (默认: 今天)")
+    parser.add_argument("--start-time", default=None,
+                        help="开始时间 YYYY-MM-DD（含），不传则根据 --date 自动计算")
+    parser.add_argument("--end-time", default=None,
+                        help="结束时间 YYYY-MM-DD（不含），不传则根据 --date 自动计算")
     parser.add_argument("--output-dir",
                         help=f"输出目录 (默认: ~/Downloads/QoderReports)")
     parser.add_argument("--subscribe", action="store_true",
-                        help="安装每日定时任务 (09:00)")
+                        help="安装每日定时任务 (16:00)")
     parser.add_argument("--unsubscribe", action="store_true",
                         help="卸载定时任务")
     parser.add_argument("--no-open", action="store_true",
@@ -570,11 +579,27 @@ Examples:
         "X-API-KEY": api_key,
     })
 
+    # ── 计算时间参数 ──
+    start_time = args.start_time
+    end_time = args.end_time
+    if not start_time and not end_time and args.date:
+        start_time = args.date
+        try:
+            dt = datetime.strptime(args.date, "%Y-%m-%d")
+            end_time = (dt + timedelta(days=1)).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+
     # ── 获取笔记（单次接口调用）──
     keyword = args.keyword.strip()
-    step(f"查询关键词: \"{keyword}\" (pageSize={args.page_size})")
+    time_info = ""
+    if start_time:
+        time_info += f", startTime={start_time}"
+    if end_time:
+        time_info += f", endTime={end_time}"
+    step(f"查询关键词: \"{keyword}\" (pageSize={args.page_size}{time_info})")
 
-    articles = fetch_articles(session, keyword, args.page_size)
+    articles = fetch_articles(session, keyword, args.page_size, start_time, end_time)
 
     if not articles:
         error("未获取到任何笔记")

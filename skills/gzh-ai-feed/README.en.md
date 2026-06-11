@@ -25,6 +25,7 @@ Daily scan of AI WeChat public accounts — find the hottest articles by read co
 ### Core Capabilities
 
 - **Viral discovery**: Filter the hottest content from 200+ AI public account articles by read count.
+- **Time range query**: Support time-range lookback (start time inclusive, end time exclusive) for flexible historical queries.
 - **Smart clustering**: Auto-identify topic directions (Agent, LLM, AI art…); categories are content-driven daily.
 - **Terminal table**: Category + title + author + reads/likes/comments at a glance.
 - **Visual daily report**: Dark-themed HTML with cover images, engagement data, article links, and date navigation.
@@ -56,6 +57,7 @@ Just describe the AI daily report you want — no commands to memorize.
 | Today's report | "Show me today's AI daily report" | Generate today's viral HTML report |
 | Custom focus | "I care about AI Agent and RAG" | Generate report with custom keywords |
 | Historical date | "Give me the AI report for May 26" | Generate report for the specified date |
+| Time range | "Give me the AI report from June 1st to June 5th" | Flexible lookback for any time period |
 | Subscribe | "Auto-generate an AI daily report for me every day" | Install daily scheduled task |
 
 ---

@@ -18,7 +18,7 @@ import subprocess
 import sys
 import time
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
@@ -34,7 +34,7 @@ API_URL = "https://redfox.hk/story/api/parseWork/queryAiMsgs"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
-PUBLIC_API_KEY = "ak_783ee098b4934f539e0259d98d2a0f90"
+BUILTIN_API_KEY = "ak_53552cc95b974469a1b0a376853d160e"
 SOURCE = "AI公众号信息源-GitHub"
 
 DEFAULT_KEYWORDS = ["AI", "人工智能", "大模型", "GPT", "Agent", "AI绘画"]
@@ -72,9 +72,12 @@ def step(msg):
 
 # ─── API Key 管理 ──────────────────────────────────────────────────────────────────
 def get_api_key(cli_key=None):
-    """Get API key: CLI arg > env var > config file > public key."""
+    """Get API key: CLI arg > built-in key > env var > config file."""
     if cli_key:
         return cli_key
+    # 优先使用内置 Key，开箱即用
+    if BUILTIN_API_KEY:
+        return BUILTIN_API_KEY
     env_key = os.environ.get(ENV_KEY)
     if env_key:
         return env_key
@@ -86,11 +89,11 @@ def get_api_key(cli_key=None):
                 return key
         except (json.JSONDecodeError, OSError):
             pass
-    return PUBLIC_API_KEY
+    return ""
 
 
 # ─── 数据获取 ──────────────────────────────────────────────────────────────────────
-def fetch_page(session, keyword, page_num):
+def fetch_page(session, keyword, page_num, start_time=None, end_time=None):
     """获取单页文章数据"""
     payload = {
         "keyword": keyword,
@@ -98,6 +101,10 @@ def fetch_page(session, keyword, page_num):
         "pageSize": PAGE_SIZE,
         "source": SOURCE,
     }
+    if start_time:
+        payload["startTime"] = start_time
+    if end_time:
+        payload["endTime"] = end_time
     try:
         resp = session.post(API_URL, json=payload, timeout=15)
         result = resp.json()
@@ -118,14 +125,18 @@ def fetch_page(session, keyword, page_num):
 
     if code not in (200, 2000):
         if code in (3106, 3107):
-            error(f"API Key 错误 (code {code}): {result.get('msg', '')}")
+            error(f"API Key 无效或已过期 (code {code}): {result.get('msg', '')}")
+            error("请前往 https://www.redfox.hk/login 注册获取个人 API Token")
+            error("然后通过以下方式配置：")
+            error("  export REDFOX_API_KEY=ak_你的密钥")
+            error("  或 python3 ... --api-key ak_你的密钥")
         return []
 
     data = result.get("data", {})
     return data.get("list", [])
 
 
-def fetch_articles(session, keywords, target_count):
+def fetch_articles(session, keywords, target_count, start_time=None, end_time=None):
     """多关键词分页抓取，去重后返回文章列表"""
     articles = []
     seen_ids = set()
@@ -138,7 +149,7 @@ def fetch_articles(session, keywords, target_count):
             if len(articles) >= target_count:
                 break
 
-            page_articles = fetch_page(session, kw, page)
+            page_articles = fetch_page(session, kw, page, start_time, end_time)
             if not page_articles:
                 if page == 1:
                     warn(f"关键词 \"{kw}\" 暂无内容（当前仅搜索 AI 相关公众号，更多内容请访问 redfox.hk）")
@@ -513,7 +524,7 @@ def generate_report(clusters, articles, date_str, api_key=None):
     html = html.replace("{{TOTAL_LIKES}}", format_number(stats["total_likes"]))
     html = html.replace("{{CATEGORY_CARDS}}", category_cards)
     html = html.replace("{{TIMESTAMP}}", timestamp)
-    html = html.replace("{{API_KEY}}", api_key or PUBLIC_API_KEY)
+    html = html.replace("{{API_KEY}}", api_key or BUILTIN_API_KEY)
     html = html.replace("{{SOURCE}}", SOURCE)
 
     return html
@@ -680,7 +691,7 @@ def remove_subscription():
 # ─── API 代理 HTTP 服务 ─────────────────────────────────────────────────────────────
 class ProxyHTTPHandler(SimpleHTTPRequestHandler):
     """静态文件服务 + /api/search 代理到 redfox.hk"""
-    api_key = PUBLIC_API_KEY
+    api_key = BUILTIN_API_KEY
     search_url = API_URL
 
     def do_GET(self):
@@ -752,6 +763,7 @@ def main():
 Examples:
   python3 daily_report.py
   python3 daily_report.py --keywords "AI Agent,RAG,LangChain"
+  python3 daily_report.py --start-time 2026-06-09 --end-time 2026-06-10
   python3 daily_report.py --subscribe
   python3 daily_report.py --unsubscribe
         """,
@@ -761,6 +773,10 @@ Examples:
     parser.add_argument("--count", type=int, default=200, help="目标文章数 (默认: 200)")
     parser.add_argument("--date", default=datetime.now().strftime("%Y-%m-%d"),
                         help="指定日期 YYYY-MM-DD (默认: 今天)")
+    parser.add_argument("--start-time", default=None,
+                        help="开始时间 YYYY-MM-DD（含），不传则根据 --date 自动计算")
+    parser.add_argument("--end-time", default=None,
+                        help="结束时间 YYYY-MM-DD（不含），不传则根据 --date 自动计算")
     parser.add_argument("--output-dir", help=f"输出目录 (默认: ~/Downloads/QoderReports)")
     parser.add_argument("--api-key", help="API Key (不传则读取环境变量或内置公共 Key)")
     parser.add_argument("--subscribe", action="store_true", help="安装每日定时任务 (09:00)")
@@ -794,13 +810,20 @@ Examples:
 
     # ── API Key ──
     api_key = get_api_key(cli_key=args.api_key)
-    if api_key == PUBLIC_API_KEY:
-        print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
-        print(f"{YELLOW}║  使用内置公共 API Key                         ║{RESET}")
-        print(f"{YELLOW}║  超出额度后请前往 www.redfox.hk 获取 Key：    ║{RESET}")
-        print(f"{YELLOW}║  export REDFOX_API_KEY=ak_你的密钥                 ║{RESET}")
-        print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
+    if api_key == BUILTIN_API_KEY:
+        print(f"{GREEN}╔══════════════════════════════════════════════════╗{RESET}")
+        print(f"{GREEN}║  使用内置 API Key（约 10000 次免费额度）        ║{RESET}")
+        print(f"{GREEN}║  额度用完后请前往 www.redfox.hk 获取 Key：      ║{RESET}")
+        print(f"{GREEN}║  export REDFOX_API_KEY=ak_你的密钥              ║{RESET}")
+        print(f"{GREEN}╚══════════════════════════════════════════════════╝{RESET}")
         print()
+    elif not api_key:
+        error("未找到可用的 API Key")
+        error("请前往 https://www.redfox.hk/login 注册获取个人 API Token")
+        error("然后通过以下方式配置：")
+        error("  export REDFOX_API_KEY=ak_你的密钥")
+        error("  或 python3 ... --api-key ak_你的密钥")
+        sys.exit(1)
 
     # ── Session ──
     session = requests.Session()
@@ -810,13 +833,29 @@ Examples:
         "X-API-KEY": api_key,
     })
 
+    # ── 计算时间参数 ──
+    start_time = args.start_time
+    end_time = args.end_time
+    if not start_time and not end_time and args.date:
+        start_time = args.date
+        try:
+            dt = datetime.strptime(args.date, "%Y-%m-%d")
+            end_time = (dt + timedelta(days=1)).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+
     # ── 获取文章 ──
     keywords = [k.strip() for k in args.keywords.split(",") if k.strip()]
+    time_info = ""
+    if start_time:
+        time_info += f", startTime={start_time}"
+    if end_time:
+        time_info += f", endTime={end_time}"
     step(f"扫描热门内容，关键词: {keywords}")
-    step(f"目标: {args.count} 条, 日期: {args.date}")
+    step(f"目标: {args.count} 条, 日期: {args.date}{time_info}")
     print()
 
-    articles = fetch_articles(session, keywords, args.count)
+    articles = fetch_articles(session, keywords, args.count, start_time, end_time)
 
     if not articles:
         error("未获取到任何文章")
