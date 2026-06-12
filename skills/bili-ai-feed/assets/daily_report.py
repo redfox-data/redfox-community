@@ -32,7 +32,6 @@ API_URL = "https://redfox.hk/story/api/parseWork/queryBiliAiMsgs"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
-PUBLIC_API_KEY = "ak_1e449a28ae344cd1b7aa14ca481de8bb"
 SOURCE = "B站AI信息源-GitHub"
 
 DEFAULT_KEYWORDS = ["AI", "人工智能", "大模型", "GPT", "Agent", "AI绘画", "AI教程"]
@@ -118,9 +117,8 @@ def get_api_key(cli_key=None):
         except (json.JSONDecodeError, OSError):
             pass
 
-    # 4. 未找到个人 Key，提示用户配置
-    warn(f"未检测到 {ENV_KEY}，当前使用内置公共 Key（约 10000 次免费额度）。")
-    warn("额度用完后请配置个人 API Key：")
+    # 4. 未找到 Key，提示用户配置并退出
+    error(f"未检测到 {ENV_KEY}，请先配置 API Key：")
     if sys.platform == "win32":
         print(f"  Windows PowerShell: [Environment]::SetEnvironmentVariable('{ENV_KEY}', 'ak_你的密钥', 'User')")
     else:
@@ -128,7 +126,7 @@ def get_api_key(cli_key=None):
         print(f"  macOS/Linux (bash): echo 'export {ENV_KEY}=ak_你的密钥' >> ~/.bashrc && source ~/.bashrc")
     print(f"  免费注册获取 Key: https://redfox.hk/login")
     print()
-    return PUBLIC_API_KEY
+    sys.exit(1)
 
 
 # ─── 数据获取 ──────────────────────────────────────────────────────────────────────
@@ -1000,7 +998,7 @@ def generate_report(clusters, articles, date_str, api_key=None, briefing=None):
     html = html.replace("{{CATEGORY_CARDS}}", category_cards)
     html = html.replace("{{INTELLIGENCE_SECTION}}", intelligence_html)
     html = html.replace("{{TIMESTAMP}}", timestamp)
-    html = html.replace("{{API_KEY}}", api_key or PUBLIC_API_KEY)
+    html = html.replace("{{API_KEY}}", api_key or "")
     html = html.replace("{{SOURCE}}", SOURCE)
 
     return html
@@ -1197,7 +1195,7 @@ Examples:
     parser.add_argument("--start-time", help="自定义开始时间，格式 YYYY-MM-DD HH:MM:SS (覆盖--date推算)")
     parser.add_argument("--end-time", help="自定义结束时间，格式 YYYY-MM-DD HH:MM:SS (覆盖--date推算)")
     parser.add_argument("--output-dir", help=f"输出目录 (默认: ~/Downloads/QoderReports)")
-    parser.add_argument("--api-key", help="API Key (不传则读取环境变量或内置公共 Key)")
+    parser.add_argument("--api-key", help="API Key (不传则读取环境变量 REDFOX_API_KEY)")
     parser.add_argument("--subscribe", action="store_true", help="安装每日定时任务 (09:00)")
     parser.add_argument("--unsubscribe", action="store_true", help="卸载定时任务")
 
@@ -1229,13 +1227,6 @@ Examples:
 
     # ── API Key ──
     api_key = get_api_key(cli_key=args.api_key)
-    if api_key == PUBLIC_API_KEY:
-        print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
-        print(f"{YELLOW}║  使用内置公共 API Key                         ║{RESET}")
-        print(f"{YELLOW}║  超出额度后请前往 www.redfox.hk 获取 Key：    ║{RESET}")
-        print(f"{YELLOW}║  export REDFOX_API_KEY=ak_你的密钥                 ║{RESET}")
-        print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
-        print()
 
     # ── Session ──
     session = requests.Session()
