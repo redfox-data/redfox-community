@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AI-B站信息源 — 每日热门内容聚类
+B站AI信息源 — 每日热门内容聚类
 ====================================
 每天扫描B站平台 AI 相关热门视频，自动聚类后生成 HTML 日报。
 
@@ -29,18 +29,14 @@ except ImportError:
 
 # ─── 配置 ─────────────────────────────────────────────────────────────────────────
 API_URL = "https://redfox.hk/story/api/parseWork/queryBiliAiMsgs"
-RECORD_SAVE_URL = "https://redfox.hk/story/api/skill/record/save"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
-PUBLIC_API_KEY = "ak_1e449a28ae344cd1b7aa14ca481de8bb"
 SOURCE = "B站AI信息源-GitHub"
-INVESTIGATOR_SOURCE = "B站AI信息源-GitHub"
 
 DEFAULT_KEYWORDS = ["AI", "人工智能", "大模型", "GPT", "Agent", "AI绘画", "AI教程"]
 DEFAULT_OUTPUT_DIR = Path.home() / "Downloads" / "QoderReports"
-PAGES_PER_KEYWORD = 5
-PAGE_SIZE = 20
+PAGE_SIZE = 200
 
 PLIST_LABEL = "com.qoder.bili-ai-feed"
 PLIST_DIR = Path.home() / "Library" / "LaunchAgents"
@@ -121,9 +117,8 @@ def get_api_key(cli_key=None):
         except (json.JSONDecodeError, OSError):
             pass
 
-    # 4. 未找到个人 Key，提示用户配置
-    warn(f"未检测到 {ENV_KEY}，当前使用内置公共 Key（约 10000 次免费额度）。")
-    warn("额度用完后请配置个人 API Key：")
+    # 4. 未找到 Key，提示用户配置并退出
+    error(f"未检测到 {ENV_KEY}，请先配置 API Key：")
     if sys.platform == "win32":
         print(f"  Windows PowerShell: [Environment]::SetEnvironmentVariable('{ENV_KEY}', 'ak_你的密钥', 'User')")
     else:
@@ -131,23 +126,27 @@ def get_api_key(cli_key=None):
         print(f"  macOS/Linux (bash): echo 'export {ENV_KEY}=ak_你的密钥' >> ~/.bashrc && source ~/.bashrc")
     print(f"  免费注册获取 Key: https://redfox.hk/login")
     print()
-    return PUBLIC_API_KEY
+    sys.exit(1)
 
 
 # ─── 数据获取 ──────────────────────────────────────────────────────────────────────
-def fetch_page(session, keyword, page_num):
-    """获取单页视频数据"""
+def fetch_batch(session, keyword, start_time=None, end_time=None):
+    """一次性获取单个关键词的全部视频数据"""
     payload = {
         "keyword": keyword,
-        "pageNum": page_num,
+        "pageNum": 1,
         "pageSize": PAGE_SIZE,
         "source": SOURCE,
     }
+    if start_time:
+        payload["startTime"] = start_time
+    if end_time:
+        payload["endTime"] = end_time
     try:
-        resp = session.post(API_URL, json=payload, timeout=15)
+        resp = session.post(API_URL, json=payload, timeout=30)
         result = resp.json()
     except Exception as e:
-        warn(f"请求失败 (keyword={keyword}, page={page_num}): {e}")
+        warn(f"请求失败 (keyword={keyword}): {e}")
         return []
 
     code = result.get("code")
@@ -155,7 +154,7 @@ def fetch_page(session, keyword, page_num):
         warn("限频，等待 5s...")
         time.sleep(5)
         try:
-            resp = session.post(API_URL, json=payload, timeout=15)
+            resp = session.post(API_URL, json=payload, timeout=30)
             result = resp.json()
             code = result.get("code")
         except Exception:
@@ -170,46 +169,33 @@ def fetch_page(session, keyword, page_num):
     return data.get("list", [])
 
 
-def fetch_articles(session, keywords, target_count):
-    """多关键词分页抓取，去重后返回视频列表"""
+def fetch_articles(session, keywords, target_count, start_time=None, end_time=None):
+    """多关键词一次性抓取，去重后返回视频列表"""
     articles = []
     seen_ids = set()
 
     for kw in keywords:
+        batch = fetch_batch(session, kw, start_time=start_time, end_time=end_time)
+        if not batch:
+            warn(f"关键词 \"{kw}\" 暂无内容（当前仅搜索 AI 相关B站视频，更多内容请访问 redfox.hk）")
+            continue
+
+        new_count = 0
+        for article in batch:
+            pid = article.get("photoId", "")
+            if pid and pid not in seen_ids:
+                seen_ids.add(pid)
+                # B站API不返回url，用photoId(BV号)拼接视频链接
+                if not article.get("url") and pid:
+                    article["url"] = f"https://www.bilibili.com/video/{pid}"
+                articles.append(article)
+                new_count += 1
+
+        print(f"  {CYAN}[→]{RESET} 扫描: {kw} 新增{new_count}条, 累计{len(articles)}条")
+
         if len(articles) >= target_count:
             break
 
-        for page in range(1, PAGES_PER_KEYWORD + 1):
-            if len(articles) >= target_count:
-                break
-
-            page_articles = fetch_page(session, kw, page)
-            if not page_articles:
-                if page == 1:
-                    warn(f"关键词 \"{kw}\" 暂无内容（当前仅搜索 AI 相关B站视频，更多内容请访问 redfox.hk）")
-                break
-
-            new_count = 0
-            for article in page_articles:
-                pid = article.get("photoId", "")
-                if pid and pid not in seen_ids:
-                    seen_ids.add(pid)
-                    # B站API不返回url，用photoId(BV号)拼接视频链接
-                    if not article.get("url") and pid:
-                        article["url"] = f"https://www.bilibili.com/video/{pid}"
-                    articles.append(article)
-                    new_count += 1
-
-            print(f"\r  {CYAN}[→]{RESET} 扫描: {kw} (第{page}页) "
-                  f"新增{new_count}条, 累计{len(articles)}条", end="", flush=True)
-
-            # 如果当前页重复率过高(>60%)，换下一个关键词
-            if len(page_articles) > 0 and new_count / len(page_articles) < 0.4:
-                break
-
-            time.sleep(0.5)
-
-    print()
     return articles
 
 
@@ -687,86 +673,7 @@ def print_intelligence_briefing(briefing):
     print()
 
 
-def save_record(api_key, title, content, tags=None):
-    """保存调查记录到红狐平台"""
-    if not api_key:
-        return False
 
-    payload = {
-        "source": INVESTIGATOR_SOURCE,
-        "title": title,
-        "content": content,
-        "tags": tags or [],
-    }
-
-    try:
-        resp = requests.post(
-            RECORD_SAVE_URL,
-            json=payload,
-            headers={
-                "Content-Type": "application/json",
-                "X-API-KEY": api_key,
-            },
-            timeout=10,
-        )
-        result = resp.json()
-        if result.get("code") in (200, 2000):
-            return True
-        else:
-            warn(f"记录保存失败: {result.get('msg', '未知错误')}")
-            return False
-    except Exception as e:
-        warn(f"记录保存请求失败: {e}")
-        return False
-
-
-def generate_intelligence_markdown(briefing, date_str):
-    """生成情报调查的Markdown内容（用于保存记录）"""
-    if not briefing:
-        return ""
-
-    lines = [f"# AI-B站情报调查报告 - {date_str}", ""]
-
-    lines.append("## 热度TOP话题")
-    for i, topic in enumerate(briefing["top_topics"], 1):
-        lines.append(f"{i}. {topic['topic']} — 占比{topic['ratio']}% ({topic['count']}条)")
-    lines.append("")
-
-    if briefing["emerging_topics"]:
-        lines.append("## 新兴起量信号")
-        for topic in briefing["emerging_topics"]:
-            lines.append(f"- 🔥 {topic['topic']} — {topic['count']}条, 均互动{topic['avg_engagement']}+")
-        lines.append("")
-
-    if briefing["top_authors"]:
-        lines.append("## 核心达人")
-        for author in briefing["top_authors"]:
-            lines.append(f"- @{author['name']} — {author['article_count']}条, "
-                        f"总赞{format_number(author['total_likes'])}")
-        lines.append("")
-
-    lines.append("## TOP话题调查报告")
-    for report in briefing["investigation_reports"]:
-        engines_str = " + ".join(report["engines"])
-        lines.append(f"### {report['topic']} — {report['mode']}")
-        lines.append(f"**引擎**: {engines_str}  ")
-        lines.append(f"**调查场景**: {report['scenario']}  ")
-        for f in report.get("findings", []):
-            lines.append(f"- [{f['credibility']}级] **{f['dimension']}**: {f['discovery']} _(来源: {f['source']})_")
-        lines.append("")
-        lines.append("**关键结论**:")
-        for ctype, ctext in report.get("conclusions", []):
-            icons = {"confirmed": "✅", "pending": "⚠️", "denied": "❌", "single": "🔍"}
-            lines.append(f"- {icons.get(ctype, '·')} {ctext}")
-        lines.append("")
-    lines.append("")
-
-    if briefing["cross_platform_tips"]:
-        lines.append("## 跨平台对比建议")
-        for tip in briefing["cross_platform_tips"]:
-            lines.append(f"- {tip}")
-
-    return "\n".join(lines)
 
 
 # ─── HTML 报告生成 ──────────────────────────────────────────────────────────────────
@@ -806,7 +713,7 @@ def format_number(n):
 def print_article_table(clusters):
     """在终端打印分类视频表格"""
     print(f"\n{BOLD}{'='*78}{RESET}")
-    print(f"{BOLD}  AI-B站信息源 · 分类视频一览{RESET}")
+    print(f"{BOLD}  B站AI信息源 · 分类视频一览{RESET}")
     print(f"{BOLD}{'='*78}{RESET}\n")
 
     for i, cluster in enumerate(clusters, 1):
@@ -1091,7 +998,7 @@ def generate_report(clusters, articles, date_str, api_key=None, briefing=None):
     html = html.replace("{{CATEGORY_CARDS}}", category_cards)
     html = html.replace("{{INTELLIGENCE_SECTION}}", intelligence_html)
     html = html.replace("{{TIMESTAMP}}", timestamp)
-    html = html.replace("{{API_KEY}}", api_key or PUBLIC_API_KEY)
+    html = html.replace("{{API_KEY}}", api_key or "")
     html = html.replace("{{SOURCE}}", SOURCE)
 
     return html
@@ -1104,7 +1011,7 @@ def get_fallback_template():
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI-B站信息源 - {{DATE}}</title>
+<title>B站AI信息源 - {{DATE}}</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, sans-serif; background: #1a1a1a; color: #e8e4df; padding: 2rem; }
@@ -1134,7 +1041,7 @@ body { font-family: -apple-system, sans-serif; background: #1a1a1a; color: #e8e4
 </head>
 <body>
 <div class="header">
-    <h1>AI-B站信息源</h1>
+    <h1>B站AI信息源</h1>
     <p>{{DATE_CN}} | 共 {{TOTAL_COUNT}} 条热门视频</p>
 </div>
 <div class="stats">
@@ -1144,7 +1051,7 @@ body { font-family: -apple-system, sans-serif; background: #1a1a1a; color: #e8e4
     <div class="stat-item"><div class="stat-value">{{TOTAL_LIKES}}</div><div class="stat-label">总点赞</div></div>
 </div>
 <div class="cards">{{CATEGORY_CARDS}}</div>
-<div class="footer">Generated at {{TIMESTAMP}} by AI-B站信息源 Skill</div>
+<div class="footer">Generated at {{TIMESTAMP}} by B站AI信息源 Skill</div>
 </body>
 </html>'''
 
@@ -1180,7 +1087,8 @@ def install_subscription():
     <array>
         <string>/usr/bin/python3</string>
         <string>{script_path}</string>
-        <string>--no-open</string>
+        <string>--date</string>
+        <string>today</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
@@ -1269,7 +1177,7 @@ def open_in_browser(filepath):
 # ─── 主流程 ────────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
-        description="AI-B站信息源 — 每日热门内容聚类日报",
+        description="B站AI信息源 — 每日热门内容聚类日报",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -1284,18 +1192,20 @@ Examples:
     parser.add_argument("--count", type=int, default=200, help="目标视频数 (默认: 200)")
     parser.add_argument("--date", default=datetime.now().strftime("%Y-%m-%d"),
                         help="指定日期 YYYY-MM-DD (默认: 今天)")
+    parser.add_argument("--start-time", help="自定义开始时间，格式 YYYY-MM-DD HH:MM:SS (覆盖--date推算)")
+    parser.add_argument("--end-time", help="自定义结束时间，格式 YYYY-MM-DD HH:MM:SS (覆盖--date推算)")
     parser.add_argument("--output-dir", help=f"输出目录 (默认: ~/Downloads/QoderReports)")
-    parser.add_argument("--api-key", help="API Key (不传则读取环境变量或内置公共 Key)")
+    parser.add_argument("--api-key", help="API Key (不传则读取环境变量 REDFOX_API_KEY)")
     parser.add_argument("--subscribe", action="store_true", help="安装每日定时任务 (09:00)")
     parser.add_argument("--unsubscribe", action="store_true", help="卸载定时任务")
-    parser.add_argument("--no-open", action="store_true", help="不自动打开浏览器")
+
 
     args = parser.parse_args()
 
     # ── Banner ──
     banner = f"""{CYAN}{BOLD}
   ╔══════════════════════════════════════╗
-  ║     AI-B站信息源 · 日报生成      ║
+  ║     B站AI信息源 · 日报生成      ║
   ║     每日热门内容聚类 · 爆款一网打尽   ║
   ╚══════════════════════════════════════╝{RESET}
 """
@@ -1317,13 +1227,6 @@ Examples:
 
     # ── API Key ──
     api_key = get_api_key(cli_key=args.api_key)
-    if api_key == PUBLIC_API_KEY:
-        print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
-        print(f"{YELLOW}║  使用内置公共 API Key                         ║{RESET}")
-        print(f"{YELLOW}║  超出额度后请前往 www.redfox.hk 获取 Key：    ║{RESET}")
-        print(f"{YELLOW}║  export REDFOX_API_KEY=ak_你的密钥                 ║{RESET}")
-        print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
-        print()
 
     # ── Session ──
     session = requests.Session()
@@ -1333,13 +1236,31 @@ Examples:
         "X-API-KEY": api_key,
     })
 
+    # ── 时间范围推算 ──
+    if args.start_time and args.end_time:
+        # 用户自定义时间段，直接使用
+        start_time = args.start_time
+        end_time = args.end_time
+    else:
+        # 根据 --date 推算当天 00:00:00 ~ 24:00:00
+        try:
+            dt = datetime.strptime(args.date, "%Y-%m-%d")
+            start_time = dt.strftime("%Y-%m-%d") + " 00:00:00"
+            end_time = dt.strftime("%Y-%m-%d") + " 24:00:00"
+        except ValueError:
+            warn(f"日期格式错误: {args.date}，将不传时间范围")
+            start_time = None
+            end_time = None
+
+    time_desc = f"时间段: {start_time} ~ {end_time}" if start_time else "时间段: 全量"
+
     # ── 获取视频 ──
     keywords = [k.strip() for k in args.keywords.split(",") if k.strip()]
     step(f"扫描热门内容，关键词: {keywords}")
-    step(f"目标: {args.count} 条, 日期: {args.date}")
+    step(f"目标: {args.count} 条, {time_desc}")
     print()
 
-    articles = fetch_articles(session, keywords, args.count)
+    articles = fetch_articles(session, keywords, args.count, start_time=start_time, end_time=end_time)
 
     if not articles:
         error("未获取到任何视频")
@@ -1366,12 +1287,7 @@ Examples:
         info(f"情报调查完成: {len(briefing['investigation_reports'])}个调查报告")
         print_intelligence_briefing(briefing)
 
-        # 保存调查记录到红狐平台
-        record_title = f"AI-B站情报调查报告 - {args.date}"
-        record_content = generate_intelligence_markdown(briefing, args.date)
-        record_tags = [t["topic"].lstrip("#") for t in briefing["top_topics"][:5]]
-        if save_record(api_key, record_title, record_content, record_tags):
-            info("调查记录已保存至红狐平台")
+
 
     # ── 生成报告 ──
     step("生成 HTML 日报...")
@@ -1380,16 +1296,14 @@ Examples:
     # ── 保存文件 ──
     output_dir = Path(args.output_dir) if args.output_dir else DEFAULT_OUTPUT_DIR
     output_dir.mkdir(parents=True, exist_ok=True)
-    filename = f"AI-B站日报_{args.date}.html"
+    filename = f"AI-B站日报_{args.date}_{datetime.now().strftime('%H%M%S')}.html"
     output_path = output_dir / filename
 
     output_path.write_text(html_content, encoding="utf-8")
     info(f"日报已生成: {output_path}")
 
-    # ── 打开浏览器 ──
-    if not args.no_open:
-        open_in_browser(output_path)
-        info(f"浏览器已打开: {output_path}")
+    open_in_browser(output_path)
+    info(f"浏览器已打开: {output_path}")
 
     # ── 结构化摘要（对齐固定输出模式）──
     print(f"\n{GREEN}{BOLD}✓ 完成!{RESET}")
