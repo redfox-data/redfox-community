@@ -27,10 +27,7 @@ CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 
 ENV_KEY = "REDFOX_API_KEY"
-
-# 内置公共 API Key（免费 10000 次，超出后需自行注册）
-PUBLIC_API_KEY = "ak_783ee098b4934f539e0259d98d2a0f90"
-PUBLIC_API_KEY_LIMIT = 10000
+PUBLIC_API_KEY = "ak_b45b6a6881f4400fb321428947eb6661"
 
 PLATFORM_MAP = {
     "dy": "抖音",
@@ -65,9 +62,13 @@ def step(msg):
 
 
 def get_api_key(cli_key=None):
-    """Get API key with priority: CLI arg > env var > config file > public key."""
+    """Get API key with priority: CLI arg > built-in > env var > config file."""
     if cli_key:
         return cli_key
+
+    # 优先使用内置公共 Key
+    if PUBLIC_API_KEY:
+        return PUBLIC_API_KEY
 
     env_key = os.environ.get(ENV_KEY)
     if env_key:
@@ -82,7 +83,7 @@ def get_api_key(cli_key=None):
         except (json.JSONDecodeError, OSError):
             pass
 
-    return PUBLIC_API_KEY
+    return None
 
 
 def save_api_key(api_key):
@@ -145,7 +146,7 @@ Examples:
         """,
     )
     parser.add_argument("url", help="视频/图文链接")
-    parser.add_argument("--api-key", help="API Key（格式 ark_xxx，不传则读取环境变量或内置公共 Key）")
+    parser.add_argument("--api-key", help="API Key（格式 ark_xxx，不传则读取环境变量或配置文件）")
     parser.add_argument("-o", "--output-dir", help="输出目录（默认 ~/Downloads/QoderVideos）")
     parser.add_argument(
         "--save-key",
@@ -166,16 +167,8 @@ Examples:
 
     # ── API Key ──
     api_key = get_api_key(cli_key=args.api_key)
-
-    # 提示公共 Key 的免费额度限制
-    if api_key == PUBLIC_API_KEY and not args.api_key and not os.environ.get(ENV_KEY) and not CONFIG_FILE.exists():
-        print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
-        print(f"{YELLOW}║  使用内置公共 API Key（剩余约 10000 次）     ║{RESET}")
-        print(f"{YELLOW}║  超出后请前往 www.redfox.hk 获取 Key：       ║{RESET}")
-        print(f"{YELLOW}║  export REDFOX_API_KEY=ark_你的密钥                ║{RESET}")
-        print(f"{YELLOW}║  或：--api-key ark_你的密钥                  ║{RESET}")
-        print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
-        print()
+    if api_key == PUBLIC_API_KEY:
+        print(f"{GREEN}[✓]{RESET} 使用内置公共 API Key（约 10000 次免费额度）")
 
     # Save key if requested
     if args.save_key:
@@ -215,13 +208,8 @@ Examples:
         if code == 3106:
             error("缺少 API Key")
         elif code == 3107:
-            if api_key == PUBLIC_API_KEY:
-                error("公共 API Key 已失效（可能超出 10000 次免费限额）")
-                warn("请前往 www.redfox.hk 获取自己的 API Key")
-                print("  配置方式：export REDFOX_API_KEY=ark_你的密钥")
-            else:
-                error("API Key 无效，请检查是否正确")
-                print("  格式应为 ark_xxx，可通过 export REDFOX_API_KEY=ark_你的密钥 设置")
+            error("API Key 无效或已失效，请检查是否正确")
+            print("  配置方式：export REDFOX_API_KEY=ark_你的密钥")
         elif code == 400:
             error(f"请求参数错误: {msg}")
         else:

@@ -1,19 +1,17 @@
 ---
 name: image-gen
-description: GPT-image2 — 基于 gpt-image-2 模型，支持文生图与图生图，内置免费额度，开箱即用。
+description: AI 图片生成器 — 基于 gpt-image-2 模型，支持文生图与图生图，开箱即用。
 ---
 
 # GPT-image2
 
-调用 OpenAI 最新的 **gpt-image-2** 模型生成高质量图片。内置免费额度，粘贴提示词就能用。
+调用 OpenAI 最新的 **gpt-image-2** 模型生成高质量图片。粘贴提示词就能用。
 
 > **Skill 特色**
 >
-> - 内置公共 API Key，开箱即用，约 **10000 次免费额度**
-> - 无需额外订阅或绑定信用卡
 > - 支持命令行批量生成、参数化控制尺寸/格式/背景
 > - 文生图 + 图生图双模式，`--image` 一个参数启用编辑模式
-> - 用完额度后可前往 [redfox.hk](https://redfox.hk/settings/api-keys?source=github) 注册获取免费 Token 继续使用
+> - 内置公共 API Key，**约 10000 次免费额度**，开箱即用无需注册
 
 ---
 
@@ -108,9 +106,9 @@ python3 "$SKILL_PATH/assets/imagegen.py" "illustration" -o ~/Pictures/AI --prefi
 
 ## 首次使用
 
-**开箱即用 — 无需任何配置**
 
-脚本内置公共 API Key，提供约 **10000 次免费额度**。直接运行示例命令即可，零配置零成本。
+
+先配置 API Key，然后运行：
 
 ```bash
 python3 "$SKILL_PATH/assets/imagegen.py" "一只橘色的猫咪"
@@ -120,7 +118,7 @@ python3 "$SKILL_PATH/assets/imagegen.py" "一只橘色的猫咪"
 
 ## 后续使用
 
-公共 Key 额度用完后，前往 [redfox.hk](https://redfox.hk/settings/api-keys?source=github) 注册账号获取自己的 API Token，三种配置方式任选其一：
+前往 [redfox.hk](https://redfox.hk/settings/api-keys?source=github) 注册账号获取自己的 API Token，三种配置方式任选其一：
 
 | 配置方式 | 说明 | 命令 |
 |----------|------|------|
@@ -133,7 +131,7 @@ python3 "$SKILL_PATH/assets/imagegen.py" "一只橘色的猫咪"
 ## 常见问题
 
 **Q：本 Skill 的特点是什么？**
-A：命令行直接调用 gpt-image-2 模型，支持批量生成、参数化控制、图生图编辑，内置免费额度开箱即用。
+A：命令行直接调用 gpt-image-2 模型，支持批量生成、参数化控制、图生图编辑，
 
 **Q：生成一张图片需要多久？**
 A：通常 10-30 秒，复杂场景可能更久。脚本会自动轮询等待。

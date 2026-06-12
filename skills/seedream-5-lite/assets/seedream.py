@@ -24,8 +24,8 @@ UPLOAD_URL = "https://redfox.hk/story/api/parseWork/imageGen/uploadImage"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
-PUBLIC_API_KEY = "ak_b45b6a6881f4400fb321428947eb6661"
 SOURCE = "seedream 5.0 lite-GitHub"
+PUBLIC_API_KEY = "ak_b45b6a6881f4400fb321428947eb6661"
 DEFAULT_MODEL = "doubao-seedream-5-0-260128"
 
 POLL_INTERVAL = 3  # seconds
@@ -56,9 +56,12 @@ def step(msg):
 
 
 def get_api_key(cli_key=None):
-    """Get API key: CLI arg > env var > config file > public key."""
+    """Get API key: CLI arg > built-in > env var > config file."""
     if cli_key:
         return cli_key
+    # 优先使用内置公共 Key
+    if PUBLIC_API_KEY:
+        return PUBLIC_API_KEY
     env_key = os.environ.get(ENV_KEY)
     if env_key:
         return env_key
@@ -70,7 +73,7 @@ def get_api_key(cli_key=None):
                 return key
         except (json.JSONDecodeError, OSError):
             pass
-    return PUBLIC_API_KEY
+    return None
 
 
 def upload_image(api_key, image_path):
@@ -113,6 +116,16 @@ def upload_image(api_key, image_path):
 
     info(f"Upload complete")
     return image_url
+
+
+def confirm_retry():
+    """询问用户是否需要重试。"""
+    while True:
+        answer = input(f"{YELLOW}[?]{RESET} 是否重试？(y/n): ").strip().lower()
+        if answer in ('y', 'yes'):
+            return True
+        if answer in ('n', 'no'):
+            return False
 
 
 def submit_task(session, prompt, params):
@@ -317,15 +330,8 @@ Examples:
 
     # ── API Key ──
     api_key = get_api_key(cli_key=args.api_key)
-
-    if api_key == PUBLIC_API_KEY and not args.api_key and not os.environ.get(ENV_KEY):
-        print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
-        print(f"{YELLOW}║  使用内置公共 API Key                         ║{RESET}")
-        print(f"{YELLOW}║  超出额度后请前往以下链接获取 Key：          ║{RESET}")
-        print(f"{YELLOW}║  https://redfox.hk/settings/api-keys         ║{RESET}")
-        print(f"{YELLOW}║  export REDFOX_API_KEY=ak_你的密钥                 ║{RESET}")
-        print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
-        print()
+    if api_key == PUBLIC_API_KEY:
+        print(f"{GREEN}[✓]{RESET} 使用内置公共 API Key（约 10000 次免费额度）")
 
     # ── Session ──
     session = requests.Session()
@@ -415,10 +421,13 @@ Examples:
         params["optimizePromptOptions"] = {"mode": args.optimize}
 
     # Submit
-    step("Submitting image generation task...")
-    task_id = submit_task(session, prompt, params)
-    if not task_id:
-        sys.exit(1)
+    while True:
+        step("Submitting image generation task...")
+        task_id = submit_task(session, prompt, params)
+        if task_id:
+            break
+        if not confirm_retry():
+            sys.exit(1)
 
     info(f"Task submitted: {task_id}")
 

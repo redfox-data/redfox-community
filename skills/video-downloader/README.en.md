@@ -2,83 +2,65 @@
 
 ---
 
-## Introduction
+## Overview
 
-Paste a sharing link to download watermark-free videos/images from Douyin, Xiaohongshu, Kuaishou, and Bilibili. Built-in public API Key — ready to use out of the box.
+Watermark-free video downloader supporting Douyin, Xiaohongshu, Kuaishou, and Bilibili. Paste a share link and download. Built-in public API key, ready to use.
 
 **Core Value**
 
-- **Watermark-free direct links**: The API automatically returns clean download URLs — no manual watermark removal needed.
-- **Four platforms**: One tool covers Douyin, Xiaohongshu, Kuaishou, and Bilibili.
-- **Zero-config start**: Built-in public API Key with ~10,000 free uses — just start.
+- **Multi-Platform**: Douyin, Xiaohongshu, Kuaishou, Bilibili — one tool for all
+- **Watermark-Free**: API auto-returns watermark-free direct links
+- **Zero Config**: Built-in ~10,000 free credits, paste a link and go
 
 **Target Users**
 
-- 🎬 **Short video creators** — Download素材 for remixing and editing.
-- 📱 **Content operators** — Batch-save competitor videos for analysis.
-- 💾 **General users** — Save favorite videos locally for offline viewing.
+- 📱 **Short Video Users** — Save favorite watermark-free videos locally with one click
+- ✂️ **Content Creators** — Download assets for editing and remixing
+- 💾 **Data Archivers** — Offline backup of bookmarked content
 
 ---
 
 ## Features
 
-### Core Capabilities
+### Core Features
 
-- **Watermark-free download**: API returns clean direct links automatically.
-- **Image-text download**: Supports downloading all images from image-text posts (Xiaohongshu image-text not yet supported).
-- **Cross-platform**: One tool for Douyin, Xiaohongshu, Kuaishou, and Bilibili.
-- **Link auto-detection**: Supports short links, sharing links, and web URLs.
-- **Progress display**: Real-time progress bar and percentage during download.
-- **Multi-device compatible**: Works with both mobile sharing links and PC web URLs.
-
----
-
-## API Key Info
-
-A built-in public API Key provides ~**10,000 free uses** — zero configuration needed. When the quota runs out, register at [RedFoxHub](https://redfox.hk/login?source=github) for a personal API Token:
-
-| Method | Command |
-|--------|---------|
-| **Environment variable** (recommended) | `export REDFOX_API_KEY=ak_your_key` |
-| **CLI argument** | `python3 "$SKILL_PATH/assets/downloader.py" "<link>" --api-key ak_your_key` |
-| **Config file** | `echo '{"api_key":"ak_your_key"}' > ~/.qoder/apis/redfox.json` |
+- **Watermark-Free Download**: API auto-returns watermark-free direct links for video and image posts
+- **Cross-Platform**: One tool covers Douyin, Xiaohongshu, Kuaishou, and Bilibili
+- **Auto-Adaptive Links**: Supports short links, share links, web links, and more
+- **Progress Display**: Real-time progress bar with percentage during download
+- **Smart Naming**: Auto-uses video title as filename
 
 ---
 
-## Usage Guide
+## API Key Acquisition & Security
 
-Just paste a sharing link — no commands to memorize.
+- This skill comes with a built-in public API key (~10,000 free credits), ready to use.
+- For personal keys: `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
+- Configure the device environment variable `REDFOX_API_KEY` before using this skill.
+- Before providing your key, verify its origin, scope, validity period, and whether reset/revocation is supported.
+- Never hardcode or expose the key in code, prompts, logs, or output files.
+
+---
+
+## Usage
+
+Paste a video share link to download.
 
 ### Quick Reference
 
-| Intent | Example phrase | Result |
-|--------|----------------|--------|
-| Download Douyin video | "Download this Douyin video https://v.douyin.com/xxx" | Auto-parse and download watermark-free video |
-| Download Xiaohongshu video | "Download this Xiaohongshu http://xhslink.com/o/xxx" | Download watermark-free video locally |
-| Download Bilibili video | "Save this Bilibili video https://b23.tv/xxx" | Download best quality video |
-
-### Supported Platforms & Link Formats
-
-| Platform | Link format | Notes |
-|----------|-------------|-------|
-| Douyin | `https://v.douyin.com/xxxxxx/` | Mobile sharing / PC web links |
-| Xiaohongshu | `http://xhslink.com/o/xxxxxx` | Short sharing links |
-| Kuaishou | `https://v.kuaishou.com/xxxxxx` | Mobile sharing links |
-| Bilibili | `https://b23.tv/xxxxxx` | Short sharing links |
+| Intent | Example | Result |
+|--------|---------|--------|
+| Download Douyin | "Download this Douyin video [link]" | Parses link, downloads watermark-free MP4 |
+| Download Xiaohongshu | "Download this Xiaohongshu video [link]" | Parses Xiaohongshu share link and downloads |
+| Download Bilibili | "Download this Bilibili video [link]" | Downloads Bilibili video in best quality |
 
 ---
 
 ## Use Cases
 
-| Scenario | Role | Example query | Benefit |
-|----------|------|---------------|---------|
-| 素材 download | Video creator | "Download this Douyin video for reference" | Get watermark-free素材 for editing |
-| Competitor archiving | Content ops | "Save these competitor videos" | Offline review of competitor content |
-| Offline backup | General user | "Save this video locally" | Watch favorites anytime offline |
-
----
-
-## Notes
-
-- Only one link at a time — batch upload is not supported.
-- Short links expire; re-copy the sharing link if parsing fails.
+| Scenario | Role | Example Query | Benefit |
+|----------|------|--------------|---------|
+| Watermark-free save | General user | "Download this Douyin video without watermark" | One-click watermark-free HD video |
+| Content remixing | Creator | "Download these videos as editing assets" | Get watermark-free assets for remixing |
+| Offline backup | Collector | "Download all my bookmarked videos" | Offline backup of favorite content |
