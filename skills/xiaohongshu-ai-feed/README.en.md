@@ -57,13 +57,6 @@ Simply describe your need in natural language — no commands to memorize.
 | Look up a past date | "Show me Xiaohongshu AI data from June 5th" | Retrieves the historical daily report for that date |
 | Time range query | "Show me Xiaohongshu AI data from June 1st to June 5th" | Flexible lookback for any time period |
 
-### Sample Output
-
-Running the skill generates a dark-themed visual daily report including:
-- Header with date, category stats, average likes, and total shares
-- Category cards displaying posts (cover image + title + author + engagement metrics)
-- Date navigation to browse adjacent days
-
 ---
 
 ## Use Cases
