@@ -1,9 +1,9 @@
 ---
 name: bili-ai-feed
-description: "AI-B站信息源 — 每日扫描B站AI相关账号，按点赞量发现爆款视频，智能聚类话题后生成包含封面图、互动数据与订阅支持的HTML日报。同时基于热门话题执行AI情报调查，采用多引擎搜索与交叉验证，输出结构化调查报告。当用户需要AI-B站日报、B站爆款、AI-B站热点、B站AI内容、B站AI视频或B站情报时使用。"
+description: "B站AI信息源 — 每日扫描B站AI相关账号，按点赞量发现爆款视频，智能聚类话题后生成包含封面图、互动数据与订阅支持的HTML日报。同时基于热门话题执行AI情报调查，采用多引擎搜索与交叉验证，输出结构化调查报告。当用户需要AI-B站日报、B站爆款、AI-B站热点、B站AI内容、B站AI视频或B站情报时使用。"
 ---
 
-# AI-B站信息源
+# B站AI信息源
 
 ## 📝 简介
 
@@ -20,11 +20,10 @@ description: "AI-B站信息源 — 每日扫描B站AI相关账号，按点赞量
 | AI情报调查 | 基于热门话题执行多引擎搜索+交叉验证 | 深度挖掘话题背后的情报 |
 | 可视化日报 | 深色主题HTML，封面图+互动数据+视频直链 | 直观展示每日AI热点 |
 | 一键订阅 | `--subscribe` 开启每日自动产出 | 日报自动攒在本地文件夹 |
-| 记录保存 | 调查报告自动保存至红狐平台 | 历史回溯与趋势分析 |
 
 ## 🔑 鉴权
 
-调查记录保存需通过环境变量 `REDFOX_API_KEY` 鉴权。
+数据查询接口通过请求头 `X-API-KEY` 鉴权，Key 从环境变量 `REDFOX_API_KEY` 获取。
 
 **API Key 获取**：前往 [红狐Hub 官网](https://redfox.hk/) 注册，登录后在个人中心获取，格式为 `ak_xxxxxxxx`。新注册用户获赠免费积分。
 
@@ -33,30 +32,7 @@ description: "AI-B站信息源 — 每日扫描B站AI相关账号，按点赞量
 - **Windows**：`[Environment]::SetEnvironmentVariable("REDFOX_API_KEY", "<值>", "User")`（需重启终端）
 - 配置后验证：`echo $REDFOX_API_KEY`（macOS/Linux）或 `echo %REDFOX_API_KEY%`（Windows）
 
-## 📋 调查记录保存
-
-每次调查报告生成后，立即调用保存接口：
-
-```bash
-curl -s -X POST "https://redfox.hk/story/api/skill/record/save" \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: $REDFOX_API_KEY" \
-  -d '{
-    "source": "B站AI信息源-GitHub",
-    "title": "调查报告标题",
-    "content": "Markdown格式报告内容",
-    "tags": ["标签1", "标签2"]
-  }'
-```
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `source` | string | 是 | 固定传 `"B站AI信息源-GitHub"` |
-| `title` | string | 是 | 调查报告标题 |
-| `content` | string | 是 | 报告完整内容（Markdown） |
-| `tags` | array | 否 | 标签数组 |
-
-> `X-API-Key` 必须通过请求头传入，放在 Body 中会返回 `code:3106` 错误。`code:2000` 表示保存成功。
+查询接口调用时通过 `source` 字段同步记录，无需额外请求保存接口。
 
 ## 🔄 工作流程
 
@@ -85,7 +61,6 @@ python3 "$SKILL_PATH/assets/daily_report.py" --unsubscribe
 2. 为每个话题自动匹配调查模式（竞品/舆情/人物/验证）
 3. 按三轮搜索策略执行调查（广域扫描→深度挖掘→交叉验证）
 4. 输出结构化调查报告（参照 [investigation-templates.md](references/investigation-templates.md)）
-5. 保存调查记录至红狐平台
 
 生成的HTML日报保存在 `~/Downloads/QoderReports/`，自动浏览器打开。终端同步输出分类视频表格 + AI情报调查报告。
 
@@ -136,7 +111,7 @@ python3 "$SKILL_PATH/assets/daily_report.py" --unsubscribe
 每次运行日报后，终端与对话输出**必须**遵循以下结构化格式：
 
 ```
-## AI-B站信息源 · {日期} 日报
+## B站AI信息源 · {日期} 日报
 
 **扫描 {N} 条热门视频，聚类 {M} 个分类**
 
@@ -202,11 +177,13 @@ python3 "$SKILL_PATH/assets/daily_report.py" --unsubscribe
 | `--keywords` | 关注的话题方向，逗号分隔 | `AI,人工智能,大模型,GPT,Agent,AI绘画,AI教程` |
 | `--count` | 扫描视频数量 | `200` |
 | `--date` | 指定日期 YYYY-MM-DD | 今天 |
+| `--start-time` | 自定义开始时间 YYYY-MM-DD HH:MM:SS（覆盖 --date 推算） | — |
+| `--end-time` | 自定义结束时间 YYYY-MM-DD HH:MM:SS（覆盖 --date 推算） | — |
 | `--output-dir` | 输出目录 | `~/Downloads/QoderReports` |
 | `--api-key` | 指定 API Key | — |
 | `--subscribe` | 开启每日订阅 | — |
 | `--unsubscribe` | 关闭每日订阅 | — |
-| `--no-open` | 不自动打开浏览器 | — |
+| `--no-open` | ~~已移除~~ 生成后始终自动预览 | — |
 
 ## 📚 参考文档
 

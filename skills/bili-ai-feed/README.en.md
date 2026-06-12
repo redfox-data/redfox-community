@@ -1,4 +1,4 @@
-# AI-Bilibili Feed / bili-ai-feed
+# Bilibili AI Feed / bili-ai-feed
 
 ---
 
@@ -31,7 +31,6 @@ A daily automated scanner for AI-related Bilibili (B站) content. It discovers v
 - **AI intelligence investigation**: Automatically executes multi-engine search + cross-validation on trending topics, deeply mining intelligence behind them.
 - **Visual daily report**: Dark-themed HTML with cover images + engagement data + direct links, visually presenting daily AI hotspots.
 - **One-click subscription**: `--subscribe` enables daily automated output; reports auto-accumulate in a local folder.
-- **Record preservation**: Investigation reports auto-saved to the RedFox platform, supporting historical review and trend analysis.
 
 ### Highlights
 
@@ -61,10 +60,10 @@ Trigger with natural language—no commands to memorize.
 
 | Intent | Example phrase | Result |
 | ------ | -------------- | ------ |
-| Generate today's report | "Generate today's AI-Bilibili daily report for me" | Scan AI videos → cluster → generate HTML report + intelligence investigation |
+| Generate today's report | "Generate today's Bilibili AI daily report for me" | Scan AI videos → cluster → generate HTML report + intelligence investigation |
 | Custom focus direction | "Focus on AI tutorials and AI art content on Bilibili" | Filter viral videos by specified keywords and generate report |
-| Enable daily subscription | "Enable AI-Bilibili daily report subscription for me" | Daily auto-output; reports accumulate in local folder |
-| View historical report | "Show me the AI-Bilibili report from 2026-06-10" | Review a specific date's report content |
+| Enable daily subscription | "Enable Bilibili AI daily report subscription for me" | Daily auto-output; reports accumulate in local folder |
+| View historical report | "Show me the Bilibili AI report from 2026-06-10" | Review a specific date's report content |
 
 ### Output Example
 
@@ -92,7 +91,7 @@ Once subscribed, the report runs daily and automatically; HTML reports accumulat
 
 | Scenario | Role | Example question | Benefit |
 | -------- | ---- | ---------------- | ------- |
-| AI hotspot tracking | AI practitioner | "Generate today's AI-Bilibili daily report" | Stay on top of daily AI viral topics and content trends on Bilibili |
+| AI hotspot tracking | AI practitioner | "Generate today's Bilibili AI daily report" | Stay on top of daily AI viral topics and content trends on Bilibili |
 | Content inspiration | Self-media operator | "Focus on the latest viral AI art videos on Bilibili" | Discover AI niche hotspots; get content inspiration and direction |
 | AI product sentiment | Product manager | "Show me what people are discussing about ChatGPT on Bilibili" | Understand user feedback and discussion heat around AI products |
 | Competitive intelligence | Entrepreneur | "Scan AI tool videos and run competitive analysis" | Link trending topics to multi-engine investigation; get traceable intelligence |
@@ -102,7 +101,7 @@ Once subscribed, the report runs daily and automatically; HTML reports accumulat
 ## Important Data Notes
 
 - ~200 AI-related Bilibili videos are scanned daily; viral content is selected by likes, and topic clustering categories are dynamically determined by that day's content.
-- HTML daily reports are saved in the `~/Downloads/QoderReports/` directory and auto-opened in the browser.
+- HTML daily reports are saved in the `~/Downloads/QoderReports/` directory and always auto-opened in the browser for preview after generation.
 - Intelligence investigations are based on multi-engine cross-validation; key information is marked "Confirmed" only when verified by at least 2 independent sources.
 - Sources are classified into four tiers: A (official/authoritative media), B (industry media/professional platforms), C (social media/self-media), D (anonymous/unverified sources).
 - The built-in public key has ~10,000 free quota; configure your own `REDFOX_API_KEY` when exhausted.
