@@ -1,89 +1,70 @@
-# seedream5.0 lite / seedream-5-lite
+# seedream 5.0 lite / seedream 5.0 lite
 
 ---
 
-## Introduction
+## Overview
 
-An AI image generation tool powered by the Volcano Ark **seedream 5.0 lite** model. Simply describe what you want in a sentence and get high-quality images — supports text-to-image, image-to-image, batch generation, and prompt optimization. Built-in free quota, ready to use out of the box.
+AI image generator based on ByteDance Volcano Engine seedream 5.0 lite model. Supports text-to-image, image-to-image, batch generation, and prompt optimization. One command to generate high-quality images. Built-in public API key, ready to use.
 
 **Core Value**
 
-- **Zero barrier to start**: Built-in public API Key with ~**10,000 free uses** — no registration, credit card, or key configuration needed.
-- **One-line image creation**: Paste a prompt and get an image instantly — no complex parameters to learn.
-- **Multi-mode coverage**: Text-to-image, image-to-image, and batch generation for everything from single creative shots to bulk visual assets.
+- **Text-to-Image**: Input Chinese or English descriptions to generate HD images
+- **Image-to-Image**: Upload reference image + prompt for style transfer and editing
+- **Batch Generation**: Auto-generate multiple related images, up to 15
+- **Zero Barrier**: Built-in ~10,000 free credits, no configuration needed
 
 **Target Users**
 
-- 🎨 **Designers / Illustrators** — Quickly visualize creative ideas as high-quality images.
-- 📱 **Social media creators** — Batch-generate cover images, product showcases, and post visuals.
-- 🛒 **E-commerce operators** — Produce consistent product scene photos with zero photography cost.
-- 💡 **AI enthusiasts** — Experience the latest seedream 5.0 lite model and explore AI image generation.
+- 🎨 **Designers** — Quickly generate high-quality graphics, covers, and product shots
+- 📱 **Social Media Operators** — Batch produce visually consistent assets
+- 🛍️ **E-commerce Sellers** — Zero photography cost, fast product scene generation
 
 ---
 
 ## Features
 
-### Core Capabilities
+### Core Features
 
-- **Text-to-image**: Describe in Chinese or English and get high-definition images automatically.
-- **Image-to-image**: Upload a reference image with a prompt to edit and restyle the original.
-- **Batch generation**: Auto mode generates multiple related images in one go (up to 15).
-- **Prompt optimization**: Built-in standard (high quality) and fast modes to improve results.
-- **High-resolution output**: Supports 2K / 3K / 4K ultra-HD resolution, default 2048×2048.
-- **Task management**: Submit tasks to get a taskId, then check progress and results anytime.
-- **Auto-polling download**: Automatically waits for task completion and downloads images with a progress bar.
+- **Text-to-Image**: Input prompts, seedream 5.0 lite auto-generates HD images
+- **Image-to-Image**: Upload reference image for editing and style transfer
+- **Batch Generation**: `auto` mode generates multiple related images
+- **Prompt Optimization**: Built-in standard (high quality) and fast modes
+- **High Resolution**: Support for 2K/3K/4K or custom pixel dimensions
+- **Task Management**: Submit-only mode with taskId for later query
 
 ---
 
 ## API Key Acquisition & Security
 
-- This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
-- Register an account at [RedFoxHub](https://redfox.hk?source=github) to obtain your `REDFOX_API_KEY`.
-- Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
-- Before providing a key, verify its source, scope, validity period, and whether it supports reset/revocation.
-- Never hardcode or expose keys in code, prompts, logs, or output files.
+- This skill comes with a built-in public API key (~10,000 free credits), ready to use.
+- For personal keys: `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
+- Configure the device environment variable `REDFOX_API_KEY` before using this skill.
+- Before providing your key, verify its origin, scope, validity period, and whether reset/revocation is supported.
+- Never hardcode or expose the key in code, prompts, logs, or output files.
 
 ---
 
-## Usage Guide
+## Usage
 
-Simply describe what you want in natural language — no commands to memorize.
+Describe the image you want in natural language.
 
 ### Quick Reference
 
-| Intent | Example phrase | Result |
-|--------|----------------|--------|
-| Text to image | "Generate a cyberpunk-style futuristic city at night" | Auto-submit, poll, and download HD image |
-| High-resolution output | "Snow mountain sunrise photo, 4K ultra HD" | Output at 4K resolution for fine detail |
-| Image editing | "Replace the background with a seaside sunset" | Upload reference image and restyle accordingly |
-| Batch images | "A set of fresh breakfast photos, 6 images" | Auto-generate multiple stylistically consistent images |
-| Optimized prompt | "Use high-quality mode to draw a futuristic space station interior" | Enable standard prompt optimization for finer results |
-
-### Output Example
-
-After generation, image info and file path are displayed:
-
-```
-[✓] Model: doubao-seedream-5-0-260128, Size: 2048x2048
-[✓] Generated images: 1, Tokens: 1024
-[→] Downloading 1/1: image.jpeg
-[████████████████████] 100%
-
-✓ Done!
-  /Users/you/Downloads/QoderImages/image.jpeg (312.5 KB)
-```
+| Intent | Example | Result |
+|--------|---------|--------|
+| Text-to-image | "Generate a latte on a wooden table" | Submits task, generates HD image |
+| Image-to-image | "Turn this photo into oil painting style [image]" | Uploads reference for style transfer |
+| Batch generation | "Generate a set of minimalist desk still life images" | Batch generates style-consistent images |
+| High resolution | "Generate a 4K ultra-HD mountain sunrise" | Outputs ultra-high resolution image |
 
 ---
 
 ## Use Cases
 
-| Scenario | Role | Example query | Benefit |
-|----------|------|---------------|---------|
-| Social media visuals | Blogger / Content creator | "Generate an Instagram-style latte coffee photo" | From idea to image in seconds, with batch support |
-| E-commerce product showcase | E-commerce / Indie seller | "White wireless earbuds on a light gray background" | High-quality product images with zero photography cost |
-| Creative prototyping | UI designer / Illustrator | "Cyberpunk city, neon lights reflected on rain-soaked streets" | Idea to visual draft in one description |
-| Bulk content assets | Content ops / Marketing | "A set of fresh breakfast photos, 6 images, consistent style" | Batch-generate stylistically unified visual assets |
-| Style transfer | Photographer / Artist | "Convert this photo to Studio Ghibli animation style" | Natural language-driven style transfer, no editing software needed |
-
----
+| Scenario | Role | Example Query | Benefit |
+|----------|------|--------------|---------|
+| Social media graphics | Xiaohongshu blogger | "Generate an Instagram-style coffee photo for cover" | Fast high-quality graphic production |
+| E-commerce product shots | E-commerce ops | "Generate a product scene for white earphones" | Zero photography cost, fast output |
+| Creative validation | Designer | "Generate a cyberpunk future city concept" | Idea to visual in a single command |
+| Batch content ops | Content ops | "Generate a set of breakfast photos for article graphics" | Batch produce style-consistent visuals |

@@ -1,75 +1,70 @@
-# WeChat Public Account Search Crawler / gzh-search
+# WeChat Article Search Crawler / gzh-search-crawler
 
 ---
 
-## Introduction
+## Overview
 
-Search WeChat public account articles by keyword — terminal table display + CSV export + interactive HTML report. Built-in public API Key — ready to use out of the box.
+Search WeChat public account articles by keyword, display results in a terminal table, and auto-export CSV + interactive HTML reports.
 
 **Core Value**
 
-- **Smart scoring**: Three-factor (relevance + popularity + recency) ranking for precise content discovery.
-- **Dual-format output**: Real-time terminal view + persistent CSV/HTML archival for different scenarios.
-- **Zero-config start**: Built-in public API Key (~10,000 free uses) — just start.
+- **Keyword Search**: Real-time full-database search of verified public account articles from the past 30 days
+- **Smart Scoring**: Three-factor ranking (relevance + popularity + recency)
+- **Multi-Format Output**: Terminal table + CSV export + interactive HTML report
+- **Interactive Report**: Built-in search box, cover image display, click-to-open original articles
 
 **Target Users**
 
-- 📊 **Content operators** — Track industry hotspots and discover viral topics.
-- 🏢 **Brands / marketing teams** — Competitor content analysis and topic sentiment monitoring.
-- 📝 **Self-media creators** — Gather inspiration and understand niche dynamics.
+- 🔍 **Industry Researchers** — Track industry trends, batch export data for analysis
+- 📝 **Content Creators** — Discover trending topics and creative inspiration
+- 🏢 **Competitive Analysts** — Monitor competitor content strategies
 
 ---
 
 ## Features
 
-### Core Capabilities
+### Core Features
 
-- **Keyword search**: Real-time queries across the full WeChat public account article database.
-- **Smart scoring**: Three-factor (relevance + popularity + recency) ranking; ties broken by read count.
-- **Terminal table**: Title, author, reads, likes, shares, saves, publish time, article link.
-- **CSV export**: Auto-generated UTF-8 BOM-encoded CSV.
-- **Interactive HTML report**: Built-in search, cover images, click-to-open article cards.
-- **Tiered response**: Full results / guided broader search / trending fallback when results are sparse.
-
----
-
-## API Key Info
-
-A built-in public API Key provides ~**10,000 free uses** — zero configuration needed. When the quota runs out, register at [RedFoxHub](https://redfox.hk/login?source=github) for a personal API Token:
-
-| Method | Command |
-|--------|---------|
-| **Environment variable** (recommended) | `export REDFOX_API_KEY=ak_your_key` |
-| **CLI argument** | `--api-key ak_your_key` |
-| **Config file** | `echo '{"api_key":"ak_your_key"}' > ~/.qoder/apis/redfox.json` |
+- **Keyword Search**: Search by any keyword (max 10 characters), real-time results
+- **Smart Ranking**: Three-factor scoring (relevance + popularity + recency), ties broken by reads
+- **Tiered Fallback**: Ample results → normal browsing / fewer results → broader search / zero results → trending topics
+- **Terminal Table**: Title, author, reads, likes, shares, favorites, publish date, article link
+- **CSV Export**: Auto-generated UTF-8 BOM CSV for data analysis
+- **HTML Report**: Built-in search (300ms debounce), cover display, paginated loading
 
 ---
 
-## Usage Guide
+## API Key Acquisition & Security
 
-Just describe what you want to search — no commands to memorize.
+- The skill uses the environment variable: `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
+- Configure the device environment variable `REDFOX_API_KEY` before using this skill.
+- Before providing your key, verify its origin, scope, validity period, and whether reset/revocation is supported.
+- Never hardcode or expose the key in code, prompts, logs, or output files.
+
+---
+
+## Usage
+
+Just say the keyword you want to search.
 
 ### Quick Reference
 
-| Intent | Example phrase | Result |
-|--------|----------------|--------|
-| Search a topic | "Search AI articles on WeChat" | Return related articles table + HTML report |
-| Competitor analysis | "Find articles about LLMs on public accounts" | Display sorted by composite score |
-| Export data | "Search Xiaohongshu marketing articles and export CSV" | Generate CSV + HTML |
-| Specify count | "Find 50 AI-related articles" | Auto-paginate to fetch more |
+| Intent | Example | Result |
+|--------|---------|--------|
+| Hot search | "Search AI-related public account articles" | Returns trending AI articles, ranked by score |
+| Competitor analysis | "Search recent articles on LLMs" | Captures competitor content, exports CSV for analysis |
+| Inspiration | "Search trending articles on Xiaohongshu operations" | Gets topic angles and writing approaches |
+| Trend research | "Search 2026 economy articles from public accounts" | Batch exports data for research reports |
 
 ---
 
 ## Use Cases
 
-| Scenario | Role | Example query | Benefit |
-|----------|------|---------------|---------|
-| Industry trend tracking | Content ops | "What's trending in AI on WeChat" | Understand industry dynamics |
-| Competitor content analysis | Brand team | "Search competitor posts about LLMs" | Analyze competitor content strategy |
-| Inspiration gathering | Self-media | "Search viral Xiaohongshu marketing articles" | Get topics and writing angles |
-
-### Important Data Notes
-
-- Search scope covers **mid-tier and above public accounts** with articles published in the last 30 days.
-- Keyword limit: **no more than 10 characters**; you'll be prompted to shorten if exceeded.
-- To search a specific account's full history, use the `gzh-subscribe` skill instead.
+| Scenario | Role | Example Query | Benefit |
+|----------|------|--------------|---------|
+| Industry tracking | Industry analyst | "What's being discussed in AI lately?" | Quick overview of industry trends |
+| Competitor analysis | Content ops | "Search competitor public account articles" | Understand content strategy and viral patterns |
+| Inspiration gathering | Creator | "Search trending topics on content creation" | Get track-aligned inspiration, boost efficiency |
+| Trend research | Researcher | "Batch export articles on a specific topic" | CSV export for deep data analysis |

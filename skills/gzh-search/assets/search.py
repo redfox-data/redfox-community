@@ -35,11 +35,10 @@ API_URL = "https://redfox.hk/story/api/gzhData/searchArticle"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
-PUBLIC_API_KEY = "ak_db0e200c049b44288d46da0e758d53dd"
 SOURCE = "公众号搜索爬虫-GitHub"
 
 DEFAULT_OUTPUT_DIR = Path.home() / "Downloads" / "QoderGzhSearch"
-DEFAULT_COUNT = 20
+DEFAULT_COUNT = 100
 DEFAULT_PORT = 8766
 
 # ─── 终端颜色 ──────────────────────────────────────────────────────────────────────
@@ -82,7 +81,7 @@ def get_api_key(cli_key=None):
                 return key
         except (json.JSONDecodeError, OSError):
             pass
-    return PUBLIC_API_KEY
+    return None
 
 
 # ─── 字段兼容（新旧 API 格式）───────────────────────────────────────────────────────
@@ -163,16 +162,19 @@ def fetch_articles_batch(session, keyword, offset=0, sort_type="default"):
     return {"articles": articles, "hasMore": has_more}
 
 
-def fetch_articles(session, keyword, max_count=20, sort_type="default"):
+def fetch_articles(session, keyword, max_count=100, sort_type="default"):
     all_articles = []
     seen_ids = set()
     offset = 0
     has_more = True
+    batch_count = 0
 
-    while len(all_articles) < max_count and has_more:
+    while len(all_articles) < max_count and has_more and batch_count < 5:
         batch = fetch_articles_batch(session, keyword, offset=offset, sort_type=sort_type)
         if batch is None:
             break
+
+        batch_count += 1
 
         new_count = 0
         for article in batch["articles"]:
@@ -736,7 +738,7 @@ init();
 
 # ─── API 代理 HTTP 服务 ─────────────────────────────────────────────────────────────
 class ProxyHTTPHandler(SimpleHTTPRequestHandler):
-    api_key = PUBLIC_API_KEY
+    api_key = None
 
     def do_GET(self):
         parsed = urlparse(self.path)
@@ -853,11 +855,17 @@ Examples:
         sys.exit(1)
 
     api_key = get_api_key(cli_key=args.api_key)
-    if api_key == PUBLIC_API_KEY:
-        print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
-        print(f"{YELLOW}║  使用内置公共 API Key                           ║{RESET}")
-        print(f"{YELLOW}║  约 10000 次免费额度，用完请注册: redfox.hk     ║{RESET}")
-        print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}\n")
+    if not api_key:
+        print(f"{RED}╔══════════════════════════════════════════════════╗{RESET}")
+        print(f"{RED}║  未配置 API Key，请通过以下方式之一配置：      ║{RESET}")
+        print(f"{RED}║                                                ║{RESET}")
+        print(f"{RED}║  export REDFOX_API_KEY=ak_你的密钥             ║{RESET}")
+        print(f"{RED}║  python3 search.py --api-key ak_你的密钥        ║{RESET}")
+        print(RED + "║  echo '{\"api_key\":\"ak_你的密钥\"}' > ~/.qoder/apis/redfox.json ║" + RESET)
+        print(f"{RED}║                                                ║{RESET}")
+        print(f"{RED}║  注册获取 Key: https://redfox.hk/settings/api-keys ║{RESET}")
+        print(f"{RED}╚══════════════════════════════════════════════════╝{RESET}")
+        sys.exit(1)
 
     if not args.keyword:
         try:
@@ -910,7 +918,7 @@ Examples:
         else:
             print(f"  {YELLOW}建议:{RESET} 尝试更短的关键词（如「{keyword[:2] if len(keyword)>=2 else 'AI'}」）")
             print(f"  {YELLOW}建议:{RESET} 使用英文关键词重试")
-            warn("如需搜索全量公众号内容，请访问 redfox.hk")
+            warn("如需搜索全量公众号内容，请访问 https://redfox.hk/settings/api-keys?source=github")
             sys.exit(0)
 
     # 表格展示（有结果时）

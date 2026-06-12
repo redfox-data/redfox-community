@@ -1,73 +1,71 @@
-# WeChat Public Account Subscription Tracker / gzh-subscribe
+# WeChat Subscription Tracker / gzh-subscribe
 
 ---
 
-## Introduction
+## Overview
 
-Subscribe to competitor, peer, and favorite WeChat public accounts — auto-fetch daily posts with terminal table + HTML daily report. Built-in public API Key — ready to use out of the box.
+Your public account content radar. Subscribe to competitors, peers, and followed accounts — auto-fetch daily posts with clear table display and HTML daily report.
 
 **Core Value**
 
-- **Inbox-style subscription**: Subscribe to up to 20 public accounts like a newsletter.
-- **Daily 9 AM auto-push**: One-click scheduled task — automatically generate a daily report every morning.
-- **Three-category management**: Competitor / Peer / Favorite grouping for purpose-driven display.
+- **Inbox-Style Subscription**: Subscribe to public accounts like newsletters, up to 20, name-only
+- **Daily 9 AM Delivery**: One-click cron setup for automated curated daily reports
+- **Three-Category Grouping**: Competitors / Peers / Favorites, organized for easy management
+- **Key Metrics at a Glance**: Publish date, title, reads, likes — article link one-click away
 
 **Target Users**
 
-- 📊 **Content operators** — Monitor competitor accounts and stay on top of their posting activity.
-- 📝 **Self-media creators** — Track peer accounts for topic inspiration.
-- 🏢 **Brands / marketing teams** — Monitor brand sentiment and follow industry leaders.
+- 🏢 **Competitive Monitors** — Track competitor posts and stay informed
+- 📝 **Content Creators** — Follow industry leaders for creative inspiration
+- 🔍 **Researchers** — Subscribe to focused accounts for daily aggregation
 
 ---
 
 ## Features
 
-### Core Capabilities
+### Core Features
 
-- **Inbox-style subscription**: Subscribe to up to 20 public accounts by name — no WeChat ID required.
-- **Daily auto-push**: One-click scheduled task — auto-fetch and generate HTML daily report at 09:00.
-- **Three-category management**: "Competitor" to watch rivals, "Peer" for inspiration, "Favorite" to follow thought leaders.
-- **Key metrics at a glance**: Post date, title, summary, read count, like count, and one-click original article links.
-- **Dual-mode output**: Terminal table for real-time review; HTML daily report for sharing and archiving.
-
----
-
-## API Key Info
-
-A built-in public API Key provides ~**10,000 free uses** — zero configuration needed. When the quota runs out, register at [RedFoxHub](https://redfox.hk/login?source=github) for a personal API Token:
-
-| Method | Command |
-|--------|---------|
-| **Environment variable** (recommended) | `export REDFOX_API_KEY=ak_your_key` |
-| **CLI argument** | `python3 "$SKILL_PATH/assets/subscribe.py" fetch --api-key ak_your_key` |
-| **Config file** | `echo '{"api_key":"ak_your_key"}' > ~/.qoder/apis/redfox.json` |
+- **Public Account Subscription**: Subscribe by account name (WeChat ID optional), up to 20
+- **Three Categories**: Competitors / Peers / Favorites, grouped in reports
+- **Daily Auto Push**: 09:00 scheduled fetch, auto-generates HTML report and opens browser
+- **Terminal Table Display**: Publish date, title, summary, reads, likes in clear table format
+- **Date Backtrack**: Fetch posts for a specific date to review history
+- **LLM-Ready Data**: Fetched data can be used with LLMs for summary rewriting and style imitation
 
 ---
 
-## Usage Guide
+## API Key Acquisition & Security
 
-Just describe which accounts you want to subscribe to or check — no commands to memorize.
+- The skill uses the environment variable: `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
+- Configure the device environment variable `REDFOX_API_KEY` before using this skill.
+- Before providing your key, verify its origin, scope, validity period, and whether reset/revocation is supported.
+- Never hardcode or expose the key in code, prompts, logs, or output files.
+
+---
+
+## Usage
+
+Manage your subscriptions in natural language.
 
 ### Quick Reference
 
-| Intent | Example phrase | Result |
-|--------|----------------|--------|
-| Add subscription | "Subscribe me to XX account" | Add to subscription list |
-| Check today's posts | "What did my subscribed accounts post today" | Terminal table of today's posts |
-| Generate daily report | "Generate my public account daily report" | Create and open HTML daily report |
-| Enable daily push | "Push my subscribed accounts every morning" | Install 9 AM daily scheduled task |
+| Intent | Example | Result |
+|--------|---------|--------|
+| Add subscription | "Subscribe to QbitAI public account" | Adds account to watchlist |
+| View posts | "Fetch today's posts from my subscriptions" | Retrieves all subscribed accounts' daily posts |
+| Competitor tracking | "Add XX account to competitor monitoring" | Categorized as competitor, prioritized in reports |
+| View report | "Generate today's subscription daily report" | Fetches posts and generates HTML report |
+| Enable push | "Push public account daily report every morning" | Installs cron job for 09:00 auto-push |
 
 ---
 
 ## Use Cases
 
-| Scenario | Role | Example query | Benefit |
-|----------|------|---------------|---------|
-| Competitor monitoring | Content ops | "Subscribe to a few competitor accounts" | Auto-get competitor updates daily |
-| Inspiration tracking | Self-media | "Follow a few accounts in my niche" | Discover topics and writing angles |
-| Daily push | Brand team | "Enable daily push" | Receive daily report at 9 AM automatically |
-
-### Notes
-
-- Maximum 20 subscribed public accounts.
-- To search articles (not subscribe), use the `gzh-search` skill instead.
+| Scenario | Role | Example Query | Benefit |
+|----------|------|--------------|---------|
+| Morning briefing | Product manager | "What did my subscribed accounts post today?" | One-screen overview of all subscriptions |
+| Competitor monitoring | Marketing ops | "What are competitor accounts posting lately?" | Track strategies, adjust responses timely |
+| Inspiration gathering | Content creator | "Any new articles from industry leaders today?" | Follow top accounts for topic ideas |
+| Content processing | Researcher | "Export this batch of article data for analysis" | Combine with LLMs for rewriting and style imitation |

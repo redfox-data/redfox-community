@@ -37,8 +37,7 @@ API_URL = "https://redfox.hk/story/api/gzhData/queryWorkList"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
-PUBLIC_API_KEY = "ak_db0e200c049b44288d46da0e758d53dd"
-SOURCE = "公众号账号订阅-GitHub"
+SOURCE = "公众号账号订阅GitHub"
 
 SUBSCRIPTIONS_FILE = Path.home() / ".qoder" / "gzh_subscriptions.json"
 MAX_SUBSCRIPTIONS = 20
@@ -81,7 +80,7 @@ def step(msg):
 
 # ─── API Key 管理 ──────────────────────────────────────────────────────────────────
 def get_api_key(cli_key=None):
-    """Get API key: CLI arg > env var > config file > public key."""
+    """Get API key: CLI arg > env var > config file."""
     if cli_key:
         return cli_key
     env_key = os.environ.get(ENV_KEY)
@@ -95,7 +94,7 @@ def get_api_key(cli_key=None):
                 return key
         except (json.JSONDecodeError, OSError):
             pass
-    return PUBLIC_API_KEY
+    return None
 
 
 # ─── 订阅数据管理 ──────────────────────────────────────────────────────────────────
@@ -228,64 +227,77 @@ def list_subscriptions():
 
 # ─── 数据获取 ──────────────────────────────────────────────────────────────────────
 def fetch_account_articles(session, account_id, account_name, date_str):
-    """获取单个公众号在指定日期的文章列表"""
-    payload = {
-        "uid": account_id or "",
-        "accountName": account_name,
-        "offset": 0,
-        "sortType": "default",
-        "publishTimeStart": f"{date_str} 00:00:00",
-        "publishTimeEnd": f"{date_str} 23:59:59",
-        "source": SOURCE,
-    }
+    """获取单个公众号在指定日期的文章列表，最多 5 次请求（每次 20 条，共 100 条）"""
     id_label = f" (ID: {account_id})" if account_id else ""
-    try:
-        resp = session.post(API_URL, json=payload, timeout=20)
-        result = resp.json()
-    except requests.exceptions.Timeout:
-        warn(f"请求超时: {account_name}{id_label}")
-        return []
-    except Exception as e:
-        warn(f"请求失败: {account_name}{id_label}: {e}")
-        return []
+    all_articles = []
 
-    code = result.get("code")
-    if code == 3108:
-        warn("触发频率限制，等待 5s...")
-        time.sleep(5)
+    for page in range(5):  # 5 页，每页 20 条
+        offset = page * 20
+        payload = {
+            "uid": account_id or "",
+            "accountName": account_name,
+            "offset": offset,
+            "sortType": "default",
+            "publishTimeStart": f"{date_str} 00:00:00",
+            "publishTimeEnd": f"{date_str} 23:59:59",
+            "source": SOURCE,
+        }
         try:
             resp = session.post(API_URL, json=payload, timeout=20)
             result = resp.json()
-            code = result.get("code")
-        except Exception:
-            return []
+        except requests.exceptions.Timeout:
+            warn(f"请求超时: {account_name}{id_label}")
+            return all_articles if all_articles else []
+        except Exception as e:
+            warn(f"请求失败: {account_name}{id_label}: {e}")
+            return all_articles if all_articles else []
 
-    if code not in (200, 2000):
-        if code in (3106, 3107):
-            error(f"API Key 错误 (code {code}): {result.get('msg', '')}")
-        elif code:
-            warn(f"API 返回错误 (code {code}): {result.get('msg', '')} — {account_name}")
-        return []
+        code = result.get("code")
+        if code == 3108:
+            warn("触发频率限制，等待 5s...")
+            time.sleep(5)
+            try:
+                resp = session.post(API_URL, json=payload, timeout=20)
+                result = resp.json()
+                code = result.get("code")
+            except Exception:
+                return all_articles if all_articles else []
 
-    data_raw = result.get("data", {})
-    if not data_raw:
-        return []
+        if code not in (200, 2000):
+            if code in (3106, 3107):
+                error(f"API Key 错误 (code {code}): {result.get('msg', '')}")
+            elif code:
+                warn(f"API 返回错误 (code {code}): {result.get('msg', '')} — {account_name}")
+            return all_articles if all_articles else []
 
-    # 兼容多种响应结构
-    if isinstance(data_raw, list):
-        articles = data_raw
-    elif isinstance(data_raw, dict):
-        articles = data_raw.get("list") or data_raw.get("articles") or data_raw.get("records") or []
-    else:
-        articles = []
+        data_raw = result.get("data", {})
+        if not data_raw:
+            break  # 无更多数据
 
-    # 为每篇文章附加公众号信息
-    for article in articles:
-        article["_accountId"] = account_id or str(article.get("uid", ""))
-        article["_accountName"] = account_name
-        article["_url"] = article.get("url") or "#"  # 遵循链接使用规范
+        # 兼容多种响应结构
+        if isinstance(data_raw, list):
+            articles = data_raw
+        elif isinstance(data_raw, dict):
+            articles = data_raw.get("list") or data_raw.get("articles") or data_raw.get("records") or []
+        else:
+            articles = []
 
-    return articles
+        if not articles:
+            break  # 空页，停止翻页
+
+        # 为每篇文章附加公众号信息
+        for article in articles:
+            article["_accountId"] = account_id or str(article.get("uid", ""))
+            article["_accountName"] = account_name
+            article["_url"] = article.get("url") or "#"
+
+        all_articles.extend(articles)
+
+        # 返回不足 20 条说明已是最后一页
+        if len(articles) < 20:
+            break
+
+    return all_articles
 
 
 def fetch_all_articles(session, subscriptions, date_str):
@@ -811,13 +823,17 @@ Examples:
 
         # API Key
         api_key = get_api_key(cli_key=args.api_key)
-        if api_key == PUBLIC_API_KEY:
-            print(f"{YELLOW}╔══════════════════════════════════════════════════╗{RESET}")
-            print(f"{YELLOW}║  使用内置公共 API Key                         ║{RESET}")
-            print(f"{YELLOW}║  超出额度后请前往 www.redfox.hk 获取 Key：    ║{RESET}")
-            print(f"{YELLOW}║  export REDFOX_API_KEY=ak_你的密钥                 ║{RESET}")
-            print(f"{YELLOW}╚══════════════════════════════════════════════════╝{RESET}")
-            print()
+        if not api_key:
+            print(f"{RED}╔══════════════════════════════════════════════════╗{RESET}")
+            print(f"{RED}║  未配置 API Key，请通过以下方式之一配置：      ║{RESET}")
+            print(f"{RED}║                                                ║{RESET}")
+            print(f"{RED}║  export REDFOX_API_KEY=ak_你的密钥             ║{RESET}")
+            print(f"{RED}║  python3 subscribe.py --api-key ak_你的密钥     ║{RESET}")
+            print(RED + "║  echo '{\"api_key\":\"ak_你的密钥\"}' > ~/.qoder/apis/redfox.json ║" + RESET)
+            print(f"{RED}║                                                ║{RESET}")
+            print(f"{RED}║  注册获取 Key: https://redfox.hk/settings/api-keys ║{RESET}")
+            print(f"{RED}╚══════════════════════════════════════════════════╝{RESET}")
+            sys.exit(1)
 
         # Session
         session = requests.Session()
