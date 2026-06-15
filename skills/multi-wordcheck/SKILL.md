@@ -112,7 +112,7 @@ export PROHIBITED_WORD_API_URL=https://your-gateway.example.com/sensitiveWordSea
 
 > 小红书这个文案帮我查一下：这款美白神器三天见效，无效退款
 
-若未指定平台，默认按公众号规则检测。
+若未指定平台，默认按公众号规则检测。每次检测仅针对用户指定的单一平台执行，禁止同时对多个平台并发检测。
 
 **第 2 步：等待检测**
 
@@ -196,6 +196,7 @@ export PROHIBITED_WORD_API_URL=https://your-gateway.example.com/sensitiveWordSea
 7. 图片识别仅提取文字内容，禁止获取图片的任何其他信息
 8. 分批或字数超限询问时必须等待用户回复再继续，禁止跳过询问直接执行
 9. 文件上传仅支持图片与 txt 等文本文件，不支持 PDF 和 Word 文档
+10. 平台确定规则：用户未指定平台时，默认且仅使用公众号平台检测；禁止同时对多个平台并发检测，每次只调用一次 API
 
 ---
 
