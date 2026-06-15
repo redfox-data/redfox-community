@@ -152,7 +152,7 @@ def print_table(items, category, start_time, limit=20):
     is_all = (category == "全部" or category is None)
 
     print()
-    print("💡 榜单说明：每日 06:00 更新过去七日数据。飙升数据为七日新增统计，与累计总量存在差异。")
+    print("💡 榜单说明：每日 17:00 更新过去七日数据。飙升数据为七日新增统计，与累计总量存在差异。")
     print()
 
     if is_all:

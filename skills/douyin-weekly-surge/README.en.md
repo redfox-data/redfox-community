@@ -12,7 +12,7 @@ A weekly content surge monitoring tool that tracks tens of thousands of Douyin w
 - **Precise Weekly Surge Data**: 7-day new interactions (likes / favorites / comments / shares) displayed at a glance, separated from cumulative totals for clear weekly growth insight.
 - **Flexible Category Filtering**: Query the full platform ranking or drill into a specific category to focus on what matters to you.
 - **Historical Backtracking**: Access any 7-day surge ranking within the past 30 days for trend review and periodic analysis.
-- **Subscription Push**: Subscribe by category and time preference; the latest 7-day surge ranking is automatically pushed daily at 06:00.
+- **Subscription Push**: Subscribe by category and time preference; the latest 7-day surge ranking is automatically pushed daily at 17:00.
 
 **Who It's For**
 
@@ -59,7 +59,7 @@ Simply describe what you need in natural language — no commands to memorize.
 | Specific Category | "Show me the Food 7-day surge ranking" or "How's Fitness trending this week?" | Returns the 7-day TOP20 for the specified category as of yesterday |
 | Historical Date | "Give me the 7-day surge ranking for May 28" | Returns 7-day surge data for the specified date |
 | Full List | "Full 50 entries for the Food 7-day surge ranking" | Returns all 50 entries for the category |
-| Daily Subscription | "Subscribe me to daily 7-day Food surge rankings" | Auto-pushes latest data daily at 06:00 |
+| Daily Subscription | "Subscribe me to daily 7-day Food surge rankings" | Auto-pushes latest data daily at 17:00 |
 
 ### Output Example
 
@@ -87,7 +87,7 @@ After querying, you'll receive a Markdown-formatted ranking with clickable video
 
 ## Important Data Notes
 
-- **Update Time**: Daily update at 06:00 for the past 7-day data.
+- **Update Time**: Daily update at 17:00 for the past 7-day data.
 - **Backtrack Range**: Supports historical queries within the past 30 days.
 - **Data Volume**: Up to 50 entries per category; defaults to TOP20 display.
 - **Data Definition**: Surge data represents 7-day new interaction counts (ingestion time snapshot) and differs from cumulative totals.
