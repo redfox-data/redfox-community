@@ -18,7 +18,7 @@ import subprocess
 import sys
 import time
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 try:
@@ -28,18 +28,64 @@ except ImportError:
     HAS_REQUESTS = False
 
 # ─── 配置 ─────────────────────────────────────────────────────────────────────────
-API_URL = "https://redfox.hk/story/api/parseWork/queryBiliAiMsgs"
+API_URL = "https://redfox.hk/story/api/parseWork//queryBiliAiMsgs/batch"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
 SOURCE = "B站AI信息源-GitHub"
 
-DEFAULT_KEYWORDS = ["AI", "人工智能", "大模型", "GPT", "Agent", "AI绘画", "AI教程"]
+DEFAULT_KEYWORDS = ["AI"]
+EXPAND_KEYWORDS = ["人工智能", "大模型", "GPT", "Agent", "AI绘画", "AI教程"]
 DEFAULT_OUTPUT_DIR = Path.home() / "Downloads" / "QoderReports"
 PAGE_SIZE = 200
 
+# 数据更新规则：每日15:00更新前一天的数据
+# 15:00前：最新可用日期 = T-2；15:00后：最新可用日期 = T-1
+DATA_UPDATE_HOUR = 15  # 数据更新时间（小时）
+
 PLIST_LABEL = "com.qoder.bili-ai-feed"
 PLIST_DIR = Path.home() / "Library" / "LaunchAgents"
+
+
+def get_latest_available_date():
+    """获取最新有数据的日期
+    规则：每日15:00更新前一天的数据
+    - 15:00前：最新可用 = T-2
+    - 15:00后：最新可用 = T-1
+    """
+    now = datetime.now()
+    if now.hour >= DATA_UPDATE_HOUR:
+        # 15:00后，前一天的数据已更新
+        return (now - timedelta(days=1)).strftime("%Y-%m-%d")
+    else:
+        # 15:00前，前一天的数据尚未更新
+        return (now - timedelta(days=2)).strftime("%Y-%m-%d")
+
+
+def is_date_likely_empty(date_str):
+    """判断指定日期是否可能没有数据"""
+    try:
+        target = datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        return False
+    latest = get_latest_available_date()
+    latest_dt = datetime.strptime(latest, "%Y-%m-%d")
+    latest_dt = latest_dt.replace(hour=23, minute=59, second=59)
+    return target > latest_dt
+
+
+def is_timerange_likely_empty(start_time, end_time):
+    """判断自定义时间段是否完全落在无数据区间内"""
+    try:
+        end_dt = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return False
+    latest = get_latest_available_date()
+    latest_dt = datetime.strptime(latest, "%Y-%m-%d")
+    latest_dt = latest_dt.replace(hour=23, minute=59, second=59)
+    # 整个时间段都在无数据区间内
+    return end_dt > latest_dt and (datetime.now() - end_dt).total_seconds() < 0
+
 
 # ─── 终端颜色 ──────────────────────────────────────────────────────────────────────
 GREEN = "\033[92m"
@@ -130,9 +176,16 @@ def get_api_key(cli_key=None):
 
 
 # ─── 数据获取 ──────────────────────────────────────────────────────────────────────
-def fetch_batch(session, keyword, start_time=None, end_time=None):
-    """一次性获取单个关键词的全部视频数据"""
+def fetch_batch(session, keywords, keyword, start_time=None, end_time=None):
+    """批量获取多关键词的视频数据（新 batch 接口）
+
+    Args:
+        keywords: 关键词列表，如 ["AI", "seedance", "智能"]
+        keyword:  主关键词（用于接口 keyword 字段）
+        start_time / end_time: 时间范围
+    """
     payload = {
+        "keywords": keywords,
         "keyword": keyword,
         "pageNum": 1,
         "pageSize": PAGE_SIZE,
@@ -146,7 +199,7 @@ def fetch_batch(session, keyword, start_time=None, end_time=None):
         resp = session.post(API_URL, json=payload, timeout=30)
         result = resp.json()
     except Exception as e:
-        warn(f"请求失败 (keyword={keyword}): {e}")
+        warn(f"请求失败 (keywords={keywords}): {e}")
         return []
 
     code = result.get("code")
@@ -170,17 +223,23 @@ def fetch_batch(session, keyword, start_time=None, end_time=None):
 
 
 def fetch_articles(session, keywords, target_count, start_time=None, end_time=None):
-    """多关键词一次性抓取，去重后返回视频列表"""
+    """多关键词批量抓取，利用 batch 接口一次性传入所有关键词，去重后返回视频列表"""
     articles = []
     seen_ids = set()
 
-    for kw in keywords:
-        batch = fetch_batch(session, kw, start_time=start_time, end_time=end_time)
-        if not batch:
-            warn(f"关键词 \"{kw}\" 暂无内容（当前仅搜索 AI 相关B站视频，更多内容请访问 redfox.hk）")
-            continue
+    # 新 batch 接口支持一次传入多个关键词
+    primary_keyword = keywords[0] if keywords else "AI"
+    batch = fetch_batch(
+        session,
+        keywords=keywords,
+        keyword=primary_keyword,
+        start_time=start_time,
+        end_time=end_time,
+    )
 
-        new_count = 0
+    if not batch:
+        warn(f"关键词 {keywords} 暂无内容（当前仅搜索 AI 相关B站视频，更多内容请访问 redfox.hk）")
+    else:
         for article in batch:
             pid = article.get("photoId", "")
             if pid and pid not in seen_ids:
@@ -189,12 +248,8 @@ def fetch_articles(session, keywords, target_count, start_time=None, end_time=No
                 if not article.get("url") and pid:
                     article["url"] = f"https://www.bilibili.com/video/{pid}"
                 articles.append(article)
-                new_count += 1
 
-        print(f"  {CYAN}[→]{RESET} 扫描: {kw} 新增{new_count}条, 累计{len(articles)}条")
-
-        if len(articles) >= target_count:
-            break
+        print(f"  {CYAN}[→]{RESET} 批量扫描关键词: {keywords}  共{len(articles)}条")
 
     return articles
 
@@ -1188,7 +1243,7 @@ Examples:
         """,
     )
     parser.add_argument("--keywords", default=",".join(DEFAULT_KEYWORDS),
-                        help="搜索关键词，逗号分隔 (默认: AI,人工智能,大模型,GPT,Agent,AI绘画,AI教程)")
+                        help="搜索关键词，逗号分隔 (默认: AI；数据不足时自动扩展；所有关键词通过 batch 接口批量查询)")
     parser.add_argument("--count", type=int, default=200, help="目标视频数 (默认: 200)")
     parser.add_argument("--date", default=datetime.now().strftime("%Y-%m-%d"),
                         help="指定日期 YYYY-MM-DD (默认: 今天)")
@@ -1198,6 +1253,8 @@ Examples:
     parser.add_argument("--api-key", help="API Key (不传则读取环境变量 REDFOX_API_KEY)")
     parser.add_argument("--subscribe", action="store_true", help="安装每日定时任务 (09:00)")
     parser.add_argument("--unsubscribe", action="store_true", help="卸载定时任务")
+    parser.add_argument("--latest", action="store_true",
+                        help="自动使用最新有数据的日期（跳过无数据区间，不扣积分）")
 
 
     args = parser.parse_args()
@@ -1236,27 +1293,85 @@ Examples:
         "X-API-KEY": api_key,
     })
 
-    # ── 时间范围推算 ──
+    # ── 时间范围推算 ──（始终传入时间范围，不再支持全量查询）
     if args.start_time and args.end_time:
         # 用户自定义时间段，直接使用
         start_time = args.start_time
         end_time = args.end_time
+        # 若未显式指定 --date，则从 start-time 中提取查询日期
+        if not any(a.startswith('--date') for a in sys.argv[1:]):
+            args.date = start_time[:10]  # "YYYY-MM-DD"
+
+        # ── 日期有效性检查（自定义时间段）──
+        if is_timerange_likely_empty(start_time, end_time):
+            latest_date = get_latest_available_date()
+            print(f"\n  {YELLOW}{BOLD}⚠️ {args.date} 数据尚未更新{RESET}")
+            print(f"    数据更新规则：每日15:00更新前一天的数据")
+            print(f"    当前可查询的最新日期：{latest_date}")
+            print(f"    {YELLOW}调用接口查询无数据日期会扣除积分但无返回结果{RESET}")
+            if args.latest:
+                info(f"--latest 模式：自动切换到 {latest_date}")
+                args.date = latest_date
+                start_time = latest_date + " 00:00:00"
+                end_time = latest_date + " 24:00:00"
+            else:
+                try:
+                    answer = input(f"\n  {CYAN}是否查询 {latest_date} 的数据？(Y/n): {RESET}").strip().lower()
+                except (EOFError, KeyboardInterrupt):
+                    answer = "n"
+                if answer in ("", "y", "yes"):
+                    info(f"已切换到 {latest_date}")
+                    args.date = latest_date
+                    start_time = latest_date + " 00:00:00"
+                    end_time = latest_date + " 24:00:00"
+                else:
+                    warn("保持原始时间范围，可能无数据返回")
     else:
         # 根据 --date 推算当天 00:00:00 ~ 24:00:00
         try:
             dt = datetime.strptime(args.date, "%Y-%m-%d")
-            start_time = dt.strftime("%Y-%m-%d") + " 00:00:00"
-            end_time = dt.strftime("%Y-%m-%d") + " 24:00:00"
         except ValueError:
-            warn(f"日期格式错误: {args.date}，将不传时间范围")
-            start_time = None
-            end_time = None
+            warn(f"日期格式错误: {args.date}，回退到今天")
+            dt = datetime.now()
 
-    time_desc = f"时间段: {start_time} ~ {end_time}" if start_time else "时间段: 全量"
+        # ── 日期有效性检查（单日期）──
+        if is_date_likely_empty(args.date):
+            latest_date = get_latest_available_date()
+            print(f"\n  {YELLOW}{BOLD}⚠️ {args.date} 数据尚未更新{RESET}")
+            print(f"    数据更新规则：每日15:00更新前一天的数据")
+            print(f"    当前可查询的最新日期：{latest_date}")
+            print(f"    {YELLOW}调用接口查询无数据日期会扣除积分但无返回结果{RESET}")
+            if args.latest:
+                info(f"--latest 模式：自动切换到 {latest_date}")
+                args.date = latest_date
+                dt = datetime.strptime(latest_date, "%Y-%m-%d")
+            else:
+                try:
+                    answer = input(f"\n  {CYAN}是否查询 {latest_date} 的数据？(Y/n): {RESET}").strip().lower()
+                except (EOFError, KeyboardInterrupt):
+                    answer = "n"
+                if answer in ("", "y", "yes"):
+                    info(f"已切换到 {latest_date}")
+                    args.date = latest_date
+                    dt = datetime.strptime(latest_date, "%Y-%m-%d")
+                else:
+                    warn("保持原始日期，可能无数据返回")
 
-    # ── 获取视频 ──
-    keywords = [k.strip() for k in args.keywords.split(",") if k.strip()]
-    step(f"扫描热门内容，关键词: {keywords}")
+        start_time = dt.strftime("%Y-%m-%d") + " 00:00:00"
+        end_time = dt.strftime("%Y-%m-%d") + " 24:00:00"
+
+    time_desc = f"时间段: {start_time} ~ {end_time}"
+
+    # ── 构建关键词列表 ──
+    user_keywords = [k.strip() for k in args.keywords.split(",") if k.strip()]
+    # 用户自定义关键词：仅使用用户提供的列表
+    # 默认关键词：先用 "AI"，不足时自动追加扩展词
+    if args.keywords == ",".join(DEFAULT_KEYWORDS):
+        keywords = list(DEFAULT_KEYWORDS) + [kw for kw in EXPAND_KEYWORDS if kw not in DEFAULT_KEYWORDS]
+        step(f"主关键词: {DEFAULT_KEYWORDS}，数据不足时自动扩展: {EXPAND_KEYWORDS}（batch 批量查询）")
+    else:
+        keywords = user_keywords
+        step(f"自定义关键词: {keywords}（batch 批量查询）")
     step(f"目标: {args.count} 条, {time_desc}")
     print()
 
