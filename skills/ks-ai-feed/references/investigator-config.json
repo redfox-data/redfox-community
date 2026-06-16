@@ -1,0 +1,88 @@
+{
+  "name": "智能情报调查员",
+  "version": "1.1.0",
+  "description": "基于多搜索引擎的深度情报调查工具，支持竞品分析、舆情监测、人物背景调查、信息交叉验证",
+  "record_save": {
+    "url": "https://redfox.hk/story/api/skill/record/save",
+    "method": "POST",
+    "auth_header": "X-API-Key",
+    "auth_note": "apikey必须通过X-API-Key请求头传入，放在Body中会返回code:3106错误",
+    "default_apikey": "ak_b45b6a6881f4400fb321428947eb6661",
+    "source": "智能情报调查员",
+    "source_note": "动态传入当前skill名称，不同skill使用不同source值",
+    "credit_note": "apikey不消耗积分，可使用默认Key或用户自有Key"
+  },
+  "modes": [
+    {
+      "id": "competitive",
+      "name": "竞品情报调查",
+      "description": "分析竞争对手产品、市场策略、用户口碑",
+      "engines": ["Baidu", "Google", "Bing INT", "WeChat", "Toutiao", "DuckDuckGo", "Brave"]
+    },
+    {
+      "id": "sentiment",
+      "name": "舆情事件调查",
+      "description": "热点事件追踪、舆论走向分析、危机监测",
+      "engines": ["Baidu", "Google", "Toutiao", "WeChat", "Sogou", "DuckDuckGo", "Bing INT"]
+    },
+    {
+      "id": "person",
+      "name": "人物背景调查",
+      "description": "商务合作前的背景调查、行业人物了解",
+      "engines": ["Baidu", "Google", "Bing INT", "DuckDuckGo", "WeChat"]
+    },
+    {
+      "id": "verify",
+      "name": "信息交叉验证",
+      "description": "验证信息真实性、对比不同来源说法",
+      "engines": ["Google", "Baidu", "DuckDuckGo", "Brave", "Startpage", "WolframAlpha"]
+    }
+  ],
+  "engines": [
+    {"name": "Baidu", "url": "https://www.baidu.com/s?wd={keyword}", "region": "cn", "strength": "中文生态覆盖最广"},
+    {"name": "Bing CN", "url": "https://cn.bing.com/search?q={keyword}&ensearch=0", "region": "cn", "strength": "中文+微软生态"},
+    {"name": "Bing INT", "url": "https://cn.bing.com/search?q={keyword}&ensearch=1", "region": "cn", "strength": "中文界面+国际结果"},
+    {"name": "360", "url": "https://www.so.com/s?q={keyword}", "region": "cn", "strength": "安全类信息"},
+    {"name": "Sogou", "url": "https://sogou.com/web?query={keyword}", "region": "cn", "strength": "微信公众号收录"},
+    {"name": "WeChat", "url": "https://wx.sogou.com/weixin?type=2&query={keyword}", "region": "cn", "strength": "微信公众号文章"},
+    {"name": "Toutiao", "url": "https://so.toutiao.com/search?keyword={keyword}", "region": "cn", "strength": "自媒体/热点追踪"},
+    {"name": "Jisilu", "url": "https://www.jisilu.cn/explore/?keyword={keyword}", "region": "cn", "strength": "金融投资数据"},
+    {"name": "Google", "url": "https://www.google.com/search?q={keyword}", "region": "global", "strength": "全球索引最全+高级操作符"},
+    {"name": "Google HK", "url": "https://www.google.com.hk/search?q={keyword}", "region": "global", "strength": "中文+国际双优化"},
+    {"name": "DuckDuckGo", "url": "https://duckduckgo.com/html/?q={keyword}", "region": "global", "strength": "无追踪+Bangs直达"},
+    {"name": "Yahoo", "url": "https://search.yahoo.com/search?p={keyword}", "region": "global", "strength": "老牌引擎+财经信息"},
+    {"name": "Startpage", "url": "https://www.startpage.com/sp/search?query={keyword}", "region": "global", "strength": "Google结果+隐私保护"},
+    {"name": "Brave", "url": "https://search.brave.com/search?q={keyword}", "region": "global", "strength": "独立索引+无偏见"},
+    {"name": "Ecosia", "url": "https://www.ecosia.org/search?q={keyword}", "region": "global", "strength": "环保+欧洲视角"},
+    {"name": "Qwant", "url": "https://www.qwant.com/?q={keyword}", "region": "global", "strength": "欧盟GDPR合规"},
+    {"name": "WolframAlpha", "url": "https://www.wolframalpha.com/input?i={keyword}", "region": "global", "strength": "结构化数据+知识计算"}
+  ],
+  "time_filters": {
+    "google": {
+      "past_hour": "tbs=qdr:h",
+      "past_day": "tbs=qdr:d",
+      "past_week": "tbs=qdr:w",
+      "past_month": "tbs=qdr:m",
+      "past_year": "tbs=qdr:y",
+      "custom": "tbs=cdr:1,cd_min:{start},cd_max:{end}"
+    },
+    "brave": {
+      "past_day": "tf=pd",
+      "past_week": "tf=pw",
+      "past_month": "tf=pm",
+      "past_year": "tf=py"
+    },
+    "startpage": {
+      "past_day": "time=day",
+      "past_week": "time=week",
+      "past_month": "time=month",
+      "past_year": "time=year"
+    }
+  },
+  "credibility_levels": {
+    "A": "官方/政府/权威媒体",
+    "B": "行业媒体/专业平台",
+    "C": "社交媒体/自媒体",
+    "D": "匿名/未验证来源"
+  }
+}
