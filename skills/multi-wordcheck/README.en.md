@@ -1,22 +1,23 @@
-# Multi-Platform Prohibited Word Check / multi-wordcheck
+# Multi-Platform Prohibited Words Checker / multi-wordcheck
 
 ---
 
-## Introduction
+## Overview
 
-A multi-platform prohibited word detection tool based on official word libraries, covering the moderation standards of WeChat Official Accounts, Xiaohongshu, and Douyin. Supports copy text, file uploads, images, and URL links as input, and outputs flagged words alongside context-aware replacement suggestions.
+A multi-platform prohibited words detection tool powered by official compliance word banks, covering the review standards of WeChat Official Accounts, Xiaohongshu (RED), and Douyin (TikTok). Supports text, file, image, and URL inputs, delivering fast flagged-word marking and context-aware replacement suggestions.
 
 **Core Value**
 
-- Three independent word libraries for three platforms — switch with a single phrase before publishing
-- Goes beyond flagging: each prohibited word comes with a context-aware replacement and reason, ready to use
-- Automatically generates a clean, publishable version of your copy with replacements applied — just copy and post
+- Quickly locate prohibited words in your copy before publishing to reduce the risk of content restriction, rejection, or takedown
+- Get context-aware replacement suggestions instead of mechanical keyword swaps
+- Receive a ready-to-publish revised version — copy and use instantly
 
 **Who It's For**
 
-- ✍️ Independent creators — self-audit before publishing to reduce the risk of platform throttling or rejection
-- 📢 Brand marketers / e-commerce teams — batch-check campaign copy and product detail pages to a unified compliance standard
-- 🏢 MCN agencies / content review teams — standardize compliance workflows across multi-person operations
+- ✍️ Content Creators — Run quick self-checks before cross-platform publishing to lower compliance risks
+- 📊 Brand Operators — Batch-scan marketing materials to maintain consistent compliance standards
+- 🏢 MCN Agencies — Provide standardized content review workflows for all managed accounts
+- 🔍 Content Review Teams — Augment manual review with automated screening to boost efficiency
 
 ---
 
@@ -24,58 +25,59 @@ A multi-platform prohibited word detection tool based on official word libraries
 
 ### Core Capabilities
 
-- **Prohibited word flagging**: Detected words are bolded in the original text; total count and type are clearly listed
-- **Context-aware replacement suggestions**: Each prohibited word gets a context-fitted replacement and reason — not a mechanical keyword swap
-- **Publishable output**: Automatically generates a full replacement version of the copy with replaced terms in bold-italic, ready to copy and use
-- **Multi-platform switching**: Public Accounts (default), Xiaohongshu, Douyin — three independent word libraries; just mention the platform name to switch
-- **Multiple input formats**: Paste text directly, upload txt files, upload images (text extracted automatically), or paste a URL (page body extracted automatically)
-- **Long-copy batch detection**: Copy over 3,000 characters prompts a batching option; supports batch detection with merged results
+- **Flagged Word Marking**: Prohibited words in the original text are highlighted in bold for instant visibility
+- **Context-Aware Replacements**: Each flagged word comes with a contextually appropriate alternative and the rationale behind the swap
+- **Optimized Copy Output**: Automatically generates a revised, publishable version
+- **Long-Text Batch Detection**: Automatically prompts batching for content exceeding 3,000 characters, with support for sequential batch detection and merged results
+- **Multi-Platform Coverage**: Supports independent word banks for WeChat Official Accounts, Xiaohongshu, and Douyin, each tailored to the platform's review rules
+- **Multi-Format Input**: Accepts pasted text, uploaded .txt files, uploaded images (text extraction), and pasted webpage URLs (body content scraping)
 
 ---
 
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
-- Visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
-- Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
-- Before using a key, confirm its source, scope, expiry, and whether it supports reset or revocation.
-- Never hard-code or expose the key in plaintext within code, prompts, logs, or output files.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
+- Visit [RedFoxHub](https://redfox.hk?souce=github) to register an account and obtain your `REDFOX_API_KEY`.
+- Configure the environment variable `REDFOX_API_KEY` on your device before using this skill.
+- Before providing a key, verify its source, scope of use, expiration date, and whether it supports resetting or revocation.
+- Never hardcode or expose keys in plaintext within code, prompts, logs, or output files.
 
 ---
 
 ## Usage Guide
 
-Describe your needs in natural language — no commands to memorize.
+Simply describe your needs in natural language — no commands to memorize.
 
 ### Quick Reference
 
-| Intent                | Example phrase                                                  | Result                                                                                   |
-| --------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Check WeChat copy     | `Check this WeChat article for prohibited words: [copy]`        | Detects against WeChat rules, outputs flagged results and replacement suggestions        |
-| Switch to Xiaohongshu | `Check this Xiaohongshu post for prohibited words: [copy]`      | Switches to Xiaohongshu word library for detection                                       |
-| Switch to Douyin      | `Check this Douyin script for prohibited words: [script]`       | Switches to Douyin word library for detection                                            |
-| Upload file           | Directly upload a txt file or image                             | Content is read and detected automatically — no extra steps needed                       |
-| Check a URL           | `Check the copy on this page: https://...`                      | Page body is extracted and checked automatically                                         |
-| Long copy batching    | System automatically prompts when copy exceeds 3,000 characters | Reply `1` for first 3,000 chars / `2` for auto-batch with merged results / `3` to cancel |
+| Intent | Example Phrase | Outcome |
+| ------ | -------------- | ------- |
+| WeChat article check | Help me check this WeChat article for prohibited words: This product uses all-natural ingredients | Detects against WeChat rules and outputs flagged words with replacement suggestions |
+| Xiaohongshu note check | Xiaohongshu, check this copy: This whitening miracle works in 3 days, money-back guarantee | Detects against Xiaohongshu rules and outputs flagged words with replacement suggestions |
+| File upload check | Upload a .txt file or image and specify the target platform | Automatically extracts content and checks against the specified platform rules |
+| Webpage URL check | Paste a webpage URL and the system will scrape and check the body text | Automatically scrapes page content and checks against the specified platform rules |
+| Long-text batch check | System prompts automatically above 3,000 chars; reply 1 for first 3,000 chars / 2 for auto-batching | Splits at natural breakpoints, checks batch by batch, then merges results |
 
 ### Output Example
 
-When prohibited words are detected, results are output in three sections:
+When prohibited words are detected, the output includes three sections:
 
-1. **Detection Results** — original text with prohibited words bolded, plus word count and type
-2. **Replacement Suggestions** — table of prohibited word / replacement / reason
-3. **Suggested Clean Copy** — full publishable version with replacements in bold-italic
+🔍 **Detection Results** — Shows the platform, count and type of flagged words, with prohibited words highlighted in bold in the original text
 
-When no prohibited words are detected, only the result section is shown: "No prohibited words detected. Copy is compliant."
+💡 **Replacement Suggestions** — A table mapping each flagged word to its replacement and the rationale
+
+📝 **Optimized Copy** — The revised, publishable version with replacements marked in bold italics
+
+When no prohibited words are detected, only "No prohibited words found — content is compliant" is shown.
 
 ---
 
 ## Use Cases
 
-| Scenario                       | Role                   | Example question                                   | Benefit                                                                                                    |
-| ------------------------------ | ---------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Pre-publish self-audit         | WeChat operator        | `Check this article before I send it out`          | Catch advertising law violations and false claims before mass send, reducing rejection or throttling risk  |
-| Xiaohongshu post compliance    | Xiaohongshu creator    | `Xiaohongshu check: [post content]`                | Flag extreme claims and community-banned phrases, get replacement suggestions tuned to the seeding context |
-| Short video script review      | Douyin editor          | `Douyin script check: [script]`                    | Screen sensitive terms and non-compliant phrasing to ensure the final video passes platform review         |
-| Marketing material batch audit | Brand / e-commerce ops | `Check the copy on this landing page: https://...` | Quickly audit multiple pages for compliance and receive a unified-format detection report                  |
+| Scenario | Role | Example Query | Benefit |
+| -------- | ---- | ------------- | ------- |
+| Pre-publish WeChat article review | Content operator | Check this article for prohibited words | Screen for advertising law violations, false claims, and high-risk medical/pharma terms to reduce rejection or restriction |
+| Xiaohongshu note compliance check | Creator | Check this Xiaohongshu note for prohibited words | Eliminate superlatives, banned claims, and community-prohibited phrasing; replacements tailored for recommendation-style content |
+| Douyin short-video script screening | Scriptwriter | Check this Douyin voiceover script for prohibited words | Screen for sensitive terms and non-compliant expressions to ensure the final cut passes platform review |
+| Bulk brand marketing material scan | Brand / e-commerce operator | Check all landing page URLs for prohibited words | Complete multi-page compliance screening in bulk with unified-format reports |
