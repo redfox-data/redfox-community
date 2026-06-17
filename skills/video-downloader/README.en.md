@@ -4,13 +4,13 @@
 
 ## Overview
 
-Watermark-free video downloader supporting Douyin, Xiaohongshu, Kuaishou, and Bilibili. Paste a share link and download. Built-in public API key, ready to use.
+Watermark-free video downloader supporting Douyin, Xiaohongshu, Kuaishou, and Bilibili. Paste a share link and download.
 
 **Core Value**
 
 - **Multi-Platform**: Douyin, Xiaohongshu, Kuaishou, Bilibili — one tool for all
 - **Watermark-Free**: API auto-returns watermark-free direct links
-- **Zero Config**: Built-in ~10,000 free credits, paste a link and go
+- **Auto-Adaptive**: Supports short links, share links, web links, and more
 
 **Target Users**
 
@@ -34,12 +34,12 @@ Watermark-free video downloader supporting Douyin, Xiaohongshu, Kuaishou, and Bi
 
 ## API Key Acquisition & Security
 
-- This skill comes with a built-in public API key (~10,000 free credits), ready to use.
-- For personal keys: `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
-- Visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
-- Configure the device environment variable `REDFOX_API_KEY` before using this skill.
-- Before providing your key, verify its origin, scope, validity period, and whether reset/revocation is supported.
-- Never hardcode or expose the key in code, prompts, logs, or output files.
+- This skill requires the environment variable: `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Please visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
+- Configure the environment variable `REDFOX_API_KEY` on your device before using this skill.
+- Before providing your key, verify its source, available scope, validity period, and whether it supports reset/revocation.
+- Do not hardcode or expose the key in plaintext within code, prompts, logs, or output files.
 
 ---
 
