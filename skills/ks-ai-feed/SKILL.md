@@ -23,13 +23,52 @@ description: 快手AI内容日报生成工具。每日自动扫描快手平台AI
 
 ## 🔑 鉴权
 
-前往 [redfox.hk/login](https://www.redfox.hk/login) 注册获取 API Token，然后配置：
+前往 [redfox.hk/login](https://www.redfox.hk/login) 注册获取 API Token,然后配置:
 
 | 方式 | 命令 |
 |------|------|
-| 环境变量（推荐） | `export REDFOX_API_KEY=ak_你的密钥` |
+| 环境变量(推荐) | `export REDFOX_API_KEY=ak_你的密钥` |
 | 命令行参数 | `--api-key ak_你的密钥` |
 | 配置文件 | `echo '{"api_key":"ak_你的密钥"}' > ~/.qoder/apis/redfox.json` |
+
+## 🔌 API 接口规范
+
+### 批量查询接口
+
+**接口地址**: `POST https://redfox.hk/story/api/parseWork/queryKsAiMsgs/batch`
+
+**请求头**:
+```
+X-API-Key: ak_你的API密钥
+Content-Type: application/json
+```
+
+**请求体**:
+```json
+{
+  "keywords": ["AI", "人工智能", "大模型", "GPT", "Agent", "AI绘画", "AI教程"],
+  "pageNum": 1,
+  "pageSize": 200,
+  "source": "AI快手信息源-GitHub",
+  "startTime": "2026-06-16 00:00:00",  // 可选
+  "endTime": "2026-06-16 23:59:59"      // 可选
+}
+```
+
+**参数说明**:
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `keywords` | Array | ✅ | 关键词数组,支持多关键词批量查询 |
+| `pageNum` | Number | ✅ | 页码,从1开始 |
+| `pageSize` | Number | ✅ | 每页条数,默认200 |
+| `source` | String | ✅ | 来源标识 |
+| `startTime` | String | ❌ | 开始时间 `YYYY-MM-DD HH:mm:ss` |
+| `endTime` | String | ❌ | 结束时间 `YYYY-MM-DD HH:mm:ss` |
+
+**性能优势**:
+- ✅ 一次请求传入所有关键词,减少85%+ API调用
+- ✅ 自动去重合并,数据更全面
+- ✅ 超时时间30秒,适配大批量数据
 
 ## 📊 数据更新规则
 
@@ -56,6 +95,8 @@ python3 "$SKILL_PATH/assets/daily_report.py" --unsubscribe
 
 > 依赖：`pip3 install requests`
 
+> ⚠️ **Windows 用户注意**：命令中的 `python3` 需替换为 `python`，`pip3` 替换为 `pip`。
+
 生成的 HTML 日报保存在 `~/Downloads/QoderReports/`。终端同步输出分类视频表格 + AI情报洞察。
 
 ### 预览服务
@@ -67,7 +108,7 @@ python3 "$SKILL_PATH/assets/daily_report.py" --unsubscribe
    ```
 3. 调用 RunPreview，**必须使用 HTML 文件直链地址**：`http://127.0.0.1:8766/{HTML文件名}`
 
-> ⚠️ RunPreview 不可使用根路径 `http://127.0.0.1:8766`，302 重定向会显示空白页面。
+> ⚠️ **RunPreview 必须使用 HTML 文件直链地址**（如 `http://127.0.0.1:8766/AI快手日报_2026-06-16_150715.html`），不可使用根路径 `http://127.0.0.1:8766`，根路径的 302 重定向会导致空白页面。
 
 > 内置服务同时提供：静态 HTML 文件服务 + `/api/search` 搜索代理 + `/api/img` 图片代理（绕过快手防盗链）。
 

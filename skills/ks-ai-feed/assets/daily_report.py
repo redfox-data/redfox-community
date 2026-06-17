@@ -43,7 +43,7 @@ except ImportError:
     HAS_REQUESTS = False
 
 # ─── 配置 ─────────────────────────────────────────────────────────────────────────
-API_URL = "https://redfox.hk/story/api/parseWork/queryKsAiMsgs"
+API_URL = "https://redfox.hk/story/api/parseWork/queryKsAiMsgs/batch"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
@@ -147,10 +147,10 @@ def get_api_key(cli_key=None):
 
 
 # ─── 数据获取 ──────────────────────────────────────────────────────────────────────
-def fetch_page(session, keyword, page_num, start_time=None, end_time=None):
-    """获取单页视频数据"""
+def fetch_batch(session, keywords, page_num, start_time=None, end_time=None):
+    """批量获取多个关键词的单页视频数据"""
     payload = {
-        "keyword": keyword,
+        "keywords": keywords,  # 传入关键词列表
         "pageNum": page_num,
         "pageSize": PAGE_SIZE,
         "source": SOURCE,
@@ -159,11 +159,12 @@ def fetch_page(session, keyword, page_num, start_time=None, end_time=None):
         payload["startTime"] = start_time
     if end_time:
         payload["endTime"] = end_time
+    
     try:
-        resp = session.post(API_URL, json=payload, timeout=15)
+        resp = session.post(API_URL, json=payload, timeout=30)  # 批量查询增加超时时间
         result = resp.json()
     except Exception as e:
-        warn(f"请求失败 (keyword={keyword}, page={page_num}): {e}")
+        warn(f"批量请求失败 (page={page_num}): {e}")
         return []
 
     code = result.get("code")
@@ -171,7 +172,7 @@ def fetch_page(session, keyword, page_num, start_time=None, end_time=None):
         warn("限频，等待 5s...")
         time.sleep(5)
         try:
-            resp = session.post(API_URL, json=payload, timeout=15)
+            resp = session.post(API_URL, json=payload, timeout=30)
             result = resp.json()
             code = result.get("code")
         except Exception:
@@ -187,44 +188,51 @@ def fetch_page(session, keyword, page_num, start_time=None, end_time=None):
 
 
 def fetch_articles(session, keywords, target_count, start_time=None, end_time=None):
-    """多页分页获取，当单页返回数量 < PAGE_SIZE 时停止该关键词的分页"""
+    """批量分页获取所有关键词的数据,一次请求传入所有关键词"""
     articles = []
     seen_ids = set()
 
-    for kw in keywords:
+    # 一次性传入所有关键词进行批量查询
+    page_num = 1
+    total_fetched = 0
+    
+    while True:
+        # 批量请求所有关键词
+        page_articles = fetch_batch(session, keywords, page_num, start_time=start_time, end_time=end_time)
+        
+        if not page_articles:
+            if page_num == 1:
+                warn(f"所有关键词均暂无内容(当前仅搜索 AI 相关快手视频,更多内容请访问 redfox.hk)")
+            break
+
+        # 统计本次新增数量
+        new_count = 0
+        for article in page_articles:
+            pid = article.get("photoId", "")
+            if pid and pid not in seen_ids:
+                seen_ids.add(pid)
+                articles.append(article)
+                new_count += 1
+        
+        total_fetched += new_count
+        
+        # 输出进度
+        if new_count > 0:
+            print(f"  {CYAN}[→]{RESET} 第{page_num}页: 新增{new_count}条, 累计{len(articles)}条")
+
+        # 本页无新数据或返回不足一页,说明已到底
+        if new_count == 0 or len(page_articles) < PAGE_SIZE:
+            break
+
+        # 达到目标数量
         if len(articles) >= target_count:
             break
 
-        page_num = 1
-        kw_new_total = 0
-        while True:
-            page_articles = fetch_page(session, kw, page_num, start_time=start_time, end_time=end_time)
-            if not page_articles:
-                if page_num == 1:
-                    warn(f"关键词 \"{kw}\" 暂无内容（当前仅搜索 AI 相关快手视频，更多内容请访问 redfox.hk）")
-                break
+        page_num += 1
 
-            new_count = 0
-            for article in page_articles:
-                pid = article.get("photoId", "")
-                if pid and pid not in seen_ids:
-                    seen_ids.add(pid)
-                    articles.append(article)
-                    new_count += 1
-            kw_new_total += new_count
-
-            # 本页无新数据或返回不足一页，说明已到底
-            if new_count == 0 or len(page_articles) < PAGE_SIZE:
-                break
-
-            page_num += 1
-
-            # 安全上限：单关键词最多10页（2000条）
-            if page_num > 10:
-                break
-
-        if kw_new_total > 0:
-            print(f"  {CYAN}[→]{RESET} 扫描: {kw} 新增{kw_new_total}条, 累计{len(articles)}条")
+        # 安全上限:最多10页(2000条)
+        if page_num > 10:
+            break
 
     return articles
 
@@ -504,7 +512,8 @@ def generate_intelligence_briefing(clusters, articles):
     for author, count in author_counter.most_common(5):
         arts = author_articles[author]
         total_likes = sum(a.get("likeCount") or 0 for a in arts)
-        total_reads = sum(a.get("readCount") or 0 for a in arts)
+        reads_with_data = [a["readCount"] for a in arts if a.get("readCount") is not None]
+        total_reads = sum(reads_with_data) if reads_with_data else None
         top_authors.append({
             "name": author,
             "article_count": count,
@@ -595,9 +604,9 @@ def print_intelligence_briefing(briefing):
     if briefing["top_authors"]:
         print(f"  {CYAN}{BOLD}【核心达人】{RESET}")
         for author in briefing["top_authors"]:
+            reads_part = f", 总播{format_number(author['total_reads'])}" if author.get('total_reads') else ''
             print(f"    @{author['name']} — {author['article_count']}条作品, "
-                  f"总赞{format_number(author['total_likes'])}, "
-                  f"总播{format_number(author['total_reads'])}")
+                  f"总赞{format_number(author['total_likes'])}{reads_part}")
         print()
 
     # 推荐调查方向
@@ -625,10 +634,10 @@ def compute_stats(articles):
     """计算统计数据"""
     total = len(articles)
     if total == 0:
-        return {"total": 0, "avg_reads": 0, "top_author": "-", "total_likes": 0}
+        return {"total": 0, "avg_reads": None, "top_author": "-", "total_likes": 0}
 
-    reads = [a.get("readCount") or 0 for a in articles]
-    avg_reads = sum(reads) // total if total > 0 else 0
+    reads_with_data = [a["readCount"] for a in articles if a.get("readCount") is not None]
+    avg_reads = sum(reads_with_data) // len(reads_with_data) if reads_with_data else None
 
     author_counter = Counter(a.get("userName", "未知") for a in articles)
     top_author = author_counter.most_common(1)[0][0] if author_counter else "-"
@@ -678,7 +687,7 @@ def print_article_table(clusters):
         for j, article in enumerate(arts, 1):
             title = article.get("title", "无标题")
             author = article.get("userName", "-")
-            reads = format_number(article.get("readCount"))
+            reads = format_number(article.get("readCount")) if article.get("readCount") else "-"
             likes = format_number(article.get("likeCount"))
             comments = format_number(article.get("commentCount"))
 
@@ -713,9 +722,10 @@ def generate_category_cards(clusters):
             cover = re.sub(r'\.(heif|heic|kvif|kpg)(?=[?#]|$)', '.jpg', cover, flags=re.IGNORECASE)
             cover = re.sub(r'/(heif|heic)/', '/jpg/', cover, flags=re.IGNORECASE)
             likes = format_number(article.get("likeCount"))
-            reads = format_number(article.get("readCount"))
+            reads_raw = article.get("readCount")
             comments = format_number(article.get("commentCount"))
 
+            reads_metric = f'<span class="metric">&#x1f441; {format_number(reads_raw)}</span>' if reads_raw else ''
             articles_html += f'''
                 <a href="{url}" target="_blank" class="article-item">
                     <div class="article-info">
@@ -723,7 +733,7 @@ def generate_category_cards(clusters):
                         <div class="article-meta">
                             <span class="author">{author}</span>
                             <span class="metrics">
-                                <span class="metric">&#x1f441; {reads}</span>
+                                {reads_metric}
                                 <span class="metric">&#x1f44d; {likes}</span>
                                 <span class="metric">&#x1f4ac; {comments}</span>
                             </span>
@@ -755,7 +765,8 @@ def generate_intelligence_html(briefing):
     for i, topic in enumerate(briefing["top_topics"], 1):
         top_art = topic.get("top_article")
         top_title = (top_art.get("title", "-")[:50] if top_art else "-")
-        top_reads = format_number(top_art.get("readCount", 0)) if top_art else "-"
+        top_reads_raw = top_art.get("readCount") if top_art else None
+        top_reads_metric = f'{format_number(top_reads_raw)} 播放' if top_reads_raw else ''
         topics_html += f'''
                 <div class="intel-rank-item">
                     <span class="intel-rank-num">{i}</span>
@@ -763,7 +774,7 @@ def generate_intelligence_html(briefing):
                         <span class="intel-rank-topic">{topic['topic']}</span>
                         <span class="intel-rank-detail">占比 {topic['ratio']}% · {topic['count']}条 · 头部: {top_title}</span>
                     </div>
-                    <span class="intel-rank-metric">{top_reads} 播放</span>
+                    <span class="intel-rank-metric">{top_reads_metric}</span>
                 </div>'''
 
     # 新兴起量话题
@@ -788,10 +799,11 @@ def generate_intelligence_html(briefing):
     # 核心达人
     authors_html = ""
     for author in briefing.get("top_authors", []):
+        reads_part = f' · 总播{format_number(author["total_reads"])}' if author.get("total_reads") else ''
         authors_html += f'''
                 <div class="intel-author-item">
                     <span class="intel-author-name">@{author['name']}</span>
-                    <span class="intel-author-stats">{author['article_count']}条 · 总赞{format_number(author['total_likes'])} · 总播{format_number(author['total_reads'])}</span>
+                    <span class="intel-author-stats">{author['article_count']}条 · 总赞{format_number(author['total_likes'])}{reads_part}</span>
                 </div>'''
 
     authors_section = ""
@@ -938,7 +950,7 @@ def generate_report(clusters, articles, date_str, api_key=None, briefing=None):
     html = html.replace("{{TOTAL_COUNT}}", str(stats["total"]))
     html = html.replace("{{TOPIC_COUNT}}", str(topic_count))
     html = html.replace("{{TOP_AUTHOR}}", stats["top_author"])
-    html = html.replace("{{AVG_READS}}", format_number(stats["avg_reads"]))
+    html = html.replace("{{AVG_READS}}", format_number(stats["avg_reads"]) if stats["avg_reads"] is not None else "-")
     html = html.replace("{{TOTAL_LIKES}}", format_number(stats["total_likes"]))
     html = html.replace("{{CATEGORY_CARDS}}", category_cards)
     html = html.replace("{{INTELLIGENCE_SECTION}}", intelligence_html)
@@ -1423,7 +1435,7 @@ Examples:
                 name = f"@{author['name']}"
                 count = f"{author['article_count']}条"
                 total_likes = format_number(author['total_likes'])
-                highlight = f"总播{format_number(author['total_reads'])}"
+                highlight = f"总播{format_number(author['total_reads'])}" if author.get('total_reads') else '-'
                 print(f"| {name} | {count} | {total_likes} | {highlight} |")
         else:
             print(f"\n暂无")
