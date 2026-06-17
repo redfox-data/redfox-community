@@ -17,7 +17,6 @@ import json
 import os
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -30,35 +29,25 @@ if os.name == "nt":
             stream.reconfigure(encoding="utf-8", errors="replace")
 
 # ─── 常量 ──────────────────────────────────────────────────────────────────────────
-API_BASE = "https://redfox.hk/story/api"
+API_BASE = "https://redfox.hk/story/api/multiPlatform/workSearch"
 PLATFORMS = {
     "xhs": {
-        "endpoint": "/xhs/crawl/work",
         "label": "小红书",
-        "source": "多平台话题研究-xhs-GitHub",
-        "list_key": "articles",
-        "requires_dates": True,
+        "result_key": "xhsResult",
     },
     "dy": {
-        "endpoint": "/dy/search/search",
         "label": "抖音",
-        "source": "多平台话题研究-dy-GitHub",
-        "list_key": "articles",
-        "requires_dates": False,
+        "result_key": "dyResult",
     },
     "gzh": {
-        "endpoint": "/gzh/search/hotArticle",
         "label": "公众号",
-        "source": "多平台话题研究-gzh-GitHub",
-        "list_key": "articles",
-        "requires_dates": True,
+        "result_key": "gzhResult",
     },
 }
 DEFAULT_COUNT = 50
 SOURCE_LABEL = "多平台话题研究-GitHub"
 
 # ─── API Key ────────────────────────────────────────────────────────────────────────
-PUBLIC_API_KEY = "ak_db0e200c049b44288d46da0e758d53dd"
 
 
 class InsufficientCreditsError(Exception):
@@ -67,18 +56,25 @@ class InsufficientCreditsError(Exception):
 
 
 def get_api_key(cli_key: str | None = None) -> str:
-    """按优先级获取 API Key: 命令行 > 内置公共Key > 环境变量"""
+    """按优先级获取 API Key: 命令行 > 环境变量 > 配置文件"""
     if cli_key:
         return cli_key
-    # 优先使用内置公共 Key（有免费额度）
-    if PUBLIC_API_KEY:
-        return PUBLIC_API_KEY
-    # 其次从环境变量获取
+    # 环境变量
     for env_name in ("REDFOX_API_KEY", "X_API_KEY"):
         val = os.environ.get(env_name, "").strip()
         if val:
             return val
-    # 无可用 Key，返回空字符串触发提示
+    # 配置文件
+    config_path = os.path.expanduser("~/.qoder/apis/redfox.json")
+    if os.path.isfile(config_path):
+        try:
+            with open(config_path) as f:
+                cfg = json.load(f)
+            val = (cfg.get("api_key") or "").strip()
+            if val:
+                return val
+        except Exception:
+            pass
     return ""
 
 
@@ -162,89 +158,6 @@ def _http_post(url: str, payload: dict, api_key: str, max_retries: int = 3) -> d
                 time.sleep(2 ** attempt)
 
     raise Exception(f"请求失败: {last_error}（已尝试 {max_retries} 次）")
-
-
-# ─── 平台数据获取 ────────────────────────────────────────────────────────────────────
-def _fetch_platform(platform_key: str, keyword: str, count: int, api_key: str, days: int = 30) -> dict:
-    """获取单个平台的数据"""
-    plat = PLATFORMS[platform_key]
-    url = f"{API_BASE}{plat['endpoint']}"
-    label = plat["label"]
-
-    sys.stderr.write(f"[{label}] 搜索中...\n")
-    sys.stderr.flush()
-
-    # 构建请求参数
-    today = datetime.now()
-    start_date = (today - timedelta(days=days)).strftime("%Y-%m-%d")
-    end_date = today.strftime("%Y-%m-%d")
-
-    payload = {
-        "keyword": keyword,
-        "source": SOURCE_LABEL,
-    }
-    # 需要日期的平台始终传 startDate/endDate
-    if plat.get("requires_dates"):
-        payload["startDate"] = start_date
-        payload["endDate"] = end_date
-    # 抖音可选传日期，传上更好过滤
-    else:
-        payload["startDate"] = start_date
-        payload["endDate"] = end_date
-    # 小红书额外支持 sortType
-    if platform_key == "xhs":
-        payload["sortType"] = "_0"  # 相关性排序
-
-    credit_error = False
-    all_articles = []
-    seen_ids = set()
-
-    try:
-        result = _http_post(url, payload, api_key)
-        data = result.get("data") or {}
-        # 使用 list_key 提取列表数据
-        list_key = plat.get("list_key", "articles")
-        articles = data.get(list_key, []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
-
-        # 去重并归一化
-        for art in articles:
-            uid = (
-                art.get("workUuid") or art.get("uuid")
-                or art.get("id") or art.get("noteId")
-                or ""
-            )
-            if uid and uid in seen_ids:
-                continue
-            if uid:
-                seen_ids.add(uid)
-
-            item = _normalize_article(art, platform_key, len(all_articles) + 1)
-            all_articles.append(item)
-
-            if len(all_articles) >= count:
-                break
-
-    except InsufficientCreditsError as e:
-        sys.stderr.write(f"[{label}] ⚠️ {e}\n")
-        sys.stderr.write(f"[{label}] 请配置个人 API Key: export REDFOX_API_KEY=你的密钥\n")
-        sys.stderr.write(f"[{label}] 注册地址: https://www.redfox.hk/login\n")
-        sys.stderr.flush()
-        credit_error = True
-    except Exception as e:
-        sys.stderr.write(f"[{label}] 请求失败: {e}\n")
-        sys.stderr.flush()
-
-    sys.stderr.write(f"[{label}] 获取 {len(all_articles)} 条\n")
-    sys.stderr.flush()
-    result = {
-        "platform": platform_key,
-        "label": label,
-        "items": all_articles[:count],
-        "total": len(all_articles[:count]),
-    }
-    if credit_error:
-        result["error"] = "积分不足，请配置个人 API Key"
-    return result
 
 
 def _first_of(art: dict, *keys: str, default: Any = None) -> Any:
@@ -439,41 +352,112 @@ def search(
     api_key: str | None = None,
     days: int = 30,
 ) -> dict:
-    """在多个平台上搜索话题数据"""
+    """通过统一接口搜索多平台话题数据"""
     if not platforms:
         platforms = list(PLATFORMS.keys())
 
     key = get_api_key(api_key)
-    results = {}
+    if not key:
+        sys.stderr.write("\u274c 未找到 API Key，请先配置：\n")
+        sys.stderr.write("   export REDFOX_API_KEY=ak_你的密钥\n")
+        sys.stderr.write("   或使用 --api-key 参数传入\n")
+        sys.stderr.write("   注册地址: https://www.redfox.hk/login\n")
+        sys.stderr.flush()
+        sys.exit(1)
 
-    # 并行获取各平台数据
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        futures = {
-            executor.submit(_fetch_platform, p, keyword, count, key, days): p
-            for p in platforms
-        }
-        for future in as_completed(futures):
-            p = futures[future]
-            try:
-                results[p] = future.result()
-            except Exception as e:
-                results[p] = {
-                    "platform": p,
-                    "label": PLATFORMS[p]["label"],
-                    "items": [],
-                    "total": 0,
-                    "error": str(e),
-                }
+    # 构建统一请求参数
+    today = datetime.now()
+    start_date = (today - timedelta(days=days)).strftime("%Y-%m-%d")
+    end_date = today.strftime("%Y-%m-%d")
+    payload = {
+        "keyword": keyword,
+        "source": SOURCE_LABEL,
+        "startDate": start_date,
+        "endDate": end_date,
+    }
+
+    sys.stderr.write(f"[\u2699\ufe0f] 搜索中: {keyword} ...\n")
+    sys.stderr.flush()
+
+    results = {}
+    credit_error = False
+
+    try:
+        result = _http_post(API_BASE, payload, key)
+        data = result.get("data") or {}
+
+        for p in platforms:
+            if p not in PLATFORMS:
+                results[p] = {"platform": p, "label": p, "items": [], "total": 0, "error": "未知平台"}
+                continue
+
+            plat = PLATFORMS[p]
+            label = plat["label"]
+            result_key = plat["result_key"]
+            articles = data.get(result_key, [])
+            if isinstance(articles, dict):
+                articles = articles.get("articles", [])
+            if not isinstance(articles, list):
+                articles = []
+
+            # 去重并归一化
+            all_articles = []
+            seen_ids = set()
+            for art in articles:
+                uid = (
+                    art.get("workUuid") or art.get("uuid")
+                    or art.get("id") or art.get("noteId")
+                    or ""
+                )
+                if uid and uid in seen_ids:
+                    continue
+                if uid:
+                    seen_ids.add(uid)
+                item = _normalize_article(art, p, len(all_articles) + 1)
+                all_articles.append(item)
+                if len(all_articles) >= count:
+                    break
+
+            sys.stderr.write(f"[{label}] 获取 {len(all_articles)} 条\n")
+            sys.stderr.flush()
+            results[p] = {
+                "platform": p,
+                "label": label,
+                "items": all_articles[:count],
+                "total": len(all_articles[:count]),
+            }
+
+    except InsufficientCreditsError as e:
+        sys.stderr.write(f"⚠️ {e}\n")
+        sys.stderr.write(f"请配置个人 API Key: export REDFOX_API_KEY=你的密钥\n")
+        sys.stderr.write(f"注册地址: https://www.redfox.hk/login\n")
+        sys.stderr.flush()
+        credit_error = True
+    except Exception as e:
+        sys.stderr.write(f"请求失败: {e}\n")
+        sys.stderr.flush()
+
+    # 为未处理的平台填充空结果
+    for p in platforms:
+        if p not in results:
+            results[p] = {
+                "platform": p,
+                "label": PLATFORMS[p]["label"],
+                "items": [],
+                "total": 0,
+            }
+            if credit_error:
+                results[p]["error"] = "积分不足，请配置个人 API Key"
 
     # 汇总统计
     total_items = sum(r["total"] for r in results.values())
-    today = datetime.now(timezone.utc)
+    today_utc = datetime.now(timezone.utc)
     return {
         "keyword": keyword,
-        "searched_at": today.isoformat(),
+        "searched_at": today_utc.isoformat(),
         "date_range": {
-            "from": (today - timedelta(days=days)).strftime("%Y-%m-%d"),
-            "to": today.strftime("%Y-%m-%d"),
+            "from": (today_utc - timedelta(days=days)).strftime("%Y-%m-%d"),
+            "to": today_utc.strftime("%Y-%m-%d"),
         },
         "platforms": results,
         "total_items": total_items,
@@ -608,11 +592,15 @@ def format_as_html(data: dict, max_items: int = 50, report_html: str = "") -> st
             it.get("engagement", {}).get("reads", 0) + it.get("engagement", {}).get("likes", 0) + it.get("engagement", {}).get("collects", 0) + it.get("engagement", {}).get("shares", 0) + it.get("engagement", {}).get("comments", 0)
             for it in pdata.get("items", [])[:max_items]
         )
+        m_primary = meta["primary"]
+        m_bg = meta["bg"]
+        m_icon = meta["icon"]
+        m_name = meta["name"]
         stats_html += f'''
-            <div class="stat-card" style="--p-color: {meta['primary']}; --p-bg: {meta['bg']}">
-                <div class="stat-icon">{meta['icon']}</div>
+            <div class="stat-card" style="--p-color: {m_primary}; --p-bg: {m_bg}">
+                <div class="stat-icon">{m_icon}</div>
                 <div class="stat-body">
-                    <div class="stat-label">{meta['name']}</div>
+                    <div class="stat-label">{m_name}</div>
                     <div class="stat-num">{ptotal} <small>条</small></div>
                 </div>
             </div>'''
@@ -627,63 +615,106 @@ def format_as_html(data: dict, max_items: int = 50, report_html: str = "") -> st
         is_first = pkey == list(data["platforms"].keys())[0]
 
         active = " active" if is_first else ""
-        tabs_html += f'<button class="tab-btn{active}" data-platform="{pkey}" style="--tab-color: {meta['primary']}">{meta["icon"]} {label} <span class="tab-count">{ptotal}</span></button>\n'
+        m_primary = meta["primary"]
+        m_icon = meta["icon"]
+        tabs_html += (
+            '<button class="tab-btn' + active + '" data-platform="' + pkey + '" '
+            'style="--tab-color: ' + m_primary + '">' + m_icon + ' ' + label
+            + ' <span class="tab-count">' + str(ptotal) + '</span></button>\n'
+        )
 
         display = "block" if is_first else "none"
         items = pdata.get("items", [])[:max_items]
         error_html = ""
         if pdata.get("error"):
-            error_html = f'<div class="error-banner">⚠️ {pdata["error"]}</div>'
+            error_html = '<div class="error-banner">⚠️ ' + pdata["error"] + '</div>'
 
         cards = ""
         for idx, item in enumerate(items):
             title_escaped = item["title"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
-            desc_escaped = item["desc"][:200].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") if item["desc"] else ""
+            desc_escaped = item["desc"][:200].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") if item.get("desc") else ""
             author_escaped = item["author"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-            url_attr = f'href="{item["url"]}"' if item["url"] else 'href="#"'
+            item_url = item.get("url", "")
+            url_attr = 'href="' + item_url + '"' if item_url else 'href="#"'
             author_link = item.get("author_link", "")
-            author_html = f'<a href="{author_link}" class="author-link" target="_blank">{author_escaped}</a>' if author_link else f'<span class="author-name">{author_escaped}</span>'
+            author_html = ('<a href="' + author_link + '" class="author-link" target="_blank">' + author_escaped + '</a>') if author_link else ('<span class="author-name">' + author_escaped + '</span>')
 
-            # 互动数据标签
+            # 互动数据标签 — 按平台展示对应字段，始终显示（包括0值），使用fuzzy_count格式化
             eng = item.get("engagement", {})
             eng_tags = ""
             if pkey == "gzh":
-                reads = eng.get("reads", 0)
-                eng_tags = f'<span class="eng-tag reads">📖 {reads:,}</span>' if reads else ""
-            for tag_key, tag_icon in [("likes", "👍"), ("collects", "⭐"), ("comments", "💬"), ("shares", "🔄")]:
-                val = eng.get(tag_key, 0)
-                if val:
-                    eng_tags += f'<span class="eng-tag">{tag_icon} {val:,}</span>'
+                reads = fuzzy_count(eng.get("reads", 0))
+                likes = fuzzy_count(eng.get("likes", 0))
+                shares = fuzzy_count(eng.get("shares", 0))
+                eng_tags = ('<span class="eng-tag reads">📖 ' + reads + '</span>'
+                            + '<span class="eng-tag">👍 ' + likes + '</span>'
+                            + '<span class="eng-tag">🔄 ' + shares + '</span>')
+            elif pkey == "xhs":
+                likes = fuzzy_count(eng.get("likes", 0))
+                collects = fuzzy_count(eng.get("collects", 0))
+                comments = fuzzy_count(eng.get("comments", 0))
+                eng_tags = ('<span class="eng-tag">👍 ' + likes + '</span>'
+                            + '<span class="eng-tag">⭐ ' + collects + '</span>'
+                            + '<span class="eng-tag">💬 ' + comments + '</span>')
+            elif pkey == "dy":
+                likes = fuzzy_count(eng.get("likes", 0))
+                comments = fuzzy_count(eng.get("comments", 0))
+                shares = fuzzy_count(eng.get("shares", 0))
+                eng_tags = ('<span class="eng-tag">👍 ' + likes + '</span>'
+                            + '<span class="eng-tag">💬 ' + comments + '</span>'
+                            + '<span class="eng-tag">🔄 ' + shares + '</span>')
 
-            cards += f'''
-            <div class="card" style="--card-accent: {meta['primary']}">
-                <div class="card-rank">{idx + 1}</div>
-                <div class="card-body">
-                    <a {url_attr} class="card-title" target="_blank">{title_escaped}</a>
-                    <div class="card-meta">
-                        {author_html}
-                        <span class="dot">·</span>
-                        <span class="fans">{item["author_fans"]}粉</span>
-                        <span class="dot">·</span>
-                        <span class="time">{item["published_at"][:10] if item["published_at"] else "--"}</span>
-                    </div>
-                    {'<p class="card-desc">' + desc_escaped + '</p>' if desc_escaped else ''}
-                    <div class="card-footer">
-                        <div class="engagement">{eng_tags}</div>
-                        <a {url_attr} class="view-btn" target="_blank">查看原文 ↗</a>
-                    </div>
-                </div>
-            </div>'''
+            author_fans = item.get("author_fans", "--")
+            pub_date = item.get("published_at", "")[:10] if item.get("published_at") else "--"
+            desc_html = ('<p class="card-desc">' + desc_escaped + '</p>') if desc_escaped else ''
+            rank_num = idx + 1
 
-        panels_html += f'''
-        <div class="tab-panel" id="panel-{pkey}" style="display: {display}">
-            {error_html}
-            <div class="card-list">
-                {cards}
-            </div>
-            {"<div class='no-data-hint'><p>未查询到相关内容，建议更换关键词重试。</p></div>" if not items else ""}
-        </div>'''
+            # 公众号没有粉丝数，不展示粉丝字段
+            if pkey == "gzh":
+                fans_html = ''
+            else:
+                fans_html = (
+                    '                        <span class="dot">·</span>\n'
+                    '                        <span class="fans">' + str(author_fans) + '粉</span>\n'
+                )
+
+            cards += (
+                '\n            <div class="card" style="--card-accent: ' + m_primary + '">\n'
+                '                <div class="card-rank">' + str(rank_num) + '</div>\n'
+                '                <div class="card-body">\n'
+                '                    <a ' + url_attr + ' class="card-title" target="_blank">' + title_escaped + '</a>\n'
+                '                    <div class="card-meta">\n'
+                '                        ' + author_html + '\n'
+                + fans_html +
+                '                        <span class="dot">·</span>\n'
+                '                        <span class="time">' + pub_date + '</span>\n'
+                '                    </div>\n'
+                '                    ' + desc_html + '\n'
+                '                    <div class="card-footer">\n'
+                '                        <div class="engagement">' + eng_tags + '</div>\n'
+                '                        <a ' + url_attr + ' class="view-btn" target="_blank">查看原文 ↗</a>\n'
+                '                    </div>\n'
+                '                </div>\n'
+                '            </div>'
+            )
+
+        xhs_notice = (
+            '<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px 14px;margin-bottom:14px;color:#664d03;font-size:13px;line-height:1.6">'
+            '⚠️ 受小红书风控规则限制，部分作品链接可能无法正常跳转，您可复制对应作品标题前往小红书搜索查看，感谢理解🙇‍♀️🙇‍♀️'
+            '</div>'
+        ) if pkey == "xhs" else ""
+        no_data_html = "<div class='no-data-hint'><p>未查询到相关内容，建议更换关键词重试。</p></div>" if not items else ""
+        panels_html += (
+            '\n        <div class="tab-panel" id="panel-' + pkey + '" style="display: ' + display + '">\n'
+            '            ' + error_html + '\n'
+            '            ' + xhs_notice + '\n'
+            '            <div class="card-list">\n'
+            '                ' + cards + '\n'
+            '            </div>\n'
+            '            ' + no_data_html + '\n'
+            '        </div>'
+        )
 
     # ── 研究报告区域 ──
     report_section = ""

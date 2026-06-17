@@ -41,8 +41,7 @@
 
 ## 密钥获取与安全说明
 
-- 本技能内置免费公共 Key，开箱即用，无需配置。
-- 如需更高额度，可获取个人 `REDFOX_API_KEY`：
+- 获取个人 `REDFOX_API_KEY`：
   - `REDFOX_API_KEY` 由 [红狐 hub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`) 提供。
   - 请前往 [红狐 hub](https://redfox.hk?source=github) 注册账号，获取 `REDFOX_API_KEY`。
   - 配置设备环境变量 `REDFOX_API_KEY` 后使用本技能。
