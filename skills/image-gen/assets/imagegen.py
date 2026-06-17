@@ -25,8 +25,6 @@ CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
 SOURCE = "GPT image2-GitHub"
-PUBLIC_API_KEY = "ak_b45b6a6881f4400fb321428947eb6661"
-
 POLL_INTERVAL = 3  # seconds
 MAX_POLL_ATTEMPTS = 60  # max ~3 minutes
 
@@ -64,12 +62,9 @@ def step(msg):
 
 
 def get_api_key(cli_key=None):
-    """Get API key: CLI arg > built-in > env var > config file."""
+    """Get API key: CLI arg > env var > config file."""
     if cli_key:
         return cli_key
-    # 优先使用内置公共 Key
-    if PUBLIC_API_KEY:
-        return PUBLIC_API_KEY
     env_key = os.environ.get(ENV_KEY)
     if env_key:
         return env_key
@@ -314,8 +309,10 @@ Examples:
 
     # ── API Key ──
     api_key = get_api_key(cli_key=args.api_key)
-    if api_key == PUBLIC_API_KEY:
-        print(f"{GREEN}[✓]{RESET} 使用内置公共 API Key（约 10000 次免费额度）")
+    if not api_key:
+        error("未找到 API Key，请设置环境变量 REDFOX_API_KEY 或使用 --api-key 参数")
+        print(f"  获取 Key: https://redfox.hk/settings/api-keys?source=github")
+        sys.exit(1)
 
     # ── Session (all requests use HTTPS with SSL verification) ──
     session = requests.Session()

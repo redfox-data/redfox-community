@@ -4,14 +4,14 @@
 
 ## 简介
 
-基于火山方舟 seedream 5.0 lite 模型的 AI 图片生成器，支持文生图、图生图、组图生成与提示词优化。一行命令即可出图，内置公共 API Key，开箱即用。
+基于火山方舟 seedream 5.0 lite 模型的 AI 图片生成器，支持文生图、图生图、组图生成与提示词优化。一行命令即可出图。
 
 **核心价值**
 
 - **文生图**：输入中文或英文描述，生成高清图片
 - **图生图**：上传参考图 + 提示词，进行风格转换与编辑
 - **组图生成**：自动生成多张关联图片，最多 15 张
-- **零门槛**：内置约 10000 次免费额度，无需配置
+- **高分辨率**：支持 2K、3K、4K 或自定义像素尺寸
 
 **适用对象**
 
@@ -36,8 +36,8 @@
 
 ## 密钥获取与安全说明
 
-- 本技能内置公共 API Key，开箱即用，约 10000 次免费额度。
-- 如需使用个人 Key：`REDFOX_API_KEY` 由 [红狐 hub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`)提供。
+- 本技能需要使用环境变量：`REDFOX_API_KEY`。
+- `REDFOX_API_KEY` 由 [红狐 hub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`)提供。
 - 请前往 [红狐 hub](https://redfox.hk?source=github) 注册账号，获取 `REDFOX_API_KEY`。
 - 配置设备环境变量 `REDFOX_API_KEY` 后使用本技能。
 - 在提供密钥前，请先确认密钥来源、可用范围、有效期及是否支持重置/撤销。
