@@ -46,13 +46,24 @@ Optional folders such as `references/`, `scripts/`, and `assets/` may sit next t
 
 Copy the skill folder you need into your client’s skills directory (e.g. Cursor user skills or project `.cursor/skills/`—follow your client’s docs), or point the client’s “Add skill” flow at that subdirectory.
 
+### For Agent
+
+tell Agent（openclaw/workbuddy/qoder）：
+
+```bash
+help me install this skill：https://github.com/redfox-data/redfox-community/tree/main/skills/seedance-video-gen
+```
+
 ### skills cli
 
 Run the following in an interactive terminal (you can copy as-is):
 
 ```bash
 npx skills init // install skills cli
-npx skills add redfox-data/redfox-community
+
+npx skills add redfox-data/redfox-community // Search the entire warehouse and select skill for installation.
+
+npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/seedance-video-gen // install specific skill
 ```
 
 Follow the prompts to install skills into a specific agent folder or globally.
