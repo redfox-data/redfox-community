@@ -18,7 +18,7 @@ from urllib import request, error
 # API 配置
 API_BASE_URL = "https://redfox.hk/story/api/parseWork/queryPlayletMsgs"
 CACHE_DIR = os.path.expanduser("~/.workbuddy/cache")
-CACHE_FILE = os.path.join(CACHE_DIR, "playlet_gzh_data.json")
+CACHE_FILE = os.path.join(CACHE_DIR, "playlet_wechat_data.json")
 OUTPUT_DIR = os.path.expanduser("~/Downloads/QoderReports")
 DATA_UPDATE_HOUR = 15  # 每日15:00更新前一天数据
 
@@ -97,7 +97,7 @@ def fetch_playlet_data(
     for topic in topics:
         payload = {
             "msgType": "短剧",
-            "platform": 2,  # 固定为公众号
+            "platform": 0,  # 固定为公众号
             "source": "短剧公众号信息源-GitHub",
             "pageNum": 1,
             "pageSize": min(count, 200),
@@ -238,14 +238,27 @@ def generate_html_report(items, clusters, date_str):
             title = item.get("title", "无标题")
             author = item.get("accountName", "")  # 公众号字段
             cover = item.get("coverUrl") or ""
-            reads = format_number(item.get("readCount", 0))  # 阅读量
-            likes = format_number(item.get("likeCount", 0))  # 点赞数
-            shares = format_number(item.get("shareCount", 0))  # 分享数
-            
+            raw_reads = item.get("readCount") or 0
+            raw_likes = item.get("likeCount") or 0
+            raw_comments = item.get("commentCount") or 0
+            reads = format_number(raw_reads)   # 阅读量
+            likes = format_number(raw_likes)   # 点赞数
+            comments = format_number(raw_comments)  # 评论数
+
             cover_html = ""
             if cover:
                 cover_html = f'<img class="article-cover" src="{cover}" alt="" loading="lazy">'
-            
+
+            # 各项数据为0时不展示该字段
+            metrics_parts = []
+            if raw_reads > 0:
+                metrics_parts.append(f'<span class="metric">👁 {reads}</span>')
+            if raw_likes > 0:
+                metrics_parts.append(f'<span class="metric">👍 {likes}</span>')
+            if raw_comments > 0:
+                metrics_parts.append(f'<span class="metric">💬 {comments}</span>')
+            metrics_html = "\n                                ".join(metrics_parts) if metrics_parts else ""
+
             articles_html += f'''
                 <div class="article-item">
                     {cover_html}
@@ -254,9 +267,7 @@ def generate_html_report(items, clusters, date_str):
                         <div class="article-meta">
                             <span class="author">{author}</span>
                             <span class="metrics">
-                                <span class="metric">👁 {reads}</span>
-                                <span class="metric">👍 {likes}</span>
-                                <span class="metric">↗ {shares}</span>
+                                {metrics_html}
                             </span>
                         </div>
                     </div>
