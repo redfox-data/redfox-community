@@ -1,4 +1,4 @@
-# B站关键词实时搜索 / B站关键词实时搜索
+# B站关键词实时搜索 / bilibili-keywords-search
 
 ---
 
