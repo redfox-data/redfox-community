@@ -1,0 +1,473 @@
+# 短剧-小红书信息源 - 核心工作流程
+
+## 📋 执行流程概览
+
+```
+第零步:日期有效性预检(必须)
+  ↓
+第一步:生成爆款日报(调用API)
+  ↓
+第二步:执行创作趋势分析(自动)
+  ↓
+输出:HTML日报 + 终端摘要
+```
+
+## ⛔ 第零步:日期预检规则(核心)
+
+### 数据更新机制
+
+- **更新时间**:每日15:00更新前一天的数据
+- **15:00前**:最新可用日期 = T-2(前天)
+- **15:00后**:最新可用日期 = T-1(昨天)
+
+### 强制拦截逻辑
+
+```python
+DATA_UPDATE_HOUR = 15  # 每日15:00更新前一天数据
+
+def calculate_latest_date():
+    now = datetime.now()
+    if now.hour < DATA_UPDATE_HOUR:
+        return (now - timedelta(days=2)).strftime("%Y-%m-%d")
+    else:
+        return (now - timedelta(days=1)).strftime("%Y-%m-%d")
+```
+
+### Agent行为约束
+
+1. **未经用户确认,禁止调用任何数据接口**
+2. **禁止自动执行 `--latest` 参数**
+3. 目标日期无数据时,必须输出提示并等待用户明确确认
+
+### 标准提示模板
+
+```
+**⚠️{查询日期}数据尚未更新**
+数据更新规则:每日15:00更新前一天的数据
+当前可查询的最新日期:{最新可查询到数据的日期}
+
+是否需要查询{最新可查询到数据的日期}的数据?
+```
+
+### 示例对话
+
+```
+用户:查询今天的短剧小红书日报
+Agent:⚠️2026-06-16数据尚未更新
+      数据更新规则:每日15:00更新前一天的数据
+      当前可查询的最新日期:2026-06-14
+
+      是否需要查询2026-06-14的数据?
+用户:好的
+Agent:(执行 python3 daily_report.py --latest)
+```
+
+## 📊 第一步:爆款日报生成
+
+### 默认查询策略
+
+```bash
+# 生成最新一期日报(用户确认后,自动跳过无数据日期,不扣积分)
+python3 assets/daily_report.py --latest
+
+# 生成指定日期日报(历史日期已有数据,无需确认)
+python3 assets/daily_report.py --date 2026-06-10
+
+# 自定义题材查询(用户指定方向,数据不足时按顺序逐个扩展)
+python3 assets/daily_report.py --topics "穿越,霸总,重生,悬疑" --latest
+
+# 订阅 / 取消订阅
+python3 assets/daily_report.py --subscribe
+python3 assets/daily_report.py --unsubscribe
+```
+
+### 智能扩展逻辑
+
+1. 默认查询题材=`["短剧"]`
+2. 数据不足200条时,自动追加热门题材:
+   - 穿越 → 霸总 → 重生 → 悬疑 → 甜宠 → 逆袭
+3. 所有题材通过批量接口一次性查询,无需逐个调用
+
+### API调用参数
+
+```json
+{
+  "msgType": "短剧",
+  "platform": 3,
+  "source": "短剧小红书信息源-GitHub",
+  "pageNum": 1,
+  "pageSize": 200,
+  "startTime": "2026-06-15 00:00:00",
+  "endTime": "2026-06-15 23:59:59",
+  "keyword": "穿越"
+}
+```
+
+> **注意**: `platform=3` 表示小红书(`platform=1`为抖音,`platform=2`为视频号)。`keyword` 仅在题材!="短剧"时添加。`source` 字段固定为 `"短剧小红书信息源-GitHub"`,用于数据来源追踪。
+
+### 小红书字段映射
+
+**重要发现**:小红书和抖音的短剧API返回**完全相同的字段结构**。
+
+| 字段 | 说明 | 示例 |
+|------|------|------|
+| photoId | 作品唯一标识 | `"3887749249586745158"` |
+| likeCount | 点赞数 | `5741` |
+| commentCount | 评论数 | `948` |
+| shareCount | 分享数 | `13999` |
+| readCount | 阅读/播放数 | `8885` |
+| url | 作品链接(小红书为null) | `null` |
+| userName | 作者昵称 | `"柒宝追剧"` |
+| userHeadUrl | 作者头像URL | `"https://wx.qlogo.cn/..."` |
+| coverUrl | 封面图 | `"https://wxapp.tc.qq.com/..."` |
+| title | 标题(含话题标签) | `"人间清醒的豪门太太..."` |
+| authorId | 作者ID | `"d879e5f15cea558305c82149ebb3800d"` |
+| gmtCreate | 作品创建时间 | `"2026-06-16 22:00:17"` |
+| gmtModified | 最后更新时间 | `"2026-06-17 12:04:06"` |
+| topic | 主要话题标签 | `"#好剧推荐"` |
+| platform | 平台标识(3=小红书) | `3` |
+| msgType | 内容类型 | `"短剧"` |
+| type | 内容来源类型 | `"xxxbiu"` |
+
+**链接生成规则**:小红书`url`字段为null,需通过`photoId`拼接:
+```
+https://www.xiaohongshu.com/explore/{photoId}
+```
+
+**字段使用逻辑**:
+- **去重**:基于 `photoId`
+- **排序**:基于 `likeCount`(降序)
+- **数据为0时**:HTML日报中该指标不展示
+
+## 📈 第二步:创作趋势分析
+
+日报生成后,**必须**基于聚类结果自动执行创作趋势分析:
+
+### 分析维度
+
+1. **新兴起量信号**
+   - 数量少但互动高的题材
+   - 阈值:作品数≤5且平均互动较高
+
+2. **爆款标题特征**
+   - 提取标题高频词
+   - 统计特征模式出现次数、典型案例、平均互动
+
+3. **核心达人榜**
+   - 按作品数+总互动排序
+   - 展示达人名称、作品数、总互动、代表作
+
+4. **题材趋势报告**
+   - TOP 5题材详细分析
+   - 每个题材:作品数、平均互动、头部作品、题材特征、创作建议
+
+5. **跨题材对比建议**
+   - 题材融合趋势观察
+   - 联动创作建议
+
+## 🎨 HTML日报格式规范
+
+### 主题配色
+
+- **背景色**:`#1a1a1a`(深色)
+- **卡片背景**:`#2d2d2d`
+- **主色调**:`#FF2442`(小红书红)
+- **文字色**:`#e8e4df`(浅色)
+
+### 布局结构
+
+```
+Header(标题📕+日期)
+  ↓
+Stats(4个统计指标:题材数、短剧数、平均互动、总互动)
+  ↓
+Cards(题材卡片网格布局)
+  ↓
+Footer(生成时间+数据说明)
+```
+
+### 卡片内容
+
+每个题材卡片包含:
+- 题材编号+名称+作品数量
+- 前5部热门作品
+- 作品信息:封面+标题(可点击跳转)+作者+互动数据
+- **互动数据为0的字段不展示**
+
+## 📝 终端输出格式(强制执行)
+
+> ⛔ **严格执行规则**:
+> - 以下模板是**唯一合法输出格式**,禁止任何自由发挥、省略、简化或重新组织
+> - 禁止输出模板中未定义的额外内容(如"我来帮你…""以下是…"等口语化文字)
+> - 禁止合并、跳过任何板块,即使某板块数据为"暂无"也必须保留该板块标题
+> - **每次获取日报后,对话回复必须严格按此模板输出 md 内容,不得包含模板以外的任何文字**
+
+每次运行日报后,对话输出**必须严格**按以下模板原样输出(仅替换 `{...}` 占位符):
+
+```
+## 短剧-小红书信息源 · {日期} 日报
+
+**扫描 {N} 部热门短剧,聚类 {M} 个题材方向**
+
+---
+
+### 题材概览
+
+| 题材 | 数量 | 占比 | 爆款亮点 |
+|------|------|------|---------|
+| #{题材名} | {N}部 | {X}% | 头部作品亮点描述 |
+| ... | ... | ... | ... |
+
+---
+
+### 创作趋势分析
+
+**一、新兴起量信号**
+
+- 🔥 **#{题材}** — 仅{N}部但均互动{X}+,描述
+(若无新兴题材,输出:暂无新兴起量信号)
+
+**二、爆款标题特征**
+
+| 特征模式 | 出现次数 | 典型案例 | 平均互动 |
+|---------|---------|---------|---------|
+| {特征1} | {N}次 | 《{标题}》 | {X}w |
+| ... | ... | ... | ... |
+(若无标题数据,输出:暂无爆款标题数据)
+
+**三、核心达人榜**
+
+| 达人 | 作品数 | 总互动 | 代表作 |
+|------|--------|--------|--------|
+| @{达人} | {N}部 | {X}w | 《{作品}》 |
+| ... | ... | ... | ... |
+(若无达人数据,输出:暂无核心达人数据)
+
+**四、题材趋势报告**
+
+**题材**:#{题材1}
+**作品数**:{N}部
+**平均互动**:{X}w
+**头部作品**:《{标题}》-{互动}w
+
+**题材特征**:{描述该题材的共性特征}
+**创作建议**:{针对该题材的创作建议}
+
+**五、#{题材2}**
+
+(同上格式)
+
+**六、#{题材3}**
+
+(同上格式)
+
+**七、跨题材对比建议**
+
+- **{题材}** — 建议同步关注{相关题材}的联动创作,观察题材融合趋势
+(若无建议,输出:暂无跨题材对比建议)
+
+---
+
+**日报地址**:{HTML文件绝对路径}
+
+> 数据说明:每日15:00更新昨天的数据
+```
+
+> 以上格式为**强制规范**,所有字段不可省略,板块标题(一、二、三、四、五、六、七)必须保留。若某模块无数据则在该板块内标注"暂无",不得删除板块本身。
+
+## 💾 缓存机制
+
+### 缓存路径
+
+```
+~/.workbuddy/cache/playlet_xhs_data.json
+```
+
+### 缓存策略
+
+- **有效期**:1小时(3600秒)
+- **去重字段**:`photoId`
+- **排序字段**:`likeCount`(降序)
+
+## ⚙️ 参数说明
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `--topics` | 题材关键词,逗号分隔。默认查询全部短剧,数据不足时自动扩展题材;所有题材通过批量接口查询 | `短剧` |
+| `--count` | 扫描作品数量,满足即停 | `200` |
+| `--date` | 指定日期 YYYY-MM-DD(若无数据会提示并询问切换) | 今天 |
+| `--start-time` | 自定义开始时间 YYYY-MM-DD HH:MM:SS(覆盖 --date 推算) | — |
+| `--end-time` | 自定义结束时间 YYYY-MM-DD HH:MM:SS(覆盖 --date 推算) | — |
+| `--latest` | 自动使用最新有数据的日期,跳过无数据区间,不扣积分 | — |
+| `--output-dir` | 输出目录 | `~/Downloads/QoderReports` |
+| `--api-key` | 指定 API Key | — |
+| `--subscribe` | 开启每日订阅 | — |
+| `--unsubscribe` | 关闭每日订阅 | — |
+| `--from-cache` | 使用缓存数据 | — |
+
+## 🔒 安全约束
+
+1. **API Key**从环境变量`REDFOX_API_KEY`获取
+2. **禁止硬编码**密钥
+3. **数据来源唯一性**:仅使用红狐API
+4. **未收录账号**:需先提交收录再查询
+
+## 📋 平台适配说明(抖音→小红书)
+
+本 Skill 基于"短剧-抖音信息源"改造,通过**最小化变更**原则,仅调整平台相关字段和展示文案。
+
+### 核心变更对照
+
+| 维度 | 抖音版本 | 小红书版本 |
+|------|---------|-----------|
+| platform参数 | `1` | `3` |
+| source字段 | `短剧抖音信息源-GitHub` | `短剧小红书信息源-GitHub` |
+| 主色调 | `#FB7299`(抖音粉) | `#FF2442`(小红书红) |
+| 图标 | 🎬 | 📕 |
+| 作品链接 | `https://www.douyin.com/video/{photoId}` | `https://www.xiaohongshu.com/explore/{photoId}` |
+| 缓存文件 | `playlet_douyin_data.json` | `playlet_xhs_data.json` |
+| HTML文件名 | `短剧抖音日报_YYYY-MM-DD.html` | `短剧小红书日报_YYYY-MM-DD.html` |
+| 脚本文件名 | `playlet_douyin_daily.py` | `playlet_xhs_daily.py` |
+| 终端文案 | "赞" | "互动" |
+
+### HTML样式适配
+
+```css
+/* 主题色统一替换 */
+.header h1 { color: #FF2442; }       /* 原 #FB7299 */
+.stat-value { color: #FF2442; }
+.card-number { color: #FF2442; }
+.article-title:hover { color: #FF2442; }
+```
+
+```html
+<!-- 标题图标 -->
+<h1>📕 短剧-小红书信息源</h1>  <!-- 原 🎬 -->
+```
+
+### 作品链接适配
+
+```python
+# 抖音:优先使用url字段,fallback到photoId拼接
+url = item.get("url") or ""
+if url:
+    title_html = f'<a href="{url}" target="_blank">{title}</a>'
+elif photo_id:
+    title_html = f'<a href="https://www.douyin.com/video/{photo_id}" target="_blank">{title}</a>'
+
+# 小红书:url字段为null,直接用photoId拼接
+photo_id = item.get("photoId") or ""
+if photo_id:
+    title_html = f'<a href="https://www.xiaohongshu.com/explore/{photo_id}" target="_blank">{title}</a>'
+```
+
+### 改造影响评估
+
+| 模块 | 影响程度 | 说明 |
+|------|---------|------|
+| API调用 | 🟢 低 | 仅platform参数变更(1→3) |
+| 数据处理 | 🟢 低 | 字段结构完全一致,无需额外适配 |
+| HTML展示 | 🟢 低 | 主题色+文案+链接域名调整 |
+| 终端输出 | 🟢 低 | "赞"→"互动"文案调整 |
+| 工作流程 | ⚪ 无 | 完全保持一致 |
+
+**保持不变的部分**:
+- 工作流程(第零步日期预检 → 第一步生成日报 → 第二步趋势分析)
+- 日期规则(每日15:00更新前一天数据)
+- 题材聚类逻辑(9大题材关键词匹配规则)
+- 查询策略(默认查询全部,数据不足时自动扩展题材)
+- 缓存机制(1小时有效期,基于photoId去重)
+- 输出格式(HTML日报结构 + 终端摘要模板)
+- 参数体系、订阅功能、API鉴权方式
+- 创作趋势分析(5个分析维度)
+
+## 📝 字段映射修正记录
+
+> 修正日期:2026-06-18
+
+### 问题背景
+
+在初版测试中,脚本使用了与抖音版本不同的小红书字段名(如 `noteId`、`useLikeCount`、`collectedCount` 等),但 API 实际返回的字段名与抖音**完全一致**,导致所有互动数据显示为 0。
+
+### 错误字段对照(已修正)
+
+| 修正前(错误) | 修正后(正确) | 问题说明 |
+|-------------|-------------|---------|
+| `noteId` | `photoId` | 小红书不存在 noteId 字段 |
+| `useLikeCount` | `likeCount` | 字段名错误 |
+| `useCommentCount` | `commentCount` | 字段名错误 |
+| `collectedCount` | `shareCount` | 字段名错误,且语义不同(收藏→分享) |
+| `photoJumpUrl` | 不存在(url为null) | 完全错误的字段名 |
+| `interactiveCount` | 不存在 | 完全错误的字段名 |
+| `desc` | 不存在 | 小红书短剧无 desc 字段 |
+
+### 核心修正代码
+
+**去重逻辑**:
+```python
+# 修正前
+item_id = item.get("noteId") or item.get("photoId")
+# 修正后
+item_id = item.get("photoId")
+```
+
+**排序逻辑**:
+```python
+# 修正前
+unique_items.sort(key=lambda x: x.get("useLikeCount", 0) or x.get("interactiveCount", 0), reverse=True)
+# 修正后
+unique_items.sort(key=lambda x: x.get("likeCount", 0), reverse=True)
+```
+
+**互动数据提取**:
+```python
+# 修正前
+likes = format_number(item.get("useLikeCount", 0) or item.get("interactiveCount", 0))
+comments = format_number(item.get("useCommentCount", 0))
+collected = format_number(item.get("collectedCount", 0))
+# 修正后
+likes = format_number(item.get("likeCount", 0))
+comments = format_number(item.get("commentCount", 0))
+shares = format_number(item.get("shareCount", 0))
+```
+
+**链接生成**:
+```python
+# 修正前(复杂且错误)
+url = item.get("photoJumpUrl") or item.get("url") or ""
+note_id = item.get("noteId") or item.get("photoId") or ""
+# 修正后(简洁正确)
+photo_id = item.get("photoId") or ""
+if photo_id:
+    title_html = f'<a href="https://www.xiaohongshu.com/explore/{photo_id}" target="_blank">{title}</a>'
+```
+
+### 关键结论
+
+**小红书和抖音的短剧 API 返回完全相同的字段结构**:
+- 字段名完全一致(photoId、likeCount、commentCount、shareCount 等)
+- 数据类型完全一致(number、string)
+- 唯一差异:
+  1. `platform` 参数不同(抖音=1, 小红书=3)
+  2. `url` 字段在小红书中返回 null
+  3. 链接拼接域名不同(douyin.com vs xiaohongshu.com)
+
+## ✅ 改造验证清单
+
+- [x] API接口地址正确(`https://redfox.hk/story/api/parseWork/queryPlayletMsgs`)
+- [x] platform参数改为3(小红书)
+- [x] 字段映射确认(与抖音完全一致:photoId、likeCount等)
+- [x] 去重逻辑使用photoId
+- [x] 排序逻辑使用likeCount(降序)
+- [x] 链接生成适配小红书URL格式(`xiaohongshu.com/explore/`)
+- [x] HTML主题色改为 `#FF2442`
+- [x] 图标改为 📕
+- [x] 文件命名统一改为xhs
+- [x] 数字格式化逻辑(与抖音一致,万→w)
+- [x] 终端输出文案"赞"→"互动"
+- [x] 字段映射修正(noteId→photoId、useLikeCount→likeCount等)
+- [x] 互动数据为0时隐藏该字段
+- [x] 封面图HEIF→JPG格式兼容转换
+- [x] SKILL.md文档更新
+- [x] 参考文档同步更新
+- [x] API请求新增 `source` 字段(`"短剧小红书信息源-GitHub"`)
