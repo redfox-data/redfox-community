@@ -117,7 +117,7 @@ python3 "$SKILL_PATH/assets/daily_report.py" --from-cache
 **使用场景**:快速查看最近查询的结果,避免重复调用接口
 
 **缓存说明**:
-- 缓存路径:`~/.workbuddy/cache/playlet_gzh_data.json`
+- 缓存路径:`~/.workbuddy/cache/playlet_wechat_data.json`
 - 缓存时间:1小时
 - 超过1小时自动失效
 
@@ -219,7 +219,7 @@ Agent:(执行脚本,计算本月时间范围)
 
 - 深色主题设计
 - 题材卡片布局
-- 每篇文章展示:封面图、标题、公众号名称、阅读量、点赞数、分享数
+- 每篇文章展示:封面图、标题、公众号名称、阅读量、点赞数、评论数
 - 统计面板:题材数、文章数、平均阅读、总阅读
 
 ---
@@ -230,4 +230,4 @@ Agent:(执行脚本,计算本月时间范围)
 2. **API Key**:必须配置 `REDFOX_API_KEY` 环境变量或使用 `--api-key` 参数
 3. **去重机制**:基于photoId自动去重,避免重复内容
 4. **题材聚类**:每天题材分类由内容动态决定,不固化
-5. **平台标识**:公众号platform=2,与抖音platform=1不同
+5. **平台标识**:公众号platform=0,与抖音platform=1不同
