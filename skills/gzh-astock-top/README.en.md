@@ -1,10 +1,10 @@
-# A-Share WeChat Official Account Influencer Rankings / gzh-astock-top
+# A-Share WeChat Official Account Influencer / gzh-astock-top
 
 ---
 
 ## Overview
 
-The A-Share WeChat Official Account Influencer Rankings tool lets you retrieve account data and the latest article data for top WeChat official accounts in the A-share space by simply entering a date. It helps investors, content operators, and financial professionals quickly grasp the operational performance and latest content trends of leading A-share WeChat accounts.
+The A-Share WeChat Official Account Influencer tool lets you retrieve account data and the latest article data for top WeChat official accounts in the A-share space by simply entering a date. It helps investors, content operators, and financial professionals quickly grasp the operational performance and latest content trends of leading A-share WeChat accounts.
 
 **Core Value**
 
