@@ -1,14 +1,14 @@
-# B站关键词实时搜索 / B站关键词实时搜索
+# B站关键词搜作品 / B站关键词搜作品
 
 ---
 
 ## Overview
 
-Real-time Bilibili keyword search tool that queries the latest Bilibili videos via API based on your keywords, with sorting and time range filters, returning non-cached real-time data.
+Bilibili keyword search tool that queries the latest Bilibili videos via API based on your keywords, with sorting and time range filters, returning non-cached fresh data.
 
 **Core Value**
 
-- **Real-time Data**: Each search calls the live API, returning the latest published videos — no cached or historical data.
+- **Fresh Data**: Each search calls the live API, returning the latest published videos — no cached or historical data.
 - **Flexible Multi-dimensional Filtering**: Supports three sorting modes (comprehensive / newest / most liked) and four time ranges (7 / 30 / 90 days / unlimited), combinable as needed.
 - **Smart Keyword Expansion**: When no results are found, automatically generates 10 related expansion keywords to help you break through search bottlenecks.
 - **Paginated Browsing + Subscription Push**: Browse large result sets page by page, and subscribe to keywords for daily automatic delivery of the latest videos.
@@ -16,7 +16,7 @@ Real-time Bilibili keyword search tool that queries the latest Bilibili videos v
 **Target Audience**
 
 - 🔍 **Bilibili Creators** — Quickly grasp the latest trends and hot topics in your niche for content inspiration.
-- 📊 **Operations / Data Analysts** — Track real-time dynamics of keyword-related content and monitor data changes.
+- 📊 **Operations / Data Analysts** — Track the latest dynamics of keyword-related content and monitor data changes.
 - 🏢 **Brands / MCNs** — Monitor competitors and industry keywords for the latest video performance to support strategic decisions.
 
 
@@ -40,7 +40,7 @@ Simply describe your needs in natural language — no commands to memorize.
 
 | Intent               | Example Phrase                                               | Result                                                 |
 | -------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| Real-time Search     | "Search Bilibili for the latest videos about AI art"        | Performs real-time keyword search, returns latest video list |
+| Keyword Search       | "Search Bilibili for the latest videos about AI art"        | Performs keyword search, returns latest video list |
 | Switch Sorting       | "Re-search by newest first"                                  | Switches to newest-first sorting to see recent uploads |
 | Adjust Time Range    | "Show results from the last 30 days"                         | Adjusts time range to the last 30 days                 |
 | Paginate             | "Next page"                                                  | Views the next page of search results                  |
