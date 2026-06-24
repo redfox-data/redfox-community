@@ -126,7 +126,7 @@ def search(keyword: str, sort_type: str, publish_time: str, page: int = 1) -> di
         "sortType":    sort_type,
         "publishTime": publish_time,
         "page":        page,
-        "source":      "B站关键词实时搜索-GitHub",
+        "source":      "B站关键词搜作品-GitHub",
     }).encode("utf-8")
 
     req = urllib.request.Request(
@@ -175,7 +175,7 @@ def search(keyword: str, sort_type: str, publish_time: str, page: int = 1) -> di
 
 
 def main():
-    parser = argparse.ArgumentParser(description="B站关键词实时搜索")
+    parser = argparse.ArgumentParser(description="B站关键词搜作品")
     parser.add_argument("keyword", help="搜索关键词，多个词用英文逗号连接")
     parser.add_argument(
         "--sort", dest="sort_type", default="1",
