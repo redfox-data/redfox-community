@@ -237,7 +237,7 @@ def generate_html_report(items, platform_groups, platform_stats_map, date_str):
         name = PLATFORM_MAP.get(pid, "未知")
         color = PLATFORM_COLORS.get(pid, "#666")
         icon = PLATFORM_ICONS.get(pid, "📌")
-        top_topics = ", ".join(f"#{t}" for t, _ in stats["topics"][:3])
+        top_topics = ", ".join(f"#{t}" for t, _ in stats["topics"])
         compare_rows += f'<tr><td><span class="pbadge" style="background:{color}">{name}</span></td>'
         compare_rows += f'<td>{stats["count"]}</td>'
         compare_rows += f'<td>{format_number(stats["total_likes"])}</td>'
@@ -254,57 +254,52 @@ def generate_html_report(items, platform_groups, platform_stats_map, date_str):
         name = PLATFORM_MAP.get(pid, "未知")
         color = PLATFORM_COLORS.get(pid, "#666")
         icon = PLATFORM_ICONS.get(pid, "📌")
+        pid_str = f"p{pid}"
 
-        # 题材标签
-        topic_tags = ""
+        # 可点击的题材标签
+        topic_tags = f'<span class="topic-tag active" data-target="{pid_str}-all" onclick="switchTopic(this,\'{pid_str}\')">全部 <em>{stats["count"]}部</em></span> '
         for topic, titems in stats["topics"][:8]:
             pct = len(titems) / stats["count"] * 100
-            topic_tags += f'<span class="topic-tag">#{topic} <em>{len(titems)}部 {pct:.0f}%</em></span> '
+            tag_id = topic.replace(" ", "_").replace("/", "_")
+            topic_tags += f'<span class="topic-tag" data-target="{pid_str}-{tag_id}" onclick="switchTopic(this,\'{pid_str}\')">#{topic} <em>{len(titems)}部 {pct:.0f}%</em></span> '
 
-        # 热门作品
-        sorted_items = sorted(stats.get("topics", [[]])[0][1] if stats["topics"] else [],
-                              key=lambda x: x.get("likeCount") or 0, reverse=True)
-        # 用平台内所有作品排序取top8
-        p_items = sorted(platform_groups.get(pid, []), key=lambda x: x.get("likeCount") or 0, reverse=True)
-        articles_html = ""
-        for item in p_items[:8]:
-            title = item.get("title", "无标题")
-            author = item.get("userName", "")
-            cover = item.get("coverUrl") or ""
-            if cover and "format/heif" in cover:
-                cover = cover.replace("format/heif", "format/jpg")
-            link_url = get_item_url(item)
-            topic = (item.get("topic") or "").strip().lstrip("#") or "其他"
-
-            likes_raw = item.get("likeCount") or 0
-            comments_raw = item.get("commentCount") or 0
-            shares_raw = item.get("shareCount") or 0
-            reads_raw = item.get("readCount") or 0
-
-            metrics = []
-            if reads_raw > 0:
-                metrics.append(f'<span class="metric">👁 {format_number(reads_raw)}</span>')
-            if shares_raw > 0:
-                metrics.append(f'<span class="metric">🔗 {format_number(shares_raw)}</span>')
-            if likes_raw > 0:
+        # --- 辅助函数：生成作品列表HTML ---
+        def _build_items_html(item_list, limit=10):
+            html = ""
+            for item in item_list[:limit]:
+                title = item.get("title", "无标题")
+                author = item.get("userName", "")
+                cover = item.get("coverUrl") or ""
+                if cover and "format/heif" in cover:
+                    cover = cover.replace("format/heif", "format/jpg")
+                link_url = get_item_url(item)
+                topic_val = (item.get("topic") or "").strip().lstrip("#") or "其他"
+                likes_raw = item.get("likeCount") or 0
+                comments_raw = item.get("commentCount") or 0
+                shares_raw = item.get("shareCount") or 0
+                reads_raw = item.get("readCount") or 0
+                metrics = []
                 metrics.append(f'<span class="metric">👍 {format_number(likes_raw)}</span>')
-            if comments_raw > 0:
                 metrics.append(f'<span class="metric">💬 {format_number(comments_raw)}</span>')
+                metrics.append(f'<span class="metric">🔗 {format_number(shares_raw)}</span>')
+                cover_html = ""
+                if cover:
+                    cover_html = f'<img class="acover" src="{cover}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'"><img class="acover" src="file://{default_cover}" alt="" loading="lazy" style="display:none">'
+                title_html = f'<a href="{link_url}" target="_blank" class="atitle" title="{title}">{title}</a>' if link_url else f'<span class="atitle" title="{title}">{title}</span>'
+                html += f'<div class="aitem">{cover_html}<div class="ainfo"><div class="atitle-row"><span class="topic-sm">#{topic_val}</span>{title_html}</div><div class="ameta"><span class="aauthor">{author}</span><span class="ametrics">{" ".join(metrics)}</span></div></div></div>'
+            return html
 
-            cover_html = ""
-            if cover:
-                cover_html = f'<img class="acover" src="{cover}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'"><img class="acover" src="file://{default_cover}" alt="" loading="lazy" style="display:none">'
+        # 全部作品 Top10
+        p_items = sorted(platform_groups.get(pid, []), key=lambda x: x.get("likeCount") or 0, reverse=True)
+        all_items_html = _build_items_html(p_items, 10)
 
-            title_html = f'<a href="{link_url}" target="_blank" class="atitle">{title}</a>' if link_url else f'<span class="atitle">{title}</span>'
-
-            articles_html += f'''
-                <div class="aitem">
-                    {cover_html}
-                    <div class="ainfo">
-                        <div class="atitle-row"><span class="topic-sm">#{topic}</span>{title_html}</div>
-                        <div class="ameta"><span class="aauthor">{author}</span><span class="ametrics">{" ".join(metrics)}</span></div>
-                    </div>
-                </div>'''
+        # 各题材分类 Top10
+        topic_lists_html = f'<div class="topic-list active" data-list="{pid_str}-all">{all_items_html}</div>'
+        for topic, titems in stats["topics"][:8]:
+            tag_id = topic.replace(" ", "_").replace("/", "_")
+            sorted_titems = sorted(titems, key=lambda x: x.get("likeCount") or 0, reverse=True)
+            t_html = _build_items_html(sorted_titems, 10)
+            topic_lists_html += f'<div class="topic-list" data-list="{pid_str}-{tag_id}">{t_html}</div>'
 
         platform_sections += f'''
         <div class="psection reveal">
@@ -317,8 +312,7 @@ def generate_html_report(items, platform_groups, platform_stats_map, date_str):
                 </div>
             </div>
             <div class="ptopics">{topic_tags}</div>
-            <div class="pitems">{articles_html}
-            </div>
+            <div class="pitems-scroll">{topic_lists_html}</div>
         </div>'''
 
     timestamp = dt.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -331,42 +325,58 @@ def generate_html_report(items, platform_groups, platform_stats_map, date_str):
 <title>全网内容出海信息源 - {date_str}</title>
 <style>
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f5; color: #333; padding: 1.5rem; }}
-.header {{ text-align: center; padding: 2rem 0 1rem; }}
-.header h1 {{ font-size: 2rem; color: #FF2442; }}
-.header p {{ color: #666; margin-top: 0.5rem; font-size: 0.95rem; }}
-.overview {{ display: flex; justify-content: center; gap: 2rem; padding: 1rem; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }}
+body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f5; color: #333; padding: 1rem; }}
+.header {{ text-align: center; padding: 1.5rem 0 0.8rem; }}
+.header h1 {{ font-size: 1.8rem; color: #FF2442; }}
+.header p {{ color: #666; margin-top: 0.4rem; font-size: 0.9rem; }}
+.overview {{ display: flex; justify-content: center; gap: 1.5rem; padding: 0.8rem; flex-wrap: wrap; max-width: 1100px; margin: 0 auto; }}
 .ov {{ text-align: center; }}
-.ov b {{ font-size: 1.4rem; color: #FF2442; display: block; }}
-.ov span {{ font-size: 0.75rem; color: #999; }}
-.compare {{ max-width: 1100px; margin: 1.5rem auto; overflow-x: auto; }}
+.ov b {{ font-size: 1.2rem; color: #FF2442; display: block; }}
+.ov span {{ font-size: 0.7rem; color: #999; }}
+.compare {{ max-width: 1100px; margin: 1rem auto; overflow-x: auto; }}
 .compare table {{ width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }}
-.compare th {{ background: #fafafa; padding: 0.6rem 0.8rem; text-align: left; font-size: 0.8rem; color: #666; font-weight: 600; }}
-.compare td {{ padding: 0.6rem 0.8rem; border-top: 1px solid #eee; font-size: 0.85rem; color: #333; }}
-.pbadge {{ display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; color: #fff; white-space: nowrap; }}
-.pbadge.lg {{ font-size: 0.9rem; padding: 0.2rem 0.6rem; }}
-.topics-cell {{ color: #666; font-size: 0.8rem; }}
-.psection {{ max-width: 1100px; margin: 2rem auto; background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }}
-.pheader {{ padding-left: 1rem; margin-bottom: 1rem; }}
-.ptitle {{ display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.4rem; }}
-.pcount {{ color: #666; font-size: 0.85rem; }}
-.pstats-row {{ display: flex; gap: 1.5rem; font-size: 0.8rem; color: #888; }}
+.compare th {{ background: #fafafa; padding: 0.625rem 0.975rem; text-align: left; font-size: 0.75rem; color: #666; font-weight: 600; white-space: nowrap; }}
+.compare td {{ padding: 0.625rem 0.975rem; border-top: 1px solid #eee; font-size: 0.8rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }}
+.compare td:nth-child(1) {{ width: 120px; max-width: none; }}
+.compare td:nth-child(2) {{ width: 30px; }}
+.compare td:nth-child(3) {{ width: 35px; }}
+.compare td:nth-child(4) {{ width: 35px; }}
+.compare td:nth-child(5) {{ width: 220px; max-width: 280px; }}
+.pbadge {{ display: inline-block; padding: 0.12rem 0.4rem; border-radius: 4px; font-size: 0.7rem; color: #fff; white-space: nowrap; }}
+.pbadge.lg {{ font-size: 0.8rem; padding: 0.15rem 0.5rem; }}
+.topics-cell {{ color: #666; font-size: 0.75rem; }}
+.pgrid {{ display: flex; flex-wrap: wrap; gap: 1rem; max-width: 1100px; margin: 0 auto; }}
+.psection {{ width: calc(50% - 0.5rem); background: #fff; border-radius: 10px; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }}
+.pheader {{ padding-left: 0.8rem; margin-bottom: 0.8rem; }}
+.ptitle {{ display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem; }}
+.pcount {{ color: #666; font-size: 0.8rem; }}
+.pstats-row {{ display: flex; gap: 1rem; font-size: 0.75rem; color: #888; }}
 .pstats-row b {{ color: #333; }}
-.ptopics {{ padding: 0.5rem 0; margin-bottom: 1rem; border-bottom: 1px solid #eee; }}
-.topic-tag {{ display: inline-block; margin: 0.2rem 0.3rem; padding: 0.2rem 0.6rem; background: #f0f0f0; border-radius: 15px; font-size: 0.8rem; color: #555; }}
-.topic-tag em {{ font-style: normal; color: #999; font-size: 0.7rem; margin-left: 0.2rem; }}
-.pitems {{ }}
-.aitem {{ padding: 0.6rem 0; border-bottom: 1px solid #eee; display: flex; gap: 0.8rem; align-items: flex-start; }}
+.ptopics {{ padding: 0.4rem 0; margin-bottom: 0.8rem; border-bottom: 1px solid #eee; }}
+.topic-tag {{ display: inline-block; margin: 0.15rem 0.2rem; padding: 0.15rem 0.5rem; background: #f0f0f0; border-radius: 12px; font-size: 0.75rem; color: #555; cursor: pointer; user-select: none; transition: all 0.2s; }}
+.topic-tag em {{ font-style: normal; color: #999; font-size: 0.65rem; margin-left: 0.15rem; }}
+.topic-tag:hover {{ background: #e0e0e0; }}
+.topic-tag.active {{ background: #FF2442; color: #fff; }}
+.topic-tag.active em {{ color: rgba(255,255,255,0.8); }}
+.pitems-scroll {{ max-height: 440px; overflow-y: auto; overflow-y: overlay; }}
+.pitems-scroll::-webkit-scrollbar {{ width: 4px; }}
+.pitems-scroll::-webkit-scrollbar-track {{ background: transparent; }}
+.pitems-scroll::-webkit-scrollbar-thumb {{ background: transparent; border-radius: 2px; }}
+.pitems-scroll:hover::-webkit-scrollbar-thumb {{ background: #ccc; }}
+.pitems-scroll:hover::-webkit-scrollbar-thumb:hover {{ background: #999; }}
+.topic-list {{ display: none; }}
+.topic-list.active {{ display: block; }}
+.aitem {{ padding: 0.5rem 0; border-bottom: 1px solid #eee; display: flex; gap: 0.6rem; align-items: flex-start; }}
 .aitem:last-child {{ border-bottom: none; }}
 .acover {{ width: 64px; height: 64px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }}
 .ainfo {{ flex: 1; min-width: 0; }}
-.atitle-row {{ display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.15rem; }}
-.topic-sm {{ font-size: 0.7rem; color: #FF2442; background: #fff0f2; padding: 0.1rem 0.4rem; border-radius: 3px; white-space: nowrap; }}
-.atitle {{ color: #333; font-size: 0.85rem; line-height: 1.3; text-decoration: none; }}
+.atitle-row {{ display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.1rem; }}
+.topic-sm {{ font-size: 0.65rem; color: #FF2442; background: #fff0f2; padding: 0.08rem 0.3rem; border-radius: 3px; white-space: nowrap; }}
+.atitle {{ color: #333; font-size: 0.8rem; line-height: 1.3; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }}
 a.atitle:hover {{ color: #FF2442; text-decoration: underline; }}
-.ameta {{ display: flex; justify-content: space-between; font-size: 0.72rem; color: #999; margin-top: 0.2rem; }}
-.ametrics {{ display: flex; gap: 0.5rem; flex-wrap: wrap; }}
-.footer {{ text-align: center; padding: 2rem; color: #aaa; font-size: 0.75rem; }}
+.ameta {{ display: flex; justify-content: space-between; font-size: 0.68rem; color: #999; margin-top: 0.15rem; }}
+.ametrics {{ display: flex; gap: 0.4rem; flex-wrap: wrap; }}
+.footer {{ text-align: center; padding: 1.5rem; color: #aaa; font-size: 0.7rem; }}
 .reveal {{ animation: fadeIn 0.4s ease-in; }}
 @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(15px); }} to {{ opacity: 1; transform: translateY(0); }} }}
 </style>
@@ -389,8 +399,13 @@ a.atitle:hover {{ color: #FF2442; text-decoration: underline; }}
 <tbody>{compare_rows}</tbody>
 </table>
 </div>
+<div class="pgrid">
 {platform_sections}
+</div>
 <div class="footer">Generated at {timestamp} by 全网内容出海信息源 Skill<br>数据说明:每日15:00更新前一天的数据 | 数据来源:红狐Hub</div>
+<script>
+function switchTopic(el,pid){{var tags=el.parentNode.querySelectorAll('.topic-tag');tags.forEach(function(t){{t.classList.remove('active')}});el.classList.add('active');var target=el.getAttribute('data-target');var section=el.closest('.psection');var lists=section.querySelectorAll('.topic-list');lists.forEach(function(l){{l.classList.remove('active')}});var match=section.querySelector('.topic-list[data-list="'+target+'"]');if(match){{match.classList.add('active')}}}}
+</script>
 </body>
 </html>'''
 
