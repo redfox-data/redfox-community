@@ -112,10 +112,8 @@ def format_articles(articles: list) -> list:
             "work_url":       build_video_url(art),
             "publish_time":   fmt_publish_time(art.get("publishTime", 0)),
             "cover_url":      normalize_cover(art.get("cover", "")),
-            "bv_id":          art.get("bvId", ""),
             "tags":           art.get("tags", ""),
             "category":       art.get("categoryName", ""),
-            "duration":       art.get("duration", ""),
         })
     items.sort(key=lambda x: x["like_count"], reverse=True)
     return items

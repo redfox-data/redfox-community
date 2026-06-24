@@ -1,4 +1,4 @@
-# Bilibili Real-time Keyword Search / B站关键词实时搜索
+# B站关键词实时搜索 / B站关键词实时搜索
 
 ---
 
@@ -19,19 +19,7 @@ Real-time Bilibili keyword search tool that queries the latest Bilibili videos v
 - 📊 **Operations / Data Analysts** — Track real-time dynamics of keyword-related content and monitor data changes.
 - 🏢 **Brands / MCNs** — Monitor competitors and industry keywords for the latest video performance to support strategic decisions.
 
----
 
-## Features
-
-### Core Features
-
-- **Real-time Keyword Search**: Enter a keyword to instantly search for the latest Bilibili videos, with each result including title, creator, plays, likes, comments, favorites, danmaku count, publish time, video link, cover image, and more.
-- **Multi-dimensional Sorting & Filtering**: Supports three sorting modes (comprehensive, newest, most liked) and flexible filtering by four time ranges (7 / 30 / 90 days / unlimited).
-- **Smart Keyword Expansion**: When search returns no results, automatically generates 10 related expansion keywords — no need to manually try different terms.
-- **Paginated Browsing**: Supports "next page" / "previous page" navigation to explore large result sets progressively.
-- **Daily Subscription Push**: Create scheduled tasks for keywords to automatically receive the latest videos daily — no manual repeated searches needed.
-
----
 
 ## API Key Acquisition & Security
 
