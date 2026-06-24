@@ -1,0 +1,38 @@
+{
+  "description": "A股公众号订阅配置。official=官媒账号，kol=个人大V账号。每次执行榜单查询后可按序号添加/删除订阅。",
+  "official": [
+    {
+      "accountId": "gh_9dc0e48d383a",
+      "accountName": "央视财经",
+      "avgReadCount": 48309,
+      "redfoxIndex": 1011.25
+    },
+    {
+      "accountId": "gh_a4a87df43a4c",
+      "accountName": "中国基金报",
+      "avgReadCount": 31588,
+      "redfoxIndex": 991.05
+    },
+    {
+      "accountId": "gh_6df2146bcb82",
+      "accountName": "券商中国",
+      "avgReadCount": 30796,
+      "redfoxIndex": 1000.57
+    }
+  ],
+  "kol": [
+    {
+      "accountId": "gh_ba045a96f332",
+      "accountName": "孤独大脑",
+      "avgReadCount": 31738,
+      "redfoxIndex": 812.68
+    },
+    {
+      "accountId": "gh_4156c1154279",
+      "accountName": "达叔读书会",
+      "avgReadCount": 11614,
+      "redfoxIndex": 692.4
+    }
+  ],
+  "updated_at": "2026-06-17 11:29:52"
+}

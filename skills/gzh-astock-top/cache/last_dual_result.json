@@ -1,0 +1,511 @@
+{
+  "date": "2026-06-22",
+  "totalAuthorsFound": 49,
+  "fixedPersonalAccounts": 19,
+  "fixedOfficialAccounts": 30,
+  "personalMedia": {
+    "total": 7,
+    "accounts": [
+      {
+        "accountName": "好运哥2008",
+        "accountId": "gh_8b1e86ce4fa0",
+        "avgReadCount": 79576,
+        "redfoxIndex": 876.6158607222478,
+        "description": "一个有意思的股市逆袭者。",
+        "latestArticle": {
+          "title": "全面牛市开启！！",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=Mzg5MDkwMDU5OQ==&mid=2247503092&idx=1&sn=24a96fa7084444af4c136f0ff6a40afb#rd",
+          "clicksCount": 100001,
+          "likeCount": 2443,
+          "commentCount": 266,
+          "publishTime": "2026-06-22 22:07:21"
+        }
+      },
+      {
+        "accountName": "雷立刚本人",
+        "accountId": "gh_a2dbe3e078fa",
+        "avgReadCount": 25012,
+        "redfoxIndex": 815.6937890483333,
+        "description": "高考作文满分，985毕业，22岁获全省公务员考试笔试第一名，27岁获全国网络文学大赛长篇小说冠军，28岁被全国顶级期刊推出个人小说诗歌专辑……原本文艺前程灿烂，可惜误入股市，从此一身铜臭，自己厌倦了自己。",
+        "latestArticle": {
+          "title": "艳忆销逝录001",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzUxMDA0MTAyMQ==&mid=2247522166&idx=1&sn=d635d4a69d825e78e5ecdda367c79fed#rd",
+          "clicksCount": 34079,
+          "likeCount": 1472,
+          "commentCount": 373,
+          "publishTime": "2026-06-22 08:24:12"
+        }
+      },
+      {
+        "accountName": "孥孥的大树",
+        "accountId": "gh_7986165c060a",
+        "avgReadCount": 24026,
+        "redfoxIndex": 810.8275336440962,
+        "description": "自由投资人。获2018年度、2019年度雪球十大内容贡献奖得主，2020年、2023年雪球十大影响力用户，2024年雪球十大基金影响力用户。2023年、2024年、2025年微博年度影响力投教达人。只分享与投资实战有关的思考和总结，还有人生",
+        "latestArticle": {
+          "title": "割老登，追科技?",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzI4NTA2NDYxMQ==&mid=2652247234&idx=1&sn=6841b5b5e129a495bb21ba2722b36a7c#rd",
+          "clicksCount": 41914,
+          "likeCount": 918,
+          "commentCount": 98,
+          "publishTime": "2026-06-22 14:28:00"
+        }
+      },
+      {
+        "accountName": "冷眼局中人",
+        "accountId": "gh_726b8920f6b5",
+        "avgReadCount": 13891,
+        "redfoxIndex": 758.5615114003501,
+        "description": "北师大国际产能中心首席金融研究员。做最专业的择时分析，追求最靠谱的阿尔法系统",
+        "latestArticle": {
+          "title": "837号文下周实施，对外投资影响几何？",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzU4ODQ3Njc2Nw==&mid=2247501178&idx=1&sn=552831d7a4182b166efae07c098b17c8#rd",
+          "clicksCount": 25225,
+          "likeCount": 329,
+          "commentCount": 13,
+          "publishTime": "2026-06-22 08:00:00"
+        }
+      },
+      {
+        "accountName": "凯恩斯",
+        "accountId": "gh_98fef44f917b",
+        "avgReadCount": 9236,
+        "redfoxIndex": 770.8920277555334,
+        "description": "投资者教育专家，让每一个家庭拥有一个基金经理",
+        "latestArticle": {
+          "title": "“老登”回归第一涨，三个被忽视的“高回报”板块",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjM5Njc2MjcwMA==&mid=2652134553&idx=1&sn=c75a19e4eb8a377ab26455c737caac54#rd",
+          "clicksCount": 19235,
+          "likeCount": 829,
+          "commentCount": null,
+          "publishTime": "2026-06-22 17:49:33"
+        }
+      },
+      {
+        "accountName": "laoduo",
+        "accountId": "gh_ad905e6c8d69",
+        "avgReadCount": 7828,
+        "redfoxIndex": 711.1590655878306,
+        "description": "16年股债商汇投资经验，曾获7次年度金融博主，服务3000+高净值人士",
+        "latestArticle": {
+          "title": "劲爆转型，江南皮革厂，进军磷化铟！今夕是何年！\n\n\n笑死了，…",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzIwNTQ1ODQwMQ==&mid=2247494358&idx=1&sn=a58b6bff9a2568b908d8bab3a5fe6d01#rd",
+          "clicksCount": 19110,
+          "likeCount": 395,
+          "commentCount": 20,
+          "publishTime": "2026-06-22 01:25:20"
+        }
+      },
+      {
+        "accountName": "A股研报君",
+        "accountId": "gh_146772c524d9",
+        "avgReadCount": null,
+        "redfoxIndex": 709.4779523444888,
+        "description": "A股研报君，分享挖掘A股市场各种机会。",
+        "latestArticle": {
+          "title": "突然爆发，明天这样走！",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzYyMTgxOTMzNA==&mid=2247485732&idx=1&sn=acfe6c988105763cad62d91ef35e09ae#rd",
+          "clicksCount": 18791,
+          "likeCount": 947,
+          "commentCount": 65,
+          "publishTime": "2026-06-22 18:17:09"
+        }
+      }
+    ]
+  },
+  "officialMedia": {
+    "total": 26,
+    "accounts": [
+      {
+        "accountName": "大红好运哥",
+        "accountId": "gh_af097e97bfe8",
+        "avgReadCount": 71231,
+        "redfoxIndex": 861.9645515263531,
+        "description": "一个有意思的股市逆袭者。",
+        "latestArticle": {
+          "title": "警惕！有重大变化了！！",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=Mzg3MTgyNjc4Mg==&mid=2247491119&idx=1&sn=c1c88a915ab2cf95f479861615a7e0bf#rd",
+          "clicksCount": 83141,
+          "likeCount": 2350,
+          "commentCount": 215,
+          "publishTime": "2026-06-22 11:59:39"
+        }
+      },
+      {
+        "accountName": "央视财经",
+        "accountId": "gh_9dc0e48d383a",
+        "avgReadCount": 48309,
+        "redfoxIndex": 994.1768740643239,
+        "description": " ",
+        "latestArticle": {
+          "title": "高盛大幅下调黄金目标价",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjM5NzQ5MTkyMA==&mid=2658248723&idx=1&sn=f67207ba7237d86224be82a1449d4f58#rd",
+          "clicksCount": 100001,
+          "likeCount": 261,
+          "commentCount": 2,
+          "publishTime": "2026-06-22 06:10:00"
+        }
+      },
+      {
+        "accountName": "金融时报",
+        "accountId": "gh_0b8b25c6eeee",
+        "avgReadCount": 32391,
+        "redfoxIndex": 937.1435778783884,
+        "description": "《金融时报》由中国人民银行主管，是中国人民银行、国家金融监督管理总局、国家外汇管理局指定披露重要信息媒体，证券市场信息披露媒体。",
+        "latestArticle": {
+          "title": "刚刚，LPR发布！",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzI5MjE1ODM5Mw==&mid=2650425917&idx=1&sn=27859596fa361a624c22fb32700d875f#rd",
+          "clicksCount": 100001,
+          "likeCount": 274,
+          "commentCount": null,
+          "publishTime": "2026-06-22 09:14:33"
+        }
+      },
+      {
+        "accountName": "中国基金报",
+        "accountId": "gh_a4a87df43a4c",
+        "avgReadCount": 31588,
+        "redfoxIndex": 1012.260584911318,
+        "description": "实时专业理财资讯",
+        "latestArticle": {
+          "title": "大涨原因找到了！股民：买券商就是买科技！",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzA5MDEzNjQwMA==&mid=2656383988&idx=1&sn=f7272e832111379b8a2136fa805060af#rd",
+          "clicksCount": 100001,
+          "likeCount": 738,
+          "commentCount": 29,
+          "publishTime": "2026-06-22 16:02:40"
+        }
+      },
+      {
+        "accountName": "沙黾农",
+        "accountId": "gh_716911220f59",
+        "avgReadCount": 30852,
+        "redfoxIndex": 828.1266307558554,
+        "description": "资深媒体人、著名博主。老沙博客新浪、搜狐点击量7.5亿。沙黾农腾讯、新浪微博粉丝620万。曾被新浪网、搜狐网授予“年度人物”、“中文第一博”。曾任新华社《现代快报》副总编。曾创办并担任《大江南证券》等四份报纸总编。南京大学新传媒系客座教授。",
+        "latestArticle": {
+          "title": "6.22股市早8点丨高低切与强者恒强",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzAxNjA5MTI4NQ==&mid=2652543153&idx=1&sn=e8dc2f99626baea62d1f4b70d5434738#rd",
+          "clicksCount": 54654,
+          "likeCount": 2084,
+          "commentCount": null,
+          "publishTime": "2026-06-22 00:04:00"
+        }
+      },
+      {
+        "accountName": "券商中国",
+        "accountId": "gh_6df2146bcb82",
+        "avgReadCount": 30796,
+        "redfoxIndex": 993.6032529821359,
+        "description": "券商中国提供从宏观经济到微观经济、从单家机构到金融行业、从全市场到单只产品或个股的最新最全资讯，覆盖金融机构、上市公司、投资理财等全领域，追求快捷、准确、专业、独立、客观、有温度的报道。",
+        "latestArticle": {
+          "title": "8倍大牛股，突发公告！明起停牌核查",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzA3NjM5MjIwOQ==&mid=2652270258&idx=1&sn=a46b12724dcd82bd56f4be72e556f82a#rd",
+          "clicksCount": 100001,
+          "likeCount": 481,
+          "commentCount": null,
+          "publishTime": "2026-06-22 20:33:08"
+        }
+      },
+      {
+        "accountName": "吴晓波频道",
+        "accountId": "gh_b09cb640f644",
+        "avgReadCount": 30792,
+        "redfoxIndex": 852.8512030377398,
+        "description": "这是财经作家吴晓波带领“巴九灵”们运营的知识平台，这里汇聚了400多万认可商业之美、崇尚自我奋斗、乐意奉献共享、拒绝屌丝文化的新中产。",
+        "latestArticle": {
+          "title": "95%的一人公司创业项目，被毙了丨一线",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzA3OTM5NTkxNA==&mid=2653164444&idx=1&sn=9a46031e7c2643cced8221a6de4a8b5f#rd",
+          "clicksCount": 42087,
+          "likeCount": 323,
+          "commentCount": 32,
+          "publishTime": "2026-06-22 08:20:00"
+        }
+      },
+      {
+        "accountName": "每日经济新闻",
+        "accountId": "gh_2424e6d48203",
+        "avgReadCount": 30200,
+        "redfoxIndex": 1028.1457600521767,
+        "description": "中国主流财经全媒体，互联网新闻信息服务许可证编号：51120190017；商务合作：028-86512112；新闻职业道德监督热线：4008890008",
+        "latestArticle": {
+          "title": "谈判暂停，伊朗：霍尔木兹海峡仍关闭；特朗普：美国或收取中东地区20%的石油收益；国际油价大涨；世界杯西班牙4-0沙特丨每经早参",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=Mzg3NTA5MjkyNQ==&mid=2248551992&idx=1&sn=1a25dbca31dd3ca0e783ad38d9d217e3#rd",
+          "clicksCount": 100001,
+          "likeCount": 609,
+          "commentCount": 6,
+          "publishTime": "2026-06-22 06:37:43"
+        }
+      },
+      {
+        "accountName": "财联社",
+        "accountId": "gh_4ed145384731",
+        "avgReadCount": 25559,
+        "redfoxIndex": 1064.4543420311659,
+        "description": "财联社是上海报业集团主管主办，定位资本市场报道财经通讯社，以“准确、快速、权威、专业”为准则，提供7x24小时金融信息服务。",
+        "latestArticle": {
+          "title": "北大荒：将补缴税款及滞纳金14.1亿元",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=Mzg5MzEyNzEwNQ==&mid=2247824171&idx=1&sn=9270f25d2ce9b2308e529dec9d91449f#rd",
+          "clicksCount": 100001,
+          "likeCount": 320,
+          "commentCount": 5,
+          "publishTime": "2026-06-22 17:21:36"
+        }
+      },
+      {
+        "accountName": "投资界",
+        "accountId": "gh_6488c708f8ec",
+        "avgReadCount": 24692,
+        "redfoxIndex": 856.7992693649468,
+        "description": "清科创业旗下创业与投资资讯平台",
+        "latestArticle": {
+          "title": "今天，北京诞生一家万亿公司",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzI5ODk1NjY1MA==&mid=2247728832&idx=1&sn=5c9b6d350cf4ae4b38a08903f98c0724#rd",
+          "clicksCount": 100001,
+          "likeCount": 833,
+          "commentCount": 12,
+          "publishTime": "2026-06-22 17:19:39"
+        }
+      },
+      {
+        "accountName": "第一财经",
+        "accountId": "gh_7fbf45a6a562",
+        "avgReadCount": 23547,
+        "redfoxIndex": 1043.5348786764844,
+        "description": "第一财经官方公众号，致力为广大投资者打造权威的财经信息平台，同时，努力成为第一财经忠实用户的交流平台。",
+        "latestArticle": {
+          "title": "李现为世界杯开球",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjM5MTM3NTMwNA==&mid=2661755049&idx=1&sn=c35fd38c46b628f36d986d7c618cd558#rd",
+          "clicksCount": 100001,
+          "likeCount": 582,
+          "commentCount": 14,
+          "publishTime": "2026-06-22 08:44:11"
+        }
+      },
+      {
+        "accountName": "21世纪经济报道",
+        "accountId": "wxid_4uidjxlafusk21",
+        "avgReadCount": 22087,
+        "redfoxIndex": 1007.941307356335,
+        "description": "权威、专业、深度、有趣！用经济思维看世界。 互联网新闻信息服务许可证编号：44120250004",
+        "latestArticle": {
+          "title": "日韩股市半导体全线爆发，东陶暴涨11%，SK海力士大涨近6%盘中市值超三星电子，年内股价狂飙350%",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjI3Njc0NTk4MQ==&mid=2650606668&idx=1&sn=82911e02c02225976b8978b9751fb2d2#rd",
+          "clicksCount": 100001,
+          "likeCount": 535,
+          "commentCount": 30,
+          "publishTime": "2026-06-22 12:26:17"
+        }
+      },
+      {
+        "accountName": "ETF进化论",
+        "accountId": "gh_256f08854842",
+        "avgReadCount": 20741,
+        "redfoxIndex": 774.8833218715812,
+        "description": "百万ETF研究者聚集地，专业深度ETF大数据，ETF是投资的最终归宿！",
+        "latestArticle": {
+          "title": "10倍涨幅ETF诞生！散户猛干，外资出逃",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzU5NDYzNzUxMA==&mid=2247519063&idx=1&sn=5bd89ccad77ba276be30fdb3a04fa9d0#rd",
+          "clicksCount": 14376,
+          "likeCount": 186,
+          "commentCount": 12,
+          "publishTime": "2026-06-22 15:08:33"
+        }
+      },
+      {
+        "accountName": "界面新闻",
+        "accountId": "gh_93119cc8064a",
+        "avgReadCount": 17939,
+        "redfoxIndex": 954.67640850319,
+        "description": "界面新闻是上海报业集团主管主办，中国具有影响力的原创财经新媒体，服务于独立思考的人群",
+        "latestArticle": {
+          "title": "降价也卖不动的合资燃油车开始主动撤出门店",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjM5NTE0ODc2Nw==&mid=2650957734&idx=1&sn=e1abbb73689d5379892bd3a9dfdd898f#rd",
+          "clicksCount": 82229,
+          "likeCount": 364,
+          "commentCount": 19,
+          "publishTime": "2026-06-22 20:12:12"
+        }
+      },
+      {
+        "accountName": "中国证券报",
+        "accountId": "gh_cbbad4c1d33c",
+        "avgReadCount": 15737,
+        "redfoxIndex": 957.2569261577873,
+        "description": "《中国证券报》，由新华通讯社主管主办、中国证券报有限责任公司出版，证券市场唯一“中字头”信息披露媒体，是融权威发布、政策解读、资讯视讯于一体的新型财经全媒体机构，集价值发掘、数据研发、投教投服投研于一身的资本市场服务商。做多中国，相和义利。",
+        "latestArticle": {
+          "title": "大单涌入，1900亿龙头涨停！“坚持了3年，今天卖了……”",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjM5MzMwNjM0MA==&mid=2651346880&idx=1&sn=a03471b8892994f0f92e6a1c05ee77c1#rd",
+          "clicksCount": 100001,
+          "likeCount": 353,
+          "commentCount": 9,
+          "publishTime": "2026-06-22 16:42:44"
+        }
+      },
+      {
+        "accountName": "证券时报",
+        "accountId": "gh_0363ffcb9324",
+        "avgReadCount": 13173,
+        "redfoxIndex": 978.0875439596845,
+        "description": "《证券时报》是人民日报社主管主办的全国性财经类日报，是证券市场信息披露媒体。",
+        "latestArticle": {
+          "title": "美军发动打击",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjM5NDEzMTAwMA==&mid=2652686213&idx=1&sn=672aaff69a6eeef2c5634c0b368afb67#rd",
+          "clicksCount": 100001,
+          "likeCount": 152,
+          "commentCount": null,
+          "publishTime": "2026-06-22 16:06:01"
+        }
+      },
+      {
+        "accountName": "中国财经报",
+        "accountId": "gh_70ce11411253",
+        "avgReadCount": 12430,
+        "redfoxIndex": 887.8713448988352,
+        "description": "财政部主管的全国性财经媒体，致力于为您打造一个全新平台，快速了解财政领域发生的大事新事，洞悉财经政策，明察财经万象，把握财经大势，同时营造一片宁静温馨的生活家园和心灵港湾。",
+        "latestArticle": {
+          "title": "经中共中央批准，戴北方被开除党籍！",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzA5NTQzNzAzNw==&mid=2653941972&idx=1&sn=776305ad786317284283f575ed025c7d#rd",
+          "clicksCount": 57702,
+          "likeCount": 71,
+          "commentCount": 2,
+          "publishTime": "2026-06-22 11:15:54"
+        }
+      },
+      {
+        "accountName": "第一财经资讯",
+        "accountId": "wxid_5210842105811",
+        "avgReadCount": 12101,
+        "redfoxIndex": 803.899187091644,
+        "description": "第一财经官方账号 专业创造价值！",
+        "latestArticle": {
+          "title": "下个月起，两大新国标焊死电车安全红线",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MTU1OTI4NDM4MQ==&mid=2652294475&idx=1&sn=2b6ef46715985fe4ac76e393a202eac2#rd",
+          "clicksCount": 15254,
+          "likeCount": 140,
+          "commentCount": null,
+          "publishTime": "2026-06-22 16:18:34"
+        }
+      },
+      {
+        "accountName": "上海证券报",
+        "accountId": "gh_222a507c7767",
+        "avgReadCount": 11541,
+        "redfoxIndex": 959.8045513519742,
+        "description": "上海证券报，新华社主办，中国证监会法定披露证券市场信息媒体。1991年创办，是新中国第一份提供权威金融证券专业资讯的全国性财经日报。追求政治品德、新闻品格、专业品位、服务品质、一流品牌，做有“品”的全媒体财经资讯服务机构。",
+        "latestArticle": {
+          "title": "48名中国开发者联名举报苹果",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjM5MDIwNDEyMg==&mid=2651250461&idx=2&sn=d94cb8c8f9c61502b0c54cdd78115932#rd",
+          "clicksCount": 100001,
+          "likeCount": 385,
+          "commentCount": null,
+          "publishTime": "2026-06-22 21:55:09"
+        }
+      },
+      {
+        "accountName": "e公司",
+        "accountId": "gh_1f80011c147d",
+        "avgReadCount": 11063,
+        "redfoxIndex": 924.3234515863013,
+        "description": "e公司，证券时报旗下专注上市公司新媒体产品，立志打造A股上市公司资讯第一平台。提供7x24小时上市公司标准化快讯，针对可能影响上市公司股价的主题概念、行业事件及时采访二次解读，从投资者需求出发，直播上市公司有价值的活动、会议。",
+        "latestArticle": {
+          "title": "002648，上半年净利润最高预增155%！",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzAwODUyMjIzOQ==&mid=2651973166&idx=2&sn=68643471e6fddbb4904dcbf0d928a3b6#rd",
+          "clicksCount": 45273,
+          "likeCount": 60,
+          "commentCount": null,
+          "publishTime": "2026-06-22 19:33:54"
+        }
+      },
+      {
+        "accountName": "腾讯财经",
+        "accountId": "gh_35ddd27cd18b",
+        "avgReadCount": 8638,
+        "redfoxIndex": 818.1755116067602,
+        "description": "腾讯新闻旗下腾讯财经官方账号，在这里读懂财经！",
+        "latestArticle": {
+          "title": "降薪、递延、终身追责：超30家券商大改薪酬，金融高管告别“赚快钱”",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjM5OTA0Mzc2MA==&mid=2651475059&idx=1&sn=771fc2ff881e5a77e4801a16f71bbde7#rd",
+          "clicksCount": 18319,
+          "likeCount": 57,
+          "commentCount": 4,
+          "publishTime": "2026-06-22 08:00:00"
+        }
+      },
+      {
+        "accountName": "期货日报",
+        "accountId": "gh_6238db455a43",
+        "avgReadCount": 8246,
+        "redfoxIndex": 841.3559985057177,
+        "description": "《期货日报》创刊于1994年9月，是唯一一家全面反映国内外期货市场发展动态的专业日报，是中国期货市场权威的新闻中心和信息载体，肩负着维护和促进整个行业健康发展的重要使命。多年来，《期货日报》与中国期货市场风雨同舟，形成了密不可分的关系。",
+        "latestArticle": {
+          "title": "突变！特朗普发出威胁，伊朗暂停谈判！以军遭受“重大损失”，多名指挥官死亡！刚刚，油价大涨",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjM5NzM3MjU1Mg==&mid=2652080252&idx=1&sn=2e7a774e97b2511cac2bb5c86ddfc46a#rd",
+          "clicksCount": 100001,
+          "likeCount": 949,
+          "commentCount": 2,
+          "publishTime": "2026-06-22 07:28:07"
+        }
+      },
+      {
+        "accountName": "财经",
+        "accountId": "gh_cdc8f0652ff7",
+        "avgReadCount": 6818,
+        "redfoxIndex": 808.4315523661637,
+        "description": "源于《财经》，广于财经。严谨论述与辛辣点评同台，图文与影音共享。有料也有趣，有态度也有温度，有品质也有性格。《财经》新媒体，您掌控的财经。",
+        "latestArticle": {
+          "title": "深交所史上最大规模IPO来了",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzA5MzI1ODEzNA==&mid=2650745871&idx=1&sn=2215b6baa599d7ce8cc2613b56e6496b#rd",
+          "clicksCount": 23885,
+          "likeCount": 40,
+          "commentCount": 1,
+          "publishTime": "2026-06-22 13:05:20"
+        }
+      },
+      {
+        "accountName": "中新经纬",
+        "accountId": "gh_92cf0ac5d73b",
+        "avgReadCount": 6784,
+        "redfoxIndex": 980.139077619138,
+        "description": "中新经纬是由中国新闻社主办的财经新媒体，拥有中国互联网新闻信息采编发布服务资质。以手机客户端（APP）等为主要传播平台，以“权威、前瞻、专业、亲和”为特色宗旨，传播财经资讯、解读经济政策、讲述商界故事，打造精英的财经资讯平台。",
+        "latestArticle": {
+          "title": "A股午评：超4200只个股飘绿，三大指数集体上涨；石油化工、券商、保险板块领涨，培育钻石概念股大涨；汽车、航天军工、制药下跌",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MzI0NDU5OTAzMA==&mid=2247615355&idx=1&sn=f29364492fa378b34b0cf90f1bffc10e#rd",
+          "clicksCount": 100001,
+          "likeCount": 915,
+          "commentCount": 4,
+          "publishTime": "2026-06-22 11:32:25"
+        }
+      },
+      {
+        "accountName": "科奖中心",
+        "accountId": "gh_27a8adeca355",
+        "avgReadCount": 6660,
+        "redfoxIndex": 758.5068652608851,
+        "description": "奖励、人才、基金等相关科研动态、知识技巧的分享！举办奖励培训交流会！为科研人员提供申报答辩咨询、答辩PPT设计、多媒体动画制作等服务！",
+        "latestArticle": {
+          "title": "120人！青年科技人才培育工程拟培育对象名单公示",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=Mzg5MzEyNTI0OA==&mid=2247636468&idx=1&sn=07b72d9c15dbb7ec62a8dc799f8919aa#rd",
+          "clicksCount": 10143,
+          "likeCount": 2,
+          "commentCount": null,
+          "publishTime": "2026-06-22 21:23:24"
+        }
+      },
+      {
+        "accountName": "天天基金网",
+        "accountId": "gh_a9f4aab66ef3",
+        "avgReadCount": 6526,
+        "redfoxIndex": 780.0311367366328,
+        "description": "天天基金是东方财富信息股份有限公司旗下全资子公司，是中国证监会批准的首批独立基金销售机构。天天基金凭借其专业、及时、全面的财经平台优势，为广大投资者提供一站式金融理财服务。",
+        "latestArticle": {
+          "title": "全线大涨！A股历史第二高！",
+          "workUrl": "https://mp.weixin.qq.com/s?__biz=MjM5NzQyNzI4MA==&mid=2656039435&idx=1&sn=ca2db2f2075390d91a163db94f03336e#rd",
+          "clicksCount": 63402,
+          "likeCount": 215,
+          "commentCount": 3,
+          "publishTime": "2026-06-22 18:19:00"
+        }
+      }
+    ]
+  }
+}
