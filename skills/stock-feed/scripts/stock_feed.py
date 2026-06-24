@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-stock-feed: A股社媒短讯研究工具
+stock-feed: A股每日新闻
 ==========================================
 从小红书、抖音、公众号三大平台搜索A股相关短讯，
 默认传入17个A股核心关键词，默认查询近7天数据。
@@ -50,7 +50,7 @@ PLATFORMS = {
 }
 DEFAULT_COUNT = 50
 DEFAULT_DAYS = 7
-SOURCE_LABEL = "A股社媒资讯-GitHub"
+SOURCE_LABEL = "A股每日新闻-GitHub"
 
 # A股默认关键词（17个）
 DEFAULT_KEYWORDS = (
@@ -348,6 +348,59 @@ def _extract_scores(art: dict) -> dict:
     }
 
 
+# ─── 股票/投资相关性过滤 ──────────────────────────────────────────────────────────────
+_STOCK_KEYWORDS = frozenset([
+    # 股票市场术语
+    "A股", "a股", "股票", "股市", "涨停", "跌停", "大盘", "板块", "行情",
+    "涨跌", "股价", "K线", "k线", "牛市", "熊市", "基金", "券商", "散户",
+    "主力", "庄家", "筹码", "仓位", "建仓", "加仓", "减仓", "清仓", "止盈",
+    "止损", "复盘", "龙头", "涨停板", "跌停板", "概念股", "题材股", "蓝筹",
+    "创业板", "科创板", "港股", "美股", "指数", "大盘股", "小盘股",
+    "封板", "连板", "打板", "半路板", "反包", "妖股", "牛股", "垃圾股",
+    # 投资与交易
+    "投资", "理财", "选股", "持仓", "买入", "卖出", "分红", "估值",
+    "市值", "股息", "收益率", "回报", "套利", "做空", "做多",
+    # 财务与基本面
+    "财报", "年报", "季报", "营收", "净利", "毛利率", "利润", "亏损",
+    "业绩", "ROE", "roe", "市盈率", "市净率", "现金流",
+    # 行业与赛道
+    "半导体", "芯片", "新能源", "光伏", "锂电", "医药", "消费",
+    "银行", "保险", "地产", "人工智能", "AI", "机器人", "汽车",
+    "军工", "白酒", "食品饮料", "电子", "通信", "计算机",
+    # 市场事件
+    "IPO", "ipo", "增发", "减持", "增持", "回购", "摘帽", "ST", "st",
+    "退市", "重组", "并购", "收购", "股权转让", "定增",
+    # 技术指标
+    "均线", "MACD", "macd", "RSI", "rsi", "布林", "支撑位", "压力位",
+    "放量", "缩量", "换手率", "成交量", "量价",
+    # 机构与政策
+    "央行", "证监会", "银保监", "降息", "降准", "MLF", "LPR",
+    "北向资金", "外资", "融资", "融券", "两融",
+])
+
+# 明确非股票内容的排除关键词
+_NON_STOCK_KEYWORDS = frozenset([
+    "美妆", "护肤", "穿搭", "化妆", "美甲", "发型",
+    "美食", "食谱", "做菜", "烹饪",
+    "旅游", "旅行", "景点", "酒店", "民宿",
+    "娱乐", "综艺", "追剧", "明星", "偶像",
+])
+
+
+def _is_stock_related(item: dict) -> bool:
+    """判断文章是否与股票/投资相关"""
+    text = (item.get("title", "") + " " + item.get("desc", "")).lower()
+    # 排除明确非股票内容
+    for kw in _NON_STOCK_KEYWORDS:
+        if kw.lower() in text:
+            return False
+    # 匹配股票/投资关键词
+    for kw in _STOCK_KEYWORDS:
+        if kw.lower() in text:
+            return True
+    return False
+
+
 # ─── 主搜索函数 ─────────────────────────────────────────────────────────────────────
 def search(
     keyword: str,
@@ -419,16 +472,21 @@ def search(
                     seen_ids.add(uid)
                 item = _normalize_article(art, p, len(all_articles) + 1)
                 all_articles.append(item)
-                if len(all_articles) >= count:
-                    break
 
-            sys.stderr.write(f"[{label}] 获取 {len(all_articles)} 条\n")
+            # 过滤仅保留股票/投资相关内容
+            filtered = [a for a in all_articles if _is_stock_related(a)]
+            removed = len(all_articles) - len(filtered)
+            if removed > 0:
+                sys.stderr.write(f"[{label}] 过滤非股票内容 {removed} 条\n")
+                sys.stderr.flush()
+
+            sys.stderr.write(f"[{label}] 获取 {len(filtered)} 条\n")
             sys.stderr.flush()
             results[p] = {
                 "platform": p,
                 "label": label,
-                "items": all_articles[:count],
-                "total": len(all_articles[:count]),
+                "items": filtered[:count],
+                "total": len(filtered[:count]),
             }
 
     except InsufficientCreditsError as e:
@@ -694,21 +752,9 @@ def format_as_html(data: dict, max_items: int = 50, report_html: str = "") -> st
             )
 
         no_data_html = "<div class='no-data-hint'><p>未查询到相关内容，建议更换关键词重试。</p></div>" if not items else ""
-        # 小红书风控提示
-        xhs_notice_html = ""
-        if pkey == "xhs":
-            xhs_notice_html = (
-                '<div style="background:#fff7ed;color:#9a3412;padding:12px 16px;'
-                'border-radius:8px;margin:16px 24px;font-size:14px;line-height:1.6;'
-                'border:1px solid #fed7aa">'
-                '⚠️ 受小红书风控规则限制，部分作品链接可能无法正常跳转，'
-                '您可复制对应作品标题前往小红书搜索查看，感谢理解🙇\u200d♀️🙇\u200d♀️'
-                '</div>'
-            )
         panels_html += (
             '\n        <div class="tab-panel" id="panel-' + pkey + '" style="display: ' + display + '">\n'
             '            ' + error_html + '\n'
-            '            ' + xhs_notice_html + '\n'
             '            <div class="card-list">\n'
             '                ' + cards + '\n'
             '            </div>\n'
@@ -729,7 +775,7 @@ def format_as_html(data: dict, max_items: int = 50, report_html: str = "") -> st
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A股社媒短讯 · {keyword}</title>
+    <title>A股每日新闻 · {keyword}</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         :root {{
@@ -881,11 +927,11 @@ def format_as_html(data: dict, max_items: int = 50, report_html: str = "") -> st
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">📈 A股<span>社媒短讯</span></div>
+        <div class="logo">📈 A股<span>每日新闻</span></div>
         <div class="badge">v1.0</div>
     </nav>
     <div class="hero">
-        <h1>A股社媒短讯研究</h1>
+        <h1>A股每日新闻</h1>
         <div class="keyword">{keyword}</div>
         <div class="date-range">{date_range["from"]} ~ {date_range["to"]}</div>
     </div>
@@ -907,7 +953,7 @@ def format_as_html(data: dict, max_items: int = 50, report_html: str = "") -> st
         {panels_html}
     </div>
     <div class="footer">
-        数据来源：<a href="https://redfox.hk" target="_blank">redfox.hk</a> API · 小红书 / 抖音 / 公众号 · A股社媒短讯<br>
+        数据来源：<a href="https://redfox.hk" target="_blank">redfox.hk</a> API · 小红书 / 抖音 / 公众号 · A股每日新闻<br>
         互动数据为入库快照，实时数据可能持续增长
     </div>
     <script>
@@ -929,7 +975,7 @@ def format_as_html(data: dict, max_items: int = 50, report_html: str = "") -> st
 # ─── CLI ─────────────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
-        description="stock-feed: A股社媒短讯研究工具"
+        description="stock-feed: A股每日新闻"
     )
     parser.add_argument(
         "keyword", nargs="?", default=None,
@@ -1051,7 +1097,7 @@ def main():
     keyword = args.keyword.strip() if args.keyword else DEFAULT_KEYWORDS
 
     sys.stderr.write(f"\n{'='*60}\n")
-    sys.stderr.write(f"📈 A股社媒短讯 · 搜索: {keyword}\n")
+    sys.stderr.write(f"📈 A股每日新闻 · 搜索: {keyword}\n")
     sys.stderr.write(f"平台: {', '.join(PLATFORMS[p]['label'] for p in platforms)}\n")
     sys.stderr.write(f"每平台: {args.count} 条 | 时间: 近{args.days}天\n")
     sys.stderr.write(f"{'='*60}\n\n")

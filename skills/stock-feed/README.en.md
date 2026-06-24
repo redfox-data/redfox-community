@@ -1,84 +1,78 @@
-# A-Share Social Media Briefs / stock-feed
+# A-Share Daily News / stock-feed
 
 ---
 
 ## Introduction
 
-Search A-share related short posts from Xiaohongshu, Douyin, and WeChat Official Accounts in one click. Built-in 17 core keywords, default 7-day data, cross-platform comparison and analysis of stock market sentiment trends.
+A one-stop A-share market sentiment research tool that simultaneously searches 17 core A-share keywords across Xiaohongshu (RED), Douyin (TikTok China), and WeChat Official Accounts. It automatically filters out non-stock content, performs cross-platform sentiment comparison, and delivers structured research reports with interactive visual dashboards.
 
 **Core Value**
 
-- **Zero-config launch**: 17 built-in A-share core keywords, no manual input needed, one query covers all topics.
-- **Three-platform cross-validation**: Simultaneously obtain real discussion data from Xiaohongshu, Douyin, and WeChat Official Accounts, restoring the full picture of sentiment from multiple dimensions.
-- **Visual delivery**: Automatically generate interactive visual reports, easy to share and archive.
+- 17 built-in A-share keywords cover all major topics — zero configuration needed
+- Cross-validate real user data across three platforms to uncover differentiated signals
+- Automatically filter out beauty, food, travel and other non-stock content
+- Support flexible time ranges from 1 to 30 days for trend tracking
 
-**Target Users**
+**Who Is It For**
 
-- 📈 **A-share investors** — Quickly grasp the trend of stock market sentiment across the web, assisting in market sentiment judgment.
-- 📊 **Financial researchers** — Cross-platform comparison of retail and professional perspectives, efficiently completing sentiment research.
-- 📰 **Financial media professionals** — Track intraday hot topics and topic evolution, gaining reference for story ideas and materials.
+- 📈 Retail Investors — Quickly gauge market sentiment and trending sector discussions
+- 🏦 Financial Researchers — Gather cross-platform sentiment data to support analysis
+- 📰 Financial Content Creators — Discover high-engagement content for topic ideation
 
 ---
 
 ## Features
 
-### Core Features
+### Core Capabilities
 
-- **17-keyword one-click query**: Built-in 17 core keywords including A-share, A-share market, A-share index, limit-up, rise and fall, etc., covering all topics at once, no need to search keyword by keyword.
-- **Three-platform data acquisition**: Simultaneously obtain real discussion data from Xiaohongshu, Douyin, and WeChat Official Accounts, aggregating scattered sentiment in one click.
-- **Cross-platform comparison analysis**: Automatically synthesize data from all three platforms, discover differentiated trends and cross-validated signals, and output structured research reports.
-- **Flexible time range**: Default 7 days, supports custom 1-30 days, adaptable for intraday tracking and weekly review.
-- **Interactive visual report**: Automatically generate visual reports including data overview, key findings, and action previews, easy to share and archive.
+- **17-Keyword One-Click Query**: Built-in keywords like A-shares, limit-up, stock picks — no manual input needed
+- **Three-Platform Data Sources**: Simultaneously pull real user discussions from Xiaohongshu, Douyin, and WeChat Official Accounts
+- **Smart Content Filtering**: Automatically identify and remove non-stock/investment content for clean data
+- **Cross-Platform Analysis**: Synthesize data from all three platforms into actionable sentiment insights
+- **Interactive HTML Reports**: Card-based visual reports with platform filtering and data sorting
+- **Flexible Time Range**: Default 7 days, customizable from 1 to 30 days for trend tracking
+- **Custom Keywords**: Search by specific stocks, sectors, or concepts for targeted queries
 
 ---
 
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Please go to [RedFoxHub](https://redfox.hk?souce=github) to register an account and obtain `REDFOX_API_KEY`.
-- Configure the device environment variable `REDFOX_API_KEY` before using this skill.
-- Before providing the key, please confirm the key source, available scope, validity period, and whether it supports reset/revocation.
-- It is prohibited to hard-code/expose the key in plain text in code, prompts, logs, or output files.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Please visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
+- Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
+- Before providing a key, verify the source, scope, validity period, and whether reset/revocation is supported.
+- Never hardcode or expose keys in code, prompts, logs, or output files.
 
 ---
 
 ## Usage Guide
 
-Describe your A-share research needs in natural language directly, no need to memorize commands.
+Simply describe what you need in natural language — no commands to memorize.
 
-### Common Phrases Quick Reference
+### Quick Reference
 
-| Intent | Example Phrase | Result |
-|--------|---------------|--------|
-| One-click sentiment check | "Help me check the recent A-share market discussion heat" | Built-in 17 keywords full query, cross-platform comparison output |
-| Track specific topics | "How is the semiconductor sector discussed recently" | Search by custom keywords, focus on specific sectors |
-| Extend time range | "Check A-share rise and fall discussions in the past 30 days" | Support 1-30 days custom, track trend evolution |
-| Compare two topics | "Compare the sentiment of limit-up and stock-picking topics" | Cross-platform comparison, output differential insights |
+| Intent | Example Phrases | Result |
+| --- | --- | --- |
+| Check latest A-share sentiment | "Show me the latest data" | Search all 17 built-in keywords across 3 platforms for the past 7 days |
+| Query a specific stock | "Show me Tencent-related news" | Targeted search for Tencent stock discussions |
+| Query a specific sector | "Latest news on semiconductors and chips" | Search sentiment by specified concept or sector |
+| Expand time range | "Show me A-share sentiment for the past 30 days" | Search one month of data to track trend changes |
+| Compare two stocks | "BYD vs Tesla sentiment comparison" | Cross-platform comparison of discussion heat and reputation |
 
-### Output Example
+### Output Preview
 
-After completion, you will receive a structured research report, roughly as follows (illustrative):
-
-**Semiconductor sector continues to strengthen** - Multi-platform discussions focus on domestic substitution and policy benefits, Xiaohongshu retail investors share trading insights, Douyin post-market interpretations see surging views. Source [Xiaohongshu@InvestorWang](link1), [Douyin@FinanceZhang](link2)
-
-Key findings:
-1. Domestic substitution topic heat rises simultaneously across all three platforms - Source [WeChat Official Account In-depth Review](link1), [Xiaohongshu@SemiconductorWatch](link2)
-2. Retail investors show clear position-adding sentiment, but top influencers remind of risks - Source [Douyin@FinanceZhang](link1), [WeChat Official Account Strategy Analysis](link2)
-
-Action preview:
-- Pay attention to policy implementation pace, be cautious of divergence in short-term trading
-- Avoid chasing highs, prioritize low-position catch-up directions
-
-⚠ The above is a comprehensive social media sentiment analysis and does not constitute investment advice. Investment involves risks, enter the market with caution.
+> Reports begin with a "Data Overview" section showing TOP 5 articles per platform in table format (with clickable title links, authors, and platform-specific engagement metrics), followed by core findings, actionable predictions, risk disclaimers, and an auto-generated interactive HTML report.
 
 ---
 
 ## Use Cases
 
-| Scenario | Role | Example Question | Benefit |
-|----------|------|-----------------|---------|
-| Pre-market sentiment overview | A-share investor | "What is everyone discussing about A-shares today" | Quickly grasp market sentiment direction before opening |
-| Sector-specific research | Financial researcher | "How is the sentiment for the chip sector recently" | Focus on specific sector, three-platform cross-validation |
-| Weekly review | Financial media | "Help me summarize this week's A-share sentiment" | One-click structured report and visual page output |
-| Track hot topic evolution | Content operator | "Check the 30-day limit-up discussion trend" | Extend timeline, discover sentiment inflection points |
+| Scenario | Role | Example Query | Benefit |
+| --- | --- | --- | --- |
+| Post-Market Review | Retail Investor | "How's the A-share market today?" | Quickly understand daily market sentiment and hot sectors |
+| Individual Stock Research | Financial Researcher | "Check CATL's sentiment" | Get cross-platform discussion heat and sentiment for a specific stock |
+| Sector Tracking | Content Creator | "Latest AI sector news" | Discover high-engagement content for topic ideation |
+| Trend Analysis | Institutional Investor | "A-share sentiment trends over 30 days" | Track sentiment evolution to support investment decisions |
+
+---
