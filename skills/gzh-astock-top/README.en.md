@@ -1,10 +1,10 @@
-# A-Share WeChat Official Account Influencer / gzh-astock-top
+# A-Share WeChat Official Account Influencer Rankings / gzh-astock-top
 
 ---
 
 ## Overview
 
-The A-Share WeChat Official Account Influencer tool lets you retrieve account data and the latest article data for top WeChat official accounts in the A-share space by simply entering a date. It helps investors, content operators, and financial professionals quickly grasp the operational performance and latest content trends of leading A-share WeChat accounts.
+The A-Share WeChat Official Account Influencer Rankings tool lets you retrieve account data and the latest article data for top WeChat official accounts in the A-share space by simply entering a date. It helps investors, content operators, and financial professionals quickly grasp the operational performance and latest content trends of leading A-share WeChat accounts.
 
 **Core Value**
 
@@ -69,13 +69,16 @@ Simply describe your needs in natural language — no commands to memorize.
 
 | # | Account | Avg Reads | RedFox Index | Latest Article | AI Summary | Reads | Likes | Published |
 |---|--------|----------|-------------|----------------|------------|-------|-------|-----------|
-| 1 | 央视财经 | 48k | 1011.3 | [What Is a Movie Ticket Becoming?](link) | Focuses on movie ticket consumption trends and cinema transformation | 25k | 216 | 06-16 |
+| 1 | 央视财经 | 48k | 1011.3 | [Breaking! 9 Ministries Release Major Stimulus](link) | Nine ministries jointly release major favorable policies | 83k | 464 | 06-16 |
+| 2 | 券商中国 | 31k | 993.6 | [Late Trading Alert! Stock #601869 Hits Limit Up!](link) | Late-session unusual activity as stock hits limit-up, concept defies market | 50k | 202 | 06-16 |
+| 3 | 中国基金报 | 32k | 1012.3 | [Global Black Tuesday! AI Trading 'Crash'...](link) | Global stock markets plunge, AI trading suffers severe selloff | 100k+ | 863 | 06-16 |
 
 **【Individual Influencers】2 accounts**
 
 | # | Account | Avg Reads | RedFox Index | Latest Article | AI Summary | Reads | Likes | Published |
 |---|--------|----------|-------------|----------------|------------|-------|-------|-----------|
-| 1 | 孤独大脑 | 32k | 812.7 | [Three Levels of Cognitive Upgrade](link) | Explores pathways for mental model upgrading and cognitive breakthroughs | 18k | 342 | 06-16 |
+| 1 | 好运哥2008 | 80k | 876.6 | [Good News Is Here!!](link) | Bullish on positive stimulus impact on A-shares | 100k+ | 2859 | 06-16 |
+| 2 | 孥孥的大树 | 24k | 810.8 | [Brokerages Should Learn from Cape Verde](link) | Brokerages should draw lessons from Cape Verde's development approach | 22k | 482 | 06-16 |
 
 ---
 
