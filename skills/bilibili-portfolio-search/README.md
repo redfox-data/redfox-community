@@ -1,4 +1,4 @@
-# B站搜账号下作品集 / B站搜账号下作品集
+# B站搜账号下作品集 / bilibili-portfolio-search
 
 ---
 

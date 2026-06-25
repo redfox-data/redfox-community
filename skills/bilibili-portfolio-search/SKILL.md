@@ -1,5 +1,5 @@
 ---
-name: B站搜账号下作品集
+name: bilibili-portfolio-search
 description: B站账号作品列表实时查询工具。根据B站UP主的UID实时调用 Redfox 接口获取该UP主发布的视频作品列表，支持游标翻页浏览更多作品。返回实时数据（非缓存/历史数据）。当用户想查看某个B站UP主的作品列表、B站账号视频、UP主投稿列表时使用。触发词：B站作品列表、B站UP主作品、B站账号视频、B站投稿列表、bilibili作品、B站UP主投稿、B站搜账号下作品集。
 ---
 
