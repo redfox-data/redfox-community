@@ -1,22 +1,22 @@
-# Bilibili Account Video Collection / B站搜账号下作品集
+﻿# Bilibili Portfolio Search / bilibili-portfolio-search
 
 ---
 
 ## Overview
 
-Enter a Bilibili UP host's UID to retrieve all published videos in real time. Data is always fresh and supports paginated browsing through the complete list.
+Instantly query any Bilibili creator's full video catalog, sorted by play count with pagination support, to quickly understand any account's content performance.
 
 **Core Value**
 
-- **Real-time data**: Each query calls a live API, returning the latest video data — never cached or historical records.
-- **Spot viral hits fast**: Videos are sorted by play count in descending order, so you can instantly find the UP host's most popular content.
-- **Paginated browsing**: Flip through pages of videos, even for accounts with a large catalog.
+- **Real-time data**: Fetch the latest published videos directly—no caching, no historical snapshots.
+- **Play count sorting**: Results are automatically sorted by play count in descending order, surfacing top performers at a glance.
+- **Paginated browsing**: Cursor-based pagination lets you dive deep into a creator's entire back catalog.
 
 **Intended Users**
 
-- 🔍 **Content researchers** — Quickly understand any UP host's content output and viral distribution.
-- 📊 **Data analysts** — Access full video catalogs to support trend analysis.
-- 🏢 **Brand / MCN** — Evaluate KOL content quality and performance metrics to guide partnership decisions.
+- 🎬 **Content creators** — Analyze peer creators' content performance and benchmark against viral topics.
+- 📊 **MCN / operations teams** — Batch-review signed creators' uploads and quickly track account output.
+- 🔍 **Content researchers** — Sort by play count to efficiently identify high-impact video samples.
 
 ---
 
@@ -24,10 +24,9 @@ Enter a Bilibili UP host's UID to retrieve all published videos in real time. Da
 
 ### Core Capabilities
 
-- **UID lookup**: Enter a Bilibili UP host's UID (numeric only) to retrieve all published videos, including play count, danmaku count, comment count, favorites, and other key metrics.
-- **Play count sorting**: Results are automatically sorted by play count in descending order for quick identification of viral content.
-- **Paginated browsing**: Browse more videos page by page, with 20 results per page, to handle large catalogs.
-- **Complete video info**: Each video includes title, play count, danmaku count, comment count, favorites, duration, publish date, video link, and cover image.
+- **UID-based precision query**: Enter a creator's UID to fetch all public uploads in real time.
+- **Cursor-based pagination**: Load more videos page by page without missing a single upload.
+- **Play count descending sort**: Results are automatically ranked from highest to lowest play count, prioritizing top performers.
 
 ---
 
@@ -44,36 +43,38 @@ Enter a Bilibili UP host's UID to retrieve all published videos in real time. Da
 
 ## Usage Guide
 
-Simply describe what you need in natural language — no commands to memorize.
+Simply describe what you need in natural language—no commands to memorize.
 
 ### Quick Reference
 
-| Intent | Example phrase | Result |
-| ------ | -------------- | ------ |
-| View UP host's videos | "Show me the Bilibili video list for UID 946974" | Retrieve all videos in real time, sorted by play count |
-| Browse more | "Next page" | Automatically paginate to show more videos |
-| Query by nickname | "What videos does 老番茄 have on Bilibili?" | Prompt to provide the UID (numeric ID from the UP host's profile URL) |
+| Intent               | Example phrase                                                                  | Result                                                      |
+| -------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Query video catalog  | "Look up the videos from Bilibili creator 946974"                              | Returns the creator's latest uploads, sorted by play count  |
+| Query via URL        | "Check out this Bilibili account's videos: bilibili.com/space/12345"           | Automatically extracts the UID and fetches the video list   |
+| Paginate             | "Next page" / "Show me more"                                                   | Automatically uses the cursor to load the next page         |
 
 ### Output Example
 
-After a successful query, you'll receive a video list like this (illustrative):
+After a successful query, you'll see creator info and a video table:
 
-> 📊 UP host "**老番茄**" (UID: 946974) has **320** videos in total. Showing **20** below:
->
-> | # | Title | Plays | Danmaku | Duration | Published |
-> | --- | --- | --- | --- | --- | --- |
-> | 1 | [Some viral video title](https://www.bilibili.com/video/BV1xx) | 10.52M | 125K | 15:21 | 2026-06-20 |
->
+> 📊 Creator "**SomeCreator**" (UID: 946974) has **128** videos total, showing **20** items. Here are the details:
+
+| #   | Video Title          | Plays   | Danmaku | Duration | Published  |
+| --- | -------------------- | ------- | ------- | -------- | ---------- |
+| 1   | [Title Text](link)   | 1.05M   | 12K     | 15:21:04 | 2026-06-20 |
+| 2   | [Title Text](link)   | 885K    | 9800    | 08:32    | 2026-06-15 |
+
 > 📄 More videos available. Reply "next page" to continue.
 
 ---
 
 ## Use Cases
 
-| Scenario | Role | Example question | Benefit |
-| -------- | ---- | ---------------- | ------- |
-| Competitive analysis | Content researcher | "Show me UID 946974's video list — I want to study their content strategy" | Quickly grasp a competitor's content output and viral patterns |
-| Data research | Data analyst | "Pull this UP host's video data, sorted by play count" | Access full catalog data for trend and performance analysis |
-| KOL evaluation | Brand / MCN | "Evaluate this Bilibili UP host's video performance" | Understand a KOL's content quality and metrics to guide partnerships |
+| Scenario             | Role               | Example question                                                     | Benefit                                                       |
+| -------------------- | ------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Benchmark analysis   | Content creator    | "Look up this creator's videos and find which ones got the most plays" | Quickly identify top performers to benchmark topics and titles |
+| Account review       | MCN / ops team     | "Show me what videos my signed creator has posted recently"          | Efficiently track creator output to support ops decisions      |
+| Sample collection    | Content researcher | "Pull the video list from this Bilibili account"                     | Get high-impact video samples sorted by play count             |
+| Casual browsing      | Bilibili viewer    | "How many videos has my favorite creator posted in total?"           | View the full upload history with pagination support           |
 
 ---
