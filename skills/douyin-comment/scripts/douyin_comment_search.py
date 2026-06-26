@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-抖音作品评论查询脚本
+抖音评论分析脚本
 调用 Redfox API 获取抖音作品一级评论数据，同步生成 HTML 报告
 用法: python3 douyin_comment_search.py "<videoId>" [--offset 0] [--no-html] [--output-dir ~/Downloads/QoderReports]
 """
@@ -36,6 +36,7 @@ def call_api(video_id: str, offset: int, api_key: str) -> dict:
     payload = json.dumps({
         "videoId": video_id,
         "offset": str(offset),
+        "source": "抖音作品评论-GitHub",
     }).encode("utf-8")
 
     req = urllib.request.Request(
