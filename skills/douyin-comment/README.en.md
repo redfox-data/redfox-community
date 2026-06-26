@@ -27,7 +27,7 @@ Paste a Douyin video link to pull up its comment data. AI automatically analyzes
 
 ### Core Features
 
-- **Link extraction**: Paste a Douyin video link directly — the video ID is extracted automatically, no manual steps needed.
+- **Link extraction**: Paste a Douyin video link directly — the video ID is extracted automatically, no need to copy IDs by hand.
 - **Comment retrieval**: Fetches top-level comments, 20 per page displayed in reverse chronological order.
 - **AI-powered analysis**: Four-dimensional sentiment summary (positive / negative / user needs / competitor comparison) with awareness of Douyin meme culture.
 - **Paginated browsing**: Flip through page by page, easily covering large comment sections.
