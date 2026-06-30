@@ -1,6 +1,6 @@
 ---
 name: video-prompt-expert
-description: |
+description:
   AI 视频生成提示词专家 Skill。帮助用户编写专业级 AI 视频生成提示词，并提供一键生成视频能力（Seedance 2.0 API）。
   支持多场景模板、效果诊断、@多模态参考语法指导，写完提示词直接出 MP4 视频。
 
