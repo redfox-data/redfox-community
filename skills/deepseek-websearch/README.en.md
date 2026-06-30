@@ -4,13 +4,13 @@
 
 ## Overview
 
-Deepseek WebSearch is an intelligent search tool with internet access. Simply describe the topic you want to explore in natural language, and it will leverage Deepseek's online capabilities to deliver the latest and most comprehensive answers.
+Deepseek Web Search helps you break through the knowledge cutoff limitation of large models. With one click, access AI-powered web search to retrieve the latest, most accurate real-time information anytime.
 
 **Core Value**
 
-- **Real-time web search**: Break through the knowledge cutoff limitation of large models and access the latest information.
-- **Automatic async processing**: Submit and receive a taskId instantly; the script polls automatically—no manual intervention required.
-- **Structured result output**: Returns JSON format with answer text and source citations, easy for Agent parsing and display.
+- **Real-time web search**: Break through the knowledge cutoff limitation and access the latest information anytime.
+- **Effortless experience**: After submitting a search, results are retrieved automatically—no manual intervention or refreshing needed.
+- **Structured results**: Search results include detailed answers and source citations for easy review and reference.
 
 **Intended Users**
 
@@ -24,10 +24,10 @@ Deepseek WebSearch is an intelligent search tool with internet access. Simply de
 
 ### Core Capabilities
 
-- **Async submission**: Submit search keywords and immediately receive a task ID without blocking.
-- **Automatic polling**: Queries task status every 5 seconds, up to 5 minutes; outputs automatically when results are ready.
-- **Real-time progress feedback**: During polling, outputs current status via stderr (queued → running → succeeded) for clear progress visibility.
-- **Comprehensive error handling**: Clear prompts and handling for four exception scenarios: missing API Key, submission failure, timeout, and task failure.
+- **One-click search**: Describe your search need in natural language to start—no commands to memorize.
+- **Smart waiting**: After submitting a search, results are retrieved automatically with real-time progress feedback—no manual refreshing needed.
+- **Structured output**: Search results include detailed answers and source citations, clearly organized for easy review.
+- **Fault tolerance**: Covers multiple exception scenarios with clear prompts for each, so your workflow never gets stuck.
 
 ---
 
@@ -50,7 +50,7 @@ Simply describe your search need in natural language—no fixed commands to memo
 
 | Intent | Example phrase | Result |
 |--------|---------------|--------|
-| Real-time info query | "Search for today's tech news" | Calls Deepseek web search to retrieve the latest news |
+| Real-time info query | "Search for today's tech news" | Retrieves the latest news |
 | Professional knowledge lookup | "Look up the latest advances in quantum computing" | Searches and organizes the latest research in the field |
 | Fact verification | "Verify whether this claim is accurate" | Cross-references via web search to confirm accuracy |
 | Tech solution research | "Compare the latest features of React and Vue" | Retrieves documentation and community feedback to aid decisions |
@@ -59,7 +59,7 @@ Simply describe your search need in natural language—no fixed commands to memo
 
 After the search completes, you receive structured results including:
 
-- **Deepseek answer text**: A detailed response to your query
+- **Detailed answer**: A comprehensive response to your query
 - **Source citations**: Webpage links referenced in the search results for further reading
 
 ---
