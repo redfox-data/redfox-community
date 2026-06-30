@@ -4,7 +4,7 @@
 
 ## Overview
 
-Leverage the Deepseek web search capability via the RedFox API to submit queries and automatically poll for results, helping you quickly retrieve real-time, accurate information.
+Deepseek WebSearch is an intelligent search tool with internet access. Simply describe the topic you want to explore in natural language, and it will leverage Deepseek's online capabilities to deliver the latest and most comprehensive answers.
 
 **Core Value**
 
