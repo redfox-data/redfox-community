@@ -104,6 +104,7 @@ npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/
 #### 抖音：
 
 [获取抖音作品内容详情 (优质库)](https://redfox.hk/apis/douyin/0OT1E306)
+
 [获取抖音账号信息 (优质库)](https://redfox.hk/apis/douyin/XUT4CECZ)
 [搜索关键词获取抖音账号 (优质库)](https://redfox.hk/apis/douyin/P5CHB3BZ)
 [搜索关键词获取抖音作品 (优质库)](https://redfox.hk/apis/douyin/774OBKK0)
