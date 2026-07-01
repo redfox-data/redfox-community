@@ -160,6 +160,11 @@ npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/
 - [搜索关键词获取哔哩哔哩作品 (优质库)](https://redfox.hk/apis/bilibili/LEN9QXR3)
 - [获取哔哩哔哩账号作品列表 (优质库)](https://redfox.hk/apis/bilibili/VPA67I98)
 
+#### 今日头条
+
+- [获取今日头条账号作品列表 (实时)](https://redfox.hk/apis/jinritoutiao/28CFGF5I)
+- [获取今日头条作品内容详情 (实时)](https://redfox.hk/apis/jinritoutiao/PAB6Z75Y)
+
 #### Tiktok：
 
 - [Tiktok关键词搜索账号](https://redfox.hk/apis/tool-tiktok/20070019)

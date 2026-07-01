@@ -164,6 +164,11 @@ https://clawhub.ai/user/redfox-data
 - [Search Bilibili content by keyword (Premium)](https://redfox.hk/apis/bilibili/LEN9QXR3)
 - [Get Bilibili account content list (Premium)](https://redfox.hk/apis/bilibili/VPA67I98)
 
+#### Toutiao
+
+- [Get Toutiao account content list (Realtime)](https://redfox.hk/apis/jinritoutiao/28CFGF5I)
+- [Get Toutiao content details (Realtime)](https://redfox.hk/apis/jinritoutiao/PAB6Z75Y)
+
 #### TikTok
 
 - [Search TikTok accounts by keyword](https://redfox.hk/apis/tool-tiktok/20070019)
