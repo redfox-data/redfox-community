@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今日头条爆款查询 · {{KEYWORD}} | {{DATE}}</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg-primary: #0f0a0a;
+    --bg-secondary: #1a0f0f;
+    --bg-card: #1f1414;
+    --bg-card-hover: #2a1a1a;
+    --text-primary: #efe8e8;
+    --text-secondary: #9a8a8a;
+    --text-muted: #665555;
+    --accent: #F59E0B;
+    --accent-light: #FBBF24;
+    --accent-glow: rgba(245, 158, 11, 0.12);
+    --accent-border: rgba(245, 158, 11, 0.25);
+    --border: rgba(255, 255, 255, 0.05);
+    --border-hover: rgba(245, 158, 11, 0.3);
+    --video-tag-bg: rgba(239, 68, 68, 0.15);
+    --video-tag-color: #F87171;
+    --video-tag-border: rgba(239, 68, 68, 0.3);
+    --article-tag-bg: rgba(59, 130, 246, 0.15);
+    --article-tag-color: #60A5FA;
+    --article-tag-border: rgba(59, 130, 246, 0.3);
+    --font-body: 'Space Grotesk', -apple-system, sans-serif;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: var(--font-body);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ── Header ── */
+.main-header {
+    text-align: center;
+    padding: 2.5rem 1.5rem 1.5rem;
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.main-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+    opacity: 0.5;
+}
+
+.main-header h1 {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+}
+
+.main-header .subtitle {
+    color: var(--text-secondary);
+    font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+    font-weight: 300;
+}
+
+/* ── Stats Bar ── */
+.stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1rem 1rem;
+    margin: 0 auto;
+    max-width: 700px;
+    flex-wrap: wrap;
+}
+
+.stat-item { text-align: center; min-width: 60px; }
+
+.stat-value {
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.stat-label {
+    font-size: clamp(0.65rem, 0.8vw, 0.75rem);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ── Search & Controls ── */
+.search-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(180deg, var(--bg-primary) 80%, transparent);
+    padding: 1rem 1.5rem 1rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.search-wrapper {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.75rem 1.2rem;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+    outline: none;
+    transition: all 0.2s var(--ease-out);
+}
+
+.search-input::placeholder { color: var(--text-muted); }
+
+.search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.search-btn {
+    padding: 0.75rem 1.6rem;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: #000;
+    font-size: 0.92rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.15s var(--ease-out);
+    white-space: nowrap;
+}
+
+.search-btn:hover {
+    background: var(--accent-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+}
+
+.search-btn:active {
+    transform: scale(0.97);
+}
+
+.search-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.controls-bar {
+    max-width: 640px;
+    margin: 0.6rem auto 0;
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.control-btn {
+    padding: 0.35rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.15s var(--ease-out);
+}
+
+.control-btn:hover {
+    border-color: var(--accent-border);
+    color: var(--accent-light);
+}
+
+.control-btn.active {
+    background: var(--accent-glow);
+    border-color: var(--accent-border);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.control-select {
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    padding-right: 1.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a8a8a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+}
+
+.control-select:focus { border-color: var(--accent-border); }
+
+.search-info {
+    margin-top: 0.5rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ── Results ── */
+.results-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0.5rem 1.5rem 2rem;
+}
+
+.results-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* ── Article Card ── */
+.article-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 0.9rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.15s var(--ease-out);
+    position: relative;
+}
+
+.article-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translateX(2px);
+}
+
+.article-card:active { transform: scale(0.995); }
+
+/* ── Card Avatar ── */
+.card-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    user-select: none;
+}
+
+.card-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Card Content ── */
+.card-content { flex: 1; min-width: 0; }
+
+.card-title {
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.9rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.card-meta .author {
+    color: var(--accent-light);
+    font-weight: 500;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-meta .metric {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    white-space: nowrap;
+}
+
+.card-meta .pub-time {
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+.type-tag {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+.type-tag.video {
+    background: var(--video-tag-bg);
+    color: var(--video-tag-color);
+    border: 1px solid var(--video-tag-border);
+}
+
+.type-tag.article {
+    background: var(--article-tag-bg);
+    color: var(--article-tag-color);
+    border: 1px solid var(--article-tag-border);
+}
+
+/* ── Status ── */
+.status-message {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.status-message.loading { color: var(--accent); }
+.status-message.error { color: #E74C3C; }
+.status-message.empty { color: var(--text-muted); }
+
+.loading-dots::after {
+    content: '';
+    animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+    0%   { content: ''; }
+    25%  { content: '.'; }
+    50%  { content: '..'; }
+    75%  { content: '...'; }
+    100% { content: ''; }
+}
+
+/* ── Load More ── */
+.load-more-bar {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 1rem 3rem;
+}
+
+.load-more-btn {
+    padding: 0.65rem 2.2rem;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.2s var(--ease-out);
+}
+
+.load-more-btn:hover {
+    border-color: var(--accent-border);
+    color: var(--accent);
+    background: var(--bg-card-hover);
+}
+
+.load-more-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ── Footer ── */
+.footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    border-top: 1px solid var(--border);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* ── Empty State ── */
+.empty-state {
+    display: none;
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-muted);
+}
+
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.empty-state .title { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.8rem; }
+.empty-state .tips { list-style: none; font-size: 0.8rem; margin: 1rem 0; }
+.empty-state .tips li { margin: 0.4rem 0; }
+.empty-state .tips li::before { content: '✦  '; color: var(--accent); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+    .main-header { padding: 1.8rem 1rem 1rem; }
+    .search-wrapper { flex-direction: column; }
+    .search-input { padding: 0.7rem 1rem; }
+    .controls-bar { justify-content: center; }
+    .article-card { padding: 0.75rem 0.8rem; gap: 0.7rem; }
+    .card-title { font-size: 0.85rem; }
+    .card-meta { font-size: 0.7rem; gap: 0.4rem 0.6rem; }
+    .card-meta .pub-time { margin-left: 0; }
+    .stats-bar { gap: 1.2rem; }
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.article-card { animation: fadeInUp 0.3s var(--ease-out) both; }
+.article-card:nth-child(1)  { animation-delay: 0.00s; }
+.article-card:nth-child(2)  { animation-delay: 0.03s; }
+.article-card:nth-child(3)  { animation-delay: 0.06s; }
+.article-card:nth-child(4)  { animation-delay: 0.09s; }
+.article-card:nth-child(5)  { animation-delay: 0.12s; }
+.article-card:nth-child(6)  { animation-delay: 0.15s; }
+.article-card:nth-child(7)  { animation-delay: 0.18s; }
+.article-card:nth-child(8)  { animation-delay: 0.21s; }
+.article-card:nth-child(9)  { animation-delay: 0.24s; }
+.article-card:nth-child(10) { animation-delay: 0.27s; }
+.article-card:nth-child(n+11) { animation-delay: 0.30s; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header class="main-header">
+    <h1>今日头条爆款查询</h1>
+    <p class="subtitle">{{DATE}} | 关键词搜索今日头条最新作品（图文/视频）</p>
+</header>
+
+<!-- ═══════════ STATS ═══════════ -->
+<div class="stats-bar" id="statsBar">
+    <div class="stat-item">
+        <div class="stat-value" id="statTotal">{{TOTAL_COUNT}}</div>
+        <div class="stat-label">结果总数</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="statKeyword">{{KEYWORD}}</div>
+        <div class="stat-label">当前关键词</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="statVideo">-</div>
+        <div class="stat-label">视频数量</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" id="statViews">-</div>
+        <div class="stat-label">总阅读量</div>
+    </div>
+</div>
+
+<!-- ═══════════ SEARCH & CONTROLS ═══════════ -->
+<div class="search-container">
+    <div class="search-wrapper">
+        <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="输入关键词搜索今日头条作品..."
+            value="{{KEYWORD}}"
+            autofocus
+        >
+        <button class="search-btn" id="searchBtn" onclick="doSearch()">🔍 搜索</button>
+    </div>
+    <div class="controls-bar" id="controlsBar">
+        <button class="control-btn" data-sort="time" onclick="setSort('time')">🕐 按时间</button>
+        <button class="control-btn active" data-sort="views" onclick="setSort('views')">🔥 按阅读量</button>
+        <span style="color:var(--text-muted);font-size:0.75rem;margin:0 0.3rem">|</span>
+        <button class="control-btn" data-filter="all" onclick="setFilter('all')">全部</button>
+        <button class="control-btn" data-filter="video" onclick="setFilter('video')">📹 视频</button>
+        <button class="control-btn" data-filter="article" onclick="setFilter('article')">📄 图文</button>
+        <select class="control-select" id="hoursFilter" onchange="setHoursFilter(this.value)">
+            <option value="0">不限时间</option>
+            <option value="6">最近 6 小时</option>
+            <option value="12">最近 12 小时</option>
+            <option value="24">最近 24 小时</option>
+            <option value="72">最近 3 天</option>
+        </select>
+    </div>
+    <div class="search-info" id="searchInfo">
+        输入关键词，点击搜索按钮或按 Enter 查询 | 点击作品跳转原文
+    </div>
+</div>
+
+<!-- ═══════════ RESULTS ═══════════ -->
+<main class="results-container">
+    <div class="results-grid" id="resultsGrid"></div>
+
+    <div class="status-message loading" id="statusMsg" style="display:none;">
+        <span class="loading-dots">搜索中</span>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+        <div class="icon">&#128269;</div>
+        <div class="title">暂无搜索结果</div>
+        <ul class="tips">
+            <li>尝试更短或更宽泛的关键词</li>
+            <li>放宽时间筛选范围</li>
+            <li>切换到「全部」类型</li>
+        </ul>
+    </div>
+
+    <div class="load-more-bar" id="loadMoreBar" style="display:none;">
+        <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">加载更多结果</button>
+    </div>
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+    Generated at {{TIMESTAMP}} by 今日头条爆款查询 Skill | Powered by redfox.hk
+</footer>
+
+<!-- ═══════════ SCRIPTS ═══════════ -->
+<script>
+// ─── 配置 ────────────────────────────────────────────────────────────────────
+const SEARCH_API = '{{SEARCH_API}}';
+const DETAIL_API = '{{DETAIL_API}}';
+const API_KEY = '{{API_KEY}}';
+const SOURCE = '{{SOURCE}}';
+const INITIAL_DATA = {{INITIAL_DATA}};
+
+// ─── 状态 ────────────────────────────────────────────────────────────────────
+let currentKeyword = '{{KEYWORD}}';
+let currentOffset = 0;
+let hasMore = true;
+let totalCount = {{TOTAL_COUNT}};
+let isLoading = false;
+let accumulatedItems = [];
+let currentSort = 'views';
+let currentFilter = 'all';   // all / video / article
+let currentHours = 0;
+
+// ─── DOM ─────────────────────────────────────────────────────────────────────
+const resultsGrid = document.getElementById('resultsGrid');
+const statusMsg = document.getElementById('statusMsg');
+const emptyState = document.getElementById('emptyState');
+const loadMoreBar = document.getElementById('loadMoreBar');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
+const searchInput = document.getElementById('searchInput');
+const searchInfo = document.getElementById('searchInfo');
+const statTotal = document.getElementById('statTotal');
+const statKeyword = document.getElementById('statKeyword');
+const statVideo = document.getElementById('statVideo');
+const statViews = document.getElementById('statViews');
+
+// ─── 工具 ─────────────────────────────────────────────────────────────────────
+function formatNum(n) {
+    if (n == null || n === undefined) return '0';
+    n = Number(n);
+    if (isNaN(n)) return '0';
+    if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+    return String(n);
+}
+
+function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+}
+
+function isVideo(e) {
+    return e.workType === true || e.hasVideo === true;
+}
+
+function getCoverUrl(e) {
+    if (e.imageList && e.imageList.length > 0) return e.imageList[0];
+    return '';
+}
+
+function getPubTime(e) {
+    return (e.publishTime || '').slice(0, 16);
+}
+
+// ─── 渲染卡片 ─────────────────────────────────────────────────────────────────
+function renderCard(item) {
+    const title = item.title || '无标题';
+    const author = item.authorName || '未知作者';
+    const views = formatNum(item.viewCount);
+    const likes = formatNum(item.likeCount);
+    const comments = formatNum(item.commentCount);
+    const reposts = formatNum(item.repostCount);
+    const shares = formatNum(item.shareCount);
+    const pubTime = getPubTime(item);
+    const url = item.workUrl || '#';
+    const cover = getCoverUrl(item);
+    const video = isVideo(item);
+    const tagClass = video ? 'video' : 'article';
+    const tagLabel = video ? '视频' : '图文';
+
+    const card = document.createElement('a');
+    card.className = 'article-card';
+    card.href = url;
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
+
+    let avatarHTML;
+    if (cover) {
+        avatarHTML = `<img src="${cover}" alt="" loading="lazy">`;
+    } else {
+        const ch = (title.replace(/[^\w\u4e00-\u9fff]/g, '').trim().charAt(0) || '头');
+        avatarHTML = escapeHTML(ch);
+    }
+
+    card.innerHTML = `
+        <div class="card-avatar">${avatarHTML}</div>
+        <div class="card-content">
+            <div class="card-title">${escapeHTML(title)}</div>
+            <div class="card-meta">
+                <span class="author" title="${escapeHTML(author)}">${escapeHTML(author)}</span>
+                <span class="type-tag ${tagClass}">${tagLabel}</span>
+                <span class="metric">👁 ${views}</span>
+                <span class="metric">👍 ${likes}</span>
+                <span class="metric">💬 ${comments}</span>
+                <span class="metric">🔄 ${reposts}</span>
+                <span class="metric">📤 ${shares}</span>
+                ${pubTime ? `<span class="pub-time">${pubTime}</span>` : ''}
+            </div>
+        </div>`;
+    return card;
+}
+
+// ─── 过滤 + 排序 ──────────────────────────────────────────────────────────────
+function applyFilters(items) {
+    let filtered = items;
+    if (currentFilter === 'video') {
+        filtered = filtered.filter(e => isVideo(e));
+    } else if (currentFilter === 'article') {
+        filtered = filtered.filter(e => !isVideo(e));
+    }
+    if (currentHours > 0) {
+        const cutoff = Date.now() - currentHours * 3600 * 1000;
+        filtered = filtered.filter(e => {
+            const ts = parseInt(e.publishTs || 0) * 1000;
+            return ts >= cutoff;
+        });
+    }
+    return filtered;
+}
+
+function applySort(items) {
+    const sorted = [...items];
+    if (currentSort === 'views') {
+        sorted.sort((a, b) => (Number(b.viewCount) || 0) - (Number(a.viewCount) || 0));
+    } else {
+        sorted.sort((a, b) => (Number(b.publishTs) || 0) - (Number(a.publishTs) || 0));
+    }
+    return sorted;
+}
+
+// ─── 渲染列表 ─────────────────────────────────────────────────────────────────
+function renderList() {
+    const filtered = applyFilters(accumulatedItems);
+    const sorted = applySort(filtered);
+    resultsGrid.innerHTML = '';
+    sorted.forEach(item => resultsGrid.appendChild(renderCard(item)));
+
+    // Stats
+    const videoCount = filtered.filter(e => isVideo(e)).length;
+    const totalViews = filtered.reduce((s, e) => s + (Number(e.viewCount) || 0), 0);
+    statTotal.textContent = filtered.length;
+    statKeyword.textContent = currentKeyword || '-';
+    statVideo.textContent = videoCount;
+    statViews.textContent = formatNum(totalViews);
+
+    // Empty state
+    emptyState.style.display = sorted.length === 0 ? 'block' : 'none';
+    loadMoreBar.style.display = (hasMore && sorted.length > 0) ? 'flex' : 'none';
+}
+
+// ─── 控件 ─────────────────────────────────────────────────────────────────────
+function setSort(sort) {
+    currentSort = sort;
+    document.querySelectorAll('[data-sort]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.sort === sort);
+    });
+    renderList();
+    searchInfo.textContent = `按${sort === 'views' ? '阅读量' : '时间'}排序 · 共 ${accumulatedItems.length} 条`;
+}
+
+function setFilter(filter) {
+    currentFilter = filter;
+    document.querySelectorAll('[data-filter]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+    });
+    renderList();
+}
+
+function setHoursFilter(hours) {
+    currentHours = parseInt(hours) || 0;
+    renderList();
+}
+
+// ─── API 调用 ─────────────────────────────────────────────────────────────────
+function fetchSearch(keyword, offset) {
+    return fetch('/api/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword, offset: String(offset) }),
+    })
+    .then(r => {
+        if (!r.ok) throw new Error('网络请求失败 (' + r.status + ')');
+        return r.json();
+    })
+    .then(res => {
+        if ([200, 2000].includes(res.code) && Array.isArray(res.data) && res.data.length > 0) {
+            const data = res.data;
+            const hasNext = data[0].hasNext === true;
+            return { items: data, hasNext };
+        } else if ([200, 2000].includes(res.code) && Array.isArray(res.data) && res.data.length === 0) {
+            return { items: [], hasNext: false };
+        } else {
+            throw new Error(res.msg || '搜索无结果，请换个关键词试试');
+        }
+    });
+}
+
+function fetchDetail(opusId) {
+    return fetch('/api/detail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ opusId: String(opusId) }),
+    })
+    .then(r => r.json())
+    .then(res => {
+        if ([200, 2000].includes(res.code)) return res.data;
+        return null;
+    })
+    .catch(() => null);
+}
+
+async function fetchDetailsBatch(items) {
+    const opusIds = items.map(i => i.opusId).filter(Boolean);
+    const results = await Promise.all(opusIds.map(id => fetchDetail(id)));
+    const detailMap = {};
+    results.forEach(d => { if (d && d.workId) detailMap[d.workId] = d; });
+    return items.map(item => {
+        const d = detailMap[item.opusId] || {};
+        return {
+            opusId: item.opusId,
+            title: d.title || item.title || '无标题',
+            authorName: d.authorName || item.nickname || '未知作者',
+            publishTime: d.publishTime || new Date(parseInt(item.publishTime || 0) * 1000).toISOString().replace('T', ' ').slice(0, 19),
+            publishTs: item.publishTime || '',
+            workType: d.workType || false,
+            hasVideo: d.hasVideo || false,
+            workUrl: d.workUrl || item.opusUrl || '',
+            viewCount: d.viewCount || 0,
+            likeCount: d.likeCount || 0,
+            commentCount: d.commentCount || item.commentNum || 0,
+            repostCount: d.repostCount || 0,
+            shareCount: d.shareCount || 0,
+            imageList: d.imageList || [],
+            content: d.content || '',
+        };
+    });
+}
+
+// ─── 搜索流程 ─────────────────────────────────────────────────────────────────
+function setLoading(loading) {
+    isLoading = loading;
+    statusMsg.style.display = loading ? 'block' : 'none';
+    if (loading) {
+        statusMsg.className = 'status-message loading';
+        statusMsg.innerHTML = '<span class="loading-dots">搜索中</span>';
+    }
+    emptyState.style.display = 'none';
+    loadMoreBtn.disabled = loading;
+    const searchBtn = document.getElementById('searchBtn');
+    if (searchBtn) searchBtn.disabled = loading;
+}
+
+async function doSearch() {
+    if (isLoading) return;
+    const kw = searchInput.value.trim();
+    if (!kw) {
+        showEmpty();
+        return;
+    }
+
+    currentKeyword = kw;
+    currentOffset = 0;
+    hasMore = true;
+    totalCount = 0;
+    accumulatedItems = [];
+    resultsGrid.innerHTML = '';
+    setLoading(true);
+
+    try {
+        const { items, hasNext } = await fetchSearch(kw, 0);
+        if (!items || items.length === 0) {
+            showEmpty();
+            return;
+        }
+        hasMore = hasNext;
+        currentOffset = 1;
+        searchInfo.textContent = `正在获取作品详情...`;
+        const detailed = await fetchDetailsBatch(items);
+        accumulatedItems = detailed;
+        renderList();
+        setLoading(false);
+        searchInfo.textContent = `关键词「${kw}」· 共 ${detailed.length} 条结果（按阅读量排序）`;
+    } catch (err) {
+        setLoading(false);
+        statusMsg.className = 'status-message error';
+        statusMsg.style.display = 'block';
+        const msg = (err.message && err.message !== 'Failed to fetch')
+            ? err.message
+            : '网络异常，请检查连接后重试';
+        statusMsg.textContent = '⚠️ 搜索失败：' + msg;
+    }
+}
+
+async function loadMore() {
+    if (isLoading || !hasMore) return;
+    setLoading(true);
+
+    try {
+        const { items, hasNext } = await fetchSearch(currentKeyword, currentOffset);
+        if (!items || items.length === 0) {
+            hasMore = false;
+            setLoading(false);
+            renderList();
+            return;
+        }
+        hasMore = hasNext;
+        currentOffset += 1;
+        const detailed = await fetchDetailsBatch(items);
+        accumulatedItems = accumulatedItems.concat(detailed);
+        renderList();
+        setLoading(false);
+        searchInfo.textContent = `关键词「${currentKeyword}」· 共 ${accumulatedItems.length} 条结果（按阅读量排序）`;
+    } catch (err) {
+        setLoading(false);
+        const msg = (err.message && err.message !== 'Failed to fetch')
+            ? err.message
+            : '网络异常，请稍后重试';
+        searchInfo.textContent = '⚠️ 加载失败：' + msg;
+    }
+}
+
+function showEmpty() {
+    resultsGrid.innerHTML = '';
+    statusMsg.style.display = 'none';
+    emptyState.style.display = 'block';
+    loadMoreBar.style.display = 'none';
+    statTotal.textContent = '0';
+    statVideo.textContent = '-';
+    statViews.textContent = '-';
+}
+
+// ─── 键盘 Enter 搜索（不自动触发，需点击按钮或按 Enter）───────────────────────────
+searchInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        doSearch();
+    }
+});
+
+// ─── 初始化 ───────────────────────────────────────────────────────────────────
+function init() {
+    if (INITIAL_DATA && INITIAL_DATA.length > 0) {
+        accumulatedItems = INITIAL_DATA;
+        totalCount = INITIAL_DATA.length;
+        // 默认按阅读量排序（已在 HTML 中预设 active 类）
+        renderList();
+        searchInfo.textContent = `共 ${INITIAL_DATA.length} 条结果（按阅读量排序）| 输入新关键词点击搜索`;
+    } else {
+        showEmpty();
+        searchInfo.textContent = '输入关键词，点击搜索按钮或按 Enter 开始查询';
+    }
+}
+
+init();
+</script>
+
+</body>
+</html>
