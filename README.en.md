@@ -44,7 +44,7 @@ description: One sentence on when to use the skill and what it does (be specific
 
 Optional folders such as `references/`, `scripts/`, and `assets/` may sit next to `SKILL.md`; keep each skill self-contained and use relative paths.
 
-## RedFoxHub homepage
+## RedFox homepage
 
 <p align="center">
   <a href="https://redfox.hk/?source=github">
@@ -118,12 +118,14 @@ https://clawhub.ai/user/redfox-data
   </a>
 </p>
 
-### What's included
+### What's in the API docs
 
+- Request header reference
 - Request parameter reference
-- Response field reference
-- Error code reference
-- Usage examples
+- Response values and data structure reference
+- Request examples
+- Response examples
+- Common status code reference
 
 ### API catalog
 
