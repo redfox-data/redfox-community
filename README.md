@@ -208,10 +208,6 @@ npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/
 3. 确保 `SKILL.md` 可独立理解、步骤可执行、依赖与风险有说明
 4. 发起 Pull Request，并在描述中简要说明变更动机与适用场景
 
-## 许可证
-
-如无特殊说明，默认采用 **[MIT](LICENSE)**（或在此处写明你实际选择的许可证）。若某技能含第三方素材或不同许可证，请在该技能目录内单独注明。
-
 ---
 
 **redfoxdata** — 将可重复的新媒体工作流沉淀为可分享、可演进的 Agent 技能。
