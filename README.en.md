@@ -52,14 +52,6 @@ Optional folders such as `references/`, `scripts/`, and `assets/` may sit next t
   </a>
 </p>
 
-## A rich library of skills
-
-<p align="center">
-  <a href="https://redfox.hk/skills?source=github">
-    <img src="https://lyy.redfox.hk/page/redfox-page-2.png" alt="RedFox Logo" width="100%">
-  </a>
-</p>
-
 ## Authentication
 
 All API requests require a valid API KEY.
@@ -67,6 +59,14 @@ All API requests require a valid API KEY.
 ### Get your key
 
 Visit [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) to obtain an API KEY.
+
+## A rich library of skills
+
+<p align="center">
+  <a href="https://redfox.hk/skills?source=github">
+    <img src="https://lyy.redfox.hk/page/redfox-page-2.png" alt="RedFox Logo" width="100%">
+  </a>
+</p>
 
 ### How to use skills
 
