@@ -9,7 +9,7 @@ Write AI video prompts with a director's mindset and generate MP4 videos instant
 **Core Value**
 
 - **Prompts as cinematography instructions**: Every word is executable—no more "very sci-fi" or "moody feeling" ambiguity, AI accurately reproduces your vision
-- **Write + shoot in one flow**: Call the video generation API right after finishing your prompt, auto-polling and downloading 4-15s 1080p videos without switching tools
+- **Write + shoot in one flow**: Call the video generation API right after finishing your prompt, automatically generating and downloading 4-15s HD videos without switching tools
 - **Diagnosable issues**: 20+ common problems like face swapping, chaotic camera movement, and poor image quality come with concrete fix suggestions
 
 **Intended Users**
@@ -29,7 +29,7 @@ Write AI video prompts with a director's mindset and generate MP4 videos instant
 - **Golden formula validation**: Automatically check whether the five elements—subject + action + scene + style + mood—are complete
 - **Effect diagnosis and repair**: Provide specific fix operations for common issues like character inconsistency, chaotic camera movement, and stiff motion
 - **8 scenario templates**: Nature landscapes, city nightscapes, character close-ups, product showcases, pet healing, sci-fi epics, food close-ups, and animation style
-- **One-click video generation**: Generate MP4 videos directly via Seedance 2.0 API after writing prompts, supporting multiple aspect ratios and resolutions
+- **One-click video generation**: Generate MP4 videos directly after writing prompts, supporting multiple aspect ratios and resolutions
 
 ---
 
@@ -55,7 +55,7 @@ Simply describe the video you want in natural language, and the skill will trans
 | New prompt | "Write me a cyberpunk city night video prompt" | Build a complete prompt layer by layer with professional methodology |
 | Effect diagnosis | "The characters keep face-swapping in my video, how to fix" | Diagnose the issue and provide a concrete fix |
 | Use template | "Give me a product showcase prompt template" | Output a ready-to-use template for the matching scenario |
-| Generate video | "Generate a video with this prompt, 16:9, 8 seconds, 1080p" | Call the API to produce and download the video directly |
+| Generate video | "Generate a video with this prompt, 16:9, 8 seconds, 1080p" | Produce and download the video directly |
 
 ### Output Example
 

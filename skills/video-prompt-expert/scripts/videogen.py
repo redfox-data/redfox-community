@@ -11,6 +11,7 @@ Usage:
 import argparse
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -19,10 +20,12 @@ import requests
 
 SUBMIT_URL = "https://redfox.hk/story/api/parseWork/videoGen/submit"
 RESULT_URL = "https://redfox.hk/story/api/parseWork/videoGen/result"
+RECORD_URL = "https://redfox.hk/story/api/skill/record/save"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
 SOURCE = "视频生成提示词专家-GitHub"
+VIDEO_SOURCE = "视频生成提示词专家-视频生成-GitHub"
 DEFAULT_MODEL = "doubao-seedance-2-0-260128"
 
 POLL_INTERVAL = 10  # seconds
@@ -52,13 +55,58 @@ def step(msg):
     print(f"{CYAN}[→]{RESET} {msg}")
 
 
+def read_shell_config():
+    """Read API key from shell config files or Windows user environment variables."""
+    if sys.platform == "win32":
+        # Windows: read user-level persistent environment variable from registry
+        try:
+            import winreg
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r"Environment",
+                0,
+                winreg.KEY_READ,
+            )
+            value, _ = winreg.QueryValueEx(key, ENV_KEY)
+            winreg.CloseKey(key)
+            if value:
+                return value
+        except (FileNotFoundError, OSError):
+            pass
+    else:
+        # macOS/Linux: parse export REDFOX_API_KEY=xxx from shell rc files
+        rc_files = [
+            Path.home() / ".zshrc",
+            Path.home() / ".bashrc",
+            Path.home() / ".bash_profile",
+            Path.home() / ".profile",
+        ]
+        pattern = re.compile(
+            r'^\s*export\s+' + re.escape(ENV_KEY) + r'=["\']?([^"\'\s#]+)["\']?',
+            re.MULTILINE,
+        )
+        for rc in rc_files:
+            if rc.exists():
+                try:
+                    content = rc.read_text(encoding="utf-8", errors="ignore")
+                    m = pattern.search(content)
+                    if m:
+                        return m.group(1)
+                except OSError:
+                    continue
+    return None
+
+
 def get_api_key(cli_key=None):
-    """Get API key: CLI arg > env var > config file."""
+    """Get API key: CLI arg > env var > shell config > qoder config file."""
     if cli_key:
         return cli_key
     env_key = os.environ.get(ENV_KEY)
     if env_key:
         return env_key
+    shell_key = read_shell_config()
+    if shell_key:
+        return shell_key
     if CONFIG_FILE.exists():
         try:
             data = json.loads(CONFIG_FILE.read_text())
@@ -68,6 +116,17 @@ def get_api_key(cli_key=None):
         except (json.JSONDecodeError, OSError):
             pass
     return None
+
+
+def save_record(session, api_key):
+    """Record skill usage to server (fire-and-forget, silent on failure)."""
+    try:
+        session.post(RECORD_URL, json={
+            "apiKey": api_key,
+            "source": SOURCE,
+        }, timeout=5)
+    except Exception:
+        pass
 
 
 def confirm_retry():
@@ -94,7 +153,7 @@ def submit_video_task(session, prompt, params, image_url=None):
     payload = {
         "content": content,
         "model": DEFAULT_MODEL,
-        "source": SOURCE,
+        "source": VIDEO_SOURCE,
         "resolution": params["resolution"],
         "ratio": params["ratio"],
         "duration": params["duration"],
@@ -119,7 +178,7 @@ def submit_video_task(session, prompt, params, image_url=None):
     msg = result.get("msg", "")
 
     if not str(code).startswith("2"):
-        error(f"Submit failed (code {code}): {msg}")
+        error(f"{msg}")
         return None
 
     data = result.get("data")
@@ -252,7 +311,7 @@ Examples:
   python3 videogen.py "ignored" --task-id vg_abc123def456
         """,
     )
-    parser.add_argument("prompt", help="视频生成提示词（中英文均可）")
+    parser.add_argument("prompt", nargs='?', default='', help="视频生成提示词（中英文均可）")
     parser.add_argument("--resolution", default="720p", choices=["480p", "720p", "1080p"],
                         help="视频分辨率 (默认 720p)")
     parser.add_argument("--ratio", default="16:9",
@@ -276,6 +335,8 @@ Examples:
     parser.add_argument("--no-download", action="store_true",
                         help="仅提交任务并返回 taskId，不等待结果")
     parser.add_argument("--task-id", help="直接查询已有任务的结果 (跳过提交)")
+    parser.add_argument("--record-only", action="store_true",
+                        help="仅记录本次使用，不生成视频")
 
     args = parser.parse_args()
 
@@ -302,6 +363,11 @@ Examples:
         "Content-Type": "application/json",
         "X-API-KEY": api_key,
     })
+
+    # ── Mode: Record only (no video generation) ──
+    if args.record_only:
+        save_record(session, api_key)
+        sys.exit(0)
 
     # ── Mode: Query existing task ──
     if args.task_id:
@@ -392,6 +458,7 @@ Examples:
         sys.exit(0)
 
     # Poll for result
+    save_record(session, api_key)
     step("Waiting for video generation (may take several minutes)...")
     result = poll_video_result(session, task_id)
     if not result:
