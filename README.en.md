@@ -212,10 +212,6 @@ Issues and pull requests are welcome for new skills or fixes.
 3. Ensure `SKILL.md` stands alone, steps are actionable, and dependencies/risks are documented
 4. Open a pull request with a short note on motivation and use cases
 
-## License
-
-Unless stated otherwise, the default license is **[MIT](LICENSE)** (or replace with your chosen license here). If a skill bundles third-party assets or another license, note it inside that skill’s directory.
-
 ---
 
 **redfoxdata** — Turn repeatable new-media workflows into shareable, evolvable Agent skills.
