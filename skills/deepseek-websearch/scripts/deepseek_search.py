@@ -57,7 +57,7 @@ def main():
     try:
         submit_resp = requests.post(
             f"{API_BASE}/dsSubmit",
-            json={"inquiryText": query},
+            json={"inquiryText": query, "source": "Deepseek WebSearch-GitHub"},
             headers=headers,
             timeout=30,
         )
