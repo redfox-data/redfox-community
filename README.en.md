@@ -79,7 +79,19 @@ Copy the skill folder you need into your client’s skills directory (e.g. Curso
 Tell your agent (openclaw / workbuddy / qoder):
 
 ```bash
-help me install this skill: https://github.com/redfox-data/redfox-community/tree/main/skills/seedance-video-gen
+Please help me check and install the following Agent Skill in the current workspace.
+
+Skill: Xiaohongshu Latest Hot Notes / xiaohongshu-realtime-search
+Source: https://github.com/redfox-data/redfox-community/tree/main/skills/xiaohongshu-realtime-search
+
+Please follow these steps in order:
+1. Check whether this Skill is already installed in the project
+2. Visit the GitHub URL above, read SKILL.md / README, and confirm installation steps and dependencies
+3. If not installed: install the Skill to the appropriate directory for this project (prefer reusing existing skills paths)
+4. If already installed: compare with the remote version, update as needed, and explain any changes
+5. When done, report: installation path, how to trigger this Skill, and a brief usage example
+
+If network access is limited, try git clone or curl; ask me first if anything is ambiguous or conflicts arise.
 ```
 
 #### skills cli
