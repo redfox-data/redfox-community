@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://redfox.hk/?source=github">
+    <img src="https://lyy.redfox.hk/page/logo-redfox-name.png" alt="RedFox Logo" width="200">
+  </a>
+</p>
+
 <p align="right">
   <a href="https://github.com/redfox-data/redfox-community/blob/main/README.md">中文</a>
   English
@@ -38,37 +44,59 @@ description: One sentence on when to use the skill and what it does (be specific
 
 Optional folders such as `references/`, `scripts/`, and `assets/` may sit next to `SKILL.md`; keep each skill self-contained and use relative paths.
 
-## How to use
+## RedFoxHub homepage
 
-请前往 [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) get API KEY
+<p align="center">
+  <a href="https://redfox.hk/?source=github">
+    <img src="https://lyy.redfox.hk/page/redfox-page-3.png" alt="RedFox Logo" width="100%">
+  </a>
+</p>
 
-### Local / Cursor
+## A rich library of skills
+
+<p align="center">
+  <a href="https://redfox.hk/skills?source=github">
+    <img src="https://lyy.redfox.hk/page/redfox-page-2.png" alt="RedFox Logo" width="100%">
+  </a>
+</p>
+
+## Authentication
+
+All API requests require a valid API KEY.
+
+### Get your key
+
+Visit [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) to obtain an API KEY.
+
+### How to use skills
+
+#### Local / Cursor
 
 Copy the skill folder you need into your client’s skills directory (e.g. Cursor user skills or project `.cursor/skills/`—follow your client’s docs), or point the client’s “Add skill” flow at that subdirectory.
 
-### For Agent
+#### For Agent
 
-tell Agent（openclaw/workbuddy/qoder）：
+Tell your agent (openclaw / workbuddy / qoder):
 
 ```bash
-help me install this skill：https://github.com/redfox-data/redfox-community/tree/main/skills/seedance-video-gen
+help me install this skill: https://github.com/redfox-data/redfox-community/tree/main/skills/seedance-video-gen
 ```
 
-### skills cli
+#### skills cli
 
 Run the following in an interactive terminal (you can copy as-is):
 
 ```bash
 npx skills init // install skills cli
 
-npx skills add redfox-data/redfox-community // Search the entire warehouse and select skill for installation.
+npx skills add redfox-data/redfox-community // browse the redfox repo and select a skill to install
 
-npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/seedance-video-gen // install specific skill
+npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/seedance-video-gen // install a specific skill
 ```
 
 Follow the prompts to install skills into a specific agent folder or globally.
 
-### SkillHub
+#### SkillHub
 
 Open SkillHub and install by searching for the **Chinese display name** of the skill under `skills/`:
 
@@ -76,11 +104,85 @@ https://skillhub.cn/skills
 
 **Search examples:** `公众号爆款文章查询` or `抖音每日最具影响力账号`
 
-### ClawHub (`clawhub`)
+#### ClawHub (`clawhub`)
 
 Browse and install from the official redfox-data profile on ClawHub:
 
 https://clawhub.ai/user/redfox-data
+
+## Multi-platform API docs
+
+<p align="center">
+  <a href="https://redfox.hk/apis?source=github">
+    <img src="https://lyy.redfox.hk/page/redfox-page-1.png" alt="RedFox Logo" width="100%">
+  </a>
+</p>
+
+### What's included
+
+- Request parameter reference
+- Response field reference
+- Error code reference
+- Usage examples
+
+### API catalog
+
+#### Douyin
+
+- [Get Douyin content details (Premium)](https://redfox.hk/apis/douyin/0OT1E306)
+- [Get Douyin account info (Premium)](https://redfox.hk/apis/douyin/XUT4CECZ)
+- [Search Douyin accounts by keyword (Premium)](https://redfox.hk/apis/douyin/P5CHB3BZ)
+- [Search Douyin content by keyword (Premium)](https://redfox.hk/apis/douyin/774OBKK0)
+- [Get Douyin account content list (Premium)](https://redfox.hk/apis/douyin/QEQLCKD6)
+- [Search Douyin AI content by keyword (Premium)](https://redfox.hk/apis/douyin/I8P3HTVH)
+
+#### Xiaohongshu (RED)
+
+- [Get Xiaohongshu account info (Premium)](https://redfox.hk/apis/xiaohongshu/4IVIDHEN)
+- [Get Xiaohongshu content details (Premium)](https://redfox.hk/apis/xiaohongshu/KR1LPTBF)
+- [Search Xiaohongshu accounts by keyword (Premium)](https://redfox.hk/apis/xiaohongshu/439NFLBD)
+- [Search Xiaohongshu content by keyword (Premium)](https://redfox.hk/apis/xiaohongshu/384C6W6B)
+- [Search Xiaohongshu AI content by keyword (Premium)](https://redfox.hk/apis/xiaohongshu/047JJ3UA)
+
+#### WeChat Official Accounts
+
+- [Get WeChat account info (Premium)](https://redfox.hk/apis/gongzhonghao/6C4A77XR)
+- [Get WeChat article by content UUID (Premium)](https://redfox.hk/apis/gongzhonghao/XEO0QQNF)
+- [Search WeChat accounts by keyword (Premium)](https://redfox.hk/apis/gongzhonghao/DNVPQZEZ)
+- [Search WeChat articles by keyword (Premium)](https://redfox.hk/apis/gongzhonghao/PW97QFBS)
+- [Get WeChat account article list (Premium)](https://redfox.hk/apis/gongzhonghao/XNV30XZ3)
+- [Get WeChat article by URL (Premium)](https://redfox.hk/apis/gongzhonghao/VUTTKTP6)
+- [Search WeChat AI-generated articles by keyword (Premium)](https://redfox.hk/apis/gongzhonghao/IE0887SO)
+
+#### Bilibili
+
+- [Get Bilibili content details (Premium)](https://redfox.hk/apis/bilibili/TIN1NMTZ)
+- [Get Bilibili account info (Premium)](https://redfox.hk/apis/bilibili/EH53TOT7)
+- [Search Bilibili accounts by keyword (Premium)](https://redfox.hk/apis/bilibili/ZXJLJQ21)
+- [Search Bilibili content by keyword (Premium)](https://redfox.hk/apis/bilibili/LEN9QXR3)
+- [Get Bilibili account content list (Premium)](https://redfox.hk/apis/bilibili/VPA67I98)
+
+#### TikTok
+
+- [Search TikTok accounts by keyword](https://redfox.hk/apis/tool-tiktok/20070019)
+
+#### AI search
+
+- [Doubao text search](https://redfox.hk/apis/tool-ai-search/I9R9LIDL)
+- [DeepSeek text search](https://redfox.hk/apis/tool-ai-search/KGX4SDXQ)
+
+#### AI tools
+
+- [GPT image generation](https://redfox.hk/apis/tool/HUV4KRFQ)
+- [Doubao image generation](https://redfox.hk/apis/tool/7OM96HCF)
+- [Doubao video generation](https://redfox.hk/apis/tool/ER2ATHKI)
+- [Upload image](https://redfox.hk/apis/tool/FXDGJO1V)
+- [Upload video / image / audio](https://redfox.hk/apis/tool/6L178PZD)
+- [Short video downloader](https://redfox.hk/apis/tool/AWUTFI4V)
+
+#### More platform APIs
+
+- [Coming soon](https://redfox.hk/apis)
 
 ## Contributing
 
