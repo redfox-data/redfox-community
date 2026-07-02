@@ -4,21 +4,21 @@
 
 ## Overview
 
-Give it all of an author's articles, and get back a writing clone that **thinks the same way and writes the same way**.
+Analyze an author's body of work to generate a dedicated writing clone that faithfully replicates both their thinking patterns and writing style.
 
-This isn't about making articles "sound human" — it's about making them "**sound like that specific person**" — from thought patterns to written expression, a full replication.
+Unlike generic style imitation — the clone stays consistent with the original author in perspective, reasoning logic, and writing rhythm, not just vocabulary and sentence structure.
 
 **Core Value**
 
-- **Thought-level cloning**: Goes beyond vocabulary and sentence patterns to extract the author's values, worldview, and thinking habits — so every article from the clone reads like the original author wrote it
-- **Multi-platform auto-collection**: Supports one-click content retrieval from Xiaohongshu, WeChat Official Accounts, and Douyin — no manual copy-pasting needed
-- **14 writing formulas, switch freely**: The same clone can write pain-point articles with PAS, stories with SCAR, tutorials with QUEST — style stays, format flexes
+- **Thought-level replication**: Goes beyond vocabulary and sentence patterns — extracts the author's values and thinking habits so every piece from the clone reads like the original author wrote it
+- **Multi-platform auto-collection**: Xiaohongshu, WeChat Official Accounts, Douyin — enter an account and articles are fetched automatically, no manual preparation needed
+- **14 writing formulas, switch freely**: Same clone, different formats — pain-point articles, stories, tutorials, style stays, format adapts
 
-**Intended Users**
+**Who It's For**
 
-- ✍️ **Content creators** — Want to replicate a favorite author's writing ability and produce same-style content at scale
-- 📊 **Brand / ops teams** — Need consistent voice across content matrices with efficient output
-- 🔍 **Style researchers** — Want to decode why someone's writing is so distinctive
+- ✍️ **Content creators** — Admire a certain author's style and want to replicate it at scale
+- 📊 **Brand / ops teams** — Need consistent voice across content matrices with reliable output
+- 🔍 **Style researchers** — Want to decode why someone's writing is instantly recognizable
 
 ---
 
@@ -26,28 +26,26 @@ This isn't about making articles "sound human" — it's about making them "**sou
 
 ### Core Capabilities
 
-- **🧠 Dual-engine distillation**: Simultaneously analyzes "how they think" and "how they write," then cross-validates to generate a dedicated clone — any topic, still reads like them
-- **🔍 Dual verification system**: Every output runs through writing fingerprint check + thought consistency check — only passes when both confirm
-- **📝 14 writing formulas**: Built-in PAS, QUEST, SCAR, AIDA and more — style stays, format switches
-- **📕📱🎵 Multi-platform collection**: Auto-fetches articles from Xiaohongshu, WeChat Official Accounts, and Douyin — or paste text / provide file paths
-- **🔄 Incremental clone updates**: Author published new articles? Update the clone incrementally — no need to start over
+- **🧠 Deep style replication**: Analyzes both "how they think" and "how they write" to generate a clone consistent from thought to text
+- **🔍 Dual quality checks**: Every output passes writing style match + thought consistency checks before delivery
+- **📝 14 writing formulas**: Built-in PAS, QUEST, SCAR and more — style stays, format adapts
+- **📕📱🎵 Multi-platform collection**: Auto-fetches from Xiaohongshu, WeChat Official Accounts, Douyin — or paste text / provide file paths
+- **🔄 Incremental clone updates**: Author published new articles? Update the clone — no need to start over
 
 ---
 
-## API Key Acquisition & Security
+## API Key Setup
 
-- This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`)
-- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain `REDFOX_API_KEY`.
-- Configure `REDFOX_API_KEY` on your device before using this skill.
-- Before providing your key, confirm its source, scope, validity period, and whether it can be reset or revoked.
-- Do not hard-code or expose keys in plain text in code, prompts, logs, or output files.
+- This skill requires the environment variable `REDFOX_API_KEY`
+- Register at [RedFoxHub](https://redfox.hk?source=github) and get your key from the [API Keys page](https://redfox.hk/settings/api-keys?source=github)
+- Configure `REDFOX_API_KEY` on your device and you're ready to go
+- Note: Do not expose your key in plain text in conversations, code, or files
 
 ---
 
 ## Usage Guide
 
-Simply describe your needs in natural language — no commands to memorize.
+Simply describe what you need — no commands to memorize.
 
 ### Quick Reference
 
@@ -62,7 +60,7 @@ Simply describe your needs in natural language — no commands to memorize.
 
 - Minimum: ≥3 articles, total ≥2,000 characters
 - Ideal: ≥10 articles, total ≥10,000 characters
-- More articles = more accurate results; 10+ articles for best effect
+- More articles = more accurate replication
 
 ---
 
@@ -70,7 +68,7 @@ Simply describe your needs in natural language — no commands to memorize.
 
 | Scenario | Role | Example question | Benefit |
 |----------|------|-----------------|----------|
-| Clone a favorite author | Content creator | "Distill XX's writing style — I want to write like them" | Get a dedicated writing clone, use anytime |
+| Replicate a favorite author | Content creator | "Distill XX's writing style — I want to write like them" | Get a dedicated writing clone, use anytime |
 | Batch same-style content | Ops team | "Make me a writing clone for batch-producing same-style articles" | Consistent voice, efficient output |
 | Analyze writing distinctiveness | Researcher | "Analyze why XX's writing is so recognizable" | Get a multi-dimensional style report |
 | Cross-platform material | Brand team | "Collect XX's articles from both Xiaohongshu and WeChat for a complete clone" | Cross-platform merge, more comprehensive clone |
