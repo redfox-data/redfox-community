@@ -38,8 +38,8 @@ Automatically scans Bilibili AI-related videos every day, discovers trending con
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Visit [RedFoxHub](https://redfox.hk?souce=github) to register an account and obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Visit [RedFoxHub](https://redfox.hk?source=github) to register an account and obtain your `REDFOX_API_KEY`.
 - Configure the device environment variable `REDFOX_API_KEY` before using this skill.
 - Before providing your key, confirm the key source, scope of use, validity period, and whether reset/revocation is supported.
 - Never hard-code or expose the key in plain text in code, prompts, logs, or output files.

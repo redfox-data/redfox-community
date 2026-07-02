@@ -44,8 +44,8 @@ A cross-platform content globalization feed that scans trending works daily acro
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Please register at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Please register at [RedFoxHub](https://redfox.hk?source=github) to obtain your `REDFOX_API_KEY`.
 - Configure the device environment variable `REDFOX_API_KEY` before using this skill.
 - Before providing the key, verify its source, scope of use, validity period, and whether it supports reset/revocation.
 - Do not hardcode or expose the key in plain text within code, prompts, logs, or output files.

@@ -45,8 +45,8 @@ Daily scanning of trending Xiaohongshu short drama content, filtering popular po
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Please visit [RedFoxHub](https://redfox.hk?souce=github) to register and obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Please visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
 - Configure the environment variable `REDFOX_API_KEY` on your device before using this skill.
 - Before providing your key, verify its source, available scope, validity period, and whether reset/revocation is supported.
 - Do not hardcode or expose the key in plaintext within code, prompts, logs, or output files.

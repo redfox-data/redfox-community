@@ -45,8 +45,8 @@ Short Drama - Douyin Feed is a Douyin trending content tracking tool designed fo
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Please sign up at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Please sign up at [RedFoxHub](https://redfox.hk?source=github) to obtain your `REDFOX_API_KEY`.
 - Configure the environment variable `REDFOX_API_KEY` on your device before using this skill.
 - Before providing an API key, verify its source, applicable scope, validity period, and whether it supports reset/revocation.
 - Never hardcode or expose API keys in plaintext within code, prompts, logs, or output files.

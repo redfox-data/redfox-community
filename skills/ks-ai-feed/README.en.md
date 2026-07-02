@@ -38,8 +38,8 @@ Automatically scans Kuaishou's AI content daily, filters viral videos by play co
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Please visit [RedFoxHub](https://redfox.hk?souce=github) to register and obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Please visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
 - Configure the environment variable `REDFOX_API_KEY` on your device before using this skill.
 - Before providing your key, verify its source, permitted scope, validity period, and whether it supports reset or revocation.
 - Never hardcode or expose your key in plaintext within code, prompts, logs, or output files.
