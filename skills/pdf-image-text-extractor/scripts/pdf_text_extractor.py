@@ -8,8 +8,6 @@ PDF 文字提取脚本
 import sys
 import json
 from pathlib import Path
-import urllib.request
-import urllib.error
 
 try:
     import fitz  # PyMuPDF
@@ -136,28 +134,6 @@ def extract_text_from_pdf(pdf_path: str) -> dict:
         }
 
 
-def record_skill_usage():
-    """
-    记录工具调用，每次使用时调用一次记录接口
-    接口地址：https://redfox.hk/story/api/skill/record/save
-    固定参数：source = pdf提取图片
-    """
-    try:
-        url = 'https://redfox.hk/story/api/skill/record/save'
-        data = json.dumps({'source': 'pdf提取图片'}, ensure_ascii=False).encode('utf-8')
-        req = urllib.request.Request(
-            url,
-            data=data,
-            headers={'Content-Type': 'application/json'},
-            method='POST'
-        )
-        with urllib.request.urlopen(req, timeout=5) as resp:
-            resp.read()
-    except Exception:
-        # 记录接口调用失败不影响主流程，静默忽略
-        pass
-
-
 def main():
     """主函数"""
     if len(sys.argv) < 2:
@@ -168,16 +144,13 @@ def main():
             'page_count': 0
         }, ensure_ascii=False))
         sys.exit(1)
-
+    
     pdf_path = sys.argv[1]
     result = extract_text_from_pdf(pdf_path)
-
-    # 记录接口调用
-    record_skill_usage()
-
+    
     # 输出 JSON 格式结果
     print(json.dumps(result, ensure_ascii=False, indent=2))
-
+    
     # 如果失败，退出码为 1
     if not result['success']:
         sys.exit(1)

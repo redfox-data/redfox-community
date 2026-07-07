@@ -2,57 +2,74 @@
 
 ---
 
-## Introduction
+## Overview
 
-Recognize and extract text from images or PDF documents. Supports multiple image formats and PDF files, automatically detects text presence, preserves original formatting, and outputs structured results.
+Upload an image or PDF and automatically recognize and extract text content, preserving the original structure and layout for clear, readable output.
 
 **Core Value**
 
-- **Dual Format Coverage**: Supports both images (PNG, JPG, GIF, WebP, etc.) and PDF documents — one tool for both scenarios.
-- **Format Preservation**: Maintains original paragraph structure, heading hierarchy, and layout order during extraction, minimizing rework.
-- **Flexible Output**: View extracted results directly or save as a Markdown file — choose what works for you.
+- **Instant recognition**: Upload an image or PDF—no extra steps needed, text extraction happens automatically.
+- **Format preservation**: Paragraph structure and heading hierarchy are retained wherever possible, so results are ready to use.
+- **Broad format support**: Covers common image formats including PNG, JPG, JPEG, GIF, WebP, BMP, and PDF documents.
 
-**Who It's For**
+**Intended Users**
 
-- 📄 **Office Workers** — Quickly extract editable text from scans and screenshots, eliminating manual transcription.
-- 🎓 **Students / Researchers** — Extract text from PDF papers and course materials for easy citation and organization.
-- 💼 **Content Creators** — Pull text from image assets and convert to editable copy for further editing.
+- 📄 **Office workers** — Quickly extract text from scanned documents, contracts, and reports—no more manual retyping.
+- 📚 **Students / researchers** — Pull content from academic PDFs for easier note-taking and citation.
+- ✍️ **Content creators** — Grab text references from image assets to speed up your workflow.
 
 ---
 
 ## Features
 
-### Core Features
+### Core Capabilities
 
-- **Image Text Recognition**: Upload an image and automatically detect and extract all text content — titles, body text, annotations, watermarks — while preserving the original layout.
-- **PDF Text Extraction**: Extract text from all pages of text-based PDFs, retaining paragraph structure and heading hierarchy, output in Markdown format.
-- **Text Presence Detection**: Automatically determines whether an image or page contains extractable text and promptly informs you when none is found.
-- **Multi-language Support**: Recognizes text in Chinese, English, and other languages.
-- **Scanned PDF Detection**: When a PDF page is a scanned image, alerts you that direct extraction is unavailable and suggests OCR processing.
-- **Result Saving**: Extracted results can be saved as a `.md` file on demand, including source, extraction status, and text content.
+- **Image text extraction**: Upload an image to recognize all text within it—titles, body text, annotations, and more.
+- **PDF text extraction**: Automatically parses text from PDF pages, processing multi-page documents in one pass.
+- **Format preservation**: Retains original paragraph structure and heading levels as much as possible, reducing post-extraction cleanup.
+- **Structured output**: Results are presented in clean Markdown format for easy copying or exporting.
 
 ---
 
 ## Usage Guide
 
-Simply describe your need in natural language and upload an image or PDF — no commands to memorize.
+Simply describe what you need in natural language—no commands to memorize.
 
 ### Quick Reference
 
-| Intent                    | Example Phrase                                      | Result                                                                |
-| ------------------------- | --------------------------------------------------- | --------------------------------------------------------------------- |
-| Extract image text        | "Extract the text from this image"                  | Recognizes all text in the image, preserving original layout          |
-| Extract PDF text          | "Extract the text from this PDF"                    | Extracts text page by page, retaining paragraphs and heading levels  |
-| Extract and save          | "Extract the text from this PDF and save it"        | Extracts text and generates a `.md` file                             |
-| Handle scanned PDF        | "Read the text from this scanned document"          | Detects scanned pages and alerts you; extracts from text-based pages |
+| Intent                     | Example phrase                               | Result                                                       |
+| -------------------------- | -------------------------------------------- | ------------------------------------------------------------ |
+| Extract text from an image | Upload an image and say "extract the text"   | Automatically recognizes and outputs all text in the image   |
+| Extract text from a PDF    | Upload a PDF and say "convert this PDF to text" | Parses all pages and outputs with paragraph structure preserved |
+| Save extraction results    | "Save the extracted text"                    | Generates a Markdown file for later use                      |
+
+### Output Example
+
+After extraction, you'll see content similar to this:
+
+```markdown
+## Page 1
+
+All the entanglements we've been through
+And the regrets we've carried
+None of it is meaningless
+
+---
+
+## Page 2
+
+...
+```
+
+Multi-page PDFs are separated by `---` between pages for easy navigation.
 
 ---
 
 ## Use Cases
 
-| Scenario                      | Role                   | Example Phrase                                      | Benefit                                                              |
-| ----------------------------- | ---------------------- | --------------------------------------------------- | -------------------------------------------------------------------- |
-| Image text to editable copy   | Office Worker          | "There's text in this screenshot, extract it"       | Skip manual typing, get editable text quickly                        |
-| PDF paper excerpt             | Student / Researcher   | "Extract the text from this PDF paper"              | Preserve original structure for easy citation and organization       |
-| Scanned document content      | Admin / Finance        | "Can you read the text from this scan?"             | Auto-detect scanned pages; extract from text-based pages normally   |
-| Asset text re-purposing       | Content Creator        | "Convert the copy in this image to text"            | Quickly get text assets for re-editing and publishing                |
+| Scenario              | Role              | Example question                                  | Benefit                                                     |
+| --------------------- | ----------------- | ------------------------------------------------- | ----------------------------------------------------------- |
+| Document digitization | Office worker     | "Turn this contract PDF into text"                | Skip manual retyping and digitize documents in seconds      |
+| Literature review     | Student/researcher | "Extract the content from this paper PDF"        | Makes note-taking, citation, and searching easier           |
+| Image to text         | Content creator   | "Recognize the text in this screenshot"           | Quickly grab reference copy to speed up content creation    |
+| Archive management    | Individual user   | "Extract text from this scanned document"         | Digitize paper files for easy searching and management      |
