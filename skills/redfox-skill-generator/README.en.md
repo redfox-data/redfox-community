@@ -10,7 +10,7 @@ Quickly create complete Skill file packages that meet RedFox standards from scra
 
 - **Describe it, get it**: Use everyday language to describe what you want—no need to know any spec details or technical terms. The generator understands and outputs a ready-to-use Skill.
 - **API docs as input**: Drop in your API documentation as-is. Parameters and calling conventions are automatically parsed into ready-to-use integration instructions.
-- **One-shot delivery**: Get a complete Skill file package in one go, with automatic quality validation—ready to use immediately.
+- **One-shot delivery**: Get a complete Skill file package in one go, with automatic validation—ready to use immediately.
 
 **Intended Users**
 
@@ -81,7 +81,7 @@ Describe your needs in natural language—no commands to memorize.
 | Create from scratch | "Create a RedFox Skill for scraping Douyin comments" | Complete file package generated |
 | Provide API docs | "Here's the API documentation, generate a RedFox Skill" | API parsed, integration docs included |
 | Specify a scenario | "Build me a data-collection type RedFox Skill" | Scenario-matched quick generation |
-| Quality check | "Check if this SKILL.md meets RedFox standards" | Run quality checklist |
+| Quality check | "Check if this SKILL.md meets RedFox standards" | Auto-validate Skill structure compliance |
 | Optimize existing | "Help me improve this RedFox Skill's description" | Rewrite per RedFox guidelines |
 
 ### Usage Example
@@ -100,7 +100,7 @@ Describe your needs in natural language—no commands to memorize.
 
 **Step 3: One-click generation**
 
-> Assistant: ✅ RedFox Skill generated! All files created, API integration specs written in, and quality checks all passed.
+> Assistant: ✅ RedFox Skill generated! All files created, API integration specs written in, and validation all passed.
 
 ---
 

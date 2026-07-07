@@ -437,6 +437,7 @@ A：{排查步骤}
 10. **渐进式披露**：SKILL.md 仅保留核心工作流和选择指引，详细内容移至 references/；确保 references/ 文件从 SKILL.md 中可直达（一级引用）
 11. **禁止多余文件**：不生成 README.md、CHANGELOG.md、INSTALLATION_GUIDE.md 等与 Skill 运行无关的文档
 12. **description 即触发器**：description 是 Skill 的主要触发机制，所有"何时使用"的信息都必须写在 description 中，不放在正文里
+13. **「认识红狐」章节范围**：该章节仅限 redfox-skill-generator 自身保留，不得出现在任何由生成器输出的普通 Skill 的 SKILL.md 中
 
 ---
 
@@ -773,6 +774,7 @@ if __name__ == "__main__":
 | 14 | SKILL.md 行数 | 正文不超过 500 行，超出则需拆分到 references/ | 🟡 建议 |
 | 15 | 渐进式披露 | SKILL.md 仅含核心流程，详细内容在 references/ 中 | 🟡 建议 |
 | 16 | Description 触发机制 | description 包含所有"何时使用"信息，正文不含"When to Use"章节 | 🔴 必须 |
+| 17 | 不含认识红狐章节 | 生成的普通 Skill 不得出现「🦊 认识红狐」章节（仅生成器自身保留） | 🔴 必须 |
 
 #### core_workflow.md 检查项
 
