@@ -18,6 +18,44 @@ Quickly create complete Skill file packages that meet RedFox standards from scra
 - 📊 **Ops / Product** — Create custom Skills without coding knowledge. Just describe what you need.
 - 🏢 **Tech Leads** — Standardize team Skill quality. Every output is consistent and spec-compliant.
 
+## 🦊 Meet RedFox
+
+### What is RedFox?
+
+[RedFox](https://redfox.hk/) is a new media data platform built for developers. It turns content data from Douyin, Xiaohongshu, WeChat Official Accounts, Video Accounts, Kuaishou, Weibo, Toutiao, and more into standardized APIs—one API Key gives you access to self-media data across the entire web.
+
+Beyond data APIs, RedFox also has a [Skills Marketplace](https://redfox.hk/skills) with 70+ ready-to-use intelligent analysis skills covering content creation, data collection, hot topic tracking, and more. Download and use instantly, compatible with Codex, Claude Code, and other AI Agent platforms.
+
+### What is the RedFox Standard?
+
+The RedFox Standard is a set of rules that make Skills consistent, professional, and easy to use. It defines the structure and writing conventions for every Skill, ensuring that Skills written by different people are compatible and ready to use out of the box. Three core things:
+
+- **Unified file structure**: A complete Skill consists of SKILL.md (skill description) + scripts/ (executables) + references/ (reference docs)—clear and organized at a glance
+- **Consistent writing standards**: YAML frontmatter with name and description, body organized by standard sections—easy for anyone to understand
+- **Standardized API integration**: Unified API Key acquisition, request format, and error handling—lowers the barrier to entry
+
+The benefit of following the RedFox Standard: you don't need to figure out how to write from scratch—just follow the standard; others who receive your Skill will know exactly how to use it, making team collaboration smoother.
+
+### How to Create Your Own Skill?
+
+**Step 1: Visit the RedFox website**
+
+Open [redfox.hk](https://redfox.hk/) and sign up for an account. After signing up, go to your dashboard and get your personal API Key from the [API Key page](https://redfox.hk/settings/api-keys).
+
+**Step 2: Figure out what you need**
+
+Think about what your Skill should do—scrape data from a platform? Auto-generate daily reports? Analyze account performance? Write down your requirement in one sentence.
+
+**Step 3: Generate with this tool in one click**
+
+Tell me your requirements and API info, and I'll automatically generate a complete, RedFox-compliant Skill package for you. Just drop the generated files into your Agent's Skills directory and you're good to go.
+
+**Step 4: Use it in your Agent**
+
+Place the generated Skill folder into the Skills directory of your AI Agent (e.g., Codex, Claude Code), configure your API Key, restart, and you can call your Skill directly in conversations.
+
+> 💡 If you're new to RedFox, we recommend browsing the [Skills Marketplace](https://redfox.hk/skills) to see what others have built for inspiration. You can also check out RedFox's official [Quick Start Guide](https://redfox.hk/quick-start).
+
 ---
 
 ## Features
