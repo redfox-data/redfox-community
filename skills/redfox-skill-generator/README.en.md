@@ -29,7 +29,6 @@ Quickly create complete Skill file packages that meet RedFox standards from scra
 - **Intelligent solution matching**: Automatically choose the best file organization based on your needs
 - **Comprehensive resource planning**: Automatically analyze and arrange required scripts and documents
 - **Ready-to-use delivery**: Output a complete, usable Skill package in one shot—no extra polish needed
-- **Ready-to-use delivery**: Output a complete, usable Skill package in one shot—no extra polish needed
 
 ---
 

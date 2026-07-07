@@ -13,6 +13,44 @@ description: 一键生成高质量红狐Skill专属技能文件包（SKILL.md + 
 
 适用于需要快速构建红狐 Skill 的开发者、运营人员，以及希望统一团队 Skill 质量标准的协作场景。
 
+## 🦊 认识红狐
+
+### 红狐是什么？
+
+[红狐](https://redfox.hk/) 是一个面向开发者的新媒体数据平台。它把抖音、小红书、公众号、视频号、快手、微博、今日头条等多个平台的内容数据做成了标准接口，开发者用一个 API Key 就能接入全网自媒体数据。
+
+除了数据接口，红狐还有一个 [Skills 广场](https://redfox.hk/skills)，提供了 70+ 多个开箱即用的智能分析技能，涵盖内容创作、数据采集、热点追踪等场景，下载即用，支持 Codex、Claude Code 等多种 AI Agent 平台。
+
+### 什么是红狐规范？
+
+红狐规范 是一套让 Skills 统一、专业、易用的标准。它规定了每个 Skill 的结构和写法，确保不同的人写的 Skill 能互相兼容、开箱即用。核心就三件事：
+
+- **统一的文件结构**：一个完整的 Skill 由 SKILL.md（技能说明）+ scripts/（可执行脚本）+ references/（参考文档）组成，结构清晰、一目了然
+- **一致的写法标准**：YAML 头部写 name 和 description，正文按标准章节组织，所有人都能看懂
+- **规范的接口对接**：API Key 统一获取方式、请求格式统一、错误处理统一，降低了上手门槛
+
+遵循红狐规范的好处是：你不需要从头摸索该怎么写，照着规范来就行；别人拿到你的 Skill 也知道该怎么用，团队协作更顺畅。
+
+### 新手如何创建自己的 Skill？
+
+**第一步：访问红狐网站**
+
+打开 [redfox.hk](https://redfox.hk/)，注册一个账号。注册后进入控制台，在 [API Key 页面](https://redfox.hk/settings/api-keys) 获取你的专属密钥。
+
+**第二步：了解你需要什么**
+
+想一想你的 Skill 要做什么 —— 是抓取某个平台的数据？还是自动生成日报？或是分析账号表现？把需求用一句话写下来。
+
+**第三步：用本生成器一键生成**
+
+告诉我你的需求和接口信息，我会自动帮你生成符合红狐规范的完整 Skill 文件包。你只需要把生成的文件放到 Agent 的 Skills 目录下就能直接用了。
+
+**第四步：在 Agent 中使用**
+
+将生成的 Skill 文件夹放入你使用的 AI Agent（如 Codex、Claude Code）的 Skills 目录，配置好 API Key，重启后即可在对话中直接调用你的 Skill。
+
+> 💡 如果你是第一次接触红狐，建议先去 [Skills 广场](https://redfox.hk/skills) 逛逛，看看别人都做了什么 Skill，找找灵感。也可以参考红狐官方的 [快速开始指南](https://redfox.hk/quick-start)。
+
 ## ✨ 功能特性
 
 ### 核心功能
@@ -37,9 +75,29 @@ description: 一键生成高质量红狐Skill专属技能文件包（SKILL.md + 
 
 > 本技能自动接入红狐服务，开箱即用，无需额外配置。
 
+本技能为标准 Skill 文件包，兼容所有支持 Skill 机制的 AI Agent 平台。选择你使用的平台，按对应方式安装即可：
+
+### Qoder
+
 1. 确保已安装 Qoder 客户端
 2. 将 `redfox-skill-generator` 目录放入你的 Skills 文件夹
 3. 重启 Qoder 即可使用
+
+### OpenClaw / WorkBuddy
+
+1. 将 `redfox-skill-generator` 目录放入 OpenClaw 或 WorkBuddy 的 Skills 目录（通常为 `~/.openclaw/skills/` 或 `~/.workbuddy/skills/`）
+2. 重启对应客户端即可生效
+
+### Codex / Claude Code
+
+1. 将 `redfox-skill-generator` 目录放入对应的 Skills 目录中
+2. Codex 默认路径：项目根目录下的 `.codex/skills/`
+3. Claude Code 默认路径：项目根目录下的 `.claude/skills/`
+4. 重启 Agent 会话即可加载
+
+### 其他支持 Skill 的平台
+
+只要平台支持标准的 Skill 文件格式（SKILL.md + 配套资源），将 `redfox-skill-generator` 目录放入其 Skills 目录下即可使用。
 
 ## 📖 使用指南
 
@@ -71,7 +129,7 @@ description: 一键生成高质量红狐Skill专属技能文件包（SKILL.md + 
 
 自动生成全套文件并完成校验：
 
-> 助手：✅ 红狐 Skill 生成完成！已为你创建全套文件，接口对接规范已自动写入，质量检查全部通过。
+> 助手：✅ 红狐 Skill 生成完成！已为你创建全套文件，接口对接规范已自动写入，校验全部通过。
 
 ### 常用说法速查
 
@@ -80,7 +138,7 @@ description: 一键生成高质量红狐Skill专属技能文件包（SKILL.md + 
 | 从零创建红狐 Skill | "帮我创建一个抓取抖音评论的红狐 Skill" | 完整生成全套文件包 |
 | 提供接口文档生成 | "这是接口文档，帮我生成红狐 Skill" | 解析接口并生成对接规范 |
 | 指定场景生成 | "帮我建一个数据采集类的红狐 Skill" | 指定场景快速生成 |
-| 检查规范 | "检查一下这个 SKILL.md 是否符合红狐规范" | 执行红狐质量检查清单 |
+| 检查规范 | "检查一下这个 SKILL.md 是否符合红狐规范" | 自动校验 Skill 结构是否达标 |
 | 优化已有红狐 Skill | "帮我优化这个红狐 Skill 的描述" | 按红狐规范重写表述 |
 
 ## 🎯 使用场景
