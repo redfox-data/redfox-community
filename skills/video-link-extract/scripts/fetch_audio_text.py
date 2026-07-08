@@ -233,53 +233,22 @@ def extract_text(video_url: str) -> dict:
         }
 
 
-def batch_extract(urls: list) -> list:
-    """
-    批量提取多个视频链接的文案
-    返回每个链接的结果列表
-    """
-    results = []
-    total = len(urls)
-
-    for idx, url in enumerate(urls, 1):
-        print(f"\n--- 处理第 {idx}/{total} 个链接 ---")
-        result = extract_text(url.strip())
-        result["url"] = url
-        results.append(result)
-
-    # 汇总
-    success_count = sum(1 for r in results if r.get("success"))
-    print(f"\n--- 批量提取完成：成功 {success_count}/{total}，失败 {total - success_count}/{total} ---")
-
-    return results
-
-
-# ============================================================
-# 命令行入口
-# ============================================================
-
 def main():
     if len(sys.argv) < 2:
-        print("用法：")
-        print("  单链接：python fetch_audio_text.py <视频链接>")
-        print("  多链接：python fetch_audio_text.py <链接1> <链接2> ...")
+        print("用法：python fetch_audio_text.py <视频链接>")
         print()
         print("示例：")
         print('  python fetch_audio_text.py "https://v.douyin.com/xxxxxx/"')
         sys.exit(1)
 
-    urls = sys.argv[1:]
-
-    if len(urls) == 1:
-        result = extract_text(urls[0])
-        if result.get("success"):
-            print("\n完整文案：")
-            print(result["text"])
-            print("\n每句详情展示：")
-            for i, s in enumerate(result["stamp_sents"], 1):
-                print(f"  {i}. [{s['start_fmt']} - {s['end_fmt']}] {s['text']}")
-    else:
-        batch_extract(urls)
+    video_url = sys.argv[1]
+    result = extract_text(video_url)
+    if result.get("success"):
+        print("\n完整文案：")
+        print(result["text"])
+        print("\n每句详情展示：")
+        for i, s in enumerate(result["stamp_sents"], 1):
+            print(f"  {i}. [{s['start_fmt']} - {s['end_fmt']}] {s['text']}")
 
 
 if __name__ == "__main__":

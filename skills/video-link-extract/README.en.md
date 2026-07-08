@@ -29,7 +29,6 @@ Just drop a video link and get every word spoken in it. Whether it's lines from 
 - **Speech-to-text**: Intelligently transcribes video speech with stable output even in noisy environments or with regional accents, achieving over 95% accuracy.
 - **Sentence-level timestamps**: Every sentence comes with precise start and end times for quick navigation to any moment in the video.
 - **Automatic progress tracking**: No manual refresh needed after submission—the system polls automatically and returns results as soon as processing completes.
-- **Batch processing**: Submit multiple links at once; each is processed sequentially with a summary of all results.
 
 ### Highlights
 
@@ -62,7 +61,6 @@ Simply describe your needs in natural language—no commands to memorize.
 | Extract video text | "Extract the text from this Douyin video for me" | Paste the link and get the full transcript automatically |
 | Get timestamped subtitles | "Extract the text from this video with timestamps" | Output each sentence with start/end times, ready for subtitling |
 | Analyze video scripts | "Analyze what this viral video is saying" | Get the full transcript for script structure analysis |
-| Batch extraction | "Extract text from all these video links" | Process multiple links sequentially, returning results one by one |
 
 ### Output Example
 
@@ -85,6 +83,5 @@ After submitting a link, you'll receive three parts:
 | Viral breakdown | Content remix creator | "Extract the text from this viral video—I want to analyze its scripting" | Quickly get the full transcript and break down hooks and pacing sentence by sentence |
 | Competitive script analysis | Operations / scriptwriter | "Extract the competitor's video text to see how they pitch selling points" | Build reusable content frameworks and improve your own scripts |
 | Subtitle material extraction | Video editor | "Export this video's subtitles with timecodes for me" | Millisecond timestamps ready for editing software, no manual transcription |
-| Batch content archiving | Content team | "Extract text from all these links" | Submit multiple links at once with batch output for easy organization and retrieval |
 
 ---
