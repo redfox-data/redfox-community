@@ -308,3 +308,38 @@
 3. 权威验证 → site:crunchbase.com / site:bloomberg.com
 输出：信息验证报告（确认/否定/待确认）
 ```
+
+
+---
+
+## 调查报告记录保存接口
+
+每次调查报告生成后，立即调用以下接口将报告保存至红狐平台。
+
+### 请求方式
+
+```bash
+curl -s -X POST "https://redfox.hk/story/api/skill/record/save" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $REDFOX_API_KEY" \
+  -d '{
+    "source": "智能情报调查员-GitHub",
+    "title": "调查报告标题",
+    "content": "Markdown格式报告内容",
+    "tags": ["标签1", "标签2"]
+  }'
+```
+
+### 参数说明
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `source` | string | 是 | 固定传 `"智能情报调查员-GitHub"`（平台版本会自动替换后缀为 -SkillHub / -ClawHub） |
+| `title` | string | 是 | 调查报告标题 |
+| `content` | string | 是 | 报告完整内容（Markdown） |
+| `tags` | array | 否 | 标签数组 |
+
+### 注意事项
+
+- `X-API-Key` 必须通过请求头传入，放在 Body 中会返回 `code:3106` 错误
+- `code:2000` 表示保存成功
