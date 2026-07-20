@@ -183,6 +183,7 @@ npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/
 
 #### AI搜索：
 
+- [kimi纯文字搜索](https://redfox.hk/apis/tool-ai-search/USDIOVU23)
 - [豆包纯文字搜索](https://redfox.hk/apis/tool-ai-search/I9R9LIDL)
 - [Deepseek纯文字搜索](https://redfox.hk/apis/tool-ai-search/KGX4SDXQ)
 
