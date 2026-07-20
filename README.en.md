@@ -187,6 +187,7 @@ https://clawhub.ai/user/redfox-data
 
 #### AI search
 
+- [Kimi text search](https://redfox.hk/apis/tool-ai-search/USDIOVU23)
 - [Doubao text search](https://redfox.hk/apis/tool-ai-search/I9R9LIDL)
 - [DeepSeek text search](https://redfox.hk/apis/tool-ai-search/KGX4SDXQ)
 
