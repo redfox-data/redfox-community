@@ -81,3 +81,7 @@ After diagnosis you will receive a fixed five-section report:
 | Competitor benchmarking   | New-media operator | "Analyze account 'XX', check its data performance"            | Understand competitor tactics, draw on successful patterns, refine your own strategy |
 | MCN batch evaluation      | MCN agency         | "Compare account A and account B"                             | Data-driven signing decisions, quantified commercial value                           |
 | Content strategy planning | Content planner    | "Based on the diagnosis, what should I adjust in my content?" | Evidence-based content planning, improved overall operational efficiency             |
+
+---
+
+> 💼 RedFox's comprehensive database provides complete and detailed data. For procurement inquiries, visit RedFoxHub [Enterprise Services](https://redfox.hk/dashboard/enterprise) for consultation.

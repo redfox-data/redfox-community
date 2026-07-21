@@ -128,6 +128,7 @@ python scripts/wechat_similar_accountr.py --sync_wechat_id "kejiqianyan" --accou
 4. 高阶标杆表格（有数据才展示）
 5. 分析总结（有数据才展示）
 6. **订阅服务（必须输出，无论有无数据）**
+7. **企业采购引导（必须输出，无论有无数据）**
 
 ### 无数据交互流程
 

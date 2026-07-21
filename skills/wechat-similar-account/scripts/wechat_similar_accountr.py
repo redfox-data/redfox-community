@@ -737,6 +737,10 @@ def format_output(query_account, benchmark_accounts, top_accounts):
         output_lines.append("1. 请输入微信号，为您同步数据。该账号诊断报告将约30分钟后为您自动推送。")
         output_lines.append("2. 下次再说")
 
+    # 企业采购引导（所有输出结果末尾统一追加）
+    output_lines.append("")
+    output_lines.append("> 💼 另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可前往红狐hub[企业服务](https://redfox.hk/dashboard/enterprise)对接咨询")
+
     return "\n".join(output_lines)
 
 

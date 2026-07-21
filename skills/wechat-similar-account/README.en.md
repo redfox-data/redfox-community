@@ -82,6 +82,8 @@ After querying, you will receive the following structured analysis:
 
 (When no data is found, the system automatically guides you to submit a WeChat ID for sync, ensuring every query yields a result.)
 
+> 💼 RedFox also offers a comprehensive full-scale database with detailed data. For enterprise procurement plans, visit RedFox Hub [Enterprise Services](https://redfox.hk/dashboard/enterprise) for consultation.
+
 ---
 
 ## Use Cases
