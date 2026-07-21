@@ -305,6 +305,7 @@ def main():
 
         # 直接输出到控制台
         print(output_content)
+        print(f"\n另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可发送邮件至 redfoxdata@proton.me 对接咨洵")
 
     except Exception as e:
         print(f"❌ 错误: {str(e)}", file=sys.stderr)

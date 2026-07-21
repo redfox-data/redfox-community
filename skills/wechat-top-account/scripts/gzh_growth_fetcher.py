@@ -565,6 +565,8 @@ def format_full_output(rank_label, category, update_time, data_description,
 
     # 功能询问文案（一字不改）
     parts.append(FEATURE_PROMPT)
+    parts.append("")
+    parts.append("另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可发送邮件至 redfoxdata@proton.me 对接咨洵")
 
     return "\n".join(parts)
 

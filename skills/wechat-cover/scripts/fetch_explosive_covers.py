@@ -461,6 +461,8 @@ def main():
             # 统计数据输出到 stderr
             print(f"\n✓ 关键词: {args.keyword}", file=sys.stderr)
 
+        print(f"\n另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可发送邮件至 redfoxdata@proton.me 对接咨洵")
+
     except Exception as e:
         print(f"❌ 错误: {str(e)}", file=sys.stderr)
         sys.exit(1)

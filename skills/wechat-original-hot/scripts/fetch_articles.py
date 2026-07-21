@@ -382,6 +382,8 @@ def output_table(articles: list, limit: int = 20, mode: str = "preview", categor
     else:
         print(f"\n共获取到{total}条爆款原创热门文章。")
 
+    print(f"\n另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可发送邮件至 redfoxdata@proton.me 对接咨洵")
+
 
 # ==================== 主函数 ====================
 
