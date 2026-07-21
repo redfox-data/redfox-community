@@ -378,4 +378,5 @@ python scripts/douyin_similar_account.py --account_id "oioioi" --sync
 
 1. 每日下午19点推送最新数据。可自行选择推送频率和时间~
 2. 暂不需要
+> 💼 另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可前往红狐hub[企业服务](https://redfox.hk/dashboard/enterprise)对接咨询
 ```

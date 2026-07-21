@@ -104,5 +104,6 @@ After querying, you will receive the following structured analysis:
 - Engagement rates exceeding 100% are flagged as data anomalies and will not be output.
 - Recommendation reasons follow an 8-level dimension standard; when the queried account's RedFox Index is 0, a "Learning Points Summary" mode is used instead.
 - When an account cannot be found, submit the Douyin ID for data indexing; a diagnostic report will be auto-pushed in about 30 minutes.
+> 💼 另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可前往红狐hub[企业服务](https://redfox.hk/dashboard/enterprise)对接咨询
 
 ---

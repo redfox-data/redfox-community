@@ -96,5 +96,6 @@ After diagnosis, you will receive a scoring breakdown followed by a full diagnos
 | Influencer partnership evaluation | Brand marketing manager | "Diagnose Douyin account Liangtian, check partnership value" | Replace intuition with data for science-based evaluation |
 | Managed creator monitoring | MCN operator | "Help me analyze our managed creators' Douyin accounts" | Spot problem accounts early, improve management efficiency |
 | Self-account optimization | Douyin creator / operator | "Analyze my Douyin ID, see what needs improvement" | Identify optimization directions, boost account performance |
+> 💼 另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可前往红狐hub[企业服务](https://redfox.hk/dashboard/enterprise)对接咨询
 
 ---

@@ -100,5 +100,6 @@ After querying, you will receive the following structured results:
 - Douyin nicknames are not unique; nickname queries may return fuzzy matches—use Douyin ID for precise lookup.
 - Unlisted accounts can be submitted for indexing; data auto-syncs in about 30 minutes.
 - All data comes exclusively from the data platform; no third-party supplementation or estimation.
+> 💼 另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可前往红狐hub[企业服务](https://redfox.hk/dashboard/enterprise)对接咨询
 
 ---
