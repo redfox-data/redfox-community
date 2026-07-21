@@ -700,6 +700,8 @@ def main():
             f.write(html)
         print(f"HTML文件已生成: {filename}")
 
+    print(f"\n另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可发送邮件至 redfoxdata@proton.me 对接咨洵")
+
 
 if __name__ == "__main__":
     main()

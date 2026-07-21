@@ -441,6 +441,7 @@ def main():
         print("\n============================================================")
         print("\n共获取到 0 条10w+热门文章数据")
         print("💡 建议：尝试调整分类关键词或时间范围")
+        print(f"\n另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可发送邮件至 redfoxdata@proton.me 对接咨洵")
         return
 
     # 处理和排序数据
@@ -504,6 +505,8 @@ def main():
         if total_count < 10:
             category_name = args.type if args.type != "总排名" else "综合"
             print(f"\n💡 {category_name}赛道10w+文章较少，您可以拓展过去30天或者看看综合10w+文章~")
+
+    print(f"\n另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可发送邮件至 redfoxdata@proton.me 对接咨洵")
 
 
 if __name__ == "__main__":
