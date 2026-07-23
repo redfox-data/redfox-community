@@ -45,15 +45,15 @@ echo '{"api_key":"ak_xxxx"}' > ~/.qoder/apis/redfox.json
 
 > ⚠️ **关键规则**：用户说"文旅爆款"/"文旅抖音"时，"文旅"是 Skill 触发信号而非搜索词，keyword **必须传空字符串 `""`**（即 `--keyword ""`），让接口返回全量文旅内容。只有当用户明确指定了具体景区/城市/主题时，才将对应词作为 keyword 传入。
 
-若用户未提及时间，不传 `--start-time` 和 `--end-time`（接口返回默认数据）。
+若用户未提及时间，脚本会自动根据当前小时判断：≥17点查昨天数据，<17点查前天数据。
 
 完整参数：
 
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `--keyword` | 搜索关键词（可选） | `""` |
-| `--start-time` | 起始日期 YYYY-MM-DD | 空 |
-| `--end-time` | 结束日期 YYYY-MM-DD | 空 |
+| `--start-time` | 起始日期 YYYY-MM-DD | 自动计算 |
+| `--end-time` | 结束日期 YYYY-MM-DD | 自动计算 |
 | `--output-dir` | HTML 输出目录 | `~/Downloads/QoderReports` |
 | `--api-key` | 指定 API Key | 环境变量 |
 | `--subscribe` / `--unsubscribe` | 订阅/取消每日推送 | — |

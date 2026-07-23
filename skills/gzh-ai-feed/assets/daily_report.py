@@ -18,7 +18,7 @@ import subprocess
 import sys
 import time
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
@@ -822,10 +822,19 @@ Examples:
         "X-API-KEY": api_key,
     })
 
+    # ── 计算有效日期 ──
+    today = datetime.now()
+    if args.date == today.strftime("%Y-%m-%d"):
+        if today.hour >= 16:
+            args.date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
+        else:
+            args.date = (today - timedelta(days=2)).strftime("%Y-%m-%d")
+    step(f"数据日期: {args.date}")
+
     # ── 获取文章 ──
     keywords = [k.strip() for k in args.keywords.split(",") if k.strip()]
     step(f"扫描热门内容，关键词: {keywords}")
-    step(f"目标: {args.count} 条, 日期: {args.date}")
+    step(f"目标: {args.count} 条")
     print()
 
     articles = fetch_articles(session, keywords, args.count)
@@ -845,7 +854,8 @@ Examples:
     for c in clusters[:10]:
         print(f"    {c['category']}: {c['count']} 篇")
 
-    # ── 终端表格展示 ──
+    # ── 终端表格 ──
+    print(f"{CYAN}📌 数据说明：每日16点更新前一天数据{RESET}\n")
     print_article_table(clusters)
 
     # ── 生成报告 ──

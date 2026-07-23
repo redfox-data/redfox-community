@@ -78,14 +78,18 @@ def get_api_key():
 
 
 # ─── 数据获取 ──────────────────────────────────────────────────────────────────────
-def fetch_articles(session, keyword, page_size):
-    """单次调用接口获取作品数据，返回实际获取的作品列表（不支持时间过滤）"""
+def fetch_articles(session, keyword, page_size, start_time=None, end_time=None):
+    """单次调用接口获取作品数据，返回实际获取的作品列表"""
     payload = {
         "keyword": keyword,
         "pageNum": 1,
         "pageSize": page_size,
         "source": SOURCE,
     }
+    if start_time:
+        payload["startTime"] = start_time
+    if end_time:
+        payload["endTime"] = end_time
     print(f"\r  {CYAN}[→]{RESET} 请求中: keyword=\"{keyword}\", pageSize={page_size}", end="", flush=True)
 
     try:
@@ -581,11 +585,36 @@ Examples:
         "X-API-KEY": api_key,
     })
 
+    # ── 计算时间参数 ──
+    today = datetime.now()
+    start_time = args.start_time
+    end_time = args.end_time
+    if not start_time and not end_time:
+        # 用户未指定时间时，根据当前小时自动判断有效日期
+        if args.date == today.strftime("%Y-%m-%d"):
+            if today.hour >= 16:
+                args.date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
+            else:
+                args.date = (today - timedelta(days=2)).strftime("%Y-%m-%d")
+        start_time = args.date
+        try:
+            dt = datetime.strptime(args.date, "%Y-%m-%d")
+            end_time = (dt + timedelta(days=1)).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+    step(f"数据日期: {args.date}")
+    print()
+
     # ── 获取作品（单次接口调用）──
     keyword = args.keyword.strip()
-    step(f"查询关键词: \"{keyword}\" (pageSize={args.page_size})")
+    time_info = ""
+    if start_time:
+        time_info += f", startTime={start_time}"
+    if end_time:
+        time_info += f", endTime={end_time}"
+    step(f"查询关键词: \"{keyword}\" (pageSize={args.page_size}{time_info})")
 
-    articles = fetch_articles(session, keyword, args.page_size)
+    articles = fetch_articles(session, keyword, args.page_size, start_time, end_time)
 
     if not articles:
         error("未获取到任何作品")
@@ -600,7 +629,8 @@ Examples:
     for c in clusters[:10]:
         print(f"    {c['category']}: {c['count']} 篇")
 
-    # ── 终端表格展示 ──
+    # ── 终端表格 ──
+    print(f"{CYAN}📌 数据说明：每日16点更新前一天数据{RESET}\n")
     print_article_table(clusters)
 
     # ── 生成报告 ──

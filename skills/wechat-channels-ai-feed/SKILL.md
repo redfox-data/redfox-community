@@ -46,14 +46,14 @@ python3 "$SKILL_PATH/scripts/fetch_sph_ai.py" --unsubscribe
 
 ### 获取 API Key
 
-前往 [redfox.hk/settings/api-keys](https://www.redfox.hk/settings/api-keys?source=github) 注册获取个人 API Key。
+前往 [redfox.hk/api-keys](https://www.redfox.hk/settings/api-keys?source=github) 注册获取个人 API Key。
 
 ### 配置 API Key
 
-| 方式             | 命令                                                                      |
-| ---------------- | ------------------------------------------------------------------------- |
-| 环境变量（推荐） | `export REDFOX_API_KEY=ak_你的密钥`                                       |
-| 写入 shell 配置  | `echo 'export REDFOX_API_KEY=ak_你的密钥' >> ~/.zshrc && source ~/.zshrc` |
+| 方式 | 命令 |
+|------|------|
+| 环境变量（推荐） | `export REDFOX_API_KEY=ak_你的密钥` |
+| 写入 shell 配置 | `echo 'export REDFOX_API_KEY=ak_你的密钥' >> ~/.zshrc && source ~/.zshrc` |
 
 > 脚本缺失环境变量时会明确报错并提供配置指引，不会静默失败。
 
@@ -61,15 +61,15 @@ python3 "$SKILL_PATH/scripts/fetch_sph_ai.py" --unsubscribe
 
 ## 参数说明
 
-| 参数            | 说明                     | 默认值                     |
-| --------------- | ------------------------ | -------------------------- |
-| `--keyword`     | 搜索关键词               | `AI`                       |
-| `--page-size`   | 每页条数                 | `200`                      |
-| `--date`        | 指定日期 YYYY-MM-DD      | 今天                       |
-| `--output-dir`  | 输出目录                 | `~/Downloads/QoderReports` |
-| `--subscribe`   | 安装每日定时任务 (16:00) | —                          |
-| `--unsubscribe` | 卸载定时任务             | —                          |
-| `--no-open`     | 不自动打开浏览器         | —                          |
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `--keyword` | 搜索关键词 | `AI` |
+| `--page-size` | 每页条数 | `200` |
+| `--date` | 指定日期 YYYY-MM-DD | 今天 |
+| `--output-dir` | 输出目录 | `~/Downloads/QoderReports` |
+| `--subscribe` | 安装每日定时任务 (16:00) | — |
+| `--unsubscribe` | 卸载定时任务 | — |
+| `--no-open` | 不自动打开浏览器 | — |
 
 ---
 

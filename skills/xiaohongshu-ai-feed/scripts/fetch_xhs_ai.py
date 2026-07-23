@@ -580,15 +580,24 @@ Examples:
     })
 
     # ── 计算时间参数 ──
+    today = datetime.now()
     start_time = args.start_time
     end_time = args.end_time
-    if not start_time and not end_time and args.date:
+    if not start_time and not end_time:
+        # 用户未指定时间时，根据当前小时自动判断有效日期
+        if args.date == today.strftime("%Y-%m-%d"):
+            if today.hour >= 16:
+                args.date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
+            else:
+                args.date = (today - timedelta(days=2)).strftime("%Y-%m-%d")
         start_time = args.date
         try:
             dt = datetime.strptime(args.date, "%Y-%m-%d")
             end_time = (dt + timedelta(days=1)).strftime("%Y-%m-%d")
         except ValueError:
             pass
+    step(f"数据日期: {args.date}")
+    print()
 
     # ── 获取笔记（单次接口调用）──
     keyword = args.keyword.strip()
@@ -618,7 +627,8 @@ Examples:
     print(f"\n{YELLOW}  ⚠️ 受小红书风控规则限制，部分作品链接可能无法正常跳转，"
           f"您可复制对应作品标题前往小红书 App 搜索查看，感谢理解\U0001f647\u200d♀️\U0001f647\u200d♀️{RESET}\n")
 
-    # ── 终端表格展示 ──
+    # ── 终端表格 ──
+    print(f"{CYAN}📌 数据说明：每日16点更新前一天数据{RESET}\n")
     print_article_table(clusters)
 
     # ── 生成报告 ──
