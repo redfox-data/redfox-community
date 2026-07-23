@@ -1,11 +1,5 @@
 # GEO Analyzer / geo-analyzer
 
-<div align="center">
-
-[中文](README.md) | **English** | [한국어](README.ko.md) | [日本語](README.ja.md) | [Français](README.fr.md)
-
-</div>
-
 ---
 
 ## Overview
