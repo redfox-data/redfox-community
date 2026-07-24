@@ -43,7 +43,7 @@ def fetch_gzh_trends(keyword, start_date=None, debug=False, auto_expand=True):
     - 用户指定了时间：按用户指定时间查询，不自动拓展
     - 用户未指定时间：默认近7天；数据不足时拓展至近30天
     """
-    base_url = "https://redfox.hk/story/api/gzh/search/hotArticle"
+    base_url = "https://redfox.hk/story/api/gzh/search/hotArticleNew"
     api_key = _get_api_key()
     default_headers = {
         "Content-Type": "application/json",
