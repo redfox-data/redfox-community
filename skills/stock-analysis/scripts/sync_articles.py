@@ -5,7 +5,7 @@
 每次触发 skill 时自动调用，获取最新文章内容，
 为画像增量更新提供原始素材。
 
-接口：queryWorkList（按公众号微信号精确查询）
+接口：广域库 queryWorkList（按公众号微信号/原始ID精确查询，每页固定20条）
 
 Usage:
     python sync_articles.py --author "财躺平"
