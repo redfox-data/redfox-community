@@ -70,7 +70,7 @@ Simply describe the topic you want to research in natural language—no fixed co
 After research, you'll see a report like this (illustrative):
 
 ```
-🇨🇳 cn-last30days v2.0.0 · 2026-06-10
+🇨🇳 cn-last30days v2.1.0 · 2026-06-10
 
 My findings:
 

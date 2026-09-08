@@ -29,7 +29,10 @@ if os.name == "nt":
             stream.reconfigure(encoding="utf-8", errors="replace")
 
 # ─── 常量 ──────────────────────────────────────────────────────────────────────────
+# 小红书/公众号数据来自统一多平台接口；抖音作品改用抖音广域库接口单独查询
 API_BASE = "https://redfox.hk/story/api/multiPlatform/workSearch"
+DY_API_URL = "https://redfox.hk/story/api/dy/data/searchWork"
+DY_MAX_PAGE_SIZE = 50
 PLATFORMS = {
     "xhs": {
         "label": "小红书",
@@ -122,7 +125,8 @@ def _http_post(url: str, payload: dict, api_key: str, max_retries: int = 3) -> d
     headers = {
         "Content-Type": "application/json",
         "X-API-KEY": api_key,
-        "User-Agent": "cn-last30days/1.0",
+        "REDFOX_API_KEY": api_key,
+        "User-Agent": "cn-last30days/2.1",
     }
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     last_error = None
@@ -241,14 +245,15 @@ def _normalize_xhs(art: dict, idx: int) -> dict:
 
 
 def _normalize_dy(art: dict, idx: int) -> dict:
-    """归一化抖音数据 - 兼容 dyData/searchArticle 和 dy/search/search 两种格式"""
-    work_url = _first_of(art, "workUrl", "url", default="")
-    title_raw = _first_of(art, "title", "desc", default="")
-    desc_raw = _first_of(art, "desc", "summary", default="")
+    """归一化抖音数据 - 兼容 dy/data/searchWork 广域库 及旧 dyData/searchArticle、dy/search/search 格式"""
+    work_url = _first_of(art, "opusUrl", "workUrl", "url", default="")
+    title_raw = _first_of(art, "title", "content", "desc", default="")
+    desc_raw = _first_of(art, "content", "desc", "summary", default="")
     title = (title_raw or "无标题")[:200]
     desc = (desc_raw or "")[:500]
-    author_name = _first_of(art, "accountName", "author", "authorNickname", default="未知")
-    author_id = str(_first_of(art, "accountId", "authorId", default=""))
+    author_name = _first_of(art, "authorName", "accountName", "author", "authorNickname", default="未知")
+    # 作者主页链接优先取 sec_uid（广域库字段），可正常跳转抖音个人主页
+    author_id = str(_first_of(art, "authorSecUid", "authorUid", "accountId", "authorId", default=""))
     pub_time = _first_of(art, "publishTime", "createTime", default="")
     cover = _first_of(art, "cover", "coverUrl", default="")
     return {
@@ -345,6 +350,42 @@ def _extract_scores(art: dict) -> dict:
 
 
 # ─── 主搜索函数 ─────────────────────────────────────────────────────────────────────
+def _search_dy_works(
+    keyword: str,
+    api_key: str,
+    count: int,
+    start_date: str,
+    end_date: str,
+) -> list[dict]:
+    """调用抖音广域库接口 dy/data/searchWork 搜索作品，支持翻页取满 count 条
+
+    响应结构: data.list[]（作品数组），字段为 content/authorName/opusUrl/likeCount 等
+    """
+    collected: list[dict] = []
+    page_num = 1
+    max_pages = count // DY_MAX_PAGE_SIZE + (2 if count % DY_MAX_PAGE_SIZE else 1)
+    while len(collected) < count and page_num <= max_pages:
+        page_size = min(DY_MAX_PAGE_SIZE, count - len(collected))
+        payload = {
+            "keyword": keyword,
+            "source": SOURCE_LABEL,
+            "startDate": start_date,
+            "endDate": end_date,
+            "pageNum": page_num,
+            "pageSize": page_size,
+        }
+        result = _http_post(DY_API_URL, payload, api_key)
+        data = result.get("data") or {}
+        articles = data.get("list") or []
+        if not isinstance(articles, list) or not articles:
+            break
+        collected.extend(articles)
+        if len(articles) < page_size:
+            break
+        page_num += 1
+    return collected
+
+
 def search(
     keyword: str,
     platforms: list[str] | None = None,
@@ -352,7 +393,7 @@ def search(
     api_key: str | None = None,
     days: int = 30,
 ) -> dict:
-    """通过统一接口搜索多平台话题数据"""
+    """搜索多平台话题数据 - 小红书/公众号走统一接口，抖音走广域库接口 dy/data/searchWork"""
     if not platforms:
         platforms = list(PLATFORMS.keys())
 
@@ -383,8 +424,11 @@ def search(
     credit_error = False
 
     try:
-        result = _http_post(API_BASE, payload, key)
-        data = result.get("data") or {}
+        # 小红书/公众号仍由统一多平台接口返回（其中的 dyResult 忽略，抖音改用广域库）
+        data = {}
+        if any(p != "dy" for p in platforms):
+            result = _http_post(API_BASE, payload, key)
+            data = result.get("data") or {}
 
         for p in platforms:
             if p not in PLATFORMS:
@@ -393,12 +437,18 @@ def search(
 
             plat = PLATFORMS[p]
             label = plat["label"]
-            result_key = plat["result_key"]
-            articles = data.get(result_key, [])
-            if isinstance(articles, dict):
-                articles = articles.get("articles", [])
-            if not isinstance(articles, list):
-                articles = []
+            if p == "dy":
+                # 抖音：单独调用广域库接口 dy/data/searchWork（翻页取满 count 条）
+                sys.stderr.write(f"[{label}] 广域库接口查询中 ...\n")
+                sys.stderr.flush()
+                articles = _search_dy_works(keyword, key, count, start_date, end_date)
+            else:
+                result_key = plat["result_key"]
+                articles = data.get(result_key, [])
+                if isinstance(articles, dict):
+                    articles = articles.get("articles", [])
+                if not isinstance(articles, list):
+                    articles = []
 
             # 去重并归一化
             all_articles = []
@@ -406,6 +456,7 @@ def search(
             for art in articles:
                 uid = (
                     art.get("workUuid") or art.get("uuid")
+                    or art.get("videoId") or art.get("workId")
                     or art.get("id") or art.get("noteId")
                     or ""
                 )
@@ -892,7 +943,7 @@ def format_as_html(data: dict, max_items: int = 50, report_html: str = "") -> st
 <body>
     <nav class="navbar">
         <div class="logo">🇨🇳 cn<span>-last30days</span></div>
-        <div class="badge">v2.0</div>
+        <div class="badge">v2.1</div>
     </nav>
     <div class="hero">
         <h1>中国社媒话题研究</h1>
