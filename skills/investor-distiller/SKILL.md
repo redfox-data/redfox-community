@@ -159,13 +159,13 @@ python "$SKILL_PATH/scripts/distill.py" --check-env
 
 **Step 1：获取文章UUID列表**
 
-调用 `POST https://redfox.hk/story/api/gzhData/queryWorkList`，每页返回20条，offset 步进为20，循环分页直到达到目标数量。
+调用 `POST https://redfox.hk/story/api/gzh/data/queryWorkList`，每页返回20条，offset 步进为20，循环分页直到达到目标数量。
 
-参数：`account`（微信号）、`sortType: "_2"`、`offset`（从0开始，每页+20）。
+参数：`account`（微信号）、`sortType: "2"`、`offset`（从0开始，每页+20）。
 
 **Step 2：逐篇获取完整数据**
 
-对每个 UUID，调用 `POST https://redfox.hk/story/api/gzhData/queryWork` 获取正文、摘要、词云等完整数据。
+对每个 UUID，调用 `POST https://redfox.hk/story/api/gzh/data/workDetail` 获取正文、摘要、词云等完整数据。
 
 ```bash
 # 采集60篇文章
@@ -343,7 +343,7 @@ investor-distiller/
 ├── SKILL.md                          # 本文件
 ├── scripts/
 │   ├── distill.py                    # 主蒸馏脚本（调度+统计+校验）
-│   └── gzh.py                        # 公众号数据采集（queryWorkList + queryWork）
+│   └── gzh.py                        # 公众号数据采集（queryWorkList + workDetail）
 ├── assets/
 │   └── profile_template.md           # 七维DNA风格画像输出模板
 ├── references/

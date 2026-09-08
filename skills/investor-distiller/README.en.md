@@ -4,11 +4,11 @@
 
 ## Overview
 
-Enter a WeChat public account ID and it automatically pulls articles and distills a seven-dimensional DNA style profile — from trading systems to expression style, you get a complete analysis of the blogger. Unlike generic summaries, every conclusion is backed by original text evidence, and the profile's accuracy is automatically scored and validated, so you know exactly how reliable it is.
+Enter a WeChat public account ID and it automatically collects articles and distills a seven-dimensional DNA style profile — from trading systems to expression style, you get a complete analysis of the blogger. Unlike generic summaries, every conclusion is backed by original text evidence, and the profile's accuracy is automatically scored and validated, so you know exactly how reliable it is.
 
 **Core Value**
 
-- **Plug and Analyze**: Enter a WeChat ID to automatically pull articles and generate a complete profile, with three tiers (20/60/100) — no manual browsing required
+- **Plug and Analyze**: Enter a WeChat ID to automatically collect articles and generate a complete profile, with three tiers (20/60/100) — no manual browsing required
 - **Seven-Dimensional DNA**: Trading systems, stock selection logic, expression style, interaction patterns… dissect the blogger's investment DNA across seven dimensions, not just word frequency stats
 - **Auto-Validated Accuracy**: Automatic three-dimensional scoring after each distillation, checking stocks/style/system item by item — you can see at a glance how accurate it is
 - **Ready to Use**: Generate style-consistent stock analysis based on the profile, ready to use as reference material, each with data source annotations and disclaimers
@@ -25,7 +25,9 @@ Enter a WeChat public account ID and it automatically pulls articles and distill
 
 ### Core Capabilities
 
-- **Plug and Analyze**: Enter a WeChat ID to automatically pull articles and generate a complete profile, with flexible 20/60/100 article tiers
+- **Plug and Analyze**: Enter a WeChat ID to automatically collect articles and generate a complete profile, with flexible 20/60/100 article tiers
+- **Newest-First Collection**: The blogger's latest content comes first, so the profile reflects their current views and state
+- **Complete Per-Article Data**: Each article's body text, summary, publish time, and read/like/share/collect/comment metrics are all collected, giving richer original-text evidence
 - **Seven-Dimensional DNA**: From trading systems to persona DNA, dissect the blogger's investment DNA across seven dimensions — not just word frequency stats
 - **Auto-Validated Quality**: Automatic scoring after each distillation, checking stocks/style/system item by item, with prompts for supplementary distillation when accuracy falls short
 - **Ready to Use**: Generate style-consistent stock analysis based on the profile, ready to use as reference, each with data source annotations

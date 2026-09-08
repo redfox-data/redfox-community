@@ -4,7 +4,7 @@
 ==================
 两步 API 流程：
 1. queryWorkList — 分页获取文章 UUID 列表（每页20条，offset 步进20）
-2. queryWork — 按 UUID 获取单篇完整数据（正文/摘要/词云等）
+2. workDetail — 按 UUID 获取单篇完整数据（正文/摘要/词云等）
 
 UUID 缓存：首次获取后自动保存到 output/{account}_uuids.json，
 后续运行直接读取缓存，避免重复消耗积分。
@@ -32,8 +32,8 @@ except ImportError:
 
 # ─── 配置 ─────────────────────────────────────────────────────────────────────────
 
-WORK_LIST_URL = "https://redfox.hk/story/api/gzhData/queryWorkList"
-WORK_DETAIL_URL = "https://redfox.hk/story/api/gzhData/queryWork"
+WORK_LIST_URL = "https://redfox.hk/story/api/gzh/data/queryWorkList"
+WORK_DETAIL_URL = "https://redfox.hk/story/api/gzh/data/workDetail"
 
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
@@ -132,7 +132,7 @@ def fetch_work_list(session, account, count, force_refresh=False):
         payload = {
             "source": SOURCE,
             "account": account,
-            "sortType": "_2",
+            "sortType": "2",
             "offset": offset,
         }
 
@@ -199,7 +199,7 @@ def fetch_work_list(session, account, count, force_refresh=False):
 
 def fetch_work_detail(session, uuid):
     """
-    调用 queryWork 获取单篇文章完整数据。
+    调用 workDetail 获取单篇文章完整数据。
 
     Args:
         session: requests.Session（已设置 headers）
@@ -217,7 +217,7 @@ def fetch_work_detail(session, uuid):
         resp = session.post(WORK_DETAIL_URL, json=payload, timeout=30)
         result = resp.json()
     except Exception as e:
-        warn(f"queryWork({uuid[:8]}...) 请求失败: {e}")
+        warn(f"workDetail({uuid[:8]}...) 请求失败: {e}")
         return None
 
     code = result.get("code")
@@ -225,7 +225,7 @@ def fetch_work_detail(session, uuid):
         if code == 3108:
             time.sleep(5)
             return fetch_work_detail(session, uuid)  # 重试一次
-        warn(f"queryWork({uuid[:8]}...) 返回错误码 {code}：{result.get('msg') or result.get('message') or '(无详细信息)'}")
+        warn(f"workDetail({uuid[:8]}...) 返回错误码 {code}：{result.get('msg') or result.get('message') or '(无详细信息)'}")
         return None
 
     data = result.get("data", {})
@@ -265,7 +265,7 @@ def fetch_work_details(session, uuid_items, batch_delay=0.3):
 
         time.sleep(batch_delay)
 
-    info(f"queryWork 共获取 {len(articles)} 篇完整文章")
+    info(f"workDetail 共获取 {len(articles)} 篇完整文章")
     return articles
 
 
@@ -275,7 +275,7 @@ def fetch_articles(account, author_name="", count=None, api_key=None, force_refr
     """
     两步流程采集公众号文章：
     1. queryWorkList 获取UUID列表（优先读缓存）
-    2. queryWork 逐篇获取完整数据
+    2. workDetail 逐篇获取完整数据
 
     Args:
         account: 公众号微信号（如 zshbtz）
@@ -357,7 +357,7 @@ def fetch_articles(account, author_name="", count=None, api_key=None, force_refr
             "share_count": raw.get("shareCount", 0),
             "collect_count": raw.get("collectCount", 0) if raw.get("collectCount") is not None else 0,
             "reward_count": raw.get("rewardCount", 0) if raw.get("rewardCount") is not None else 0,
-            "author": raw.get("accountName") or raw.get("accountNickName") or author_name or account,
+            "author": raw.get("author") or raw.get("accountName") or raw.get("accountNickName") or author_name or account,
             "uuid": raw.get("workUuid") or raw.get("uuid") or raw.get("id") or "",
             "platform": "gzh",
         })
