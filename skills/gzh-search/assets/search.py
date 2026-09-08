@@ -31,7 +31,7 @@ except ImportError:
     HAS_REQUESTS = False
 
 # ─── 配置 ─────────────────────────────────────────────────────────────────────────
-API_URL = "https://redfox.hk/story/api/gzhData/searchArticle"
+API_URL = "https://redfox.hk/story/api/gzh/data/searchArticle"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
@@ -157,7 +157,15 @@ def fetch_articles_batch(session, keyword, offset=0, sort_type="default"):
 
     data = result.get("data", {})
     articles = data.get("list", [])
-    has_more = data.get("hasMore", 0)
+
+    has_more = data.get("hasMore")
+    if has_more is None:
+        # 新接口不返回 hasMore，改用 total 推断是否还有下一页
+        total = data.get("total")
+        if total is not None:
+            has_more = 1 if offset + len(articles) < total else 0
+        else:
+            has_more = 1 if articles else 0
 
     return {"articles": articles, "hasMore": has_more}
 
@@ -381,9 +389,6 @@ def generate_html(articles, keyword, api_key):
     html = html.replace("{{TIMESTAMP}}", timestamp)
     html = html.replace("{{TOTAL_COUNT}}", str(len(articles)))
     html = html.replace("{{INITIAL_DATA}}", initial_data)
-    html = html.replace("{{API_KEY}}", api_key)
-    html = html.replace("{{API_URL}}", API_URL)
-    html = html.replace("{{SOURCE}}", SOURCE)
 
     return html
 
@@ -480,7 +485,7 @@ body {
     display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem;
     font-size: 0.75rem; color: var(--text-secondary);
 }
-.card-meta .author { color: #58D68D; font-weight: 500; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card-meta .author { color: #58D68D; font-weight: 500; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .card-meta .pub-time { color: var(--text-muted); margin-left: auto; }
 .status-message { text-align: center; padding: 3rem 1rem; color: var(--text-secondary); font-size: 0.9rem; }
 .load-more-bar { display: flex; justify-content: center; padding: 1.5rem 1rem 3rem; }
@@ -544,9 +549,6 @@ body {
 </main>
 <footer class="footer">Generated at {{TIMESTAMP}} by 公众号搜索 Skill | Powered by redfox.hk</footer>
 <script>
-const API_URL = '{{API_URL}}';
-const API_KEY = '{{API_KEY}}';
-const SOURCE = '{{SOURCE}}';
 const INITIAL_DATA = {{INITIAL_DATA}};
 let currentKeyword = '{{KEYWORD}}';
 let currentOffset = 0;
@@ -603,7 +605,8 @@ function renderArticleCard(article) {
 
     let avatarHTML;
     if (cover) {
-        avatarHTML = '<img src="'+cover+'" alt="" loading="lazy">';
+        const fb = escapeHTML((title.replace(/[^\\w\\u4e00-\\u9fff]/g,'').trim().charAt(0)||'文'));
+        avatarHTML = '<img src="'+cover+'" alt="'+fb+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest(\'.card-avatar\').textContent=this.alt">';
     } else {
         const ch = (title.replace(/[^\\w\\u4e00-\\u9fff]/g,'').trim().charAt(0)||'文');
         avatarHTML = escapeHTML(ch);
@@ -642,14 +645,21 @@ function setLoading(loading) {
 }
 
 function fetchArticlesFromAPI(keyword, offset) {
-    return fetch(API_URL, {
+    return fetch('/api/search', {
         method: 'POST',
-        headers: {'Content-Type':'application/json','X-API-KEY':API_KEY},
-        body: JSON.stringify({keyword,offset,sortType:'default',source:SOURCE})
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({keyword,offset,sortType:'default'})
     }).then(r => r.json()).then(res => {
         if (res.code===200||res.code===2000) {
             const list = res.data.list||[];
-            hasMore = res.data.hasMore===1;
+            // 新接口不返回 hasMore，改用 total 推断是否还有下一页
+            if (res.data.hasMore!==undefined && res.data.hasMore!==null) {
+                hasMore = res.data.hasMore===1;
+            } else if (typeof res.data.total==='number') {
+                hasMore = offset + list.length < res.data.total;
+            } else {
+                hasMore = list.length>0;
+            }
             return list;
         } else {
             throw new Error(res.msg||'API error');

@@ -229,6 +229,15 @@ body {
     font-weight: 700;
     color: var(--accent);
     user-select: none;
+    overflow: hidden;
+}
+
+.card-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    display: block;
 }
 
 /* ── Card Right: Content ── */
@@ -261,7 +270,7 @@ body {
 .card-meta .author {
     color: var(--accent-light);
     font-weight: 500;
-    max-width: 120px;
+    max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -525,9 +534,7 @@ body {
 <!-- ═══════════ SCRIPTS ═══════════ -->
 <script>
 // ─── 配置 ────────────────────────────────────────────────────────────────────
-const API_URL = '{{API_URL}}';
-const API_KEY = '{{API_KEY}}';
-const SOURCE = '{{SOURCE}}';
+// 搜索请求走本地代理 /api/search（服务端注入 X-API-KEY 与 source），避免浏览器直连线上接口触发 CORS
 const INITIAL_DATA = {{INITIAL_DATA}};
 
 // ─── 状态 ────────────────────────────────────────────────────────────────────
@@ -631,7 +638,8 @@ function renderArticleCard(article) {
 
     let avatarHTML;
     if (cover) {
-        avatarHTML = `<img src="${cover}" alt="" loading="lazy">`;
+        // referrerpolicy="no-referrer" 绕过 mmbiz.qpic.cn 的 Referer 防盗链；加载失败时回退为首字头像
+        avatarHTML = `<img src="${escapeHTML(cover)}" alt="${escapeHTML(avatar)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.card-avatar').textContent=this.alt">`;
     } else {
         avatarHTML = escapeHTML(avatar);
     }
@@ -675,17 +683,15 @@ function updateUI() {
 
 // ─── 数据获取 ─────────────────────────────────────────────────────────────────
 function fetchArticles(keyword, offset, append) {
-    return fetch(API_URL, {
+    return fetch('/api/search', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-API-KEY': API_KEY,
         },
         body: JSON.stringify({
             keyword: keyword,
             offset: offset,
             sortType: 'default',
-            source: SOURCE,
         }),
     })
     .then(r => r.json())
@@ -693,7 +699,14 @@ function fetchArticles(keyword, offset, append) {
         if (res.code === 200 || res.code === 2000) {
             const data = res.data || {};
             const list = data.list || [];
-            hasMore = data.hasMore === 1;
+            // 新接口不返回 hasMore，改用 total 推断是否还有下一页
+            if (data.hasMore !== undefined && data.hasMore !== null) {
+                hasMore = data.hasMore === 1;
+            } else if (typeof data.total === 'number') {
+                hasMore = offset + list.length < data.total;
+            } else {
+                hasMore = list.length > 0;
+            }
             totalCount = list.length > 0 ? (totalCount || list.length) : totalCount;
             return list;
         } else {

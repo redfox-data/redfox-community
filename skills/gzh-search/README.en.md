@@ -11,7 +11,7 @@ Search WeChat public account articles by keyword, display results in a terminal 
 - **Keyword Search**: Real-time full-database search of verified public account articles from the past 30 days
 - **Smart Scoring**: Three-factor ranking (relevance + popularity + recency)
 - **Multi-Format Output**: Terminal table + CSV export + interactive HTML report
-- **Interactive Report**: Built-in search box, cover image display, click-to-open original articles
+- **Interactive Report**: Built-in search box, reliable cover image display, click-to-open original articles
 
 **Target Users**
 
@@ -30,7 +30,8 @@ Search WeChat public account articles by keyword, display results in a terminal 
 - **Tiered Fallback**: Ample results → normal browsing / fewer results → broader search / zero results → trending topics
 - **Terminal Table**: Title, author, reads, likes, shares, favorites, publish date, article link
 - **CSV Export**: Auto-generated UTF-8 BOM CSV for data analysis
-- **HTML Report**: Built-in search (300ms debounce), cover display, paginated loading
+- **HTML Report**: Built-in search (300ms debounce), cover display (bypasses hotlink protection), paginated loading
+- **Local Proxy Service**: In-page search requests routed through a local server—no CORS issues, and the API key is never written into the HTML report
 
 ---
 
