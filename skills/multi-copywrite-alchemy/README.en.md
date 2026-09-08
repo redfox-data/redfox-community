@@ -36,6 +36,15 @@ Analyze an author's articles, deeply reconstruct their thinking patterns and wri
 
 ---
 
+## Data Source
+
+- **Douyin materials (wide-area database)**: RedFox Data API wide-area endpoints—`POST https://redfox.hk/story/api/dy/data/listWorkByAccount` (list works by account; locate account via `uniqueName`/`userId`/`shortId`, supports pagination and date filtering) + `POST https://redfox.hk/story/api/dy/data/workDetail` (fetch work detail by `videoId`); account info is extracted from the `author*` fields of work items
+- **WeChat OA materials**: RedFox Data API (`gzhData/queryUser`, `gzhData/queryWorkList`, `gzhData/queryArticleDetail`)
+- **Authentication**: `REDFOX_API_KEY` request header (legacy alias `X-API-KEY` also accepted), value from environment variable `REDFOX_API_KEY` (format `ak_xxx`)
+- **Data scope**: The Douyin wide-area database covers trending data only; each API call consumes RedFox Hub credits
+
+---
+
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.

@@ -37,7 +37,7 @@
 
 **通用调用规范**：
 - 请求方式：`POST` JSON
-- 认证头：`X-API-KEY`（环境变量 `REDFOX_API_KEY`）
+- 认证头：`REDFOX_API_KEY`（环境变量 `REDFOX_API_KEY`，格式 `ak_xxx`；网关兼容旧别名 `X-API-KEY`，代码模板会同时携带）
 - 成功码：`code == 2000`（不是200）
 - 超时设置：建议 30 秒
 
@@ -46,29 +46,35 @@
 ```python
 import json, urllib.request
 
-API_KEY = "环境变量 REDFOX_API_KEY"
+API_KEY = "环境变量 REDFOX_API_KEY（格式 ak_xxx）"
 
 PLATFORM_SOURCE_MAP = {
     "gzh": "复刻蒸馏写作技能-公众号-GitHub",
     "dy":  "复刻蒸馏写作技能-抖音-GitHub",
 }
 
-def redfox_api(path, payload, timeout=30):
-    # 根据接口路径自动注入 source
-    platform_key = path.split("/")[0]  # 取路径第一段，如 gzhData / dyData
-    platform_alias = {"gzhdata": "gzh", "dydata": "dy"}.get(platform_key.lower().replace("_", ""), None)
+def redfox_api(path_or_url, payload, timeout=30):
+    # 兼容完整URL（抖音广域库 dy/data/...）与相对路径（公众号 gzhData/...），自动注入 source
+    url = path_or_url if path_or_url.startswith("http") else f"https://redfox.hk/story/api/{path_or_url}"
+    first = url.split("/story/api/", 1)[-1].split("/")[0].lower().replace("_", "")
+    platform_alias = "gzh" if first.startswith("gzh") else ("dy" if first.startswith("dy") else None)
     if platform_alias:
         payload = {**payload, "source": PLATFORM_SOURCE_MAP[platform_alias]}
-    data = json.dumps(payload).encode()
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(
-        f"https://redfox.hk/story/api/{path}",
+        url,
         data=data,
-        headers={"X-API-KEY": API_KEY, "Content-Type": "application/json"}
+        method="POST",
+        headers={
+            "REDFOX_API_KEY": API_KEY,  # 平台API文档鉴权头
+            "X-API-KEY": API_KEY,       # 兼容网关旧别名
+            "Content-Type": "application/json",
+        }
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
-        result = json.loads(resp.read().decode())
+        result = json.loads(resp.read().decode("utf-8"))
     if result.get("code") != 2000:
-        raise Exception(f"API错误: {result.get('msg', '未知错误')}")
+        raise Exception(f"API错误: {result.get('msg') or result.get('message', '未知错误')}")
     return result.get("data")
 ```
 
@@ -111,43 +117,42 @@ def redfox_api(path, payload, timeout=30):
 
 ---
 
-#### 🎵 抖音平台
+#### 🎵 抖音平台（广域库）
 
-**API 基础路径**：`dyData/`
+抖音素材统一走红狐「广域库」两个接口（已替换旧的 `dyData/queryUser`、`queryWorkList`、`queryWork`）：
 
-**Step 1 - 查询账号信息**：
+| 用途 | 接口 |
+|------|------|
+| 获取账号作品列表 | `POST https://redfox.hk/story/api/dy/data/listWorkByAccount` |
+| 获取作品内容详情 | `POST https://redfox.hk/story/api/dy/data/workDetail` |
 
-| 配置项 | 值 |
-|--------|----|
-| 接口 | `POST dyData/queryUser` |
-| 入参 | `{"accountId": "抖音号", "source": "复刻蒸馏写作技能-抖音-GitHub"}` 或 `{"accountName": "抖音名称", "source": "复刻蒸馏写作技能-抖音-GitHub"}` |
-| 关键字段 | `nickname`、`uid`、`followerCount`、`awemeCount` |
+> **注意**：
+> - 广域库没有独立账号查询接口，账号信息（昵称、抖音号、UID、粉丝数等）从作品项的 `author*` 字段提取，作品总数取分页 `data.total`
+> - 账号定位参数 `userId` / `uniqueName` / `shortId` 三选一必填，优先用 `uniqueName`（抖音号）精准查询；广域库仅收录热门数据
+> - 两个接口均需携带 `source`（代码模板自动注入）与鉴权请求头 `REDFOX_API_KEY`
 
-> **注意**：优先使用 `accountId`（抖音号），`accountName` 可能模糊匹配到错误账号。
-
-**Step 2 - 获取作品列表**：
-
-| 配置项 | 值 |
-|--------|----|
-| 接口 | `POST dyData/queryWorkList` |
-| 入参 | `{"accountId": "抖音号", "source": "复刻蒸馏写作技能-抖音-GitHub"}` 或 `{"uid": "用户UID", "source": "复刻蒸馏写作技能-抖音-GitHub"}` |
-| 关键字段 | 返回作品列表，含 `title`/`desc`、`publishTime`、`awemeId`/`id` |
-
-**Step 3 - 获取作品详情**：
+**Step 1 - 获取作品列表**：
 
 | 配置项 | 值 |
 |--------|----|
-| 接口 | `POST dyData/queryWork` |
-| 入参 | `{"awemeId": "作品ID", "source": "复刻蒸馏写作技能-抖音-GitHub"}` 或 `{"id": "作品ID", "source": "复刻蒸馏写作技能-抖音-GitHub"}` |
-| 关键字段 | `desc`（作品描述/文案）、`title`、`likeCount`、`commentCount` |
+| 接口 | `POST https://redfox.hk/story/api/dy/data/listWorkByAccount` |
+| 入参 | `{"uniqueName": "抖音号", "pageNum": 1, "pageSize": 20}`；可选 `userId` / `shortId` 替代，支持 `startDate` / `endDate`（YYYY-MM-DD）时间范围筛选 |
+| 关键字段 | 作品列表在 `data.list`：`content`（作品文案/正文）、`videoId`（作品ID）、`publishTime`、`likeCount`、`commentCount`、`shareCount`、`collectCount`、`opusUrl`、`tagList`、`videoType` |
+
+**Step 2 - 获取作品内容详情**：
+
+| 配置项 | 值 |
+|--------|----|
+| 接口 | `POST https://redfox.hk/story/api/dy/data/workDetail` |
+| 入参 | `{"videoId": "作品ID"}` |
+| 关键字段 | 单条作品完整数据，字段同列表项（`content`、`videoId`、`publishTime` 等） |
 
 **采集策略**：
-1. 调用 queryUser 确认账号存在
-2. 调用 queryWorkList 获取近期作品列表
-3. 抖音以短视频为主，文字内容主要在 `desc` 字段（作品文案）
-4. 筛选 desc 字数 > 100字 的作品（过滤纯标题视频）
-5. 逐篇调用 queryWork 获取完整描述
-6. 清洗：移除话题标签（#xxx）、@提及
+1. 调用 listWorkByAccount 获取作品列表，需要更多素材时按 `pageNum` / `pageSize` 翻页（每页最大50）
+2. 列表返回的 `content` 已含完整文案，无需逐篇查详情；仅当 `content` 疑似截断/缺失时，再用 `videoId` 调用 workDetail 补齐（节省积分）
+3. 抖音以短视频为主，文字内容主要在 `content` 字段（作品文案）
+4. 筛选 content 字数 > 100字 的作品（过滤纯标题视频）
+5. 清洗：移除话题标签（#xxx）、@提及
 
 ---
 

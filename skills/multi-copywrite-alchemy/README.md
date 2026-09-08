@@ -36,6 +36,24 @@
 
 ---
 
+## 数据来源
+
+- **抖音素材（广域库）**：红狐数据 API 广域库接口——`POST https://redfox.hk/story/api/dy/data/listWorkByAccount`（获取账号作品列表，按 `uniqueName`/`userId`/`shortId` 定位账号，支持分页与时间筛选）+ `POST https://redfox.hk/story/api/dy/data/workDetail`（按 `videoId` 获取作品内容详情）；账号信息从作品项 `author*` 字段提取
+- **公众号素材**：红狐数据 API（`gzhData/queryUser`、`gzhData/queryWorkList`、`gzhData/queryArticleDetail`）
+- **认证方式**：请求头 `REDFOX_API_KEY`（兼容旧别名 `X-API-KEY`），取环境变量 `REDFOX_API_KEY` 的值（格式 `ak_xxx`）
+- **数据范围**：抖音广域库仅收录热门数据；每次接口调用消耗红狐平台积分
+
+---
+
+## 数据来源
+
+- **抖音素材（广域库）**：红狐数据 API 广域库接口——`POST https://redfox.hk/story/api/dy/data/listWorkByAccount`（获取账号作品列表，按 `uniqueName`/`userId`/`shortId` 定位账号，支持分页与时间筛选）+ `POST https://redfox.hk/story/api/dy/data/workDetail`（按 `videoId` 获取作品内容详情）；账号信息从作品项 `author*` 字段提取
+- **公众号素材**：红狐数据 API（`gzhData/queryUser`、`gzhData/queryWorkList`、`gzhData/queryArticleDetail`）
+- **认证方式**：请求头 `REDFOX_API_KEY`（兼容旧别名 `X-API-KEY`），取环境变量 `REDFOX_API_KEY` 的值（格式 `ak_xxx`）
+- **数据范围**：抖音广域库仅收录热门数据；每次接口调用消耗红狐平台积分
+
+---
+
 ## 密钥获取与安全说明
 
 - 本技能需要使用环境变量：`REDFOX_API_KEY`。
