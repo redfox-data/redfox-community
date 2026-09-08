@@ -6,10 +6,10 @@ stock-analysis 公共模块
 
 提供：
 - 终端颜色 & 打印工具
-- API 配置（queryWorkList 接口、Key 管理）
+- API 配置（广域库 queryWorkList 接口、Key 管理）
 - 画像加载（JSON 格式）
 - HTTP 请求封装（含状态码检查）
-- STOCK_ANALYSTS 名单 + 微信号映射
+- STOCK_ANALYSTS 名单 + 账号ID映射
 """
 
 import json
@@ -37,16 +37,16 @@ PROFILES_DIR = SKILL_DIR / "profiles"
 OUTPUT_DIR = SKILL_DIR / "output"
 
 # ─── API 配置 ──────────────────────────────────────────────────────────────────────
-API_URL = "https://redfox.hk/story/api/gzhData/queryWorkList"
+API_URL = "https://redfox.hk/story/api/gzh/data/queryWorkList"
 RECORD_API_URL = "https://redfox.hk/story/api/skill/record/save"
 RECORD_SOURCE = "公众号股票大V蒸馏-GitHub"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
-ENV_KEY = "X_API_KEY"
+ENV_KEY = "REDFOX_API_KEY"
 
 STOCK_ANALYSTS = ["财躺平", "猫笔刀", "格兰投研", "投资明见", "终身黑白"]
 
-# 分析师 → 公众号微信号映射（queryWorkList 接口用 account 字段精确定位）
+# 分析师 → 公众号账号ID映射（广域库接口自动路由：gh_开头→wxId，其余→account）
 ACCOUNT_IDS = {
     "财躺平": "gh_ad228eaec48a",
     "投资明见": "sinaxxm",
@@ -100,7 +100,7 @@ def get_api_key(cli_key=None):
             pass
 
     error("未配置 API Key，请通过以下方式之一配置：")
-    print(f"  1. 环境变量：$env:X_API_KEY=\"ak_你的密钥\"")
+    print(f"  1. 环境变量：export REDFOX_API_KEY=\"ak_你的密钥\"")
     print(f"  2. 配置文件：~/.qoder/apis/redfox.json")
     print(f"  3. 命令行参数：--api-key ak_你的密钥")
     print(f"\n  注册地址：https://www.redfox.hk/login")
@@ -113,7 +113,7 @@ def record_call(api_key, mode=None, authors=None):
     向 redfox.hk 上报 skill 调用记录（fire-and-forget，失败不影响主流程）。
 
     Args:
-        api_key: X_API_KEY
+        api_key: REDFOX_API_KEY
         mode: 分析模式（daily/team/sector/track/screen/portfolio/earnings/sync）
         authors: 参与分析的大V名称列表或字符串
     """
@@ -266,12 +266,15 @@ def check_api_code(result):
         return False, False
 
     msg = result.get("msg", "")
-    if code == 4004:
+    if code in (4004, 3108):
         warn("限频，等待5秒...")
         time.sleep(5)
         return True, False
     elif code in (3106, 3107):
         error(f"API错误: code={code}, msg={msg}")
+        return False, True
+    elif code == 3203:
+        error(f"账号不在广域库中，暂未收录: {msg}")
         return False, True
     else:
         warn(f"API返回: code={code}, msg={msg}")
@@ -288,19 +291,25 @@ def extract_articles_from_data(result):
     return []
 
 
-def has_more_pages(result):
-    """判断是否还有下一页（新接口 data.hasMore 字段）"""
-    data_raw = result.get("data", {})
-    if isinstance(data_raw, dict):
-        return bool(data_raw.get("hasMore"))
-    return False
+def build_account_params(account):
+    """
+    广域库账号ID路由：account/wxId/bizInfo 三者选其一。
+    - gh_ 开头 → wxId（公众号原始ID）
+    - == 结尾 → bizInfo（账号采集ID）
+    - 其余 → account（公众号微信号）
+    """
+    if account.startswith("gh_"):
+        return {"wxId": account}
+    if account.endswith("=="):
+        return {"bizInfo": account}
+    return {"account": account}
 
 
 def fetch_articles_paginated(api_key, account, account_name=None, days=7, count=50,
                              label=""):
     """
-    通用分页拉取文章函数（queryWorkList 接口）。
-    account: 公众号微信号（必填）
+    通用分页拉取文章函数（广域库 queryWorkList 接口，每页固定20条）。
+    account: 公众号微信号 / 原始ID(gh_开头) / 采集ID，自动路由到对应参数
     account_name: 分析师名称（仅用于日志显示）
     """
     if not HAS_REQUESTS:
@@ -308,20 +317,20 @@ def fetch_articles_paginated(api_key, account, account_name=None, days=7, count=
         return []
 
     session = requests.Session()
-    session.headers.update({"Content-Type": "application/json", "REDFOX_API_KEY": api_key})
+    session.headers.update({"Content-Type": "application/json", "X-API-Key": api_key})
 
+    PAGE_SIZE = 20  # 广域库每页固定20条
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
+    start_str = start_date.strftime("%Y-%m-%d")
     payload = {
-        "account": account,
+        **build_account_params(account),
         "offset": 0,
-        "sortType": "_2",  # 按发布时间倒序
-        "publishTimeStart": start_date.strftime("%Y-%m-%d"),
-        "publishTimeEnd": end_date.strftime("%Y-%m-%d"),
+        "sortType": "2",  # 按最新发布时间排序
+        "publishTimeStart": start_date.strftime("%Y-%m-%d 00:00:00"),
+        "publishTimeEnd": end_date.strftime("%Y-%m-%d 23:59:59"),
         "source": RECORD_SOURCE,
     }
-    if account_name:
-        payload["accountName"] = account_name
 
     display_name = account_name or account
     all_articles = []
@@ -366,12 +375,19 @@ def fetch_articles_paginated(api_key, account, account_name=None, days=7, count=
         fetched += len(articles)
         info(f"已获取 {fetched} 篇")
 
-        # 用 hasMore 判断是否还有下一页
-        if not has_more_pages(result):
+        # 本页不足20条，已是最后一页
+        if len(articles) < PAGE_SIZE:
+            break
+
+        # 按最新排序，本页末篇早于起始日期，后续页只会更早，停止翻页
+        last_pub = str(articles[-1].get("publishTime") or "")[:10]
+        if last_pub and last_pub < start_str:
             break
         time.sleep(1)
 
-    return all_articles[:count]
+    # 客户端按发布时间兜底过滤，确保只保留近N天文章
+    filtered = [a for a in all_articles if str(a.get("publishTime") or "")[:10] >= start_str]
+    return filtered[:count]
 
 
 def ensure_output_dir():

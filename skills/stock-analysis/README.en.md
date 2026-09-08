@@ -42,10 +42,10 @@ Distills 200+ articles from 5 top WeChat public account stock analysts into stru
 
 ## API Key Acquisition & Security
 
-- This skill requires the environment variable: `X_API_KEY`.
-- `X_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
-- Please visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `X_API_KEY`.
-- Configure the `X_API_KEY` environment variable on your device before using this skill.
+- This skill requires the environment variable: `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- Please visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
+- Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
 - Before providing your key, verify its source, scope, validity period, and whether reset/revocation is supported.
 - Do not hardcode or expose the key in plain text within code, prompts, logs, or output files.
 
