@@ -29,6 +29,7 @@ The A-Share WeChat Official Account Influencer Rankings tool lets you retrieve a
 - **Rankings Query**: Query A-share WeChat account influencer rankings by date, with official media/institutions and individual influencers displayed separately — up to 30 accounts per category
 - **Account Data**: Retrieve core operational metrics for each account, including average read counts, RedFox Index scores, and account descriptions
 - **Daily Articles**: Access the latest articles published by each account on the specified date, including titles, links, read counts, likes, and comment counts
+- **Direct Link to Original**: Every article title is itself a clickable link, so anything that catches your eye opens straight into the original WeChat article
 - **AI Content Summaries**: Automatically generate one-sentence key takeaways based on article titles for quick browsing
 - **Subscription Push**: Subscribe to official media or influencer accounts by index number and query the latest article updates for all subscribed accounts in a single step
 
@@ -60,6 +61,8 @@ Simply describe your needs in natural language — no commands to memorize.
 | View subscriptions | "Show my subscriptions" | Displays all currently subscribed accounts |
 | Daily push | "Push today's updates for my subscriptions" | Queries the latest articles for all subscribed accounts |
 | Unsubscribe | "Unsubscribe from 央视财经" | Removes the specified account from your subscription list |
+| Category-specific push | "Only push updates from the official media I subscribe to" | Queries the latest articles from subscribed official media/institution accounts only; influencers-only works the same way |
+| Clear subscriptions | "Clear all my official media subscriptions" | Removes every subscribed account in that category while leaving the other category untouched |
 
 ### Output Example
 
@@ -96,7 +99,8 @@ Simply describe your needs in natural language — no commands to memorize.
 
 ## Important Data Notes
 
-- Account data is sourced from WeChat accounts indexed by the RedFox API, covering 49 fixed top A-share accounts (19 individual influencers + 30 official media/institutions)
+- Account data is sourced from WeChat accounts indexed by the RedFox platform, covering 49 fixed top A-share accounts (19 individual influencers + 30 official media/institutions)
+- Accounts within each ranking are sorted by average read count, highest first
 - Article data consists of works published by accounts on the specified date, filtered and returned directly by the server
 - Engagement data (read counts, likes, comments, etc.) reflects the time of data ingestion and is not real-time
 - The RedFox platform updates the previous day's data daily at **07:00**; it is recommended to query after **07:30** for the latest daily report

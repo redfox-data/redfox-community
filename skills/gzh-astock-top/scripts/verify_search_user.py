@@ -3,7 +3,7 @@
 """
 验证 searchUser 接口效果
 =========================
-测试 gzhData/searchUser 接口在A股大V发现场景的实际效果
+测试 gzh/data/searchUser 接口在A股大V发现场景的实际效果
 
 Usage:
     python3 verify_search_user.py
@@ -21,7 +21,7 @@ import urllib.error
 
 
 # ─── 配置 ─────────────────────────────────────────────────────────────────────────
-SEARCH_USER_URL = "https://redfox.hk/story/api/gzhData/searchUser"
+SEARCH_USER_URL = "https://redfox.hk/story/api/gzh/data/searchUser"
 ACCOUNT_QUERY_URL = "https://redfox.hk/story/api/gzhUser/query"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
@@ -92,7 +92,6 @@ def test_search_user(api_key, keywords, max_per_keyword=20):
         body = {
             "keyword": keyword,
             "offset": 0,
-            "sortType": "_4",  # 最热排序（按阅读数）
         }
         
         result = _http_post(SEARCH_USER_URL, body, api_key)
@@ -116,24 +115,22 @@ def test_search_user(api_key, keywords, max_per_keyword=20):
         # 分析返回的账号
         new_count = 0
         for acc in accounts:
-            name = acc.get("accountName", "").strip()
+            name = (acc.get("accountName") or "").strip()
             if not name or name in seen_names:
                 continue
             
             seen_names.add(name)
             new_count += 1
             
-            # 提取关键字段
+            # 提取关键字段（接口可能返回 null，统一兜底为空串）
             account_info = {
                 "accountName": name,
-                "account": acc.get("account", ""),  # 微信号
-                "redfoxIndex": acc.get("redfoxIndex", 0),
-                "description": acc.get("description", ""),
-                "verifyInfo": acc.get("verifyInfo", ""),
-                "accountType": acc.get("accountType", ""),
-                "lastArticleTitle": acc.get("lastArticleTitle", ""),
-                "lastPublishTime": acc.get("lastPublishTime", ""),
-                "tags": acc.get("tags", ""),
+                "account": acc.get("account") or "",  # 账号平台展示ID
+                "wxId": acc.get("wxId") or "",  # 公众号原始ID
+                "bizInfo": acc.get("bizInfo") or "",  # 账号采集用ID
+                "description": acc.get("description") or "",
+                "verifyInfo": acc.get("verifyInfo") or "",
+                "avatarUrl": acc.get("avatarUrl") or "",
             }
             all_accounts.append(account_info)
         
@@ -142,12 +139,11 @@ def test_search_user(api_key, keywords, max_per_keyword=20):
         # 打印前3个账号详情
         for i, acc in enumerate(accounts[:3]):
             print(f"\n  示例账号 {i+1}:")
-            print(f"    名称: {acc.get('accountName')}")
-            print(f"    微信号: {acc.get('account')}")
-            print(f"    红狐指数: {acc.get('redfoxIndex')}")
-            print(f"    账号分类: {acc.get('accountType')}")
-            print(f"    认证信息: {acc.get('verifyInfo')}")
-            print(f"    最新文章: {acc.get('lastArticleTitle')}")
+            print(f"    名称: {acc.get('accountName') or '-'}")
+            print(f"    账号ID: {acc.get('account') or '-'}")
+            print(f"    原始ID: {acc.get('wxId') or '-'}")
+            print(f"    采集ID: {acc.get('bizInfo') or '-'}")
+            print(f"    认证信息: {acc.get('verifyInfo') or '-'}")
             desc = acc.get('description') or ""
             print(f"    简介: {desc[:50]}..." if len(desc) > 50 else f"    简介: {desc}")
         
@@ -180,10 +176,10 @@ def test_gzh_user_query(api_key, accounts, test_count=5):
     
     for i, acc in enumerate(test_accounts):
         account_name = acc.get("accountName")
-        account_wei = acc.get("account")  # 微信号
+        account_wei = acc.get("account")  # 账号平台展示ID
         
         print(f"[{i+1}] 测试账号: {account_name}")
-        print(f"    微信号: {account_wei}")
+        print(f"    账号ID: {account_wei}")
         
         # 方式1: 用 accountName 查询
         body1 = {
@@ -230,15 +226,15 @@ def test_gzh_user_query(api_key, accounts, test_count=5):
                 data2 = result2.get("data", {})
                 if isinstance(data2, list) and len(data2) > 0:
                     detail2 = data2[0]
-                    print(f"    ✅ 方式2(微信号) 成功")
+                    print(f"    ✅ 方式2(账号ID) 成功")
                     print(f"       avgReadCount: {detail2.get('avgReadCount', 'N/A')}")
                     print(f"       redfoxIndex: {detail2.get('redfoxIndex', 'N/A')}")
                 else:
-                    print(f"    ⚠️ 方式2(微信号) 返回空数据")
+                    print(f"    ⚠️ 方式2(账号ID) 返回空数据")
             else:
-                print(f"    ❌ 方式2(微信号) 失败: code={result2.get('code')}")
+                print(f"    ❌ 方式2(账号ID) 失败: code={result2.get('code')}")
         else:
-            print(f"    ⏭️ 方式2(微信号) 跳过（无微信号）")
+            print(f"    ⏭️ 方式2(账号ID) 跳过（无账号ID）")
         
         print()
         time.sleep(0.3)
@@ -277,16 +273,14 @@ def analyze_vertical_classification(accounts):
     print(f"📈 账号垂直度分析（共 {len(accounts)} 个）:\n")
     
     for acc in accounts:
-        name = acc.get("accountName", "")
         desc = (acc.get("description") or "").lower()
         verify = (acc.get("verifyInfo") or "").lower()
-        acc_type = (acc.get("accountType") or "").lower()
         
         # 判断是否A股垂直
         is_vertical = any(kw in desc for kw in vertical_keywords)
         
         # 判断是否官媒
-        is_official = any(kw in verify or kw in acc_type or kw in desc for kw in official_keywords)
+        is_official = any(kw in verify or kw in desc for kw in official_keywords)
         
         if is_vertical:
             vertical_count += 1
@@ -306,15 +300,15 @@ def analyze_vertical_classification(accounts):
     
     # 打印示例
     print(f"\n  官媒示例:")
-    official_accounts = [acc for acc in accounts if any(kw in (acc.get("verifyInfo") or "").lower() or kw in (acc.get("accountType") or "").lower() for kw in official_keywords)]
+    official_accounts = [acc for acc in accounts if any(kw in (acc.get("verifyInfo") or "").lower() for kw in official_keywords)]
     for acc in official_accounts[:3]:
-        print(f"    - {acc['accountName']} | {acc.get('accountType')} | {(acc.get('verifyInfo') or '')[:30]}")
+        print(f"    - {acc['accountName']} | {(acc.get('verifyInfo') or '')[:30]}")
     
     print(f"\n  个人大V示例:")
-    kol_accounts = [acc for acc in accounts if not any(kw in (acc.get("verifyInfo") or "").lower() or kw in (acc.get("accountType") or "").lower() for kw in official_keywords)]
+    kol_accounts = [acc for acc in accounts if not any(kw in (acc.get("verifyInfo") or "").lower() for kw in official_keywords)]
     for acc in kol_accounts[:3]:
         desc = acc.get('description') or ""
-        print(f"    - {acc['accountName']} | 红狐指数: {acc.get('redfoxIndex')} | {desc[:30]}")
+        print(f"    - {acc['accountName']} | 账号ID: {acc.get('account')} | {desc[:30]}")
 
 
 # ─── 主函数 ──────────────────────────────────────────────────────────────────────
@@ -333,9 +327,8 @@ def main():
     print(f"\n✅ searchUser 测试完成:")
     print(f"   发现账号总数: {len(accounts)}")
     
-    redfox_indices = [float(a['redfoxIndex']) for a in accounts if a.get('redfoxIndex') is not None]
-    if redfox_indices:
-        print(f"   红狐指数范围: {min(redfox_indices):.1f} - {max(redfox_indices):.1f}")
+    verified = sum(1 for a in accounts if a.get("verifyInfo"))
+    print(f"   有认证信息账号: {verified}")
     
     # 保存原始数据
     output_file = Path("search_user_test_result.json")
@@ -354,15 +347,14 @@ def main():
     print(f"{'='*80}\n")
     
     print("✅ searchUser 接口能力:")
-    print("   1. 直接返回账号列表（含红狐指数、简介、分类）")
-    print("   2. 支持最热排序（按阅读数）")
-    print("   3. 返回 accountType 辅助分类")
-    print("   4. 返回 lastArticleTitle（最新文章标题）")
+    print("   1. 直接返回账号列表（含账号ID、简介、认证信息、头像）")
+    print("   2. 返回 wxId（公众号原始ID）与 bizInfo（采集用ID）")
+    print("   3. 支持 offset 分页（每页20条）")
     
     print("\n⚠️ 需要注意:")
     print("   1. 无时间范围过滤参数（可能搜到历史账号）")
-    print("   2. 需配合 gzhUser/query 获取 avgReadCount 和 works")
-    print("   3. 返回的 account 是微信号，需验证是否可用于 gzhUser/query")
+    print("   2. 无排序参数，仅 keyword + offset")
+    print("   3. 不返回红狐指数/平均阅读数/账号分类，需配合 gzhUser/query 获取")
     
     print("\n🎯 建议:")
     if len(accounts) >= 50:
