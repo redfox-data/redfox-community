@@ -45,7 +45,7 @@ def _get_api_key() -> str:
 def save_record() -> None:
     """调用权限接口，请求本 Skill 的使用权限。失败时以非零退出码终止。"""
     api_key = _get_api_key()
-    payload = {"skillName": SKILL_NAME}
+    payload = {"skillName": SKILL_NAME, "source": "PDF和图片文字提取-GitHub"}
     headers = {
         "Content-Type": "application/json; charset=utf-8",
         "X-API-Key": api_key,
