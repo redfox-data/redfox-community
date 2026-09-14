@@ -40,7 +40,7 @@ PLATFORMS = {
     },
     "dy": {
         "label": "抖音",
-        "result_key": "dyResult",
+        # 抖音数据由广域库接口单独查询（见 _search_dy_works）
     },
     "gzh": {
         "label": "公众号",
@@ -245,17 +245,16 @@ def _normalize_xhs(art: dict, idx: int) -> dict:
 
 
 def _normalize_dy(art: dict, idx: int) -> dict:
-    """归一化抖音数据 - 兼容 dy/data/searchWork 广域库 及旧 dyData/searchArticle、dy/search/search 格式"""
-    work_url = _first_of(art, "opusUrl", "workUrl", "url", default="")
-    title_raw = _first_of(art, "title", "content", "desc", default="")
-    desc_raw = _first_of(art, "content", "desc", "summary", default="")
-    title = (title_raw or "无标题")[:200]
-    desc = (desc_raw or "")[:500]
-    author_name = _first_of(art, "authorName", "accountName", "author", "authorNickname", default="未知")
-    # 作者主页链接优先取 sec_uid（广域库字段），可正常跳转抖音个人主页
-    author_id = str(_first_of(art, "authorSecUid", "authorUid", "accountId", "authorId", default=""))
-    pub_time = _first_of(art, "publishTime", "createTime", default="")
-    cover = _first_of(art, "cover", "coverUrl", default="")
+    """归一化抖音数据 - 映射抖音广域库接口 dy/data/searchWork 响应格式"""
+    work_url = art.get("opusUrl") or ""
+    content = art.get("content") or ""
+    title = (content or "无标题")[:200]
+    desc = content[:500]
+    author_name = art.get("authorName") or "未知"
+    # 作者主页链接优先取 sec_uid，可正常跳转抖音个人主页
+    author_id = str(art.get("authorSecUid") or art.get("authorUid") or "")
+    pub_time = art.get("publishTime") or ""
+    cover = art.get("coverUrl") or ""
     return {
         "id": f"DY{idx}",
         "platform": "抖音",
@@ -266,13 +265,14 @@ def _normalize_dy(art: dict, idx: int) -> dict:
         "author": author_name,
         "author_id": author_id,
         "author_link": f"https://www.douyin.com/user/{author_id}" if author_id else "",
-        "author_fans": fuzzy_count(_first_of(art, "followerCount", "authorFans", default=0)),
+        # 广域库接口不返回作者粉丝数
+        "author_fans": "--",
         "published_at": str(pub_time),
         "engagement": {
-            "likes": parse_count(_first_of(art, "likeCount", "likedCount", default=0)),
-            "comments": parse_count(_first_of(art, "commentCount", "commentsCount", default=0)),
-            "collects": parse_count(_first_of(art, "collectCount", "collectedCount", default=0)),
-            "shares": parse_count(_first_of(art, "shareCount", "sharedCount", default=0)),
+            "likes": parse_count(art.get("likeCount", 0)),
+            "comments": parse_count(art.get("commentCount", 0)),
+            "collects": parse_count(art.get("collectCount", 0)),
+            "shares": parse_count(art.get("shareCount", 0)),
         },
         "engagement_display": _engagement_display(art, "dy"),
         "cover": cover,
@@ -324,10 +324,10 @@ def _engagement_display(art: dict, platform: str) -> str:
         interactions = fuzzy_count(_first_of(art, "interactiveCount", default=0))
         return f"🔥{interactions}互动 👍{likes} ⭐{collects} 💬{comments}"
     elif platform == "dy":
-        likes = fuzzy_count(_first_of(art, "workLikedCount", "likeCount", "likedCount", default=0))
-        comments = fuzzy_count(_first_of(art, "workCommentsCount", "commentCount", "commentsCount", default=0))
-        shares = fuzzy_count(_first_of(art, "workSharedCount", "shareCount", "sharedCount", default=0))
-        collects = fuzzy_count(_first_of(art, "workCollectedCount", "collectCount", "collectedCount", default=0))
+        likes = fuzzy_count(art.get("likeCount", 0))
+        comments = fuzzy_count(art.get("commentCount", 0))
+        shares = fuzzy_count(art.get("shareCount", 0))
+        collects = fuzzy_count(art.get("collectCount", 0))
         return f"👍{likes} 💬{comments} ⭐{collects} 🔄{shares}"
     elif platform == "gzh":
         reads = fuzzy_count(_first_of(art, "clicksCount", "readCount", default=0))
@@ -424,7 +424,7 @@ def search(
     credit_error = False
 
     try:
-        # 小红书/公众号仍由统一多平台接口返回（其中的 dyResult 忽略，抖音改用广域库）
+        # 小红书/公众号数据来自统一多平台接口；抖音数据由广域库接口单独查询
         data = {}
         if any(p != "dy" for p in platforms):
             result = _http_post(API_BASE, payload, key)
