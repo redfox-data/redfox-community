@@ -432,6 +432,7 @@ def submit_task(prompt, api_key, image_path=None, size=None, resolution=None, n=
         "size": aspect,
         "n": n_int,
         "referenceImages": reference_images,
+        "source": "图文运营创作器-GitHub",
     }
     print(f"[OK] Submit payload: size={aspect}, resolution={resolution_final}, n={n_int}, refs={len(reference_images)}")
 

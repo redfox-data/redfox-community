@@ -196,6 +196,7 @@ def submit_task(session, prompt, resolution, aspect, n, reference_images):
         "size": aspect,
         "n": n,
         "referenceImages": reference_images or [],
+        "source": "imageGen-GitHub",
     }
 
     try:
