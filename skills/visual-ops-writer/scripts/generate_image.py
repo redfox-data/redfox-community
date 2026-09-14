@@ -1,28 +1,37 @@
-"""运营文章配图生成脚本（统一版）
-基于 gpt-image-2 模型，支持文生图与图生图（传入参考图）
-仅依赖 Python 标准库，无需额外安装
+"""运营文章配图生成脚本（对接 gpt-image-2 新接口）
+基于 gpt-image-2 模型，支持文生图与图生图（传入参考图），仅依赖 Python 标准库。
+
+对接红狐新版接口：
+    SUBMIT: POST https://redfox.hk/story/api/parseWork/imageGen/gptImage2Submit
+    RESULT: POST https://redfox.hk/story/api/parseWork/imageGen/gptImage2Result
+
+新接口提交体：
+    prompt / resolution(1k|2k|4k) / size(宽高比) / n(1-4) / referenceImages(最多 2 张)
+新接口返回体关键字段：
+    data.status ∈ {completed, processing, failed} / data.imageUrls[] / data.progress / data.failReason
 
 用法：
-    # 文生图（默认）
+    # 文生图（默认 16:9 + 2k）
     python generate_image.py --prompt "图片描述" --api-key "ak_xxx"
+    # 指定宽高比与分辨率档位
+    python generate_image.py --prompt "..." --size 9:16 --resolution 4k --api-key "ak_xxx"
     # 图生图（传入参考图）
     python generate_image.py --prompt "图片描述" --image assets/skill标题.jpg --api-key "ak_xxx"
     # 链接仿写模式（红狐风格不启用，参考图作为风格参照）
-    python generate_image.py --prompt "图片描述" --reference-image "https://xxx.com/img.jpg" --style reference --api-key "ak_xxx"
+    python generate_image.py --prompt "..." --reference-image "https://xxx.com/img.jpg" --style reference --api-key "ak_xxx"
     # 风格切换
-    python generate_image.py --prompt "..." --style {redfox|reference|none} --api-key "ak_xxx"
-    # 批量生成（prompts.json 中可指定 image 字段）
+    python generate_image.py --prompt "..." --style {redfox|popcomic|yellowcomic|reference|none|random} --api-key "ak_xxx"
+    # 批量生成（prompts.json 中可指定 image/size/resolution/n/style 字段）
     python generate_image.py --batch prompts.json --api-key "ak_xxx"
     # 查询已有任务
     python generate_image.py --task-id "task_xxx" --api-key "ak_xxx"
-    # 随机风格模式（从可用风格中随机选一种，单次调用内所有图保持一致）
-    python generate_image.py --prompt "..." --style random --api-key "ak_xxx"
-    # 批量随机风格
-    python generate_image.py --batch prompts.json --style random --api-key "ak_xxx"
+
+已弃用参数（新接口不再支持，传入会被忽略并提示）：
+    --quality / --fidelity
 
 prompts.json 格式：
     [
-        {"id": "img1", "prompt": "...", "chapter": "封面", "image": "assets/skill标题.jpg", "style": "redfox"},
+        {"id": "img1", "prompt": "...", "chapter": "封面", "image": "assets/skill标题.jpg", "style": "redfox", "size": "16:9", "resolution": "2k", "n": 1},
         {"id": "img2", "prompt": "...", "chapter": "热点分析", "image": "assets/02.jpg", "style": "reference"},
         {"id": "img3", "prompt": "...", "chapter": "操作指南", "style": "popcomic"}
     ]
@@ -48,29 +57,70 @@ import ssl
 import tempfile
 from pathlib import Path
 
-SUBMIT_URL = "https://redfox.hk/story/api/parseWork/imageGen/submitSkill"
-RESULT_URL = "https://redfox.hk/story/api/parseWork/imageGen/result"
+SUBMIT_URL = "https://redfox.hk/story/api/parseWork/imageGen/gptImage2Submit"
+RESULT_URL = "https://redfox.hk/story/api/parseWork/imageGen/gptImage2Result"
 UPLOAD_URL = "https://redfox.hk/story/api/parseWork/imageGen/uploadImage"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
 
-DEFAULT_PARAMS = {
-    "modelName": "gpt-image-2",
-    "n": 1,
-    "size": "1792x1024",
-    "outputFormat": "png",
-}
+# 新接口 gptImage2Submit 参数
+#   prompt / resolution(1k|2k|4k) / size(宽高比) / n(1-4) / referenceImages(最多2张)
+DEFAULT_RESOLUTION = "2k"
+DEFAULT_ASPECT = "16:9"
+DEFAULT_N = 1
 
 POLL_INTERVAL = 5
-MAX_POLLS = 20
+MAX_POLLS = 40  # 最长等待 ~200 秒
 
-# 分辨率白名单（非白名单可能导致生成过慢或失败）
-FAST_SIZES = {"1024x1024", "1024x1536", "1536x1024", "1792x1024", "1024x1792"}
-HD_SIZES = {"2048x2048", "2048x1152", "1152x2048"}
-ALLOWED_SIZES = FAST_SIZES | HD_SIZES
+# 新接口 size 支持的宽高比
+VALID_ASPECTS = {
+    "1:1", "3:2", "2:3", "4:3", "3:4", "5:4", "4:5",
+    "16:9", "9:16", "2:1", "1:2", "21:9", "9:21",
+}
+VALID_RESOLUTIONS = {"1k", "2k", "4k"}
+MAX_REFERENCE_IMAGES = 2
+MAX_COUNT = 4
+
+# 兼容旧像素尺寸：像素 → (新接口 size 宽高比, 推荐 resolution 档位)
+LEGACY_SIZE_MAP = {
+    "1024x1024": ("1:1", "1k"),
+    "1024x1536": ("2:3", "1k"),
+    "1536x1024": ("3:2", "1k"),
+    "1792x1024": ("16:9", "1k"),
+    "1024x1792": ("9:16", "1k"),
+    "2048x2048": ("1:1", "2k"),
+    "2048x1152": ("16:9", "2k"),
+    "1152x2048": ("9:16", "2k"),
+}
+# 兼容旧脚本中出现的 ALLOWED_SIZES 引用（含像素 + 宽高比）
+ALLOWED_SIZES = set(LEGACY_SIZE_MAP.keys()) | VALID_ASPECTS
 
 MAX_PROMPT_LENGTH = 500
+
+
+def normalize_size(size_arg, resolution_arg=None):
+    """把 --size 归一化为新接口所需的 (aspect, resolution)。
+
+    - 像素格式（旧）：1792x1024 → ("16:9", "1k")；如显式传入 resolution 则以其为准
+    - 宽高比格式（新）：16:9 → ("16:9", resolution_arg or "2k")
+    """
+    size_str = (size_arg or DEFAULT_ASPECT).strip()
+    if size_str in LEGACY_SIZE_MAP:
+        aspect, default_res = LEGACY_SIZE_MAP[size_str]
+        resolution = (resolution_arg or default_res).strip().lower()
+    elif size_str in VALID_ASPECTS:
+        aspect = size_str
+        resolution = (resolution_arg or DEFAULT_RESOLUTION).strip().lower()
+    else:
+        print(f"[ERR] Unsupported size: {size_str}")
+        print(f"  宽高比可选: {', '.join(sorted(VALID_ASPECTS))}")
+        print(f"  兼容旧像素: {', '.join(sorted(LEGACY_SIZE_MAP.keys()))}")
+        sys.exit(1)
+    if resolution not in VALID_RESOLUTIONS:
+        print(f"[ERR] Unsupported resolution: {resolution} (可选 1k/2k/4k)")
+        sys.exit(1)
+    return aspect, resolution
 
 
 # 风格修饰器：三种可选视觉风格
@@ -293,8 +343,18 @@ def download_images(image_urls, output_dir, prefix="image"):
     return downloaded
 
 
-def submit_task(prompt, api_key, image_path=None, fidelity=None, size=None, quality=None, style="redfox"):
-    """Submit an image generation task. Returns taskId or None.
+def submit_task(prompt, api_key, image_path=None, size=None, resolution=None, n=1,
+                style="redfox", fidelity=None, quality=None):
+    """Submit an image generation task via gptImage2Submit. Returns taskId or None.
+
+    新接口请求体：
+        {
+          "prompt": "...",
+          "resolution": "1k|2k|4k",
+          "size": "16:9",
+          "n": 1-4,
+          "referenceImages": ["url1", "url2"]
+        }
 
     style:
         - redfox: 红狐讲解员 + 美式复古报刊风格（默认）
@@ -302,10 +362,14 @@ def submit_task(prompt, api_key, image_path=None, fidelity=None, size=None, qual
         - yellowcomic: 亮黄信息图漫画风（斜纹底+分类表格中心）
         - reference: prompt 不变，靠参考图自带的风格
         - none: prompt 不变
-        - random: 从 redfox/popcomic/yellowcomic 中随机选一个（调用方需自行确保同批次一致性）
+        - random: 从 redfox/popcomic/yellowcomic 中随机选一个
+
+    fidelity / quality 为旧接口参数，新接口不再支持，仅保留形参避免破坏旧调用方。
     """
-    operation = "generate"
-    images = None
+    if fidelity:
+        print(f"[WARN] --fidelity 在新接口已弃用，忽略值: {fidelity}")
+    if quality:
+        print(f"[WARN] --quality 在新接口已弃用，忽略值: {quality}（如需控制清晰度请用 --resolution）")
 
     # 风格修饰：random 需在此处解析为具体风格
     if style == "random":
@@ -321,54 +385,69 @@ def submit_task(prompt, api_key, image_path=None, fidelity=None, size=None, qual
     elif style in ("reference", "none"):
         print(f"[OK] Style applied: {style} (no modification)")
 
+    # 参考图处理（支持单张路径/URL，上传后归一到 referenceImages 数组）
+    reference_images = []
     if image_path:
-        operation = "edit"
-        if is_url(image_path):
-            temp_path = download_url_to_temp(image_path)
-            if not temp_path:
-                return None
-            image_url = upload_image(temp_path, api_key)
-            try:
-                os.unlink(temp_path)
-            except OSError:
-                pass
-            if not image_url:
-                return None
-            print(f"[OK] Mode: image-to-image (edit), ref URL -> OSS: {image_url}")
+        if isinstance(image_path, list):
+            candidates = image_path[:MAX_REFERENCE_IMAGES]
         else:
-            image_url = upload_image(image_path, api_key)
-            if not image_url:
-                return None
-            print(f"[OK] Mode: image-to-image (edit), ref: {image_path}")
-        images = [{"url": image_url}]
+            candidates = [image_path]
+        for cand in candidates:
+            if not cand:
+                continue
+            if is_url(cand):
+                temp_path = download_url_to_temp(cand)
+                if not temp_path:
+                    return None
+                image_url = upload_image(temp_path, api_key)
+                try:
+                    os.unlink(temp_path)
+                except OSError:
+                    pass
+                if not image_url:
+                    return None
+                print(f"[OK] Mode: image-to-image, ref URL -> OSS: {image_url}")
+            else:
+                image_url = upload_image(cand, api_key)
+                if not image_url:
+                    return None
+                print(f"[OK] Mode: image-to-image, ref: {cand}")
+            reference_images.append(image_url)
     else:
-        print(f"[OK] Mode: text-to-image (generate)")
+        print("[OK] Mode: text-to-image")
 
-    params = dict(DEFAULT_PARAMS)
-    if size:
-        params["size"] = size
-    if quality:
-        params["quality"] = quality
+    # 尺寸/分辨率归一化为新接口格式
+    aspect, resolution_final = normalize_size(size, resolution)
 
-    data = {"prompt": final_prompt, "parameters": params, "operation": operation}
-    if images:
-        data["images"] = images
-    if operation == "edit" and fidelity:
-        data["parameters"]["inputFidelity"] = fidelity
+    # n 限制在新接口上限内
+    try:
+        n_int = int(n) if n is not None else DEFAULT_N
+    except (TypeError, ValueError):
+        n_int = DEFAULT_N
+    n_int = max(1, min(MAX_COUNT, n_int))
+
+    data = {
+        "prompt": final_prompt,
+        "resolution": resolution_final,
+        "size": aspect,
+        "n": n_int,
+        "referenceImages": reference_images,
+    }
+    print(f"[OK] Submit payload: size={aspect}, resolution={resolution_final}, n={n_int}, refs={len(reference_images)}")
 
     resp = make_request(SUBMIT_URL, data, api_key)
 
-    if resp.get("code") == 2000 and resp.get("data", {}).get("taskId"):
+    if resp.get("code") == 2000 and (resp.get("data") or {}).get("taskId"):
         task_id = resp["data"]["taskId"]
         print(f"[OK] Task submitted: {task_id}")
         return task_id
     else:
-        print(f"[ERR] Submit failed: {resp.get('msg', 'unknown error')}")
+        print(f"[ERR] Submit failed (code={resp.get('code')}): {resp.get('msg', 'unknown error')}")
         return None
 
 
 def poll_result(task_id, api_key):
-    """Poll task result until success, failure, or timeout."""
+    """Poll gptImage2Result until completed/failed/timeout, return imageUrls list."""
     for i in range(MAX_POLLS):
         resp = make_request(RESULT_URL, {"taskId": task_id}, api_key, timeout=15)
 
@@ -377,43 +456,56 @@ def poll_result(task_id, api_key):
             time.sleep(POLL_INTERVAL)
             continue
 
-        status = resp.get("data", {}).get("status", "")
+        data = resp.get("data") or {}
+        status = data.get("status", "")
 
-        if status == "success":
-            paths = resp["data"].get("imagePaths", [])
-            if isinstance(paths, str):
-                paths = [paths]
-            print(f"[OK] Task {task_id} succeeded: {paths}")
-            return paths
+        if status == "completed":
+            urls = data.get("imageUrls") or []
+            if isinstance(urls, str):
+                urls = [urls]
+            print(f"[OK] Task {task_id} completed: {urls}")
+            return urls
 
         elif status == "failed":
-            reason = resp["data"].get("failReason", "unknown")
+            reason = data.get("failReason") or "unknown"
             print(f"[ERR] Task {task_id} failed: {reason}")
             return None
 
         else:
+            progress = data.get("progress")
             elapsed = (i + 1) * POLL_INTERVAL
-            print(f"[...] Poll {i+1}/{MAX_POLLS}: pending ({elapsed}s elapsed)")
+            suffix = f" {progress}%" if isinstance(progress, int) else ""
+            print(f"[...] Poll {i+1}/{MAX_POLLS}: {status or 'processing'}{suffix} ({elapsed}s elapsed)")
             time.sleep(POLL_INTERVAL)
 
     print(f"[TIMEOUT] Task {task_id} timed out after {MAX_POLLS * POLL_INTERVAL}s")
     return None
 
 
-def generate_single(prompt, api_key, image_path=None, fidelity=None, size=None, quality=None, style="redfox"):
+def generate_single(prompt, api_key, image_path=None, size=None, resolution=None, n=1,
+                    style="redfox", fidelity=None, quality=None):
     """Generate a single image. Returns list of URLs or empty list."""
-    task_id = submit_task(prompt, api_key, image_path=image_path, fidelity=fidelity, size=size, quality=quality, style=style)
+    task_id = submit_task(
+        prompt, api_key,
+        image_path=image_path, size=size, resolution=resolution, n=n,
+        style=style, fidelity=fidelity, quality=quality,
+    )
     if not task_id:
         return []
     result = poll_result(task_id, api_key)
     return result or []
 
 
-def generate_batch(prompts_file, api_key, default_style="redfox"):
+def generate_batch(prompts_file, api_key, default_style="redfox", default_resolution=None, default_n=1):
     """Generate multiple images from a JSON file. Returns dict of id -> URLs.
 
-    每个 item 可独立指定 style 字段；未指定则用 default_style。
+    每个 item 可独立指定 style/size/resolution/n 字段；未指定则用默认值。
     当 default_style 为 random 时，会先随机选一个具体风格，整批所有图都用该风格（保证同批次一致）。
+
+    item 字段支持：
+        id, prompt, image, style, size, resolution, n
+    已弃用字段（新接口不支持，传入则忽略）：
+        fidelity, quality
     """
     base_dir = os.path.dirname(os.path.abspath(prompts_file))
     with open(prompts_file, "r", encoding="utf-8") as f:
@@ -432,14 +524,20 @@ def generate_batch(prompts_file, api_key, default_style="redfox"):
         img_id = item.get("id", f"img_{len(tasks)}")
         prompt = item["prompt"]
         image_path = item.get("image")
-        fidelity = item.get("fidelity")
         size = item.get("size")
-        quality = item.get("quality")
+        resolution = item.get("resolution", default_resolution)
+        n = item.get("n", default_n)
+        fidelity = item.get("fidelity")  # 已弃用，仅传递给 submit_task 触发提示
+        quality = item.get("quality")    # 已弃用
         # 优先用 item 自身的 style，否则用已解析的 default
         item_style = item.get("style", resolved_default)
         if image_path and not os.path.isabs(image_path) and not is_url(image_path):
             image_path = os.path.join(base_dir, image_path)
-        task_id = submit_task(prompt, api_key, image_path=image_path, fidelity=fidelity, size=size, quality=quality, style=item_style)
+        task_id = submit_task(
+            prompt, api_key,
+            image_path=image_path, size=size, resolution=resolution, n=n,
+            style=item_style, fidelity=fidelity, quality=quality,
+        )
         if task_id:
             tasks[img_id] = task_id
 
@@ -452,32 +550,51 @@ def generate_batch(prompts_file, api_key, default_style="redfox"):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="运营文章配图生成（统一版，支持文生图 + 图生图 + 批量生成）",
+        description="运营文章配图生成（对接 gptImage2Submit/gptImage2Result 新接口，支持文生图 + 图生图 + 批量）",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--prompt", type=str, help="单张图片 prompt")
     parser.add_argument("--batch", type=str, help="批量生成 JSON 文件路径")
     parser.add_argument("--image", type=str, default=None, help="参考图路径或 URL（启用图生图模式）")
     parser.add_argument("--reference-image", type=str, default=None, help="参考图别名（等同于 --image，但语义更清晰）")
-    parser.add_argument("--fidelity", type=str, default=None, choices=["high", "low"], help="图生图保真度（high=高保真/low=低保真）")
-    parser.add_argument("--size", type=str, default="1792x1024", help=f"图片尺寸（默认 1792x1024，可选: {', '.join(sorted(ALLOWED_SIZES))}）")
-    parser.add_argument("--quality", type=str, default="medium", choices=["low", "medium", "high", "auto"], help="图片质量（默认 medium）")
-    parser.add_argument("--style", type=str, default="redfox", choices=sorted(VALID_STYLES), help="风格模式：redfox（默认）/ popcomic / yellowcomic / reference / none / random（随机，同批次内需手动保持一致）")
+    parser.add_argument("--size", type=str, default=DEFAULT_ASPECT,
+                        help=f"图片尺寸：优先传宽高比（默认 {DEFAULT_ASPECT}，可选: {', '.join(sorted(VALID_ASPECTS))}）；"
+                             f"也兼容旧像素格式（{', '.join(sorted(LEGACY_SIZE_MAP.keys()))}）")
+    parser.add_argument("--resolution", type=str, default=None, choices=sorted(VALID_RESOLUTIONS),
+                        help="分辨率档位 1k/2k/4k（默认：像素格式自动匹配档位，宽高比格式默认 2k）")
+    parser.add_argument("-n", "--count", type=int, default=DEFAULT_N,
+                        help=f"生成图片数量 (1-{MAX_COUNT}，默认 {DEFAULT_N}，新接口上限 4)")
+    parser.add_argument("--style", type=str, default="redfox", choices=sorted(VALID_STYLES),
+                        help="风格模式：redfox（默认）/ popcomic / yellowcomic / reference / none / random")
     parser.add_argument("--api-key", type=str, default=None, help="REDFOX_API_KEY")
     parser.add_argument("--output", type=str, default="results.json", help="结果输出文件")
     parser.add_argument("--task-id", type=str, default=None, help="查询已有任务结果（跳过提交）")
     parser.add_argument("--download-dir", type=str, default=None, help="下载图片到本地目录（不传则仅返回 URL）")
+
+    # 已弃用参数（新接口不再支持，保留仅为向后兼容 CLI）
+    parser.add_argument("--fidelity", type=str, default=None, choices=["high", "low"],
+                        help="[已弃用] 新接口不再支持 inputFidelity，此参数被忽略")
+    parser.add_argument("--quality", type=str, default=None, choices=["low", "medium", "high", "auto"],
+                        help="[已弃用] 新接口不再支持 quality，请用 --resolution 控制清晰度")
+
     args = parser.parse_args()
 
     # 兼容 --reference-image 与 --image
     if args.reference_image and not args.image:
         args.image = args.reference_image
 
-    # Validate size
-    if args.size not in ALLOWED_SIZES:
-        print(f"[ERR] Unsupported size: {args.size}")
-        print(f"  Fast sizes: {', '.join(sorted(FAST_SIZES))}")
-        print(f"  HD sizes (slower): {', '.join(sorted(HD_SIZES))}")
+    # 弃用参数提示
+    if args.fidelity:
+        print(f"[WARN] --fidelity 在新接口已弃用，将被忽略（传入值: {args.fidelity}）")
+    if args.quality:
+        print(f"[WARN] --quality 在新接口已弃用，将被忽略（传入值: {args.quality}），如需控制清晰度请用 --resolution")
+
+    # 尺寸预校验（具体归一化在 submit_task 内部完成）
+    normalize_size(args.size, args.resolution)
+
+    # n 上限校验
+    if args.count < 1 or args.count > MAX_COUNT:
+        print(f"[ERR] --count/-n 取值范围 1-{MAX_COUNT}（新接口上限 4）")
         sys.exit(1)
 
     api_key = get_api_key(cli_key=args.api_key)
@@ -509,9 +626,23 @@ def main():
         sys.exit(1)
 
     if args.batch:
-        results = generate_batch(args.batch, api_key, default_style=args.style)
+        results = generate_batch(
+            args.batch, api_key,
+            default_style=args.style,
+            default_resolution=args.resolution,
+            default_n=args.count,
+        )
     elif args.prompt:
-        urls = generate_single(args.prompt, api_key, image_path=args.image, fidelity=args.fidelity, size=args.size, quality=args.quality, style=args.style)
+        urls = generate_single(
+            args.prompt, api_key,
+            image_path=args.image,
+            size=args.size,
+            resolution=args.resolution,
+            n=args.count,
+            style=args.style,
+            fidelity=args.fidelity,
+            quality=args.quality,
+        )
         results = {"single": urls}
         if urls and args.download_dir:
             os.makedirs(args.download_dir, exist_ok=True)

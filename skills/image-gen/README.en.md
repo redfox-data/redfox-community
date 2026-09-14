@@ -9,9 +9,9 @@ An AI image generator based on OpenAI's gpt-image-2 model, supporting text-to-im
 **Core Value**
 
 - **Text-to-Image**: Enter a prompt to generate high-quality new images
-- **Image-to-Image**: Upload a reference image with a prompt for editing
-- **Batch Generation**: Up to 10 images at once, with transparent background support
-- **Multi-Format**: Supports PNG, JPEG, and WebP output
+- **Image-to-Image**: Upload up to 2 reference images with a prompt for editing
+- **Batch Generation**: Up to 4 images per call (new interface limit)
+- **Fine-grained Control**: Aspect ratio (16:9 / 9:16 / 1:1, 13 options) + resolution tier (1k / 2k / 4k)
 
 **Target Users**
 
@@ -25,11 +25,11 @@ An AI image generator based on OpenAI's gpt-image-2 model, supporting text-to-im
 
 ### Core Features
 
-- **Text-to-Image**: Enter a prompt and gpt-image-2 generates PNG/JPEG/WebP images
-- **Image-to-Image**: Upload a reference image with high/low fidelity editing
-- **Batch Generation**: Up to 10 images at once, ideal for icon sets and series
-- **Transparent Background**: Supports PNG/WebP transparent output
-- **Multiple Sizes**: Fast tier (1024x1024 etc.) + HD tier (2048x2048 etc.)
+- **Text-to-Image**: Enter a prompt and gpt-image-2 generates PNG images
+- **Image-to-Image**: Upload up to 2 reference images for editing
+- **Batch Generation**: Up to 4 images per call, ideal for icon sets and series
+- **Aspect Ratio**: 1:1 / 3:2 / 2:3 / 4:3 / 3:4 / 5:4 / 4:5 / 16:9 / 9:16 / 2:1 / 1:2 / 21:9 / 9:21
+- **Resolution Tier**: 1k (fast) / 2k (default) / 4k (high quality, slower)
 - **Task Management**: Submit-only mode with taskId for later query and download
 
 ---
@@ -55,7 +55,7 @@ Simply describe the image you want in natural language.
 |--------|---------|--------|
 | Text-to-Image | "Generate an image of an orange cat looking at the sunset" | Submits task and generates a high-quality image |
 | Image-to-Image | "Turn this photo into cyberpunk style" | Uploads reference for style transfer |
-| Transparent BG | "Generate a minimalist cat logo with transparent background" | Generates PNG with transparent background |
+| Portrait Cover | "Generate a 3:4 portrait cover for social media" | Uses --size 3:4 for vertical composition |
 | Batch Generation | "Generate 4 flat style icons" | Generates multiple style-consistent images at once |
 
 ---
@@ -66,5 +66,5 @@ Simply describe the image you want in natural language.
 |----------|------|---------------|---------|
 | Creative visuals | Content marketer | "Generate an article cover image" | Quick high-quality illustrations |
 | Logo design | Designer | "Generate a minimalist logo" | Rapid design exploration |
-| Product display | E-commerce operator | "Generate a white-background product photo" | Zero photography cost |
+| Product display | E-commerce operator | "Generate a 4:3 product photo" | Zero photography cost |
 | Style transfer | Photographer | "Turn this photo into watercolor style" | Natural language style conversion |

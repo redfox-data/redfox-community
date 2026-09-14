@@ -109,13 +109,15 @@ python generate_image.py \
   --prompt "新图描述（中文）" \
   --reference-image "<原图 URL>" \
   --style reference \
-  --fidelity high \
   --api-key "{apiKey}"
 ```
 
 - `--style reference`: 不叠加红狐风格，让原图自带风格生效
-- `--fidelity high`: 高保真，保留更多原图视觉特征
-- `--reference-image`: 接受 URL（自动下载并上传 OSS）
+- `--reference-image`: 接受 URL（自动下载并上传 OSS）或本地路径
+- `--size`: 默认 `16:9`，可改为任意宽高比（1:1 / 3:2 / 4:3 / 9:16 等）
+- `--resolution`: 分辨率档位 `1k` / `2k` / `4k`，默认 `2k`
+
+> ⚠️ `--fidelity` 在新接口（`gptImage2Submit`）已弃用，传入会被忽略并提示。新接口依靠 `referenceImages` 本身完成风格迁移，不需额外的保真度参数。
 
 **降级策略**：
 - 如果 i2i 失败 → 改用 text-to-image（去掉 `--reference-image`）
@@ -233,10 +235,13 @@ LLM 在仿写时需学习的风格特征：
 
 ### `--fidelity` 选择
 
+> ⚠️ 新接口 `gptImage2Submit` 已不再支持 `inputFidelity` 参数，传入会被脚本忽略并提示。
+> 新接口的风格迁移能力完全依靠 `referenceImages`，无需额外的保真度控制。
+
 | 模式 | 行为 | 适用 |
 |------|------|------|
-| `high`（默认） | 高保真，保留原图更多特征 | 风格迁移需求强 |
-| `low` | 低保真，更自由 | 用户想要"原图启发但不要太像" |
+| （已弃用）`high` | 新接口忽略，风格迁移强度由模型自行判断 | - |
+| （已弃用）`low` | 新接口忽略，风格迁移强度由模型自行判断 | - |
 
 ### `--max-images` 上限
 
