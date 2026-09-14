@@ -270,7 +270,7 @@ https://clawhub.ai/user/redfox-data
 
 #### AI tools
 
-- [GPT image generation](https://redfox.hk/apis/tool/HUV4KRFQ)
+- [GPT image generation](https://redfox.hk/apis/tool/ATY07YGY)
 - [Doubao image generation](https://redfox.hk/apis/tool/7OM96HCF)
 - [Doubao video generation](https://redfox.hk/apis/tool/ER2ATHKI)
 - [Upload image](https://redfox.hk/apis/tool/FXDGJO1V)

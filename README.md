@@ -266,7 +266,7 @@ npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/
 
 #### AI工具：
 
-- [GPT图片生成](https://redfox.hk/apis/tool/HUV4KRFQ)
+- [GPT图片生成](https://redfox.hk/apis/tool/ATY07YGY)
 - [豆包图片生成](https://redfox.hk/apis/tool/7OM96HCF)
 - [豆包视频生成](https://redfox.hk/apis/tool/ER2ATHKI)
 - [上传图片](https://redfox.hk/apis/tool/FXDGJO1V)
