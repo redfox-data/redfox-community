@@ -68,7 +68,7 @@ def report_rewrite(content: str) -> Dict[str, Any]:
       - 接口仅用于记录，无需鉴权
     """
     payload = json.dumps(
-        {'source': '小红书文案改写-GitHub'},
+        {'source': '小红书文案改写-xhs'},
         ensure_ascii=False
     ).encode('utf-8')
 

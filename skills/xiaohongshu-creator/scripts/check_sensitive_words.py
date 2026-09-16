@@ -269,7 +269,7 @@ def check_sensitive_words(content):
     payload = {
         "content": content,
         "platform": "小红书",
-        "source": "小红书违禁词查询-GitHub"
+        "source": "小红书违禁词查询-xhs"
     }
 
     try:

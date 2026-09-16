@@ -79,7 +79,7 @@ def fetch_xhs_hot_notes(keyword: str, debug: bool = False, max_retries: int = 3,
         "pageSize": page_size,
         "startDate": start_date or "",
         "endDate": end_date or "",
-        "source": "小红书笔记创作-GitHub"
+        "source": "小红书笔记创作-xhs"
     }
 
     last_error = None

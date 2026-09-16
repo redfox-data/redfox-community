@@ -82,7 +82,7 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
     url = "https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillData"
     params = {
         "keyword": keyword,
-        "source": "小红书爆款封面生成-GitHub"
+        "source": "小红书爆款封面生成-xhs"
     }
 
     if start_date:

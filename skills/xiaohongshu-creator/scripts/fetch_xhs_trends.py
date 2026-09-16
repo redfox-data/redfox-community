@@ -109,7 +109,7 @@ def fetch_xhs_trends(keyword: str, debug: bool = False, max_retries: int = 3, st
     api_key = get_api_key()
 
     url = "https://redfox.hk/story/api/cozeSkill/getXhsCozeSkillData"
-    params = {"keyword": keyword, "source": "小红书标题生成与评分-GitHub"}
+    params = {"keyword": keyword, "source": "小红书标题生成与评分-xhs"}
     if start_date:
         params["startDate"] = start_date
 

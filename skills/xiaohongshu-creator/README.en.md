@@ -36,8 +36,8 @@ A single Skill covering the full Xiaohongshu (RED) content creation pipeline —
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=github) (`https://redfox.hk`).
-- Register at [RedFoxHub](https://redfox.hk?souce=github) to obtain your `REDFOX_API_KEY`.
+- `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?souce=skillhub) (`https://redfox.hk`).
+- Register at [RedFoxHub](https://redfox.hk?souce=skillhub) to obtain your `REDFOX_API_KEY`.
 - Configure `REDFOX_API_KEY` as an environment variable on your device before using this skill.
 - Before providing a key, verify its source, scope of use, expiration, and whether it supports reset/revocation.
 - Never hard-code or expose keys in plain text in code, prompts, logs, or output files.
