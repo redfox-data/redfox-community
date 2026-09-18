@@ -4,15 +4,18 @@
 
 ## Introduction
 
-Paste a Xiaohongshu (RED) video link and get a watermark-free download URL instantly. Copy it into your browser or download tool to save — both www.xiaohongshu.com web links and xhslink.com short links are supported, and you won't end up with a watermarked version.
+Paste a Xiaohongshu (RED) video link with the `xsec_token` parameter and get a watermark-free download URL instantly. Copy it into your browser or download tool to save — both www.xiaohongshu.com web links and xhslink.com short links are supported, and you won't end up with a watermarked version.
+
+> ⚠️ **The link must include the `xsec_token` parameter**, otherwise the Xiaohongshu API will return a link format error. Official example link:
+> `https://www.xiaohongshu.com/explore/6a3c7aa6000000001003e071?xsec_token=AB-U4vc8DJUJoY9w-ebP_DvuxgiSNYmx8n35V4zvPo__M=&xsec_source=pc_feed`
 
 **Core Value**
 
-- **Paste and go**: paste a video link and get a video download URL right away — copy into your browser or download tool, no plugins or subscriptions needed.
+- **Paste and go**: paste a video link with `xsec_token` and get a video download URL right away — copy into your browser or download tool, no plugins or subscriptions needed.
 - **Clean, watermark-free**: every returned video is watermark-free, ready for collecting or remixing.
 - **Both link types recognized**: www.xiaohongshu.com web links and xhslink.com short links both work — mobile share links and desktop URLs alike.
 - **Batch-friendly**: paste multiple links at once — each is parsed sequentially with a success/failure summary at the end, no need to go one by one.
-- **Smart validation**: links from other platforms are detected and flagged immediately, so you don't waste a trip.
+- **Smart validation**: links from other platforms, or links missing `xsec_token`, are detected and flagged immediately with the official example, so you don't waste a trip.
 - **Results at a glance**: resource type, duration, download link, cover link, and full description are all laid out clearly so you know exactly what to copy.
 
 **Who Is It For**
@@ -27,11 +30,12 @@ Paste a Xiaohongshu (RED) video link and get a watermark-free download URL insta
 
 ### Core Features
 
-- **Video Parsing**: paste a Xiaohongshu video link to parse out the watermark-free video download URL.
+- **Video Parsing**: paste a Xiaohongshu video link with the `xsec_token` parameter to parse out the watermark-free video download URL.
 - **Batch Parsing**: paste multiple links at once — each is parsed sequentially with a success/failure summary at the end.
-- **Smart Validation**: automatically detects Xiaohongshu video links — links from other platforms prompt a retry.
+- **Smart Validation**: automatically detects Xiaohongshu video links and validates the `xsec_token` parameter — non-compliant links prompt a retry with the official example.
+- **API Error Fallback**: when the Xiaohongshu API returns a link format error, the official example link is shown automatically to guide the user.
 - **Complete Information**: displays resource type, duration, download link, cover link, and full description line by line without truncation.
-- **Dual Link Support**: recognizes both www.xiaohongshu.com web links and xhslink.com short links.
+- **Dual Link Support**: recognizes both www.xiaohongshu.com web links and xhslink.com short links (both must carry `xsec_token`).
 
 ---
 
@@ -54,9 +58,24 @@ Just describe what you want in natural language — no commands to memorize.
 
 | Intent | Example | Result |
 | ------ | ------- | ------ |
-| Download a Xiaohongshu video | "Download this video https://www.xiaohongshu.com/explore/xxxxx" | Parses the link and returns a direct video download URL |
-| Batch download videos | "Download these videos link1 link2 link3" | Parses each link sequentially and summarizes success/failure counts |
-| Save a Xiaohongshu video | "Help me save this Xiaohongshu video" | Prompts you to paste the link, then returns the download URL |
+| Download a Xiaohongshu video | "Download this video https://www.xiaohongshu.com/explore/6a3c7aa6000000001003e071?xsec_token=AB-U4vc8DJUJoY9w-ebP_DvuxgiSNYmx8n35V4zvPo__M=&xsec_source=pc_feed" | Parses the link and returns a direct video download URL |
+| Batch download videos | "Download these videos link1 link2 link3" (each link must carry `xsec_token`) | Parses each link sequentially and summarizes success/failure counts |
+| Save a Xiaohongshu video | "Help me save this Xiaohongshu video" | Prompts you to paste the link with `xsec_token`, then returns the download URL |
+
+### Link Format Requirement
+
+The input link must include the `xsec_token` parameter. Otherwise, the script will report "link is missing xsec_token parameter" and show the official example.
+
+**Official example link**:
+
+```
+https://www.xiaohongshu.com/explore/6a3c7aa6000000001003e071?xsec_token=AB-U4vc8DJUJoY9w-ebP_DvuxgiSNYmx8n35V4zvPo__M=&xsec_source=pc_feed
+```
+
+**How to get a link with `xsec_token`**:
+
+- PC web: open the note on the Xiaohongshu website and copy the URL from the browser address bar
+- Mobile app: note page → Share → Copy Link (the copied link includes `xsec_token` by default)
 
 ### Output Example
 

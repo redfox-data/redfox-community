@@ -14,7 +14,7 @@ import os
 import sys
 import warnings
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 import requests
 
@@ -34,6 +34,13 @@ CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 
 ENV_KEY = "REDFOX_API_KEY"
+
+# 官方示例链接：所有对外提示与文档统一使用此链接，必须携带 xsec_token 参数
+EXAMPLE_URL = (
+    "https://www.xiaohongshu.com/explore/6a3c7aa6000000001003e071"
+    "?xsec_token=AB-U4vc8DJUJoY9w-ebP_DvuxgiSNYmx8n35V4zvPo__M="
+    "&xsec_source=pc_feed"
+)
 
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
@@ -105,6 +112,27 @@ def is_xhs_video_url(url):
     return domain in ("xiaohongshu.com", "xhslink.com")
 
 
+def has_xsec_token(url):
+    """Check if the URL contains a non-empty xsec_token query parameter.
+
+    小红书接口要求链接必须携带 xsec_token，缺失时接口会返回链接格式错误。
+    """
+    try:
+        parsed = urlparse(url)
+        qs = parse_qs(parsed.query)
+    except Exception:
+        return False
+    token = qs.get("xsec_token", [""])[0]
+    return bool(token and token.strip())
+
+
+def print_xsec_token_hint():
+    """统一输出 xsec_token 缺失/链接格式错误的用户提示。"""
+    print(f"  请传入带 xsec_token 参数的完整小红书链接，示例：")
+    print(f"  {EXAMPLE_URL}")
+    print(f"  获取方式：在小红书 PC 网页或 App 中打开笔记 → 复制分享链接（链接需包含 xsec_token 参数）")
+
+
 def extract_download_url(data):
     """Extract video download URL from API response data (tolerant of field naming)."""
     if isinstance(data, str):
@@ -150,8 +178,14 @@ def process_single_url(url, session, output_json):
     # ── Validate URL first ──
     if not is_xhs_video_url(url):
         error(f"该链接不是小红书视频链接：{url}")
-        print(f"  请输入正确的小红书视频链接")
-        print(f"  支持格式：www.xiaohongshu.com 网页链接 或 xhslink.com 短链")
+        print(f"  支持域名：www.xiaohongshu.com 网页链接 或 xhslink.com 短链")
+        print_xsec_token_hint()
+        return "fatal"
+
+    # ── 小红书接口必须携带 xsec_token，缺失时提前拦截，避免无效请求 ──
+    if not has_xsec_token(url):
+        error(f"链接缺少 xsec_token 参数，无法解析：{url}")
+        print_xsec_token_hint()
         return "fatal"
 
     step(f"URL: {url}")
@@ -181,8 +215,15 @@ def process_single_url(url, session, output_json):
             return "fatal"
         elif code == 400:
             error(f"请求参数错误: {msg}")
+            # 400 通常是链接格式错误，主动提示用户传入带 xsec_token 的完整链接
+            print_xsec_token_hint()
         else:
             error(f"API error (code {code}): {msg}")
+            # 其他错误如果提示中包含“链接格式”“xsec_token”等关键字，同样提示用户重新传入
+            msg_lower = str(msg).lower()
+            if any(kw in str(msg) for kw in ("链接格式", "链接错误", "链接无效", "xsec_token")) or \
+               any(kw in msg_lower for kw in ("link format", "invalid link", "invalid url", "xsec_token")):
+                print_xsec_token_hint()
         return "error"
 
     data = result.get("data")
@@ -242,11 +283,13 @@ def main():
     parser = argparse.ArgumentParser(
         description="小红书视频下载 - 使用 redfox.hk API 解析视频并返回下载链接（支持批量）",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
+        epilog=f"""
 Examples:
-  python3 downloader.py https://www.xiaohongshu.com/explore/xxxxx
-  python3 downloader.py https://www.xiaohongshu.com/explore/xxxxx --api-key ark_xxxxx
-  python3 downloader.py https://www.xiaohongshu.com/explore/aaa https://www.xiaohongshu.com/explore/bbb
+  python3 downloader.py "{EXAMPLE_URL}"
+  python3 downloader.py "{EXAMPLE_URL}" --api-key ark_xxxxx
+  python3 downloader.py "<链接1>" "<链接2>"   # 批量解析，每个链接均需携带 xsec_token
+
+❗ 链接必须携带 xsec_token 参数，否则接口会返回链接格式错误。
 
 也可通过环境变量 REDFOX_API_KEY 配置密钥：
   export REDFOX_API_KEY=ark_xxxxx
@@ -256,7 +299,7 @@ Examples:
     parser.add_argument(
         "urls",
         nargs="+",
-        help="小红书视频链接（支持多个，空格分隔），如 https://www.xiaohongshu.com/explore/xxxxx",
+        help=f"小红书视频链接（支持多个，空格分隔），必须携带 xsec_token 参数，如：{EXAMPLE_URL}",
     )
     parser.add_argument("--api-key", help="API Key（格式 ark_xxx，不传则读取环境变量或配置文件）")
     parser.add_argument(
