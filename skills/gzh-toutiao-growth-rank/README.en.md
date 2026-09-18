@@ -59,9 +59,9 @@ After a successful query, the ranking is displayed directly in the conversation 
 
 | Rank | vs. Previous | Account | This Week Headline Reads | Last Week Headline Reads | Headline Growth | Headline Growth Rate |
 |---|---|---|---|---|---|---|
-| 1 | Up 12 | 听雪说影 | 10w+ | 1.5w | +10w+ | +763.50% 🔥 |
-| 2 | New entry | 丁嘴嘴 | 10w+ | 2 | +10w+ | +5,021,500.00% 🔥 |
-| 3 | Down 2 | 刘备教授 | 42.7w | 3.3w | +39.4w | +1,193.62% 🔥 |
+| 1 | New entry | 丁嘴嘴 | 10w+ | 2 | +10w+ | +5,021,500.00% 🔥 |
+| 2 | Down 1 | 刘备教授 | 42.7w | 3.3w | +39.4w | +1,193.62% 🔥 |
+| 3 | Up 12 | 听雪说影 | 10w+ | 1.5w | +10w+ | +763.50% 🔥 |
 
 ---
 
