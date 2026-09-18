@@ -4,11 +4,11 @@ description: 每日账号推荐速览直接对接官方最具“黑马体质”�
 version: 1.0.0
 ---
 
-# 公众号黑马账号推荐
+# 公众号阅读增长榜
 
 ## 简介
 
-公众号黑马账号推荐是一款面向内容运营与新媒体研究的**阅读增长率排行**查询工具，通过脚本拉取官方榜单数据，帮助用户快速发现近期阅读量增速快的公众号与代表作。
+公众号阅读增长榜是一款面向内容运营与新媒体研究的**阅读增长率排行**查询工具，通过脚本拉取官方榜单数据，帮助用户快速发现近期阅读量增速快的公众号与代表作。
 
 通过本 Skill，你可以：
 
@@ -46,13 +46,13 @@ version: 1.0.0
 #### SkillHub
 
 1. 前往 [SkillHub](https://skillhub.cn)
-2. 搜索 **wechat-fastest-growing** 或 **公众号黑马账号推荐**
+2. 搜索 **wechat-fastest-growing** 或 **公众号阅读增长榜**
 3. 按平台指引完成安装（支持对话安装或本地 Zip 导入）
 
 #### ClawHub
 
 1. 前往 [ClawHub](https://clawhub.ai)
-2. 搜索 **wechat-fastest-growing** 或 **公众号黑马账号推荐**
+2. 搜索 **wechat-fastest-growing** 或 **公众号阅读增长榜**
 3. 可使用 CLI：`openclaw skills install wechat-fastest-growing` 或 `clawhub install wechat-fastest-growing`，或下载 skill 包本地导入
 
 #### 方式二：命令行独立使用

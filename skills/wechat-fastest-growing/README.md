@@ -1,4 +1,4 @@
-# 公众号黑马账号推荐 / wechat-fastest-growing
+# 公众号阅读增长榜 / wechat-fastest-growing
 
 ---
 
