@@ -1,13 +1,6 @@
 ---
 name: xhs-follower-growth-chart
 description: 想知道小红书哪些账号涨粉最猛？帮你查询日榜/周榜/月榜涨粉榜单，覆盖 25 个热门品类，还能一键生成精美排名图片、导出 Excel、订阅每日推送！
-display_name: 小红书达人涨粉榜查询
-display_name_en: XHS Follower Growth Chart
-description_zh: 小红书账号涨粉日榜、周榜、月榜数据查询，覆盖 25 个品类，支持生成排名图片、Excel 导出与定时订阅推送
-description_en: Track daily, weekly and monthly follower growth rankings for Xiaohongshu accounts across 25 categories, with ranking images, Excel export and scheduled push.
-category: social-media
-version: 1.1.0
-author: Agent创想工坊
 ---
 
 # 小红书达人涨粉榜查询
