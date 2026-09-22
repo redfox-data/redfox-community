@@ -2,6 +2,7 @@
 """
 公众号头条增长榜脚本
 调用 Redfox API 获取公众号周度头条阅读增长榜（本周头条阅读 vs 上周头条阅读）。
+榜单更新：每周一下午 16:30 更新新一期；未到更新时间时最新一期可能暂无数据，脚本自动回退展示上一期。
 
 用法:
   python3 heima_rank.py                                  # 最新一期综合全部分类总榜（排序固定：头条增长率降序）
@@ -47,6 +48,8 @@ AUTHOR_TYPES = [
 SORT_MAP = {
     "growth_pct": "头条增长率",
 }
+
+UPDATE_NOTE = "周榜更新时间为每周一下午 16:30"  # 榜单更新周期提示，随每次查询输出
 
 
 def get_api_key() -> str:
@@ -94,8 +97,7 @@ def week_span(rank_date: str) -> str:
     return f"{start.strftime('%Y-%m-%d')} ~ {end.strftime('%Y-%m-%d')}"
 
 
-def fetch_rank_list(api_key: str, rank_date: str, author_type: str, sort: str, page: int,
-                    soft: bool = False):
+def fetch_rank_list(api_key: str, rank_date: str, author_type: str, sort: str, page: int):
     body = {"page": page, "rank_date": rank_date, "sort": sort, "source": SOURCE}
     if author_type:
         body["author_type"] = author_type
@@ -113,84 +115,29 @@ def fetch_rank_list(api_key: str, rank_date: str, author_type: str, sort: str, p
         with urllib.request.urlopen(req, timeout=30) as resp:
             result = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
-        if soft:
-            return None
         detail = e.read().decode("utf-8", errors="replace")
         print(f"[error] HTTP {e.code}: {detail}", file=sys.stderr)
         sys.exit(1)
     except urllib.error.URLError as e:
-        if soft:
-            return None
         print(f"[error] 网络请求失败: {e.reason}", file=sys.stderr)
         sys.exit(1)
     except (json.JSONDecodeError, TypeError) as e:
-        if soft:
-            return None
         print(f"[error] 数据解析异常: {e}", file=sys.stderr)
         sys.exit(1)
 
     if result.get("code") != 2000:
-        if soft:
-            return None
         print(f"[error] 接口返回错误: code={result.get('code')}, msg={result.get('msg', '未知')}", file=sys.stderr)
         sys.exit(1)
     return result
 
 
-def fetch_prev_rank_map(api_key: str, prev_rank_date: str, author_type: str,
-                        needed_ids: set) -> tuple:
-    """抓取上一期榜单（固定 growth_pct 排序），返回 (account_id -> 名次, 说明)。
-
-    rank_map 为 None 表示上期不可用（无数据或首页获取失败）。
-    翻完 MAX_PAGE 仍未出现的账号即视为新入榜；找齐 needed_ids 提前停止。
-    """
-    first = fetch_rank_list(api_key, prev_rank_date, author_type, "growth_pct", 1, soft=True)
-    if not first or not first.get("data"):
-        return None, "上期榜单无数据"
-    rank_map = {}
-    for p in range(1, MAX_PAGE + 1):
-        result = first if p == 1 else fetch_rank_list(
-            api_key, prev_rank_date, author_type, "growth_pct", p, soft=True)
-        if result is None:
-            return rank_map, f"上期第 {p} 页获取失败，名次对比仅覆盖上期前 {(p - 1) * PAGE_SIZE} 名"
-        data = result.get("data") or []
-        if not data:
-            break
-        base = (p - 1) * PAGE_SIZE
-        for i, it in enumerate(data):
-            aid = str(it.get("account_id") or "")
-            if aid:
-                rank_map.setdefault(aid, base + i + 1)
-        if all(aid in rank_map for aid in needed_ids):
-            break
-    return rank_map, None
-
-
 def build_output(rank_date: str, author_type: str, sort: str, page: int,
-                 items: list, dates_tried: list,
-                 prev_map=None, prev_note=None):
+                 items: list, dates_tried: list):
     start = (page - 1) * PAGE_SIZE
     rows = []
     for i, it in enumerate(items):
-        rank_cur = start + i + 1
-        rank_prev = None
-        trend = "unknown"
-        trend_diff = None
-        if prev_map is not None:
-            aid = str(it.get("account_id") or "")
-            if aid and aid in prev_map:
-                rank_prev = prev_map[aid]
-                trend_diff = rank_prev - rank_cur
-                if trend_diff > 0:
-                    trend = "up"
-                elif trend_diff < 0:
-                    trend = "down"
-                else:
-                    trend = "same"
-            elif aid:
-                trend = "new"
         rows.append({
-            "rank": rank_cur,
+            "rank": start + i + 1,
             "account_id": it.get("account_id"),
             "nickname": it.get("nickname", ""),
             "author_type": it.get("author_type", ""),
@@ -198,13 +145,11 @@ def build_output(rank_date: str, author_type: str, sort: str, page: int,
             "prev_read": it.get("prev_read", 0) or 0,
             "growth_val": it.get("growth_val", 0) or 0,
             "growth_pct": it.get("growth_pct", 0) or 0,
-            "rank_prev": rank_prev,
-            "trend": trend,
-            "trend_diff": trend_diff,
         })
     return {
         "rank_date": rank_date,
         "week_span": week_span(rank_date),
+        "update_note": UPDATE_NOTE,
         "author_type": author_type or "综合",
         "sort": sort,
         "sort_label": SORT_MAP.get(sort, sort),
@@ -213,9 +158,6 @@ def build_output(rank_date: str, author_type: str, sort: str, page: int,
         "has_next": page < MAX_PAGE,
         "count": len(rows),
         "dates_tried": dates_tried,
-        "prev_rank_date": shift_weeks(rank_date, 1)[:10] if items else None,
-        "prev_available": prev_map is not None,
-        "trend_note": prev_note,
         "items": rows,
     }
 
@@ -272,16 +214,8 @@ def main():
             if items:
                 break
 
-    # 较上期标签：与上一期同分类榜单（固定 growth_pct 排序）对比名次
-    prev_map = None
-    prev_note = None
-    if items:
-        needed_ids = {str(it.get("account_id") or "") for it in items} - {""}
-        prev_map, prev_note = fetch_prev_rank_map(
-            api_key, shift_weeks(rank_date, 1), author_type, needed_ids)
-
     print(json.dumps(build_output(rank_date, author_type, sort, args.page, items,
-                                  dates_tried, prev_map, prev_note),
+                                  dates_tried),
                      ensure_ascii=False, indent=2))
 
 
