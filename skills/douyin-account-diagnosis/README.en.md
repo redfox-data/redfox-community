@@ -32,16 +32,24 @@ One-click diagnosis of your Douyin account's operational health. Simply provide 
 
 ### Highlights
 
-- **Transparent, auditable scoring**: Every score follows clear rules; the diagnostic process is traceable — not a black box.
-- **Automatic alert triggering**: Anomalies are detected automatically without manual monitoring, categorized by risk level.
-- **Ready-to-use reports**: Standard Markdown output that can be copied directly into team docs, weekly reports, or partnership evaluation materials.
+- **Tier-adaptive benchmarks**: thresholds are tiered by account scale (S / A / B / C). A 1.55% engagement rate counts as *good* for a 6.7M-follower account (≈100K engagements per post) but as *low* for a 50K-follower one — a single absolute threshold systematically misjudges large accounts. The reverse also holds: absolute-volume sub-items (hit rate, average engagements, total works, average likes) are tiered too, so a 4,852-engagement post is not penalised for a small account nor flattered for a huge one.
+- **Output volume vs. efficiency are both comparable**: total works and average likes per work are tiered by scale as well (niche-production accounts post rarely by nature; average likes rise with scale). After relativisation, a **93.6× efficiency gap is no longer flattened by a capped score** — an S-tier boutique account and an A-tier high-volume account can finally be told apart.
+- **Transparent, auditable scoring**: every score follows clear rules; the report states the benchmarks applied to that account, so the diagnosis is traceable rather than a black box.
+- **Automatic alert triggering**: anomalies are detected automatically without manual monitoring, categorised by risk level; alert thresholds share the same tier lines as the scoring, so "good score but zombie-follower alert" contradictions cannot occur.
+- **Insufficient data neither penalises nor rewards**: sub-items that are **mathematically degenerate** on small samples (with 2 posts the median always equals the mean; max/mean can never exceed 2×) or **mathematically undefined** (0/0 ratios when engagement is all zero, missing fields) are excluded from the denominator and renormalised, marked `(not counted)` in the report.
+- **"No content" is not "no data"**: if the API returns no posts at all, the account genuinely has nothing to evaluate — a negative signal. Those sub-items are scored at their floor and **not** excluded, with a `ⓘ no recent content data` note, so an account that cleared its posts cannot inflate its score by shrinking the denominator.
+- **Non-discriminating sub-items are no longer scored**: `gender`/`age` used to be scored, but a returned field is always valid, so it always scored full marks and diluted the penalties for other missing fields. It is now display-only; the account-profile dimension is scored out of 8 instead of 10.
+- **Low-confidence notice**: when fewer than 5 posts are returned, an extra "ⓘ data confidence" line flags which conclusions rest on too small a sample.
+- **Dirty data auto-correction**: when the crawl timestamp lags behind the newest post, activity and inactivity checks fall back to the current time and label the correction — no more "posted -77 days ago".
+- **Trends are not fooled by snapshot age**: the API returns a snapshot of cumulative engagement, so newer posts necessarily show less. Trend metrics (including the decline alert) therefore compare only posts **at least 3 days old**; with too few mature posts the sub-item is excluded rather than reporting a false decline.
+- **Ready-to-use reports**: standard Markdown output that can be copied directly into team docs, weekly reports, or partnership evaluation materials.
 
 ---
 
 ## API Key Acquisition & Security
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
-- `REDFOX_API_KEY` is issued by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
+- `REDFOX_API_KEY` is issued by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk?source=github`).
 - Register at [RedFoxHub](https://redfox.hk?source=github) to obtain `REDFOX_API_KEY`.
 - Configure `REDFOX_API_KEY` on your device before using this skill.
 - Before providing your key, confirm its source, scope, validity period, and whether it can be reset or revoked.
