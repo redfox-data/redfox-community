@@ -1,0 +1,639 @@
+{
+  "screenName": "elonmusk",
+  "total": 70,
+  "moreUsers": true,
+  "nextCursor": "1871539246371669785|2102720568179556280",
+  "users": [
+    {
+      "displayName": "Dr Jordan B Peterson",
+      "username": "jordanbpeterson",
+      "followers": 6170551,
+      "followersFmt": "617w",
+      "description": "Best-Selling Author | Clinical Psychologist | #1 Education Podcast | Co-founder of @petersonacademy | Order my new book \"We Who Wrestle With God\" here:",
+      "avatar": "https://pbs.twimg.com/profile_images/1407056014776614923/TKBC60e1_normal.jpg",
+      "profileUrl": "https://x.com/jordanbpeterson"
+    },
+    {
+      "displayName": "Donald Trump Jr.",
+      "username": "DonaldJTrumpJr",
+      "followers": 16187429,
+      "followersFmt": "1,619w",
+      "description": "Co-Founder @worldlibertyfi",
+      "avatar": "https://pbs.twimg.com/profile_images/766652495858896897/LjrJJB9a_normal.jpg",
+      "profileUrl": "https://x.com/DonaldJTrumpJr"
+    },
+    {
+      "displayName": "Hodgetwins",
+      "username": "hodgetwins",
+      "followers": 3494546,
+      "followersFmt": "349w",
+      "description": "Merch & Giveaways at: https://t.co/kxb8qjHatu —— PODCAST: @hodgetwinspod",
+      "avatar": "https://pbs.twimg.com/profile_images/2029992352232919040/UquWwHmh_normal.jpg",
+      "profileUrl": "https://x.com/hodgetwins"
+    },
+    {
+      "displayName": "The Babylon Bee",
+      "username": "TheBabylonBee",
+      "followers": 5272608,
+      "followersFmt": "527w",
+      "description": "Fake news you can trust 🐝",
+      "avatar": "https://pbs.twimg.com/profile_images/1400100770624720898/-HC7kL5x_normal.jpg",
+      "profileUrl": "https://x.com/TheBabylonBee"
+    },
+    {
+      "displayName": "Dan Bongino",
+      "username": "dbongino",
+      "followers": 7457319,
+      "followersFmt": "746w",
+      "description": "Just here for the comments. \n1776 Live Club: No purch nec. Must be 18+. See rules at https://t.co/cRq5LmJIRF.",
+      "avatar": "https://pbs.twimg.com/profile_images/1901949643828625408/cIoDpRVb_normal.jpg",
+      "profileUrl": "https://x.com/dbongino"
+    },
+    {
+      "displayName": "Lex Fridman",
+      "username": "lexfridman",
+      "followers": 5510025,
+      "followersFmt": "551w",
+      "description": "Host of Lex Fridman Podcast.\nInterested in robots and humans.",
+      "avatar": "https://pbs.twimg.com/profile_images/1854713863817646088/nTmsz7jR_normal.jpg",
+      "profileUrl": "https://x.com/lexfridman"
+    },
+    {
+      "displayName": "Lauren Boebert",
+      "username": "laurenboebert",
+      "followers": 5185190,
+      "followersFmt": "519w",
+      "description": "Lauren Boebert for Congress: CO-04 Congresswoman, Mom & Granny with a fierce love for liberty. Sent to DRAIN THE SWAMP drier than a CO irrigation ditch in July.",
+      "avatar": "https://pbs.twimg.com/profile_images/1498803395578236934/vGGuE9-k_normal.jpg",
+      "profileUrl": "https://x.com/laurenboebert"
+    },
+    {
+      "displayName": "Dinesh D'Souza",
+      "username": "DineshDSouza",
+      "followers": 5442521,
+      "followersFmt": "544w",
+      "description": "Author, Filmmaker, Host of Dinesh Podcast. Read my investigative work on Substack:   https://t.co/e9jgDYkZ6c",
+      "avatar": "https://pbs.twimg.com/profile_images/1969139625995497472/oIr7LrHF_normal.jpg",
+      "profileUrl": "https://x.com/DineshDSouza"
+    },
+    {
+      "displayName": "Former Congresswoman Marjorie Taylor Greene🇺🇸",
+      "username": "FmrRepMTG",
+      "followers": 5456838,
+      "followersFmt": "546w",
+      "description": "Christian, Mother, Business Owner, and Former Congresswoman of Georgia’s 14th District |AMERICA FIRST AMERICA ONLY 🇺🇸",
+      "avatar": "https://pbs.twimg.com/profile_images/1867641239685713920/7jTW4Eag_normal.jpg",
+      "profileUrl": "https://x.com/FmrRepMTG"
+    },
+    {
+      "displayName": "Ben Shapiro",
+      "username": "benshapiro",
+      "followers": 8865840,
+      "followersFmt": "887w",
+      "description": "Daily Wire co-founder, host of @benshapiroshow, #1 NYT bestselling author, America’s #1 ex-rapper. Order my new book, Lions and Scavengers below",
+      "avatar": "https://pbs.twimg.com/profile_images/1791135695567740928/nrRmsfkZ_normal.jpg",
+      "profileUrl": "https://x.com/benshapiro"
+    },
+    {
+      "displayName": "SpaceX",
+      "username": "SpaceX",
+      "followers": 41905307,
+      "followersFmt": "4,191w",
+      "description": "SpaceX designs, manufactures and launches the world’s most advanced rockets and spacecraft",
+      "avatar": "https://pbs.twimg.com/profile_images/1697749409851985920/HbrI04tM_normal.jpg",
+      "profileUrl": "https://x.com/SpaceX"
+    },
+    {
+      "displayName": "Rand Paul",
+      "username": "RandPaul",
+      "followers": 5969254,
+      "followersFmt": "597w",
+      "description": "U.S. Senator for Kentucky | I fight for the Constitution, individual liberty and the freedoms that make this country great.",
+      "avatar": "https://pbs.twimg.com/profile_images/681152691461042177/_PrgDgFA_normal.jpg",
+      "profileUrl": "https://x.com/RandPaul"
+    },
+    {
+      "displayName": "Ted Cruz",
+      "username": "tedcruz",
+      "followers": 7084489,
+      "followersFmt": "708w",
+      "description": "Father of two, @heidiscruz's husband, fighter for liberty. Representing the great state of Texas in the U.S. Senate.\n\nGOING FURTHER out now.",
+      "avatar": "https://pbs.twimg.com/profile_images/1798342969218510849/JaIsGsam_normal.jpg",
+      "profileUrl": "https://x.com/tedcruz"
+    },
+    {
+      "displayName": "Tesla",
+      "username": "Tesla",
+      "followers": 24777746,
+      "followersFmt": "2,478w",
+      "description": "Electric vehicles, giant batteries & solar, AI & robotics",
+      "avatar": "https://pbs.twimg.com/profile_images/1337607516008501250/6Ggc4S5n_normal.png",
+      "profileUrl": "https://x.com/Tesla"
+    },
+    {
+      "displayName": "Matt Gaetz",
+      "username": "mattgaetz",
+      "followers": 3494153,
+      "followersFmt": "349w",
+      "description": "Florida Man",
+      "avatar": "https://pbs.twimg.com/profile_images/1832034268077338625/v_sJ7qw8_normal.jpg",
+      "profileUrl": "https://x.com/mattgaetz"
+    },
+    {
+      "displayName": "Tulsi Gabbard 🌺",
+      "username": "TulsiGabbard",
+      "followers": 3874035,
+      "followersFmt": "387w",
+      "description": "Former Director of National Intelligence, Presidential candidate, Congresswoman. Soldier. NYT bestselling author. (Views do not reflect position of USG/DoD)",
+      "avatar": "https://pbs.twimg.com/profile_images/1786183993475399680/gdJaqmsJ_normal.jpg",
+      "profileUrl": "https://x.com/TulsiGabbard"
+    },
+    {
+      "displayName": "Kevin McCarthy",
+      "username": "SpeakerMcCarthy",
+      "followers": 3110373,
+      "followersFmt": "311w",
+      "description": "55th Speaker of the House",
+      "avatar": "https://pbs.twimg.com/profile_images/1613262093800677376/r3bwUusR_normal.jpg",
+      "profileUrl": "https://x.com/SpeakerMcCarthy"
+    },
+    {
+      "displayName": "Daily Wire",
+      "username": "realDailyWire",
+      "followers": 2555598,
+      "followersFmt": "256w",
+      "description": "Official X account of The Daily Wire.",
+      "avatar": "https://pbs.twimg.com/profile_images/2095971128564936708/oy7F0c8b_normal.jpg",
+      "profileUrl": "https://x.com/realDailyWire"
+    },
+    {
+      "displayName": "Rep. Lauren Boebert",
+      "username": "RepBoebert",
+      "followers": 1496769,
+      "followersFmt": "150w",
+      "description": "Congresswoman for Colorado's 4th District • Co-Chair #2A Caucus • Member of the House @FreedomCaucus • Member of @GOPOversight & @NatResources 🇺🇸",
+      "avatar": "https://pbs.twimg.com/profile_images/1838308580195184640/Jf6Oh6wf_normal.jpg",
+      "profileUrl": "https://x.com/RepBoebert"
+    },
+    {
+      "displayName": "Sean Hannity 🇺🇸",
+      "username": "seanhannity",
+      "followers": 8451422,
+      "followersFmt": "845w",
+      "description": "Hang Out w/Hannity https://t.co/9wzGXDc2bZ | TV Host Fox News Channel 9 PM EST. Nationally Syndicated Radio Host 3-6 PM EST.",
+      "avatar": "https://pbs.twimg.com/profile_images/1862487402163433472/Ccr7C3Lh_normal.jpg",
+      "profileUrl": "https://x.com/seanhannity"
+    },
+    {
+      "displayName": "Mike Krieger",
+      "username": "mikeyk",
+      "followers": 467527,
+      "followersFmt": "46.8w",
+      "description": "Building at Anthropic Labs @anthropicai.\nBefore: CPO at Anthropic, co-founder & CTO of @instagram and @artifact_news",
+      "avatar": "https://pbs.twimg.com/profile_images/1600639584294969344/VOYWWHNN_normal.jpg",
+      "profileUrl": "https://x.com/mikeyk"
+    },
+    {
+      "displayName": "Gossip Goblin",
+      "username": "Gossip_Goblin",
+      "followers": 103961,
+      "followersFmt": "10.4w",
+      "description": "Crafting stories scripted from the human brain, curated through vision, and rendered by the machine.",
+      "avatar": "https://pbs.twimg.com/profile_images/1997311160928890880/77jxKJhT_normal.jpg",
+      "profileUrl": "https://x.com/Gossip_Goblin"
+    },
+    {
+      "displayName": "Claude",
+      "username": "claudeai",
+      "followers": 1812466,
+      "followersFmt": "181w",
+      "description": "Claude is an AI assistant built by @anthropicai to be safe, accurate, and secure. Talk to Claude on https://t.co/ZhTwG8d1e5 or download the app.",
+      "avatar": "https://pbs.twimg.com/profile_images/1950950107937185792/QOfEjFoJ_normal.jpg",
+      "profileUrl": "https://x.com/claudeai"
+    },
+    {
+      "displayName": "Creators",
+      "username": "XCreators",
+      "followers": 10849900,
+      "followersFmt": "1,085w",
+      "description": "X is for creators.",
+      "avatar": "https://pbs.twimg.com/profile_images/1683364393323577345/uUWH_TiG_normal.jpg",
+      "profileUrl": "https://x.com/XCreators"
+    },
+    {
+      "displayName": "Whole Mars Catalog",
+      "username": "wholemars",
+      "followers": 2121090,
+      "followersFmt": "212w",
+      "description": "🤖 🚗 🤖 🚕",
+      "avatar": "https://pbs.twimg.com/profile_images/2100121110960553984/UWLjAKcu_normal.jpg",
+      "profileUrl": "https://x.com/wholemars"
+    },
+    {
+      "displayName": "David Zaslav",
+      "username": "DavidZaslav",
+      "followers": 3139,
+      "followersFmt": "3,139",
+      "description": "",
+      "avatar": "https://pbs.twimg.com/profile_images/378800000453733010/768279b201dcba7c24b56d2a078ccaed_normal.jpeg",
+      "profileUrl": "https://x.com/DavidZaslav"
+    },
+    {
+      "displayName": "Rishabh Yadav",
+      "username": "rishabhgy",
+      "followers": 481,
+      "followersFmt": "481",
+      "description": "",
+      "avatar": "https://pbs.twimg.com/profile_images/2086593509575065600/G-tTnrp2_normal.jpg",
+      "profileUrl": "https://x.com/rishabhgy"
+    },
+    {
+      "displayName": "Grace lin tao",
+      "username": "lintao0915",
+      "followers": 522,
+      "followersFmt": "522",
+      "description": "",
+      "avatar": "https://pbs.twimg.com/profile_images/2097369492657782784/jJN88l5K_normal.jpg",
+      "profileUrl": "https://x.com/lintao0915"
+    },
+    {
+      "displayName": "FC Hellmar",
+      "username": "HilmarVeigar",
+      "followers": 17350,
+      "followersFmt": "1.7w",
+      "description": "CEO at @FenrisCreations, makers of @EVEOnline, @EVE_Frontier, @PlayEVEVanguard. Virtual World, Digital Economy enthusiast. Meaningful Agency is the product.",
+      "avatar": "https://pbs.twimg.com/profile_images/2099592837541068800/y_DR3M7y_normal.jpg",
+      "profileUrl": "https://x.com/HilmarVeigar"
+    },
+    {
+      "displayName": "Fenris Creations",
+      "username": "FenrisCreations",
+      "followers": 56104,
+      "followersFmt": "5.6w",
+      "description": "We create virtual worlds\n\n🖥️ @EveOnline @EVE_Frontier @PlayEVEVanguard\n📱@EveEchoes @Galaxy_Conquest",
+      "avatar": "https://pbs.twimg.com/profile_images/2056760530581229569/LhpffX5K_normal.jpg",
+      "profileUrl": "https://x.com/FenrisCreations"
+    },
+    {
+      "displayName": "Michael O'Herlihy",
+      "username": "michaelo",
+      "followers": 22049,
+      "followersFmt": "2.2w",
+      "description": "Head of Safety at @X.",
+      "avatar": "https://pbs.twimg.com/profile_images/2093333433804365824/aIDDPSmx_normal.jpg",
+      "profileUrl": "https://x.com/michaelo"
+    },
+    {
+      "displayName": "Jade Warwick",
+      "username": "TheJadeWarwick",
+      "followers": 90160,
+      "followersFmt": "9w",
+      "description": "The Warwick Report\nCulture warrior and unapologetic voice of the West.\nINTJ 🏴󠁧󠁢󠁷󠁬󠁳󠁿|🇬🇧|🇺🇸",
+      "avatar": "https://pbs.twimg.com/profile_images/2096731074067832843/BosmfRF3_normal.jpg",
+      "profileUrl": "https://x.com/TheJadeWarwick"
+    },
+    {
+      "displayName": "Heavy Pulp",
+      "username": "heavypulp",
+      "followers": 74676,
+      "followersFmt": "7.5w",
+      "description": "Freshly Squeezed Visual Amalgamations. \n\nCustom work: pulp@heavypulp.media\n\nEVERYTHING IS COMPUTER.\nBUT COMPUTER ISN'T EVERYTHING.",
+      "avatar": "https://pbs.twimg.com/profile_images/1974350184357187584/g8bdeWyI_normal.jpg",
+      "profileUrl": "https://x.com/heavypulp"
+    },
+    {
+      "displayName": "Hugging Face",
+      "username": "huggingface",
+      "followers": 799425,
+      "followersFmt": "79.9w",
+      "description": "The AI community building the future. https://t.co/TpiXQMQ9rZ",
+      "avatar": "https://pbs.twimg.com/profile_images/1991559933473497089/mbrRS49P_normal.jpg",
+      "profileUrl": "https://x.com/huggingface"
+    },
+    {
+      "displayName": "Philippe Tabarot",
+      "username": "PhilippeTabarot",
+      "followers": 9635,
+      "followersFmt": "9,635",
+      "description": "Ministre des Transports 🇫🇷",
+      "avatar": "https://pbs.twimg.com/profile_images/1889070567862448128/j35TQlXe_normal.jpg",
+      "profileUrl": "https://x.com/PhilippeTabarot"
+    },
+    {
+      "displayName": "Ivan Ji",
+      "username": "ivan_ji_",
+      "followers": 1113,
+      "followersFmt": "1,113",
+      "description": "Eng Lead @XAI Ex Ranking Lead Threads & @Instagram @Tiktok_us",
+      "avatar": "https://pbs.twimg.com/profile_images/2087353216942116864/MzAXOdh6_normal.jpg",
+      "profileUrl": "https://x.com/ivan_ji_"
+    },
+    {
+      "displayName": "John Ternus",
+      "username": "johnternus",
+      "followers": 1058505,
+      "followersFmt": "106w",
+      "description": " CEO",
+      "avatar": "https://pbs.twimg.com/profile_images/2094817326155939840/MVSN5mvP_normal.jpg",
+      "profileUrl": "https://x.com/johnternus"
+    },
+    {
+      "displayName": "John Michael Greer",
+      "username": "JMGreerWriter",
+      "followers": 15716,
+      "followersFmt": "1.6w",
+      "description": "X feed for the writings of John Michael Greer. \n\nJMG interacts directly with readers at - https://t.co/c6UgwJ15T2",
+      "avatar": "https://pbs.twimg.com/profile_images/1357258576863973376/7b5fOyS__normal.jpg",
+      "profileUrl": "https://x.com/JMGreerWriter"
+    },
+    {
+      "displayName": "Roman Ugarte",
+      "username": "romanugarte_",
+      "followers": 8349,
+      "followersFmt": "8,349",
+      "description": "Building @Bot at @SpaceXAI, prev: @cursor_ai @harvard",
+      "avatar": "https://pbs.twimg.com/profile_images/1899272966850125826/Nq5kbpgO_normal.jpg",
+      "profileUrl": "https://x.com/romanugarte_"
+    },
+    {
+      "displayName": "fin",
+      "username": "fi56622380",
+      "followers": 77807,
+      "followersFmt": "7.8w",
+      "description": "立场不重要，事物的运行逻辑和内在规律才是更值得关注的部分 | \n\n读过三个不同专业的学位，体验过两个大洲的尘世生活，设计过一次火星车芯片，还没有去看过心心念念的冰川",
+      "avatar": "https://pbs.twimg.com/profile_images/1617438471773360129/PuNEnXyH_normal.jpg",
+      "profileUrl": "https://x.com/fi56622380"
+    },
+    {
+      "displayName": "Travis Brashears",
+      "username": "trbrashears",
+      "followers": 1300,
+      "followersFmt": "1,300",
+      "description": "Deploying compute @spacex. Also building lasers at @meshoptical Helped build the Starlink Laser Mesh 🛰️",
+      "avatar": "https://pbs.twimg.com/profile_images/1870583586807791616/bYsEiWTA_normal.jpg",
+      "profileUrl": "https://x.com/trbrashears"
+    },
+    {
+      "displayName": "Peter St Onge, Ph.D.",
+      "username": "profstonge",
+      "followers": 309000,
+      "followersFmt": "30.9w",
+      "description": "Former professor, ex-bartender. \nAustrian economics.\nFriday videos at https://t.co/kD3fDmtXws",
+      "avatar": "https://pbs.twimg.com/profile_images/1738594872125161472/oHWOsCs5_normal.jpg",
+      "profileUrl": "https://x.com/profstonge"
+    },
+    {
+      "displayName": "Governor Jeff Landry",
+      "username": "LAGovJeffLandry",
+      "followers": 33347,
+      "followersFmt": "3.3w",
+      "description": "The official X page of Governor Jeff Landry, 57th Governor of Louisiana",
+      "avatar": "https://pbs.twimg.com/profile_images/1743076013133762560/vsBcu7ux_normal.jpg",
+      "profileUrl": "https://x.com/LAGovJeffLandry"
+    },
+    {
+      "displayName": "NVIDIA AI Infrastructure",
+      "username": "NVIDIAAIInfra",
+      "followers": 80820,
+      "followersFmt": "8.1w",
+      "description": "AI factories for the era of AI reasoning.",
+      "avatar": "https://pbs.twimg.com/profile_images/1859346502243713026/NzLZW_Ag_normal.jpg",
+      "profileUrl": "https://x.com/NVIDIAAIInfra"
+    },
+    {
+      "displayName": "Bill Perkins (Guy)",
+      "username": "bp22",
+      "followers": 88891,
+      "followersFmt": "8.9w",
+      "description": "Said i'd always be your friend,I took an oath gonna stick it out till the end\n📚 @diewithzero \nFounder\nhttps://t.co/rHuhqa6lwF\nhttps://t.co/7YZxlEYsJ5\n\nAd Hominem attack 🚫",
+      "avatar": "https://pbs.twimg.com/profile_images/1517915307486101504/MqEDjfaM_normal.jpg",
+      "profileUrl": "https://x.com/bp22"
+    },
+    {
+      "displayName": "matt palmer",
+      "username": "mattyp",
+      "followers": 74267,
+      "followersFmt": "7.4w",
+      "description": "cursor & @bot at @spacexai",
+      "avatar": "https://pbs.twimg.com/profile_images/2059379375666278400/-eTzltyr_normal.jpg",
+      "profileUrl": "https://x.com/mattyp"
+    },
+    {
+      "displayName": "Ben Buchanan",
+      "username": "BuchananBen",
+      "followers": 7979,
+      "followersFmt": "7,979",
+      "description": "Professor at Johns Hopkins SAIS. Former White House Special Advisor for AI. Author of four books on AI and cyber, including THE BITTER STRUGGLE, out Nov 10.",
+      "avatar": "https://pbs.twimg.com/profile_images/527292987005366272/5_Tk5ilp_normal.jpeg",
+      "profileUrl": "https://x.com/BuchananBen"
+    },
+    {
+      "displayName": "SemiAnalysis",
+      "username": "SemiAnalysis_",
+      "followers": 166475,
+      "followersFmt": "16.6w",
+      "description": "",
+      "avatar": "https://pbs.twimg.com/profile_images/2062973370157694976/CdplNoi1_normal.jpg",
+      "profileUrl": "https://x.com/SemiAnalysis_"
+    },
+    {
+      "displayName": "lauren",
+      "username": "poteto",
+      "followers": 119324,
+      "followersFmt": "11.9w",
+      "description": "Grok @Bot at @SpaceXAI. Shipping with https://t.co/WDB4U1rwmu. React compiler core team, prev cursor, meta, netflix",
+      "avatar": "https://pbs.twimg.com/profile_images/2093473719830315008/oo09g1Ov_normal.jpg",
+      "profileUrl": "https://x.com/poteto"
+    },
+    {
+      "displayName": "Acting Secretary Keith Sonderling",
+      "username": "Sonderling47",
+      "followers": 16944,
+      "followersFmt": "1.7w",
+      "description": "Acting Secretary of Labor @USDOL",
+      "avatar": "https://pbs.twimg.com/profile_images/1899639037821927424/zRyraw8l_normal.jpg",
+      "profileUrl": "https://x.com/Sonderling47"
+    },
+    {
+      "displayName": "X Open Source",
+      "username": "XOpenSource",
+      "followers": 45115,
+      "followersFmt": "4.5w",
+      "description": "",
+      "avatar": "https://pbs.twimg.com/profile_images/2086823682895179776/inMppXhg_normal.jpg",
+      "profileUrl": "https://x.com/XOpenSource"
+    },
+    {
+      "displayName": "Cognition",
+      "username": "cognition",
+      "followers": 184828,
+      "followersFmt": "18.5w",
+      "description": "Makers of Devin, the first AI software engineer. We are an applied AI lab building end-to-end software agents. Join us: https://t.co/4Ss9hvpjRG",
+      "avatar": "https://pbs.twimg.com/profile_images/1765909640364068865/MvH-m0gd_normal.jpg",
+      "profileUrl": "https://x.com/cognition"
+    },
+    {
+      "displayName": "Matt Shumer",
+      "username": "mattshumer_",
+      "followers": 395861,
+      "followersFmt": "39.6w",
+      "description": "AI whisperer. Investor in @GroqInc @Etched @Rork @DaytonaIO @OpenRouter + more. Prev: CEO @HyperWriteAI | AI @AlphaSchool\n\nPress: mattshumermedia@gmail.com",
+      "avatar": "https://pbs.twimg.com/profile_images/1490950574090571778/BtgOaqUP_normal.jpg",
+      "profileUrl": "https://x.com/mattshumer_"
+    },
+    {
+      "displayName": "Grok Bot",
+      "username": "bot",
+      "followers": 305511,
+      "followersFmt": "30.6w",
+      "description": "AI teammates that you can give real work to.",
+      "avatar": "https://pbs.twimg.com/profile_images/2087219239275069440/KW6C403V_normal.jpg",
+      "profileUrl": "https://x.com/bot"
+    },
+    {
+      "displayName": "Music over time🎻",
+      "username": "Peal8888",
+      "followers": 109157,
+      "followersFmt": "10.9w",
+      "description": "Relax, listen, laugh, and enjoy the beauty around you.🌻✨",
+      "avatar": "https://pbs.twimg.com/profile_images/2078308543455977472/CJc9Unqi_normal.jpg",
+      "profileUrl": "https://x.com/Peal8888"
+    },
+    {
+      "displayName": "signüll",
+      "username": "signulll",
+      "followers": 264813,
+      "followersFmt": "26.5w",
+      "description": "village regard. @skye",
+      "avatar": "https://pbs.twimg.com/profile_images/1717763325692383232/Jk2PKCx6_normal.jpg",
+      "profileUrl": "https://x.com/signulll"
+    },
+    {
+      "displayName": "clem 🤗",
+      "username": "ClementDelangue",
+      "followers": 697774,
+      "followersFmt": "69.8w",
+      "description": "Co-founder & CEO @HuggingFace 🤗, the open and collaborative platform for AI builders",
+      "avatar": "https://pbs.twimg.com/profile_images/1100512198139498497/utHSJ4st_normal.png",
+      "profileUrl": "https://x.com/ClementDelangue"
+    },
+    {
+      "displayName": "Allegra Jacchia",
+      "username": "allegrajacchia",
+      "followers": 40277,
+      "followersFmt": "4w",
+      "description": "Creator Product @x",
+      "avatar": "https://pbs.twimg.com/profile_images/2094508354421096448/hKFDY5X0_normal.jpg",
+      "profileUrl": "https://x.com/allegrajacchia"
+    },
+    {
+      "displayName": "demonflyingfox",
+      "username": "demonflyingfox",
+      "followers": 20061,
+      "followersFmt": "2w",
+      "description": "everything",
+      "avatar": "https://pbs.twimg.com/profile_images/1647201279628673024/EpjYeoaa_normal.jpg",
+      "profileUrl": "https://x.com/demonflyingfox"
+    },
+    {
+      "displayName": "Ion Yadigaroglu",
+      "username": "ionyad",
+      "followers": 3235,
+      "followersFmt": "3,235",
+      "description": "Partner at Capricorn and TIF, early investor in Tesla, Joby, SpaceX, QS, Heron, Redwood, Saildrone, Innovium, Nuvia, Fervo, Twelve, Helion, Seurat ...",
+      "avatar": "https://pbs.twimg.com/profile_images/910320822560190464/3Qt2XtR9_normal.jpg",
+      "profileUrl": "https://x.com/ionyad"
+    },
+    {
+      "displayName": "Cleo Abram",
+      "username": "cleoabram",
+      "followers": 83636,
+      "followersFmt": "8.4w",
+      "description": "Video journalist making optimistic science and tech explainers. HUGE* If True. Watch: https://t.co/EI32Qgtigc",
+      "avatar": "https://pbs.twimg.com/profile_images/1478893133714833409/AqK_kkIx_normal.jpg",
+      "profileUrl": "https://x.com/cleoabram"
+    },
+    {
+      "displayName": "The Declaration of Independence Center",
+      "username": "umdeclaration",
+      "followers": 23019,
+      "followersFmt": "2.3w",
+      "description": "The Declaration of Independence Center for the Study of American Freedom at the University of Mississippi",
+      "avatar": "https://pbs.twimg.com/profile_images/1978889791119691776/xy0VygT__normal.jpg",
+      "profileUrl": "https://x.com/umdeclaration"
+    },
+    {
+      "displayName": "JK",
+      "username": "jeffreykWNDR",
+      "followers": 1310,
+      "followersFmt": "1,310",
+      "description": "",
+      "avatar": "https://pbs.twimg.com/profile_images/2100624992128139264/PcdGw7gE_normal.jpg",
+      "profileUrl": "https://x.com/jeffreykWNDR"
+    },
+    {
+      "displayName": "DeepSeek",
+      "username": "deepseek_ai",
+      "followers": 1135336,
+      "followersFmt": "114w",
+      "description": "Unravel the mystery of AGI with curiosity. Answer the essential question with long-termism.",
+      "avatar": "https://pbs.twimg.com/profile_images/1717417613775757312/Uk1zNOj4_normal.jpg",
+      "profileUrl": "https://x.com/deepseek_ai"
+    },
+    {
+      "displayName": "DHH",
+      "username": "dhh",
+      "followers": 889046,
+      "followersFmt": "88.9w",
+      "description": "Father of three, Creator of Ruby on Rails + Omarchy, Co-owner & CTO of 37signals, Shopify director, NYT best-selling author, and Le Mans 24h class-winner.",
+      "avatar": "https://pbs.twimg.com/profile_images/2093715898204884992/goERjC9G_normal.jpg",
+      "profileUrl": "https://x.com/dhh"
+    },
+    {
+      "displayName": "Bernard Arnault",
+      "username": "BernardArnault",
+      "followers": 120864,
+      "followersFmt": "12.1w",
+      "description": "Président-directeur général @LVMH CEO",
+      "avatar": "https://pbs.twimg.com/profile_images/2081414222475378688/MUC4xo1f_normal.jpg",
+      "profileUrl": "https://x.com/BernardArnault"
+    },
+    {
+      "displayName": "Second Lady Usha Vance",
+      "username": "SLOTUS",
+      "followers": 259995,
+      "followersFmt": "26w",
+      "description": "Second Lady of the United States",
+      "avatar": "https://pbs.twimg.com/profile_images/1899136582528958464/Kj200Yfz_normal.jpg",
+      "profileUrl": "https://x.com/SLOTUS"
+    },
+    {
+      "displayName": "Mira Murati",
+      "username": "miramurati",
+      "followers": 1013043,
+      "followersFmt": "101w",
+      "description": "Now building @thinkymachines. Previously CTO @OpenAI",
+      "avatar": "https://pbs.twimg.com/profile_images/2057853902918455296/D_nfq15L_normal.jpg",
+      "profileUrl": "https://x.com/miramurati"
+    },
+    {
+      "displayName": "Jensen Huang",
+      "username": "JensenHuang",
+      "followers": 1090934,
+      "followersFmt": "109w",
+      "description": "Founder and CEO of NVIDIA.",
+      "avatar": "https://pbs.twimg.com/profile_images/2080613261674962944/OMXX4RJ3_normal.jpg",
+      "profileUrl": "https://x.com/JensenHuang"
+    },
+    {
+      "displayName": "Peter Millett",
+      "username": "DrPeterMillett",
+      "followers": 909,
+      "followersFmt": "909",
+      "description": "",
+      "avatar": "https://pbs.twimg.com/profile_images/2079946934853480448/aPO22oAn_normal.jpg",
+      "profileUrl": "https://x.com/DrPeterMillett"
+    }
+  ],
+  "generatedAt": "2026-09-23 19:23:48"
+}

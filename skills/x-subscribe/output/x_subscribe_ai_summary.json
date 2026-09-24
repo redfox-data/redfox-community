@@ -1,0 +1,41 @@
+{
+  "overall": [
+    {
+      "title": "马斯克央视采访谈 Optimus 与「金钱不再重要」的未来",
+      "summary": "转发其央视新采访片段，谈人形机器人 Optimus 及一个「金钱可能不再重要」的未来设想，今日转发量最高（399）。",
+      "accounts": ["elonmusk"],
+      "tweetCount": 1
+    },
+    {
+      "title": "特斯拉获 Fitch 首个 BBB 投资级评级",
+      "summary": "转发惠誉首次给予特斯拉 BBB 投资级信用评级，强调其电动车领导地位与强盈利能力，是正面财务信号。",
+      "accounts": ["elonmusk"],
+      "tweetCount": 1
+    },
+    {
+      "title": "Starlink 日本推广：租赁 Mini 套件 0 元",
+      "summary": "转发星链日本消息：部分地区家庭向「租赁 Mini 套件」初期费用降至 0 元，全国大部分区域可快速安装。",
+      "accounts": ["elonmusk"],
+      "tweetCount": 1
+    },
+    {
+      "title": "Grok Bot 桌面端提速",
+      "summary": "转发 Grok @Bot 桌面端 app 更新，称过去几天上线 53 项性能修复，速度明显加快。",
+      "accounts": ["elonmusk"],
+      "tweetCount": 1
+    },
+    {
+      "title": "转发高盛 CEO 感谢 FDNY",
+      "summary": "转发 David Solomon 感谢纽约消防局 FDNY 的无私勇气，属社会公共事务内容。",
+      "accounts": ["elonmusk"],
+      "tweetCount": 1
+    }
+  ],
+  "accounts": [
+    {
+      "screenName": "elonmusk",
+      "theme": "今日 5 条全部为纯转发，话题分散：特斯拉获 Fitch 首个 BBB 投资级评级、央视采访谈 Optimus 与「金钱不再重要」的未来、Starlink 日本 0 元租赁、Grok Bot 桌面端提速、感谢 FDNY。",
+      "viewpoint": "今日无原创评论（全为 🔁 转发），主要通过转发扩散特斯拉信用评级上调、Optimus 机器人愿景等正面信号；其中 Optimus 采访片段转发量最高（399），是他今日最想放大的一条。"
+    }
+  ]
+}
