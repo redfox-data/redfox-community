@@ -234,6 +234,9 @@ https://clawhub.ai/user/redfox-data
 - [X (Twitter) get user info](<https://redfox.hk/apis/X(Twitter)/AKFHJMXQ>)
 - [X (Twitter) search tweets](<https://redfox.hk/apis/X(Twitter)/5K5EG87P>)
 - [X (Twitter) get single tweet details](<https://redfox.hk/apis/X(Twitter)/QCP75W33>)
+- [X top account ranking](<https://redfox.hk/apis/X(Twitter)/API_1790063277084>)
+- [X (Twitter) get user following list](<https://redfox.hk/apis/X(Twitter)/5QY3G5TY>)
+- [X (Twitter) get user posts](<https://redfox.hk/apis/X(Twitter)/API_1790148502632>)
 
 #### YouTube
 
@@ -241,6 +244,7 @@ https://clawhub.ai/user/redfox-data
 - [YouTube search videos](https://redfox.hk/apis/Youtube/GC5SC5HS)
 - [YouTube get video details](https://redfox.hk/apis/Youtube/609DF2IR)
 - [YouTube get video comments](https://redfox.hk/apis/Youtube/WULKP6JP)
+- [Get video subtitle details](https://redfox.hk/apis/Youtube/API_1790219598781)
 
 #### Instagram
 
@@ -252,15 +256,24 @@ https://clawhub.ai/user/redfox-data
 #### Autohome
 
 - [Autohome search content by keyword](https://redfox.hk/apis/qichezhijia/CI7VW144)
+- [Autohome article details (Chejiahao)](https://redfox.hk/apis/qichezhijia/LLCI8QTE)
+- [Autohome video details (original account + Chejiahao)](https://redfox.hk/apis/qichezhijia/TE6AGWAF)
+- [Autohome content list (original account)](https://redfox.hk/apis/qichezhijia/4BOZ9DLE)
 
 #### Dongchedi
 
 - [Dongchedi search content by keyword](https://redfox.hk/apis/dongchedi/W86F8SSK)
 - [Dongchedi content details](https://redfox.hk/apis/dongchedi/QQ5E3EZ9)
+- [Dongchedi user search](https://redfox.hk/apis/dongchedi/X16I71WV)
+- [Dongchedi user content list](https://redfox.hk/apis/dongchedi/ERTP2QX8)
 
 #### Yiche
 
 - [Yiche video details](https://redfox.hk/apis/yiche/3BXWEB6Y)
+- [Yiche account search](https://redfox.hk/apis/yiche/9KFOB9M2)
+- [Yiche full content list](https://redfox.hk/apis/yiche/YGYYT0G0)
+- [Yiche search content by keyword](https://redfox.hk/apis/yiche/YIGCY5US)
+- [Yiche article details V2](https://redfox.hk/apis/yiche/VYSP68M2)
 
 #### AI search
 
@@ -285,6 +298,30 @@ https://clawhub.ai/user/redfox-data
 - [Kuaishou video download](https://redfox.hk/apis/tool/0ZIWOO8P)
 - [Bilibili video download](https://redfox.hk/apis/tool/CWX77QIH)
 - [Instagram video download](https://redfox.hk/apis/tool/UUSP1G1P)
+
+#### Weibo
+
+- [Weibo content details](https://redfox.hk/apis/weibo/API_1789098514899)
+- [Weibo user details](https://redfox.hk/apis/all/API_1789098515117)
+- [Weibo account search](https://redfox.hk/apis/all/API_1789098515245)
+
+#### Baijiahao
+
+- [Baijiahao content HTML](https://redfox.hk/apis/baijiahao/API_1789097000710)
+- [Baijiahao video details](https://redfox.hk/apis/baijiahao/API_1789097000761)
+- [Baijiahao account info](https://redfox.hk/apis/baijiahao/API_1789097000814)
+- [Baijiahao search content by keyword](https://redfox.hk/apis/baijiahao/API_1789097000858)
+- [Baijiahao search accounts by keyword](https://redfox.hk/apis/baijiahao/API_1789097000885)
+
+#### Zhihu
+
+- [Zhihu search content by keyword](https://redfox.hk/apis/zhihu/API_1789095347662)
+
+#### Multi-platform
+
+- [Cross-platform aggregated hot TOP10 list](https://redfox.hk/apis/all/9Y4EX7RW)
+- [Cross-platform hot search by keyword](https://redfox.hk/apis/all/W94P1QH1)
+- [Hot rankings by platform](https://redfox.hk/apis/all/S28Q6HUD)
 
 #### More platform APIs
 
