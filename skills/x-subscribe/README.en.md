@@ -104,10 +104,6 @@ AI semantic summary (distilled from tweet content, not word frequency):
 | Subscription limit | Up to 100 accounts total; at most 50 per automation task |
 | Storage | Account handles are embedded directly in the automation command — no local file storage |
 
-### Pagination Rule
-
-The API does not support time-based sorting. The Skill paginates with cursor and compares each tweet's post time: if a page hits the window and contains no tweets earlier than the window start (9:00 yesterday), it keeps paginating; once an earlier tweet appears it stops, keeping only tweets within the window. At most 5 pages per account.
-
 ### Ranking-Board Subscription Source
 
 - The ranking-board subscription always queries **yesterday's** hot-account board (updated with the previous day's data at 9:00 daily, lookback up to 7 days)
