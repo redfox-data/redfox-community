@@ -230,6 +230,9 @@ npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/
 - [X(Twitter)获取用户信息](<https://redfox.hk/apis/X(Twitter)/AKFHJMXQ>)
 - [X(Twitter)搜索推文](<https://redfox.hk/apis/X(Twitter)/5K5EG87P>)
 - [X(Twitter)获取单个推文详情](<https://redfox.hk/apis/X(Twitter)/QCP75W33>)
+- [X热门账号榜](<https://redfox.hk/apis/X(Twitter)/API_1790063277084>)
+- [X(Twitter)获取用户关注列表](<https://redfox.hk/apis/X(Twitter)/5QY3G5TY>)
+- [X(Twitter)获取用户发帖](<https://redfox.hk/apis/X(Twitter)/API_1790148502632>)
 
 #### Youtube:
 
@@ -237,6 +240,7 @@ npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/
 - [Youtube搜索视频](https://redfox.hk/apis/Youtube/GC5SC5HS)
 - [Youtube获取视频详情](https://redfox.hk/apis/Youtube/609DF2IR)
 - [Youtube获取视频评论](https://redfox.hk/apis/Youtube/WULKP6JP)
+- [获取视频字幕详情](https://redfox.hk/apis/Youtube/API_1790219598781)
 
 #### Instagram:
 
@@ -248,15 +252,24 @@ npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/
 #### 汽车之家:
 
 - [汽车之家关键词搜索作品](https://redfox.hk/apis/qichezhijia/CI7VW144)
+- [汽车之家文章详情（车家号）](https://redfox.hk/apis/qichezhijia/LLCI8QTE)
+- [汽车之家视频详情（原创账号+车家号）](https://redfox.hk/apis/qichezhijia/TE6AGWAF)
+- [汽车之家作品列表（原创账号）](https://redfox.hk/apis/qichezhijia/4BOZ9DLE)
 
 #### 懂车帝:
 
 - [懂车帝关键词搜索作品](https://redfox.hk/apis/dongchedi/W86F8SSK)
 - [懂车帝作品详情](https://redfox.hk/apis/dongchedi/QQ5E3EZ9)
+- [懂车帝用户搜索](https://redfox.hk/apis/dongchedi/X16I71WV)
+- [懂车帝用户作品列表](https://redfox.hk/apis/dongchedi/ERTP2QX8)
 
 #### 易车:
 
 - [易车视频详情](https://redfox.hk/apis/yiche/3BXWEB6Y)
+- [易车账号搜索](https://redfox.hk/apis/yiche/9KFOB9M2)
+- [易车全部作品列表](https://redfox.hk/apis/yiche/YGYYT0G0)
+- [易车关键词搜索作品](https://redfox.hk/apis/yiche/YIGCY5US)
+- [易车文章详情V2](https://redfox.hk/apis/yiche/VYSP68M2)
 
 #### AI搜索：
 
@@ -281,6 +294,30 @@ npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/
 - [快手视频下载](https://redfox.hk/apis/tool/0ZIWOO8P)
 - [哔哩哔哩视频下载](https://redfox.hk/apis/tool/CWX77QIH)
 - [Instagram视频下载](https://redfox.hk/apis/tool/UUSP1G1P)
+
+#### 微博：
+
+- [微博内容详情](https://redfox.hk/apis/weibo/API_1789098514899)
+- [微博用户详情](https://redfox.hk/apis/all/API_1789098515117)
+- [微博账号搜索](https://redfox.hk/apis/all/API_1789098515245)
+
+#### 百家号
+
+- [百家号作品内容html](https://redfox.hk/apis/baijiahao/API_1789097000710)
+- [百家号视频详情](https://redfox.hk/apis/baijiahao/API_1789097000761)
+- [百家号账号信息](https://redfox.hk/apis/baijiahao/API_1789097000814)
+- [百家号关键词搜索作品](https://redfox.hk/apis/baijiahao/API_1789097000858)
+- [百家号账号关键词搜索](https://redfox.hk/apis/baijiahao/API_1789097000885)
+
+#### 百家号
+
+- [知乎关键词搜索作品](https://redfox.hk/apis/zhihu/API_1789095347662)
+
+#### 多平台：
+
+- [全网聚合热点TOP10列表](https://redfox.hk/apis/all/9Y4EX7RW)
+- [全网热搜查询（关键词）](https://redfox.hk/apis/all/W94P1QH1)
+- [各平台热点榜](https://redfox.hk/apis/all/S28Q6HUD)
 
 #### 更多平台API：
 
