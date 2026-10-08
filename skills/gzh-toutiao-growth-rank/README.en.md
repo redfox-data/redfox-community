@@ -78,5 +78,5 @@ After a successful query, the ranking is displayed directly in the conversation 
 ## Important Data Notes
 
 - The ranking updates every natural week; the period runs from Monday to Sunday
-- Update schedule: a new period is released every Monday at 16:30 (Beijing time); before that, the latest period may not be available yet and the previous one is shown instead
+- Update schedule: a new period is released every Monday at 16:30 (Beijing time); before that, the latest period may not be available yet, so the most recent period with data is shown instead and the rank output notes the fallback (e.g. "🔄 The latest period (2026-10-05) has not been released yet; showing 2026-09-28 instead")
 - Each page has a fixed 20 accounts, up to 5 pages
