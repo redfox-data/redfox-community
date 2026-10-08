@@ -50,6 +50,7 @@ SORT_MAP = {
 }
 
 UPDATE_NOTE = "周榜更新时间为每周一下午 16:30"  # 榜单更新周期提示，随每次查询输出
+SOFT_ERROR_CODES = (3203,)  # 业务软失败码（实测 3203：该期暂无数据等业务异常，不扣积分）：返回 None 由调用方回退；其余错误码（如 3107 鉴权失败、1002 页码超限）仍按致命错误退出
 
 
 def get_api_key() -> str:
@@ -62,7 +63,7 @@ def get_api_key() -> str:
         try:
             if os.path.isfile(path):
                 with open(path, "r", encoding="utf-8", errors="ignore") as f:
-                    m = re.search(r'export\s+REDFOX_API_KEY\s*=\s*["\']?([^"\'\n]+)["\']?', f.read())
+                    m = re.search(r'^\s*export\s+REDFOX_API_KEY\s*=\s*["\']?([^"\'\n]+)["\']?', f.read(), re.M)
                 if m:
                     return m.group(1).strip()
         except (OSError, PermissionError):
@@ -125,8 +126,12 @@ def fetch_rank_list(api_key: str, rank_date: str, author_type: str, sort: str, p
         print(f"[error] 数据解析异常: {e}", file=sys.stderr)
         sys.exit(1)
 
-    if result.get("code") != 2000:
-        print(f"[error] 接口返回错误: code={result.get('code')}, msg={result.get('msg', '未知')}", file=sys.stderr)
+    code = result.get("code")
+    if code != 2000:
+        if code in SOFT_ERROR_CODES:
+            # 该期暂无数据（正常业务态）：返回 None，由调用方决定回退或按空结果处理
+            return None
+        print(f"[error] 接口返回错误: code={code}, msg={result.get('msg', '未知')}", file=sys.stderr)
         sys.exit(1)
     return result
 
@@ -158,6 +163,7 @@ def build_output(rank_date: str, author_type: str, sort: str, page: int,
         "has_next": page < MAX_PAGE,
         "count": len(rows),
         "dates_tried": dates_tried,
+        "fallback": bool(rows) and len(dates_tried) > 1,
         "items": rows,
     }
 
@@ -200,15 +206,18 @@ def main():
             sys.exit(1)
         dates_tried.append(rank_date)
         result = fetch_rank_list(api_key, rank_date, author_type, sort, args.page)
-        items = result.get("data") or []
+        items = (result or {}).get("data") or []  # result 为 None 表示该期暂无数据，按空结果输出
     else:
-        # 未指定日期：从最近一个周一往前找最近有数据的期数
+        # 未指定日期：从最近一个周一往前找最近有数据的期数（最多回退 2 周，逐周回退）
+        base = latest_monday()
+        rank_date = base
         items = []
-        rank_date = latest_monday()
         for attempt in range(DEFAULT_FETCH_ATTEMPTS):
-            candidate = shift_weeks(rank_date, attempt)
+            candidate = shift_weeks(base, attempt)
             dates_tried.append(candidate)
             result = fetch_rank_list(api_key, candidate, author_type, sort, args.page)
+            if result is None:
+                continue  # 该期暂无数据（正常业务态），继续往前回退
             items = result.get("data") or []
             rank_date = candidate
             if items:
