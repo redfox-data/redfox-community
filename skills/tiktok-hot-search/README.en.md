@@ -31,6 +31,10 @@ Enter a keyword to get hot videos, related users and related topics on TikTok in
 - 🏷️ **Topic search**: views, usage counts and direct topic links
 - 🔗 **Full links**: complete clickable work / profile / topic links for easy verification
 - 📄 **Paged browsing**: includes next-page offset info to continue on demand
+- 🎯 **Top 3 viral video breakdown**: infer why videos went viral based on content and performance
+- 🚀 **Top 3 creator recommendations**: follow-up reasons based on account data and keyword relevance
+- 💡 **Topic trend insights**: summarize topic heat, usage trends and commercial signals
+- 📑 **HTML report**: generated with every search, exportable as PDF / high-res image
 
 ---
 
@@ -53,18 +57,19 @@ Describe what you want in natural language — no commands to memorize.
 
 | Intent | Example | Result |
 | ------ | ------- | ------ |
-| Search videos | "Search TikTok videos about NVIDIA" | Outputs the video list (plays descending by default) |
-| Find accounts / creators | "Which TikTok accounts make pour-over coffee?" | Outputs the user list (followers descending by default) |
-| Check a topic | "Check the cat topic data on TikTok" | Outputs the topic list (views descending by default) |
-| Site-wide search | "Search for camping gear" | Outputs videos, users and topics in one go |
+| Search videos | "Search TikTok videos about NVIDIA" | Outputs the video list with a Top 3 viral video breakdown (plays descending by default) |
+| Find accounts / creators | "Which TikTok accounts make pour-over coffee?" | Outputs the user list with Top 3 creator recommendations (followers descending by default) |
+| Check a topic | "Check the cat topic data on TikTok" | Outputs the topic list with topic trend insights (views descending by default) |
+| Site-wide search | "Search for camping gear" | Outputs videos, users and topics in one go, each with analysis |
 | Sorting & time filter | "Sort by likes, only the last week" | Videos sorted by likes desc + publish-time filter |
 | Follower filter | "Only accounts with 100k+ followers" | Users filtered by follower range |
 | Next page | "Next page" | Continues with the next offset based on the previous page hints |
+| Export report | "Export the report" | Provides an HTML report, exportable as PDF / high-res image |
 | View raw data | "Show the raw response" | Outputs the raw data content |
 
 ### Sample Output
 
-After a successful search, the three result sets appear directly in the conversation as Markdown tables (illustrative):
+After a successful search, the three result sets appear directly in the conversation as Markdown tables with AI analysis blocks, and an HTML report is generated alongside (illustrative):
 
 > Keyword: `NVIDIA` | Videos: 3 | Related users: 3 | Related topics: 3
 
@@ -80,6 +85,22 @@ After a successful search, the three result sets appear directly in the conversa
 | # | Topic | Topic ID | Views | Usage Count | Topic Link |
 |---:|---|---|---:|---:|---|
 | 1 | `#example` | `12345` | 12,345,678,901 | 98,765 | [Open topic](topic link) |
+
+```
+🎯 Top 3 Viral Video Breakdown
+1. **CreatorA** (@creator_a) published 2026-10-05 ｜ plays 12,345,678 ｜ likes 987,654
+   Why it went viral (inferred): …… ｜ [Open work](work link)
+
+🚀 Top 3 Creators Worth Following
+1. **CreatorC** (@creator_c) followers 1,234,567 ｜ total likes 23,456,789 ｜ works 321
+   Why follow (inferred): …… ｜ [Open profile](https://www.tiktok.com/@creator_c)
+
+💡 Topic Trend Insights
+1. **#example**
+   ……
+
+(The above is AI analysis and inference based on public data, for reference only.)
+```
 
 ---
 
@@ -100,3 +121,4 @@ After a successful search, the three result sets appear directly in the conversa
 - Videos are sorted by plays descending by default; users by followers descending; topics by views descending
 - When there are many results, browse page by page following the paging hints
 - Profile links are generated from the TikTok handle
+- Viral-video reasons, follow-up reasons and topic insights are AI analysis based on public data, clearly marked as inference and for reference only

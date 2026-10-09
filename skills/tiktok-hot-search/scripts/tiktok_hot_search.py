@@ -10,6 +10,7 @@
   python scripts/tiktok_hot_search.py --keyword "手冲咖啡" --type user --fans 3 --verified
   python scripts/tiktok_hot_search.py --keyword "cat" --type topic
   python scripts/tiktok_hot_search.py --keyword "NVIDIA" --type video --offset 10 --count 10
+  python scripts/tiktok_hot_search.py --keyword "NVIDIA" --save-json  # 结果落盘供 HTML 报告使用
 
 API Key 优先级：--api-key > REDFOX_API_KEY 环境变量 > shell 配置文件。
 """
@@ -23,6 +24,9 @@ import ssl
 import sys
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
+
+_SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_SAVE_PATH = os.path.join(_SKILL_DIR, "output", "tiktok_search_latest.json")
 
 HOST = "redfox.hk"
 ENDPOINTS = {
@@ -48,6 +52,15 @@ VIDEO_SORT_LABELS = {
     "shares": "按分享数降序",
     "none": "按原始相关度顺序",
 }
+PUBLISH_LABELS = {
+    "0": "不限制",
+    "1": "最近一天",
+    "7": "最近一周",
+    "30": "最近一个月",
+    "90": "最近三个月",
+    "180": "最近半年",
+}
+FANS_LABELS = {1: "0~1K", 2: "1K~10K", 3: "10K~100K", 4: "100K 以上"}
 BEIJING = timezone(timedelta(hours=8))
 
 
@@ -202,6 +215,11 @@ def summarize(text: Any, limit: int = 60) -> str:
     return s if len(s) <= limit else s[: limit - 3] + "..."
 
 
+def plain_summarize(text: Any, limit: int = 60) -> str:
+    s = str(text if text is not None else "").replace("\n", " ").strip()
+    return s if len(s) <= limit else s[: limit - 3] + "..."
+
+
 def extract_video_items(data: Any) -> List[Dict[str, Any]]:
     if isinstance(data, list):
         return data
@@ -339,6 +357,82 @@ def render_topic(data: Any, args: argparse.Namespace) -> str:
 RENDERERS = {"video": render_video, "user": render_user, "topic": render_topic}
 
 
+def normalize_video(data: Any, args: argparse.Namespace) -> List[Dict[str, Any]]:
+    items = sort_videos(extract_video_items(data), args.sort)
+    out: List[Dict[str, Any]] = []
+    for idx, item in enumerate(items, 1):
+        author = item.get("authorData") or {}
+        stats = item.get("statsData") or {}
+        share_link = str(item.get("shareLink") or "")
+        content = str(item.get("content") or "").replace("\n", " ").strip()
+        out.append({
+            "rank": idx,
+            "name": str(author.get("userName") or ""),
+            "handle": str(author.get("userHandle") or ""),
+            "workId": str(item.get("workId") or ""),
+            "views": stats.get("viewCount") or 0,
+            "likes": stats.get("likeCount") or 0,
+            "comments": stats.get("commentTotal") or 0,
+            "shares": stats.get("shareTotal") or 0,
+            "date": fmt_time(item.get("publishTime")),
+            "shareLink": share_link,
+            "content": content,
+            "contentSummary": plain_summarize(content),
+        })
+    return out
+
+
+def normalize_user(data: Any, args: argparse.Namespace) -> List[Dict[str, Any]]:
+    data = data if isinstance(data, dict) else {}
+    items = sorted(data.get("userList") or [],
+                   key=lambda item: (item.get("fansCount") or 0), reverse=True)
+    out: List[Dict[str, Any]] = []
+    for idx, user in enumerate(items, 1):
+        handle = str(user.get("userHandle") or "")
+        out.append({
+            "rank": idx,
+            "name": str(user.get("userName") or ""),
+            "handle": handle,
+            "profileUrl": f"https://www.tiktok.com/@{handle}" if handle else "",
+            "fans": user.get("fansCount") or 0,
+            "liked": user.get("likedTotal") or 0,
+            "works": user.get("workCount") or 0,
+        })
+    return out
+
+
+def normalize_topic(data: Any, args: argparse.Namespace) -> List[Dict[str, Any]]:
+    data = data if isinstance(data, dict) else {}
+    items = sorted(data.get("topicList") or [],
+                   key=lambda item: (item.get("viewCount") or 0), reverse=True)
+    out: List[Dict[str, Any]] = []
+    for idx, topic in enumerate(items, 1):
+        name = str(topic.get("topicName") or "")
+        out.append({
+            "rank": idx,
+            "name": f"#{name}" if name else "",
+            "topicId": str(topic.get("topicId") or ""),
+            "views": topic.get("viewCount") or 0,
+            "usage": topic.get("usageCount") or 0,
+            "participants": topic.get("participantCount") or 0,
+            "shareLink": str(topic.get("shareLink") or ""),
+            "description": str(topic.get("description") or "").replace("\n", " ").strip(),
+        })
+    return out
+
+
+NORMALIZERS = {"video": normalize_video, "user": normalize_user, "topic": normalize_topic}
+
+
+def collect_paging(kind: str, data: Any, args: argparse.Namespace) -> Dict[str, Any]:
+    if kind == "video":
+        return {"nextOffset": args.offset + args.count, "hasMore": None}
+    data = data if isinstance(data, dict) else {}
+    if kind == "user":
+        return {"nextOffset": data.get("cursor"), "hasMore": data.get("hasMore")}
+    return {"nextOffset": data.get("nextCursor"), "hasMore": data.get("hasMore")}
+
+
 def describe_api_error(exc: ApiError) -> str:
     if exc.code in (3103, 3105):
         return "API Key 无效或已禁用，请更换有效的 REDFOX_API_KEY 后重试。"
@@ -368,6 +462,9 @@ def main() -> None:
     parser.add_argument("--verified", action="store_true", help="仅看认证用户")
     parser.add_argument("--api-key", default=None, help="临时 API Key；优先级高于环境变量")
     parser.add_argument("--raw", action="store_true", help="输出原始 JSON")
+    parser.add_argument("--save-json", nargs="?", const=DEFAULT_SAVE_PATH, default=None,
+                        metavar="PATH", help="查询结果保存为 JSON（供 HTML 报告使用）；"
+                                            f"不带路径时默认保存到 {DEFAULT_SAVE_PATH}")
     args = parser.parse_args()
 
     args.keyword = (args.keyword or "").strip()
@@ -391,6 +488,29 @@ def main() -> None:
     print(f"关键词：`{args.keyword}`")
     print(f"{API_KEY_REMINDER}\n")
 
+    saved: Dict[str, Any] = {
+        "meta": {
+            "keyword": args.keyword,
+            "types": kinds,
+            "count": args.count,
+            "offset": args.offset,
+            "filters": {
+                "sort": args.sort,
+                "sortLabel": VIDEO_SORT_LABELS[args.sort],
+                "publish": args.publish,
+                "publishLabel": PUBLISH_LABELS[args.publish],
+                "region": args.region,
+                "fans": args.fans,
+                "fansLabel": FANS_LABELS.get(args.fans),
+                "verified": bool(args.verified),
+            },
+            "generatedAt": datetime.now(tz=BEIJING).strftime("%Y-%m-%d %H:%M:%S"),
+        },
+        "video": None,
+        "user": None,
+        "topic": None,
+    }
+
     failures = 0
     for kind in kinds:
         try:
@@ -403,6 +523,11 @@ def main() -> None:
             else:
                 print(RENDERERS[kind](data, args))
                 print()
+                if args.save_json:
+                    saved[kind] = {
+                        "items": NORMALIZERS[kind](data, args),
+                        "paging": collect_paging(kind, data, args),
+                    }
         except ApiError as exc:
             failures += 1
             print(f"{LABELS[kind]}查询失败：{describe_api_error(exc)}")
@@ -412,6 +537,16 @@ def main() -> None:
         except Exception as exc:  # 网络或解析异常
             failures += 1
             print(f"{LABELS[kind]}查询失败：{exc}")
+
+    if args.save_json:
+        try:
+            path = args.save_json
+            os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(saved, f, ensure_ascii=False, indent=2)
+            print(f"查询结果已保存：{path}")
+        except OSError as exc:
+            print(f"结果保存失败：{exc}", file=sys.stderr)
 
     if failures and failures == len(kinds):
         sys.exit(1)
