@@ -179,11 +179,11 @@ export PROHIBITED_WORD_API_URL=https://your-gateway.example.com/sensitiveWordSea
 
 🔗 **相关 Skill 推荐**
 
-本 Skill 覆盖三平台通用检测。如需更聚焦单一平台的专项能力，可前往 SkillHub 选用：
+本 Skill 覆盖三平台通用检测。如需更聚焦单一平台的专项能力，可前往红狐网站选用：
 
-- [小红书违禁词检测](https://skillhub.cn/skills/xhs-prohibited-word) — 面向种草笔记，强化极限词、禁宣与社区规范识别
-- [抖音违禁词检测](https://skillhub.cn/skills/dy-prohibited-word) — 面向短视频脚本与口播，兼顾节奏与平台安全表述
-- [公众号违禁词检测](https://skillhub.cn/skills/gzh-prohibited-word) — 面向推文与长图文，贴合图文审核与品牌对外口径
+- [小红书违禁词检测](https://redfox.hk/skills/no/AVZkdH2g) — 面向种草笔记，强化极限词、禁宣与社区规范识别
+- [抖音违禁词检测](https://redfox.hk/skills/no/F3jCHerW) — 面向短视频脚本与口播，兼顾节奏与平台安全表述
+- [公众号违禁词检测](https://redfox.hk/skills/no/4AdnxkH3) — 面向推文与长图文，贴合图文审核与品牌对外口径
 
 ### 输出规则
 
