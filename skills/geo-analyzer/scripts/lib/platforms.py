@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-3平台适配器 — 豆包 / Kimi / DeepSeek 统一接口
+6平台适配器 — 豆包 / Kimi / DeepSeek / 元宝 / 千问 / 百度 统一接口
 
 统一接口:
   submit(platform, query) -> task_id
@@ -35,6 +35,21 @@ PLATFORMS = {
         "result_path": "/story/api/deepSearch/dsResult",
         "label": "DeepSeek",
     },
+    "yuanbao": {
+        "submit_path": "/story/api/deepSearch/ybSubmit",
+        "result_path": "/story/api/deepSearch/ybResult",
+        "label": "元宝",
+    },
+    "qianwen": {
+        "submit_path": "/story/api/deepSearch/qwSubmit",
+        "result_path": "/story/api/deepSearch/qwResult",
+        "label": "千问",
+    },
+    "baidu": {
+        "submit_path": "/story/api/deepSearch/bdSubmit",
+        "result_path": "/story/api/deepSearch/bdResult",
+        "label": "百度",
+    },
 }
 
 SOURCE_TAG = "品牌GEO分析-GitHub"
@@ -57,7 +72,7 @@ def submit(platform, query, source=None, max_retries=3):
     """提交搜索请求，返回 task_id
 
     Args:
-        platform: 平台 key (doubao / kimi / deepseek)
+        platform: 平台 key（见 PLATFORMS，如 doubao / kimi / deepseek / yuanbao / qianwen / baidu）
         query: 搜索关键词
         source: 来源标识，默认 SOURCE_TAG
         max_retries: 限流重试次数
@@ -140,10 +155,11 @@ def poll(platform, task_id):
 def extract_result(platform, raw_data):
     """从 API 原始响应中提取统一格式的内容和引用来源
 
-    三平台实际响应格式:
+    各平台实际响应格式:
       豆包: data.result.content + data.result.searchGuid[].text_card{title,url,sitename}
       Kimi: data.result.content + data.result.webPages[]
-      DeepSeek: data.result.content + data.result (待确认)
+      元宝: data.result.content + data.result.searchGuid.docs[]{title,url,web_site_name}
+      DeepSeek / 千问 / 百度（deepSearch 系列）: data.result.content + 通用 sources/references/citations 字段
 
     Args:
         platform: 平台 key
@@ -187,7 +203,10 @@ def extract_result(platform, raw_data):
 
     if isinstance(result_obj, dict):
         # 豆包: searchGuid[].text_card{title, url, sitename}
+        # 元宝: searchGuid 为 dict，信源在其 docs[] 内 {title, url, web_site_name}
         search_guid = result_obj.get("searchGuid") or []
+        if isinstance(search_guid, dict):
+            search_guid = search_guid.get("docs") or []
         for item in search_guid:
             if not isinstance(item, dict):
                 continue

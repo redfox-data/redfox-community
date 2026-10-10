@@ -4,12 +4,12 @@
 
 ## Overview
 
-GEO Analyzer is a brand AI search visibility analysis tool. It automatically submits the same questions to three AI search engines — Doubao, Kimi, and DeepSeek — then detects brand mention rates, sentiment tendencies, source citations, and competitor comparisons, generating an interactive HTML report.
+GEO Analyzer is a brand AI search visibility analysis tool. It automatically submits the same questions to six AI search engines — Doubao, Kimi, DeepSeek, Yuanbao, Qianwen, and Baidu — then detects brand mention rates, sentiment tendencies, source citations, and competitor comparisons, generating an interactive HTML report.
 
 **Core Value**
 
-- Enter a brand name and category to auto-generate test questions and batch-submit them across three AI platforms
-- No manual testing needed — parallel polling runs in the background, results ready in 3-5 minutes
+- Enter a brand name and category to auto-generate test questions and batch-submit them across six AI platforms
+- No manual testing needed — parallel polling runs in the background, results ready in 5-8 minutes
 - Delivers a complete GEO score, mention rate matrix, sentiment distribution, and competitor comparison at a glance
 
 **Who It's For**
@@ -25,7 +25,7 @@ GEO Analyzer is a brand AI search visibility analysis tool. It automatically sub
 ### Core Capabilities
 
 - Auto-generates 5 category-relevant test questions (recommendation / comparison / evaluation / scenario), with support for custom questions
-- Batch-submits N questions × 3 AI platforms with parallel polling, up to 8 minutes max wait
+- Batch-submits N questions × 6 AI platforms with parallel polling, up to 8 minutes max wait
 - Deterministic analysis: brand mention rate (cross-platform + per-platform), source domain aggregation, mention matrix heatmap
 - AI deep analysis: brand ranking position, sentiment tendency (positive / neutral / negative), competitor comparison matrix
 - GEO composite score (0-100): mention rate 40% + ranking 30% + sentiment 30% weighted calculation
@@ -52,7 +52,7 @@ Just describe what you need in natural language — no commands to memorize.
 
 | Intent | Example Prompt | Result |
 |--------|---------------|--------|
-| Analyze brand AI visibility | "Analyze how Genki Forest performs in AI search" | Auto-generates questions, batch-searches 3 platforms, delivers full GEO report |
+| Analyze brand AI visibility | "Analyze how Genki Forest performs in AI search" | Auto-generates questions, batch-searches 6 platforms, delivers full GEO report |
 | Custom question testing | "Test DJI's AI search performance with these 5 questions" | Uses your custom question list for batch search |
 | Competitor comparison | "Compare NIO, Li Auto, and XPeng in AI search" | Delivers competitor matrix with per-platform mention rates and sentiment |
 
@@ -62,14 +62,17 @@ After analyzing "Genki Forest" in the sugar-free beverage category, you'll recei
 
 > **Report Summary · Genki Forest**
 >
-> **Overall Assessment:** Genki Forest's cross-platform GEO composite score is **72**, mid-to-upper tier. Brand mention rate 80% (mentioned in 12/15 answers), positive rate 75%.
+> **Overall Assessment:** Genki Forest's cross-platform GEO composite score is **72**, mid-to-upper tier. Brand mention rate 70% (mentioned in 21/30 answers), positive rate 75%.
 >
 > **Platform Breakdown:**
 > **Doubao**: GEO score 80 (Good), mention rate 100%, avg. rank #2.3
 > **Kimi**: GEO score 68 (Good), mention rate 80%, avg. rank #3.1
 > **DeepSeek**: GEO score 68 (Good), mention rate 60%, avg. rank #2.8
+> **Yuanbao**: GEO score 74 (Good), mention rate 80%, avg. rank #2.6
+> **Qianwen**: GEO score 66 (Good), mention rate 60%, avg. rank #3.0
+> **Baidu**: GEO score 52 (Fair), mention rate 40%, avg. rank #3.4
 >
-> **Action Items:** Prioritize improving DeepSeek mention rate (currently only 60%); address negative feedback with targeted pain-point solutions.
+> **Action Items:** Prioritize improving Baidu mention rate (currently only 40%); address negative feedback with targeted pain-point solutions.
 
 ---
 
