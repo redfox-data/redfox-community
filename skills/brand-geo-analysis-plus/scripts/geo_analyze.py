@@ -94,7 +94,7 @@ def main():
 
     results = search_data.get("results", [])
     queries = search_data.get("queries", [])
-    platforms = search_data.get("platforms", ["doubao", "kimi", "deepseek"])
+    platforms = search_data.get("platforms") or list(PLATFORMS.keys())
 
     print(f"品牌: {brand}", file=sys.stderr)
     print(f"别名: {aliases}", file=sys.stderr)
@@ -226,9 +226,7 @@ def main():
             competitor_comparison.append({
                 "name": comp,
                 "mention_rate_overall": comp_rates.get("overall", 0),
-                "mention_rate_doubao": comp_rates.get("doubao", 0),
-                "mention_rate_kimi": comp_rates.get("kimi", 0),
-                "mention_rate_deepseek": comp_rates.get("deepseek", 0),
+                "mention_rate_by_platform": {p: comp_rates.get(p, 0) for p in platforms},
                 "avg_rank": comp_avg_rank.get("overall"),
                 "positive_pct": comp_sent_overall["positive"] / comp_sent_total if comp_sent_total > 0 else 0,
                 "negative_pct": comp_sent_overall["negative"] / comp_sent_total if comp_sent_total > 0 else 0,
