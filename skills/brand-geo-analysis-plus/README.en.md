@@ -1,23 +1,24 @@
-# Brand Geo Analysis Plus / brand-geo-analysis-plus
+# Brand GEO Analysis Plus / brand-geo-analysis-plus
 
 ---
 
-## Introduction
+## Overview
 
-One skill, three perspectives: real-time aggregated trending boards + in-depth social media research over the last 30 days + brand visibility analysis in AI search. Together they show you the full picture of how a brand or topic is perceived across the Chinese internet, from "what's trending" to "what users really say" to "what AI answers".
+One skill, three perspectives: **trending hub (hub) + 30-day social media research (cn30) + AI search brand visibility (geo)**. It helps you perceive your brand's image across the Chinese internet from three layers — topic heat, real word-of-mouth, and AI answers.
 
 **Core Value**
 
-- **Three complementary perspectives**: trending boards show what is hot right now, social media shows what real users say, and AI search shows how large models describe the brand. Combining all three prevents one-sided conclusions drawn from a single data source.
-- **Conclusions, not data dumps**: trending rankings, reputation insights, GEO scores, competitor comparisons and visual reports that are ready to use.
-- **Built for the Chinese internet**: platforms and metrics follow local social media conventions, for example the save-to-like ratio on Xiaohongshu as a "seeding" signal, shares on Douyin as reach, and reads on WeChat Official Accounts as attention.
+- **All-in-one three-layer view**: From trending charts to social discussions to AI search answers, one tool covers the entire brand perception pipeline — no tool switching needed.
+- **Driven by real data**: Real-time trending data from 7 platforms + 30 days of genuine discussions from 3 social platforms + live answers from 3 AI search engines.
+- **Quantifiable and measurable**: GEO composite score, mention rate, average ranking, and sentiment distribution — brand visibility in AI search is no longer a black box.
+- **Report as deliverable**: Terminal quick-view tables + interactive HTML reports, ready to archive and share.
 
 **Who It's For**
 
-- 🏢 **Brand / marketing operations** — daily reputation monitoring, competitor reputation comparison, brand AI visibility diagnosis.
-- 📈 **Growth / GEO owners** — see how the brand is described by Doubao, Kimi and DeepSeek, and where to optimise.
-- ✍️ **Content creators / editors** — track trending topics across platforms, decide which ones are worth riding, and find angles.
-- 🔍 **Consultancies / media agencies** — produce a data-backed brand perception report for clients.
+- 🏢 **Brand & marketing teams** — Understand your brand's real presence and reputation across the web, and catch negative feedback early.
+- 📊 **Market & PR analysts** — Compare competitors across platforms and produce structured reports ready for citation.
+- 📈 **GEO / SEO practitioners** — Quantify brand visibility in AI search and identify clear optimization directions.
+- ✍️ **Content & campaign operators** — Track trending topics and mine real user discussions for a steady stream of content ideas.
 
 ---
 
@@ -25,19 +26,16 @@ One skill, three perspectives: real-time aggregated trending boards + in-depth s
 
 ### Core Capabilities
 
-- **Cross-platform trending aggregation**: covers Baidu, Zhihu, Weibo, Douyin, Bilibili, Kuaishou and Toutiao, with a per-platform TOP10 plus an overall summary.
-- **Flexible time and scope**: latest (hourly), today, yesterday and this week rankings; full rankings for a single platform; keyword search where broad category words are automatically expanded into related terms.
-- **Trend forecasting**: a forward-looking read on trending items to help you judge whether follow-up is worthwhile.
-- **In-depth social media research over the last 30 days**: real user discussions from Xiaohongshu, Douyin and WeChat Official Accounts, delivered as a data snapshot, consolidated insights and a visual report.
-- **Brand visibility in AI search**: batch queries to Doubao, Kimi and DeepSeek, producing an overall GEO score, brand mention rate, sentiment, competitor comparison and cited sources.
-- **Automatic visual reports**: interactive reports for social media research and AI search analysis are generated automatically, with no extra request needed.
-- **Full brand perception diagnosis**: combines the trending, reputation and AI-answer layers into one report with layer-by-layer action recommendations.
+- **Trending hub (hub)**: Fetches real-time trending charts from 7 platforms — Baidu, Zhihu, Weibo, Douyin, Bilibili, Kuaishou, and Toutiao — automatically identifies the same event across platforms, and delivers TOP10 charts, cross-platform summaries, and trend forecasts, with lookback support for yesterday / this week / the past 30 days.
+- **Social media research (cn30)**: Searches 30 days of genuine user discussions on Xiaohongshu, Douyin, and WeChat Official Accounts, compares trends across platforms, and outputs data quick views, key findings, and visualized HTML reports, with support for custom keywords and any range (1–30 days).
+- **AI search visibility (geo)**: Batch-submits questions to three AI search engines — Doubao, Kimi, and DeepSeek — quantifying brand mention rate, recommendation ranking, sentiment tendency, and source citations, auto-discovers competitors and generates comparison matrices, with an interactive HTML report.
+- **Full brand diagnosis**: A combined workflow across all three modules that produces a structured brand perception report from the heat, word-of-mouth, and AI answer layers, with actionable recommendations for each layer.
 
 ### Highlights
 
-- **Three perspectives in one**: trending, reputation and AI answers are connected by a single tool, so one diagnosis covers the key steps of brand perception.
-- **Use only what you need**: when you only want one thing, use the matching module instead of the full workflow.
-- **Independent modules**: if one data source is temporarily unavailable, the other modules still deliver.
+- **Three-in-one product**: One skill chains three information layers — trending → social → AI search. Use any module on its own or combine them for a full-dimensional diagnosis.
+- **Deterministic scoring formula**: The GEO composite score is a weighted sum of mention rate (40%) + ranking (30%) + sentiment (30%), making results reproducible and comparable over time.
+- **Dirty data auto-excluded**: Answers affected by AI platform rate limits or failures are automatically flagged and excluded from statistics, keeping mention rate and sentiment conclusions clean.
 
 ---
 
@@ -45,60 +43,55 @@ One skill, three perspectives: real-time aggregated trending boards + in-depth s
 
 - This skill requires the environment variable: `REDFOX_API_KEY`.
 - `REDFOX_API_KEY` is provided by [RedFoxHub](https://redfox.hk/settings/api-keys?source=github) (`https://redfox.hk`).
-- Please register an account at [RedFoxHub](https://redfox.hk?source=github) to obtain your `REDFOX_API_KEY`.
-- Configure the `REDFOX_API_KEY` environment variable on your device before using this skill.
-- Before providing a key, confirm its source, allowed scope, validity period, and whether it supports reset or revocation.
-- Never hardcode or expose the key in plain text in code, prompts, logs or output files.
+- Visit [RedFoxHub](https://redfox.hk?source=github) to register and obtain your `REDFOX_API_KEY`.
+- Configure the environment variable `REDFOX_API_KEY` on your device before using this skill.
+- Before providing a key, verify its source, scope, expiration, and whether it supports reset/revocation.
+- Do not hardcode or expose the key in plain text within code, prompts, logs, or output files.
 
 ---
 
-## Usage Guide
+## Usage
 
-Just describe the brand, topic or trending item you care about in natural language — there are no commands to memorise.
+Just describe your brand, topic, or analysis need in natural language — no commands to memorize.
 
-### Common Requests
+### Quick Reference
 
-| Intent                | Example Request                                                   | What You Get                                                                 |
-| --------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Check what's trending | "What is everyone talking about today?"                           | TOP10 trending boards across seven platforms plus an overall summary         |
-| Look back by time     | "Yesterday's rankings", "This week's trending topics"             | Cross-platform rankings for the matching time window                         |
-| Search a topic area   | "Search sports trends", "What's trending about the Super League?" | Broad category words expand into related terms; precise terms are used as-is |
-| Focus on one platform | "Weibo rankings", "Show the full Bilibili list"                   | The complete ranking for that platform                                       |
-| Track a brand         | "How has my brand been discussed on Xiaohongshu this month?"      | 30 days of real discussion across three social platforms + insights + report |
-| See how AI rates it   | "How do Doubao and Kimi describe our brand?"                      | GEO score, mention rate, sentiment, competitor comparison, sources + report  |
-| Run a full diagnosis  | "Put together a full perception report for my brand"              | One combined trending → reputation → AI report with action recommendations   |
-| Keep monitoring       | "Subscribe to daily updates"                                      | Scheduled digest of trending boards and highlights                           |
+| Intent | Example Prompt | Result |
+| ------ | -------------- | ------ |
+| Browse trending topics | "What's trending across the web today? Which topic is worth chasing?" | TOP10 charts from 7 platforms + cross-platform summary + trend forecast |
+| Research social sentiment | "How have people discussed sugar-free drinks in the last 30 days? Check Xiaohongshu, Douyin, and WeChat accounts" | Cross-platform discussion quick view + key findings + HTML report |
+| Check AI search visibility | "Analyze how Genki Forest performs on Doubao, Kimi, and DeepSeek" | GEO score + mention rate / sentiment / sources + interactive report |
+| Compare competitors in AI search | "Compare us and competitor A — who gets recommended more in AI search?" | Competitor comparison matrix of mention rate / ranking / sentiment |
+| Full brand diagnosis | "Give me a complete perception report for brand XX" | Three-stage combined diagnosis: heat + word-of-mouth + AI answers |
 
-### Sample Output
+### Example Output
 
-When you want the full picture of a brand, you receive a layered diagnosis along these lines (illustrative):
+Take AI search visibility analysis as an example. When it finishes, you receive an interactive HTML report whose executive summary looks roughly like this (illustrative):
 
-> **One-line conclusion**: The brand is actively discussed on social media with largely positive sentiment, yet its mention rate in AI search recommendation questions remains clearly low — a visibility gap.
->
-> **1. Trending layer**: whether it appears in recent trending items, which platforms it covers, and its direction.
-> **2. Reputation layer**: real user feedback, positive and negative signals, key discussion themes.
-> **3. AI layer**: GEO score, mention rate (with a per-platform breakdown), sentiment distribution, competitor comparison, main cited sources.
-> **4. Action recommendations**: whether to ride the trend, which negative feedback to address, and where to optimise GEO.
+- **Cross-platform mention rate**: 83% (Doubao 100% / Kimi 67% / DeepSeek 83%)
+- **GEO composite score**: 72 / 100 (Excellent), best platform: Doubao
+- **Sentiment distribution**: 70% positive / 30% neutral / 0% negative
+- **Average brand ranking**: 2.3 (upper-middle of recommendation lists)
+- **Top cited sources**: zhihu.com, baike.baidu.com... If your official website is not cited, that is your first GEO optimization entry point
 
 ---
 
 ## Use Cases
 
-| Scenario                         | Role                     | Example Question                                                    | Benefit                                                                |
-| -------------------------------- | ------------------------ | ------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Brand reputation monitoring      | Brand / marketing ops    | "How has our brand been discussed over the past month?"             | Quickly grasp real social sentiment and positive/negative signals      |
-| Competitor reputation comparison | Marketing / growth       | "Compare how A and B are received on Xiaohongshu and Douyin"        | See differences in user discussion and each side's weaknesses          |
-| AI visibility diagnosis          | Brand / GEO owner        | "How would Doubao, Kimi and DeepSeek recommend products like ours?" | Quantify brand visibility in AI search and locate optimisation areas   |
-| Riding trends for content        | Creator / editor         | "What's trending today that we could ride?"                         | Judge trend direction and timing, reducing wasted topic exploration    |
-| Full brand diagnosis             | Brand lead / consultancy | "Put together a full perception report for my brand"                | One report and action plan covering trending, reputation and AI layers |
+| Scenario | Role | Example Prompt | Benefit |
+| -------- | ---- | -------------- | ------- |
+| Brand PR monitoring | Brand / marketing teams | "How are people talking about our brand lately? Check Xiaohongshu and Douyin" | Heat and word-of-mouth in one view; catch negative feedback early |
+| AI search optimization | GEO / SEO practitioners | "What's our mention rate in AI search? How do we improve it?" | Quantified baseline + clear optimization directions |
+| Competitor analysis | Market / PR analysts | "Compare our performance vs competitors on social media and AI search" | Same-dimension competitor matrix, ready to cite in reports |
+| Trend-jacking topics | Content / campaign operators | "Which trending topic is worth chasing today? Is it relevant to our niche?" | Cross-platform charts + trend forecasts, no more blind topic picks |
+| New product research | Product managers | "What are users really saying about this product category in the last 30 days?" | Genuine user voices across platforms — needs and pain points at a glance |
 
 ---
 
 ## Important Data Notes
 
-- Trending boards update hourly and by default cover "the previous full hour"; today, yesterday and weekly boards use their respective windows.
-- Social media research covers a rolling 30-day window; AI search analysis is based on live queries whose answers change over time and with model versions.
-- A single AI search analysis uses a limited number of questions (typically 8–12), so it is a small-sample observation that is best cross-checked against other data.
-- Brand mention detection relies on keyword matching of the brand name and aliases, so same-name brands may cause false matches; some AI platforms do not return external links, in which case an empty source list is normal and does not mean the brand website was not cited.
+- **Trending hub (hub)**: Updated hourly; by default returns data for "the last completed hour". Supports querying yesterday's chart, this week's chart, and the past 30 days.
+- **Social research (cn30)**: Defaults to the last 30 days; any range from 1 to 30 days is supported.
+- **AI search (geo)**: Real-time questions, real-time analysis. AI answers may change with platform algorithms — results only reflect the state at analysis time, so periodic re-testing is recommended.
 
 ---

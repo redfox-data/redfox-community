@@ -20,8 +20,14 @@ import math
 import re
 from datetime import datetime
 
-PLATFORM_LABELS = {"doubao": "豆包", "kimi": "Kimi", "deepseek": "DeepSeek"}
-PLATFORM_COLORS = {"doubao": "#2563eb", "kimi": "#7c3aed", "deepseek": "#0891b2"}
+PLATFORM_LABELS = {
+    "doubao": "豆包", "kimi": "Kimi", "deepseek": "DeepSeek",
+    "yuanbao": "元宝", "qianwen": "千问", "baidu": "百度",
+}
+PLATFORM_COLORS = {
+    "doubao": "#2563eb", "kimi": "#7c3aed", "deepseek": "#0891b2",
+    "yuanbao": "#e11d48", "qianwen": "#ea580c", "baidu": "#16a34a",
+}
 SENTIMENT_LABELS = {"positive": "正面", "neutral": "中性", "negative": "负面"}
 
 # 位置等级标签
@@ -467,7 +473,7 @@ def _collect_sources(analysis, search_results):
 
 def generate_html(analysis, search_results=None):
     brand = analysis.get("brand", "")
-    platforms = analysis.get("platforms", ["doubao", "kimi", "deepseek"])
+    platforms = analysis.get("platforms") or ["doubao", "kimi", "deepseek", "yuanbao", "qianwen", "baidu"]
     queries = analysis.get("queries", [])
     has_ai = "sentiment_distribution" in analysis
     total_completed = analysis.get("metrics", {}).get("total_completed", 0)

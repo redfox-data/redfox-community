@@ -429,6 +429,7 @@ def build_analysis_prompt(answer_content, brand, competitors):
 5. **competitors_mentioned**: 回答中提及的所有竞品品牌名称列表（不限于已知竞品，发现新竞品也列出）。
 6. **competitor_details**: 对每个被提及的竞品，提供其排名和情绪信息。格式为列表，每项含: name（竞品名）、rank（在推荐列表中的排名，无排名则为 null）、sentiment（positive/neutral/negative）。
 7. **key_claims**: 关于该品牌的关键描述或评价（2-3条简短摘要）。
+8. **注意：同一回答内排名不得重复。** brand_rank 与各竞品的 rank 必须互不相同；回答中并列呈现时，按先呈现/更被推荐的一方排前，依次递增（不得出现两个并列第1）。
 
 ## 输出格式
 ```json
