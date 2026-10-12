@@ -15,7 +15,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-API_URL = "https://redfox.hk/story/api/dongchedi/workList"
+API_URL = "https://redfox.hk/story/api/dongchedi/accountWorks"
 SOURCE = "懂车帝用户作品列表-GitHub"
 
 # 作品类型映射：1-文章，2-视频，7-图文动态，9-文章（长图文）
