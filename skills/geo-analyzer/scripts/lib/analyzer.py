@@ -15,6 +15,8 @@ AI 分析模板:
 """
 
 
+from urllib.parse import urlparse
+
 # ── 确定性分析 ─────────────────────────────────────────────
 
 
@@ -80,10 +82,80 @@ def extract_domains_from_sources(sources):
     """
     domains = []
     for s in sources:
+        if not isinstance(s, dict):
+            continue
         domain = s.get("domain", "")
+        # 兜底: 上游未填 domain 时从 url 解析，避免静默全空
+        if not domain and s.get("url"):
+            domain = extract_domain(s["url"])
         if domain:
             domains.append(domain)
     return domains
+
+
+# 常见多段后缀，用于判断主域名边界
+_MULTI_PART_TLDS = {
+    "com.cn", "net.cn", "org.cn", "gov.cn", "edu.cn", "ac.cn",
+    "com.hk", "com.tw", "com.mo", "co.jp", "co.kr", "co.uk",
+    "com.au", "com.sg", "com.my", "com.br",
+}
+
+
+def extract_domain(url):
+    """从 URL 中提取域名（去除 www. 前缀）"""
+    if not url:
+        return ""
+    try:
+        parsed = urlparse(url)
+        domain = parsed.netloc or parsed.path.split("/")[0]
+        return domain.replace("www.", "").lower()
+    except Exception:
+        return url.lower()
+
+
+def root_domain(domain):
+    """取站点主域名，用于合并同一站点的子域
+
+    enterprise.dji.com -> dji.com
+    m.it168.com / digital.it168.com -> it168.com
+    www.gov.cn 类多段后缀按 com.cn 等规则保留三段
+
+    Args:
+        domain: 完整域名
+
+    Returns:
+        str: 主域名
+    """
+    d = (domain or "").lower().strip().lstrip(".")
+    if not d or "." not in d:
+        return d
+    parts = d.split(".")
+    if len(parts) <= 2:
+        return d
+    if ".".join(parts[-2:]) in _MULTI_PART_TLDS:
+        return ".".join(parts[-3:]) if len(parts) >= 3 else d
+    return ".".join(parts[-2:])
+
+
+def merge_subdomains(domain_count):
+    """把同一站点的子域合并计数，展示名取该站点出现次数最多的完整域名
+
+    Args:
+        domain_count: {完整域名: 次数}
+
+    Returns:
+        dict[str, int]: {主域名: 次数}，按次数降序
+    """
+    groups = {}
+    for domain, count in domain_count.items():
+        root = root_domain(domain)
+        groups.setdefault(root, {})
+        groups[root][domain] = groups[root].get(domain, 0) + count
+
+    merged = {}
+    for root, sub in groups.items():
+        merged[root] = sum(sub.values())
+    return dict(sorted(merged.items(), key=lambda x: -x[1]))
 
 
 def aggregate_domains(results, platform=None):
@@ -105,7 +177,8 @@ def aggregate_domains(results, platform=None):
         for domain in extract_domains_from_sources(r.get("sources", [])):
             domain_count[domain] = domain_count.get(domain, 0) + 1
 
-    return dict(sorted(domain_count.items(), key=lambda x: -x[1]))
+    # 合并同一站点的子域，避免 dji.com / enterprise.dji.com 被当成两个信源
+    return merge_subdomains(domain_count)
 
 
 def compute_mention_rate(results, keywords, platform=None):
@@ -275,12 +348,10 @@ def compute_aggregate_metrics(per_answer, queries, platforms, brand, competitors
             domain_stats_by_platform.setdefault(p, {})
             domain_stats_by_platform[p][domain] = domain_stats_by_platform[p].get(domain, 0) + 1
 
-    # 排序域名统计
-    domain_stats = dict(sorted(domain_stats.items(), key=lambda x: -x[1]))
+    # 排序域名统计（合并同一站点的子域）
+    domain_stats = merge_subdomains(domain_stats)
     for p in platforms:
-        domain_stats_by_platform[p] = dict(
-            sorted(domain_stats_by_platform.get(p, {}).items(), key=lambda x: -x[1])
-        )
+        domain_stats_by_platform[p] = merge_subdomains(domain_stats_by_platform.get(p, {}))
 
     return {
         "brand_mention_rate": brand_mention_rate,
@@ -358,6 +429,7 @@ def build_analysis_prompt(answer_content, brand, competitors):
 5. **competitors_mentioned**: 回答中提及的所有竞品品牌名称列表（不限于已知竞品，发现新竞品也列出）。
 6. **competitor_details**: 对每个被提及的竞品，提供其排名和情绪信息。格式为列表，每项含: name（竞品名）、rank（在推荐列表中的排名，无排名则为 null）、sentiment（positive/neutral/negative）。
 7. **key_claims**: 关于该品牌的关键描述或评价（2-3条简短摘要）。
+8. **注意：同一回答内排名不得重复。** brand_rank 与各竞品的 rank 必须互不相同；回答中并列呈现时，按先呈现/更被推荐的一方排前，依次递增（不得出现两个并列第1）。
 
 ## 输出格式
 ```json
@@ -576,12 +648,11 @@ def compute_geo_score(mention_rate, avg_rank, sentiment_dist, max_rank=10):
     else:
         rank_score = 0
 
-    # 情绪得分 (0-100)
+    # 情绪得分 (0-100)：正面率=1-负面率（中性计入正面），情感得分=正面率*100
     total = sum(sentiment_dist.values())
     if total > 0:
-        positive_ratio = sentiment_dist.get("positive", 0) / total
         negative_ratio = sentiment_dist.get("negative", 0) / total
-        sentiment_score = positive_ratio * 100 - negative_ratio * 50
+        sentiment_score = (1 - negative_ratio) * 100
         sentiment_score = max(0, min(100, sentiment_score))
     else:
         sentiment_score = 50

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-GEO 搜索调度器 — 3平台 x N问题 批量提交 + 并行轮询
+GEO 搜索调度器 — 6平台 x N问题 批量提交 + 并行轮询
 
 用法:
-    python3 geo_search.py --queries '["问题1","问题2",...]' --platforms doubao,kimi,deepseek
+    python3 geo_search.py --queries '["问题1","问题2",...]' \
+        --platforms doubao,kimi,deepseek,yuanbao,qianwen,baidu
 
 输出:
     output/search_results.json
@@ -24,8 +25,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "lib
 
 from platforms import PLATFORMS, submit, poll, extract_result, API_KEY
 
-POLL_INTERVAL = 5        # 轮询间隔（秒）
-MAX_POLL_TIME = 900      # 最长等待 15 分钟（DeepSeek 深度搜索较慢）
+POLL_INTERVAL = 30       # 轮询间隔（秒），降低对服务端的压力
+MAX_POLL_TIME = 300      # 最长等待 5 分钟（deepSearch 系列 DeepSeek/元宝/千问/百度 较慢；超时任务跳过不阻塞）
 MAX_WORKERS = 6          # 并发线程数（降低避免 Kimi 限流）
 
 
@@ -38,8 +39,8 @@ def main():
     )
     parser.add_argument(
         "--platforms",
-        default="doubao,kimi,deepseek",
-        help="平台列表，逗号分隔（默认 doubao,kimi,deepseek）",
+        default=",".join(PLATFORMS),
+        help=f"平台列表，逗号分隔（默认全部 {len(PLATFORMS)} 个: {','.join(PLATFORMS)}）",
     )
     parser.add_argument(
         "--output",
@@ -202,8 +203,22 @@ def main():
     print(f"\n搜索完成: {output['completed']}/{total} 成功", file=sys.stderr)
     print(f"结果已保存: {output_path}", file=sys.stderr)
 
-    # stdout 输出 JSON 供 Agent 解析
-    print(json.dumps(output, ensure_ascii=False))
+    # stdout 只输出紧凑摘要，完整结果在 output_path 文件中（防止上下文溢出）
+    per_platform = {}
+    for p in platforms:
+        pr = [r for r in results if r.get("platform") == p]
+        per_platform[p] = {
+            "completed": len([r for r in pr if r["status"] == "completed"]),
+            "failed": len([r for r in pr if r["status"] != "completed"]),
+        }
+    summary = {
+        "output": output_path,
+        "total_tasks": total,
+        "completed": output["completed"],
+        "failed": output["failed"],
+        "per_platform": per_platform,
+    }
+    print(json.dumps(summary, ensure_ascii=False))
 
 
 if __name__ == "__main__":

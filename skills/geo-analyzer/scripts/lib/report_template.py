@@ -20,8 +20,14 @@ import math
 import re
 from datetime import datetime
 
-PLATFORM_LABELS = {"doubao": "豆包", "kimi": "Kimi", "deepseek": "DeepSeek"}
-PLATFORM_COLORS = {"doubao": "#2563eb", "kimi": "#7c3aed", "deepseek": "#0891b2"}
+PLATFORM_LABELS = {
+    "doubao": "豆包", "kimi": "Kimi", "deepseek": "DeepSeek",
+    "yuanbao": "元宝", "qianwen": "千问", "baidu": "百度",
+}
+PLATFORM_COLORS = {
+    "doubao": "#2563eb", "kimi": "#7c3aed", "deepseek": "#0891b2",
+    "yuanbao": "#e11d48", "qianwen": "#ea580c", "baidu": "#16a34a",
+}
 SENTIMENT_LABELS = {"positive": "正面", "neutral": "中性", "negative": "负面"}
 
 # 位置等级标签
@@ -73,11 +79,18 @@ POS_PATTERNS = [
     "静谧", "品质", "标杆", "体验", "补能", "质保", "上门服务",
     "省心", "稳定", "满足", "无焦虑", "口碑", "用户体验", "设计精致",
     "续航", "激光雷达", "性能", "内饰", "底盘", "保值",
+    "推荐", "首选", "领先", "好评", "值得", "性价比高",
+    "温和", "不刺激", "无刺激", "成分安全", "OTC", "经典", "国民",
+    "功能主治", "清热", "解痉", "去翳", "明目", "针对", "用于",
+    "治疗", "缓解", "有效", "疗效", "正宗", "道地",
 ]
 NEG_PATTERNS = [
-    "成本高", "不均", "不足", "少", "弱", "缺", "价格高", "贵", "维修",
+    "成本高", "不均", "不足", "价格高", "贵", "维修",
     "等待", "局限", "不够", "漏洞", "发热", "噪音", "缺点", "不便",
     "保值率低", "小众",
+    "破坏", "损伤", "加重", "依赖", "掩盖", "防腐剂", "反跳", "充血",
+    "角膜上皮", "泪膜", "不建议长期", "副作用", "不良反应", "禁忌",
+    "慎用", "过敏", "风险", "危害", "恶化", "缺少", "减少", "较弱",
 ]
 
 
@@ -189,6 +202,41 @@ def _generate_summary(analysis, platforms, total_completed, total_mentioned, pos
 
     directions_text = "；".join(directions)
 
+    # --- 情绪口径：正面率=1-负面率（中性计入正面）---
+    if total_sent > 0:
+        neu_pct = _pct(neu_count, total_sent)
+        neg_pct = _pct(neg_count, total_sent)
+        pos_pct = 100 - neg_pct
+        sentiment_text = (
+            f"正面率 {pos_pct}%（{pos_count}正 / {neu_count}中 / {neg_count}负，中性计入正面）"
+            + ("，存在负面评价" if neg_count > 0 else "，无负面评价")
+        )
+    else:
+        sentiment_text = "暂无情绪数据（无有效 AI 回答）"
+
+    # --- 竞争强度（按高频竞品数量动态判定，不再写死）---
+    comp_n = len(comp_with_rank)
+    if comp_n >= 5:
+        competition_text = "竞争环境非常拥挤"
+    elif comp_n >= 3:
+        competition_text = "竞争环境较为拥挤"
+    elif comp_n >= 1:
+        competition_text = "竞争环境存在一定压力"
+    else:
+        competition_text = "暂未观察到明显竞争"
+
+    # --- 数据完整性提示（平台故障不应被读作品牌弱势）---
+    failed_n = sum(
+        1 for a in analysis.get("per_answer", [])
+        if a.get("status") and a.get("status") != "completed"
+    )
+    coverage_note = ""
+    if failed_n:
+        coverage_note = (
+            f" 注：另有 {failed_n} 条回答因平台超时或返回异常已从统计中剔除，"
+            "不计入提及率与得分。"
+        )
+
     # 拼装 HTML
     platform_html = "<br>".join(platform_lines)
 
@@ -196,12 +244,22 @@ def _generate_summary(analysis, platforms, total_completed, total_mentioned, pos
     <div class="summary">
       <div class="summary-hd">报告摘要 · {brand}</div>
       <div class="summary-bd">
-        <p><strong>综合评估:</strong> {brand} 跨平台GEO综合得分 <strong>{geo_o}</strong> 分，{grade_text}。品牌提及率 {mr_pct}%（{total_mentioned}/{total_completed} 条回答提及），正面率 100%（无负面评价）。在 {_pct(int(mr_overall*100),100) if mr_overall else 0}% 的有效回答中被主动推荐或提及，整体品牌认知度{'较高' if mr_pct >= 50 else '有待提升'}。</p>
+        <p><strong>综合评估:</strong> {brand} 跨平台GEO综合得分 <strong>{geo_o}</strong> 分（满分 100），{grade_text}。品牌提及率 {mr_pct}%（{total_mentioned}/{total_completed} 条有效回答提及），{sentiment_text}。整体品牌认知度{'较高' if mr_pct >= 50 else '有待提升'}。{coverage_note}</p>
         <p><strong>各平台表现:</strong><br>{platform_html}</p>
-        <p><strong>竞品格局:</strong> AI回答中高频出现的竞品包括{comp_text}等，竞争环境较为拥挤。</p>
+        <p><strong>竞品格局:</strong> AI回答中高频出现的竞品{('包括' + comp_text + '等，') if comp_names else '暂不明显，'}{competition_text}。</p>
         <p><strong>发力方向:</strong> {directions_text}。</p>
       </div>
     </div>"""
+
+
+def _is_negated(claim, pattern):
+    """检查负面模式是否被否定词修饰（如"不易产生依赖"中的"依赖"）"""
+    idx = claim.find(pattern)
+    if idx <= 0:
+        return False
+    prefix = claim[max(0, idx - 6):idx]
+    negation_words = ["无", "不", "没", "非", "不易", "不会", "不含", "无需"]
+    return any(w in prefix for w in negation_words)
 
 
 def _extract_brand_voice(analysis):
@@ -227,8 +285,7 @@ def _extract_brand_voice(analysis):
                 is_neg = any(p in claim for p in NEG_PATTERNS)
                 if is_neg:
                     for p in NEG_PATTERNS:
-                        idx = claim.find(p)
-                        if idx > 0 and '无' in claim[max(0, idx - 4):idx]:
+                        if p in claim and _is_negated(claim, p):
                             is_neg = False
                             break
                 is_pos = any(p in claim for p in POS_PATTERNS) and not is_neg
@@ -248,9 +305,21 @@ def _extract_brand_voice(analysis):
 
         if sentiment == "negative":
             for claim in claims:
-                if claim not in seen_neg:
-                    seen_neg.add(claim)
-                    neg_items.append({"text": claim, "platform": platform})
+                is_pos = any(p in claim for p in POS_PATTERNS)
+                is_neg = any(p in claim for p in NEG_PATTERNS)
+                if is_neg:
+                    for p in NEG_PATTERNS:
+                        if p in claim and _is_negated(claim, p):
+                            is_neg = False
+                            break
+                if is_pos and not is_neg:
+                    if claim not in seen_pos:
+                        seen_pos.add(claim)
+                        pos_items.append({"text": claim, "platform": platform})
+                else:
+                    if claim not in seen_neg:
+                        seen_neg.add(claim)
+                        neg_items.append({"text": claim, "platform": platform})
 
     pos_tags = []
     seen = set()
@@ -305,6 +374,35 @@ def _compute_position(analysis):
     }
 
 
+def _root_domain(domain):
+    """取站点主域名，用于合并子域（enterprise.dji.com -> dji.com）"""
+    d = (domain or "").lower().strip().lstrip(".")
+    if not d or "." not in d:
+        return d
+    parts = d.split(".")
+    if len(parts) <= 2:
+        return d
+    _multi = {"com.cn", "net.cn", "org.cn", "gov.cn", "edu.cn", "ac.cn",
+              "com.hk", "com.tw", "com.mo", "co.jp", "co.kr", "co.uk",
+              "com.au", "com.sg", "com.my", "com.br"}
+    if ".".join(parts[-2:]) in _multi:
+        return ".".join(parts[-3:])
+    return ".".join(parts[-2:])
+
+
+def _domain_of(url, fallback=""):
+    """从 URL 解析域名（剥离 www.）"""
+    if not url:
+        return fallback
+    try:
+        from urllib.parse import urlparse
+        netloc = urlparse(url).netloc or ""
+    except Exception:
+        netloc = ""
+    netloc = netloc.replace("www.", "").lower()
+    return netloc or fallback
+
+
 def _collect_sources(analysis, search_results):
     """收集信源数据: 域名聚合、文章频次、分类统计"""
     if not search_results:
@@ -315,22 +413,49 @@ def _collect_sources(analysis, search_results):
     article_freq = {}
     article_meta = {}
     domain_freq = {}
+    platform_source_count = {}   # {平台: 信源条数}
+    platform_answered = {}       # {平台: 有效回答数}
+    platform_no_source = {}      # {平台: 无信源回答数}
+    platform_domain_freq = {}    # {平台: {主域名: 次数}}
 
     for r in results:
         if r.get("status") != "completed":
             continue
-        for src in r.get("sources", []):
+        p = r.get("platform", "")
+        platform_answered[p] = platform_answered.get(p, 0) + 1
+        srcs = r.get("sources", [])
+        if not srcs:
+            platform_no_source[p] = platform_no_source.get(p, 0) + 1
+        for src in srcs:
             url = src.get("url", "")
             title = src.get("title", "")
-            domain = src.get("domain", "")
-            if not url or not title:
+            # 兜底: 上游未填 domain 时从 url 解析，避免信源统计静默全空
+            domain = src.get("domain", "") or _domain_of(url)
+            if not url:
                 continue
+            if not title:
+                title = domain
             article_freq[url] = article_freq.get(url, 0) + 1
             article_meta[url] = {"title": title, "domain": domain, "url": url}
-            domain_freq[domain] = domain_freq.get(domain, 0) + 1
+            key = _root_domain(domain)
+            domain_freq[key] = domain_freq.get(key, 0) + 1
+            platform_source_count[p] = platform_source_count.get(p, 0) + 1
+            pf = platform_domain_freq.setdefault(p, {})
+            pf[key] = pf.get(key, 0) + 1
 
     if not article_freq:
-        return None
+        return {
+            "top_domains": [],
+            "top_articles": [],
+            "category_freq": {},
+            "total_citations": 0,
+            "domain_freq": {},
+            "platform_source_count": platform_source_count,
+            "platform_answered": platform_answered,
+            "platform_no_source": platform_no_source,
+            "platform_domain_freq": platform_domain_freq,
+            "monopolies": [],
+        }
 
     # 分类统计
     category_freq = {}
@@ -344,18 +469,39 @@ def _collect_sources(analysis, search_results):
     top_domains = sorted(domain_freq.items(), key=lambda x: -x[1])[:10]
     top_articles = sorted(article_freq.items(), key=lambda x: -x[1])[:10]
 
+    # 单一信源垄断检测（**分平台**：实测豆包 33 条信源中 30 条来自同一域名，占 91%）
+    monopolies = []
+    for p, pf in platform_domain_freq.items():
+        p_total = sum(pf.values())
+        if p_total < 5:
+            continue
+        top_d, top_c = max(pf.items(), key=lambda x: x[1])
+        if top_c / p_total >= 0.7:
+            monopolies.append({
+                "platform": PLATFORM_LABELS.get(p, p),
+                "domain": top_d,
+                "count": top_c,
+                "total": p_total,
+                "share": round(top_c / p_total * 100),
+            })
+
     return {
         "top_domains": top_domains,
         "top_articles": [(article_meta[url], freq) for url, freq in top_articles],
         "category_freq": category_freq,
         "total_citations": total_citations,
         "domain_freq": domain_freq,
+        "platform_source_count": platform_source_count,
+        "platform_answered": platform_answered,
+        "platform_no_source": platform_no_source,
+        "platform_domain_freq": platform_domain_freq,
+        "monopolies": monopolies,
     }
 
 
 def generate_html(analysis, search_results=None):
     brand = analysis.get("brand", "")
-    platforms = analysis.get("platforms", ["doubao", "kimi", "deepseek"])
+    platforms = analysis.get("platforms") or ["doubao", "kimi", "deepseek", "yuanbao", "qianwen", "baidu"]
     queries = analysis.get("queries", [])
     has_ai = "sentiment_distribution" in analysis
     total_completed = analysis.get("metrics", {}).get("total_completed", 0)
@@ -598,9 +744,10 @@ def _render_fingerprint(analysis, platforms, total_completed, total_mentioned, p
     total_sent = sum(sentiment_dist.values())
     neg_pct = _pct(sentiment_dist.get("negative", 0), total_sent) if total_sent else 0
     pos_pct = 100 - neg_pct
+    neu_pct = _pct(sentiment_dist.get("neutral", 0), total_sent) if total_sent else 0
     rank_str = f"{avg_rank:.1f}" if avg_rank else "N/A"
 
-    # 平台卡片: 紧凑布局
+    # 平台卡片: 2列紧凑布局
     score_cards = ""
     for p in platforms:
         s = geo_score.get(p, 0)
@@ -611,17 +758,15 @@ def _render_fingerprint(analysis, platforms, total_completed, total_mentioned, p
         gt, gc, gbg = _score_grade(s if isinstance(s, (int, float)) else None)
         p_done = sum(1 for a in analysis.get("per_answer", []) if a.get("platform") == p and a.get("status") == "completed")
         p_ment = sum(1 for a in analysis.get("per_answer", []) if a.get("platform") == p and a.get("status") == "completed" and a.get("brand_mentioned"))
+        s_str = f"{s}" if isinstance(s, (int, float)) else "N/A"
         score_cards += f"""
-        <div style="padding:var(--sp3) var(--sp4);border:1px solid var(--line);border-radius:var(--r);background:var(--surface)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp2)">
-            <span class="ptag"><span class="pd" style="background:{color}"></span>{label}</span>
-            <span class="badge" style="background:{gbg};color:{gc}">{gt}</span>
+        <div style="padding:var(--sp2) var(--sp3);border:1px solid var(--line);border-radius:var(--r);background:var(--surface)">
+          <div style="display:flex;align-items:center;gap:var(--sp2);margin-bottom:var(--sp1)">
+            <span class="ptag" style="font-size:11px"><span class="pd" style="background:{color}"></span>{label}</span>
+            <span class="num" style="font-size:var(--s3);color:{gc}">{s_str}</span>
+            <span class="badge" style="font-size:10px;padding:1px 6px;background:{gbg};color:{gc}">{gt}</span>
           </div>
-          <div class="num" style="font-size:var(--s4);color:{gc};margin-bottom:var(--sp2)">{s if isinstance(s,(int,float)) else 'N/A'}</div>
-          <div style="display:flex;gap:var(--sp4);font-size:var(--xs);color:var(--muted)">
-            <span>提及 {pct}%</span>
-            <span>{p_ment}/{p_done} 条</span>
-          </div>
+          <div style="font-size:10px;color:var(--muted)">提及 {pct}% · {p_ment}/{p_done} 条</div>
         </div>"""
 
     pos_html = ""
@@ -644,14 +789,14 @@ def _render_fingerprint(analysis, platforms, total_completed, total_mentioned, p
       <div class="card">
         {pos_html}
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sp4) var(--sp5);margin-bottom:var(--sp3)">
-          <div><div style="font-size:11px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em">GEO 综合</div><div class="num" style="font-size:var(--s4);color:var(--accent)">{geo_o}</div></div>
+          <div><div style="font-size:11px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em">GEO 综合</div><div class="num" style="font-size:var(--s5);color:var(--accent)">{geo_o}<span style="font-size:var(--xs);font-weight:500;color:var(--muted);margin-left:var(--sp1)">（满分 100）</span></div></div>
           <div><div style="font-size:11px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em">提及率</div><div class="num" style="font-size:var(--s4);color:var(--hit)">{mr_pct}%</div></div>
           <div><div style="font-size:11px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em">平均排名</div><div class="num" style="font-size:var(--s4);color:var(--warn)">{rank_str}</div></div>
           <div><div style="font-size:11px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em">正面率</div><div class="num" style="font-size:var(--s4);color:var(--hit)">{pos_pct}%</div></div>
         </div>
-        <div class="src">综合得分 = 提及率*40% + 排名得分*30% + 情感得分*30%</div>
+        <div class="src">综合得分 = 提及率*40% + 排名得分*30% + 情感得分*30% · 情感得分=正面率*100，正面率=1-负面率（中性计入正面）</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr;gap:var(--sp2)">{score_cards}</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sp2)">{score_cards}</div>
     </div>"""
 
 
@@ -863,6 +1008,48 @@ def _render_sources_analysis(analysis, search_results, platforms, total_complete
     elif brand:
         brand_note = f'<span style="color:var(--miss)">"{_esc(brand)}" 品牌官网未进入 TOP10</span>'
 
+    # ── 信源覆盖度说明（不再让「空信源」静默呈现为 0）──
+    coverage_notes = []
+    p_src = sources_data.get("platform_source_count", {})
+    p_ans = sources_data.get("platform_answered", {})
+    for p in platforms:
+        answered = p_ans.get(p, 0)
+        if answered and not p_src.get(p, 0):
+            label = PLATFORM_LABELS.get(p, p)
+            coverage_notes.append(
+                f"{label} 的 {answered} 条回答均未返回可解析外链信源"
+                + ("（该平台仅提供正文内联引用标记）" if p == "kimi" else "")
+            )
+    for r in (search_results or {}).get("results", []):
+        note = r.get("sources_note")
+        if note and note not in coverage_notes:
+            coverage_notes.append(note)
+            break
+
+    monopoly = sources_data.get("monopolies") or []
+    for m in monopoly:
+        coverage_notes.append(
+            f"{m['platform']}的信源高度集中于 {m['domain']}"
+            f"（{m['count']}/{m['total']} 次，占 {m['share']}%），"
+            "该平台域名多样性视角参考价值有限"
+        )
+
+    note_html = ""
+    if coverage_notes:
+        note_html = (
+            '<div style="margin-top:var(--sp3);font-size:var(--xs);color:var(--warn);'
+            'background:var(--warn-light);border:1px solid #fde68a;border-radius:var(--rs);'
+            'padding:var(--sp2) var(--sp3);line-height:1.7">'
+            "<strong>数据完整性提示：</strong> "
+            + "；".join(_esc(n) for n in coverage_notes)
+            + "</div>"
+        )
+
+    if not top_domains:
+        return f"""
+    <div class="card" style="color:var(--muted)">暂无信源数据（所有平台本次均未返回可解析外链信源）</div>
+    {note_html}"""
+
     return f"""
     <div class="sa-grid">
       <div class="sa-list">
@@ -880,7 +1067,8 @@ def _render_sources_analysis(analysis, search_results, platforms, total_complete
     <div style="display:flex;gap:var(--sp4);margin-top:var(--sp1);font-size:var(--xs);color:var(--muted);justify-content:center">
       {brand_note}
     </div>
-    <div class="src">总引用 {total_citations} 次 · 来自 {total_completed} 条有效回答 · 域名按聚合频次降序 · 文章按被引用次数降序</div>"""
+    <div class="src">总引用 {total_citations} 次 · 来自 {total_completed} 条有效回答 · 域名按聚合频次降序（已合并同站子域）· 文章按被引用次数降序</div>
+    {note_html}"""
 
 
 def _render_competitors(analysis, platforms, total_completed):
@@ -934,7 +1122,7 @@ def _render_competitors(analysis, platforms, total_completed):
         <tbody>{brand_row}{comp_rows}</tbody>
       </table>
       {more_text}
-      <div class="src">提及率=关键词匹配+AI提及列表推断排名 · 正面率=1-负面率 · 排名=在推荐列表中的位置</div>
+      <div class="src">提及率=关键词匹配+AI提及列表推断排名 · 正面率=1-负面率（中性计入正面） · 排名=在推荐列表中的位置</div>
     </div>"""
 
 
