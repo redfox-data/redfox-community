@@ -70,6 +70,23 @@ After a successful query, the works list appears directly in the conversation as
 | 1 | Zhijie xxx test drive experience… | CreatorA / `author_a` | `71xxxxxxxx` | 1,234,567 | 12,345 | 1,234 | 2026-09-01 10:30 | [Open work](work link) |
 | 2 | Zhijie yyy in-depth review… | CreatorB / `author_b` | `71yyyyyyyy` | 987,654 | 9,876 | 876 | 2026-09-02 14:00 | [Open work](work link) |
 
+### Keyword Guidance
+
+- Keep keywords to 6 characters or fewer; 2 characters works best (for example `零跑`, `智界`). Long compound phrases are more likely to time out.
+- Split a long phrase into shorter terms and search them separately: start with the brand or series (for example `零跑`), then search the model if needed (for example `T03`).
+- Search one keyword at a time. Multiple keywords separated by spaces or commas (for example `零跑 智界`, `零跑,智界`) are not supported in a single query.
+
+When a query fails (timeout, network error, or task submission failure), it retries automatically in this order, at most twice:
+
+1. Remove all spaces and retry, for example `零跑 T03` → `零跑T03`.
+2. If that still fails, shorten to a single entity, for example `零跑T03` → `零跑` (prefer the brand or series; a letter-or-number model such as `T03` can be kept as the model term).
+3. If both retries fail, the failure reason and the keywords already tried are shown, and no further retry is made.
+
+Notes:
+
+- A successful response with no works only shows "no data". Other keywords are not searched automatically.
+- Separate keywords divided by spaces or commas are not merged or substituted. Choose one keyword and search again.
+
 ---
 
 ## Use Cases
@@ -87,4 +104,4 @@ After a successful query, the works list appears directly in the conversation as
 
 - Each successful query may consume credits; query as needed
 - Sorted by plays in descending order by default; switch to likes, comments, time or original order as needed
-- When a search returns no results, only "no data" is shown; other keywords are not searched automatically
+- When a search returns no results, only "no data" is shown and other keywords are not searched automatically. Automatic retry follows Keyword Guidance only when the query fails (timeout, network error, or task submission failure).
