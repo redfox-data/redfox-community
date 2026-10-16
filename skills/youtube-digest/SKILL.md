@@ -17,7 +17,7 @@ description: YouTube 提文案 — 输入 YouTube 视频链接或 ID，一键提
 
 - 默认输出**不带时间戳**的纯文案；需要带时间戳版本时加 `--timestamp`
 - 字幕按 `zh,en,asr` 优先级选轨：**视频有中文字幕轨时直接输出中文**；没有中文轨时回退英文，**脚本自动将非中文字幕翻译为中文**（基于 Google Translate，批量翻译提升效率）；加 `--no-translate` 可禁用自动翻译、保留原文
-- 默认自动获取视频元数据（标题/频道），无需额外参数
+- 默认自动获取视频元数据（标题/时长），无需额外参数
 
 > 需先配置 API Key，通过环境变量 REDFOX_API_KEY 或 --api-key 参数传入。
 > 文字稿来源：视频字幕轨（手动字幕 + 自动生成字幕 asr），按语言优先级选轨、中文轨优先；非中文字幕由脚本端自动翻译为中文。
@@ -61,10 +61,9 @@ python3 "$SKILL_PATH/scripts/extract.py" "URL" --timestamp --excel
 # 指定语言优先级（如只要英文字幕）
 python3 "$SKILL_PATH/scripts/extract.py" "URL" --language "en"
 
-# 输出原始 JSON / 不保存文件 / 不获取元数据
+# 输出原始 JSON / 不保存文件
 python3 "$SKILL_PATH/scripts/extract.py" "URL" --json
 python3 "$SKILL_PATH/scripts/extract.py" "URL" --no-save
-python3 "$SKILL_PATH/scripts/extract.py" "URL" --no-metadata
 ```
 
 终端输出：视频概要（标题/语言/片段数/总时长）+ 纯文案全文。
@@ -114,10 +113,9 @@ Markdown 存档默认保存在 `~/Downloads/QoderYoutubeDigest/`，文件名 `{�
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `video_url` | YouTube 视频链接（完整URL/短URL/视频ID，必须含视频 ID，必填位置参数） | — |
-| `--language` | 字幕语言优先级，逗号分隔（中文轨优先，`asr` 为自动生成字幕兜底；仅选轨不翻译） | `zh,en,asr` |
+| `--language` | 字幕语言优先级，逗号分隔（中文轨优先，`asr` 为自动生成字幕兜底；脚本端选轨） | `zh,en,asr` |
 | `--timestamp` | 输出带 `[MM:SS]` 时间戳的文案 | 默认**不带**时间戳 |
 | `--excel` | 同时导出 Excel（.xlsx，四列：标题/时长/视频链接/文案内容） | 不导出 |
-| `--no-metadata` | 不获取视频元数据 | 默认获取（标题/频道） |
 | `--json` | 终端输出原始 JSON 响应 | — |
 | `--no-save` | 不保存 Markdown 文件 | 自动保存 |
 | `--output-dir` | 输出目录 | `~/Downloads/QoderYoutubeDigest` |
@@ -178,7 +176,7 @@ A：四列——标题、时长、视频链接、文案内容。文案内容与�
 A：文字稿来自视频字幕轨。完全无字幕（含自动生成字幕）的视频无法提取；部分受限/私享视频也不支持。
 
 **Q：链接报错了怎么办？**
-A：链接无效返回 `Invalid YouTube URL or video ID`（积分不扣除），请检查链接是否包含正确的视频 ID；Key 无效（3106/3107）请检查 API Key 配置；限频（3108）会自动等待重试。
+A：链接无效或视频提取失败时返回 `3203 接口执行异常，积分未扣除`，请检查链接是否正确、视频能否正常打开；Key 已禁用（3105）或无效/过期（3106/3107）请检查 API Key 配置；限频（3108）会自动等待重试。
 
 **Q：拿到文案后能做什么？**
 A：可以让 AI 直接总结成笔记、翻译成中文、改写成公众号文章（配合 gzh-design 排版、md-to-wechat 一键推送草稿）。

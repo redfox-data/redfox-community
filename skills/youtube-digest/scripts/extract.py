@@ -2,19 +2,21 @@
 """
 YouTube 提文案 — 输入 YouTube 链接提取视频文字稿
 =========================================
-接口：POST /story/api/youtube/transcript
+接口：POST /story/api/parseWork/videoSubtitle/youtube
+流程：调接口获取字幕轨列表 → 客户端按语言优先级选轨 → 下载字幕文件（json3/srt/vtt）→ 解析为文字稿
 
 Usage:
     python3 extract.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
     python3 extract.py "dQw4w9WgXcQ" --language "zh,en"
     python3 extract.py "https://youtu.be/dQw4w9WgXcQ" --timestamp   # 带时间戳
     python3 extract.py "URL" --excel                               # 同时导出 Excel
-    python3 extract.py "URL" --json --no-metadata
+    python3 extract.py "URL" --json
 """
 
 import argparse
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime
@@ -33,7 +35,7 @@ except ImportError:
     HAS_TRANSLATOR = False
 
 # ─── 配置 ─────────────────────────────────────────────────────────────────────────
-API_URL = "https://redfox.hk/story/api/youtube/transcript"
+API_URL = "https://redfox.hk/story/api/parseWork/videoSubtitle/youtube"
 CONFIG_FILE = Path.home() / ".qoder" / "apis" / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
 SOURCE = "YouTube提文案-GitHub"
@@ -42,7 +44,7 @@ DEFAULT_OUTPUT_DIR = Path.home() / "Downloads" / "QoderYoutubeDigest"
 DEFAULT_LANGUAGE = "zh,en,asr"
 MAX_RETRIES = 3
 
-# 中文语言标识前缀（API 返回的 language 字段可能为 zh / zh-CN / zh-TW 等）
+# 中文语言标识前缀（languageTag 可能为 zh / zh-CN / zh-TW 等）
 ZH_PREFIX = ("zh",)
 
 # ─── 终端颜色 ──────────────────────────────────────────────────────────────────────
@@ -56,7 +58,7 @@ RESET = "\033[0m"
 
 
 def is_chinese(language):
-    """判断 API 返回的 language 是否为中文"""
+    """判断 languageTag 是否为中文"""
     lang_lower = (language or "").lower().replace("_", "-")
     return any(lang_lower.startswith(p) for p in ZH_PREFIX)
 
@@ -161,33 +163,207 @@ def video_url_of(video_id):
     return f"https://www.youtube.com/watch?v={video_id}" if video_id else ""
 
 
-# ─── 文字稿接口（带递增延迟重试 + 限频处理）──────────────────────────────────────
-def fetch_transcript(session, api_key, video_url, language, include_timestamp, send_metadata):
+def normalize_video_url(raw):
+    """规范化输入：裸视频 ID / 无协议短链 → 完整 URL（新接口仅接受完整视频链接）"""
+    raw = (raw or "").strip().strip('"').strip("'")
+    if re.fullmatch(r"[A-Za-z0-9_-]{11}", raw):
+        return video_url_of(raw)
+    if raw.startswith(("http://", "https://")):
+        return raw
+    if raw.startswith(("youtube.com/", "www.youtube.com/", "youtu.be/", "m.youtube.com/")):
+        return "https://" + raw
+    return raw
+
+
+def ts_to_sec(ts):
+    """SRT/VTT 时间戳（HH:MM:SS,mmm 或 HH:MM:SS.mmm）→ 秒"""
+    ts = ts.strip().replace(",", ".")
+    parts = ts.split(":")
+    if len(parts) == 3:
+        h, m, s = parts
+    elif len(parts) == 2:
+        h, m, s = 0, parts[0], parts[1]
+    else:
+        return 0.0
+    return int(h) * 3600 + int(m) * 60 + float(s)
+
+
+# ─── 字幕轨选择（客户端按语言优先级选轨）──────────────────────────────────────────
+def is_auto_track(track):
+    """是否为自动生成字幕轨（languageName 含 auto-generated 或 URL 带 kind=asr）"""
+    name = (track.get("languageName") or "").lower()
+    if "auto-generated" in name or "(auto)" in name:
+        return True
+    for u in track.get("urls") or []:
+        if "kind=asr" in (u.get("url") or ""):
+            return True
+    return False
+
+
+def select_track(subtitles, priority):
     """
-    调用 transcript 接口。
-    成功返回 data 字典（含 video_id / language / transcript [/ metadata]），失败返回 None。
+    按逗号分隔的优先级选轨，如 "zh,en,asr"：
+    - 语言 token（zh/en/...）匹配 languageTag 前缀，人工字幕优先，无人工轨时接受同语言自动生成轨
+    - "asr" 匹配自动生成轨，并按前面语言 token 的顺序优选同语言 asr
+    """
+    tokens = [t.strip().lower() for t in (priority or "").split(",") if t.strip()]
+    if not tokens:
+        tokens = [t.strip() for t in DEFAULT_LANGUAGE.split(",")]
+    lang_tokens = [t for t in tokens if t != "asr"]
+
+    def tag_of(track):
+        return (track.get("languageTag") or "").lower().replace("_", "-")
+
+    for token in tokens:
+        if token == "asr":
+            auto = [t for t in subtitles if is_auto_track(t)]
+            for lt in lang_tokens:
+                for t in auto:
+                    if tag_of(t).startswith(lt):
+                        return t
+            if auto:
+                return auto[0]
+        else:
+            for t in subtitles:
+                if tag_of(t).startswith(token) and not is_auto_track(t):
+                    return t
+            for t in subtitles:
+                if tag_of(t).startswith(token) and is_auto_track(t):
+                    return t
+    return None
+
+
+# ─── 字幕文件下载与解析 ───────────────────────────────────────────────────────────
+def pick_subtitle_url(track):
+    """从字幕轨的 urls 中按 json3 → srt → vtt 优先级选一个下载地址"""
+    urls = track.get("urls") or []
+    for fmt in ("json3", "srt", "vtt"):
+        for u in urls:
+            if (u.get("format") or "").lower() == fmt and u.get("url"):
+                return u["url"], fmt
+    for u in urls:
+        if u.get("url"):
+            return u["url"], (u.get("format") or "").lower()
+    return None, None
+
+
+def clean_text(txt):
+    txt = re.sub(r"<[^>]+>", "", txt)  # 去掉 VTT 内联标签
+    return re.sub(r"\s+", " ", txt).strip()
+
+
+def parse_json3(raw):
+    """YouTube timedtext json3：events[].segs[].utf8"""
+    obj = json.loads(raw)
+    segs = []
+    for ev in obj.get("events") or []:
+        parts = [s.get("utf8", "") for s in (ev.get("segs") or [])]
+        txt = clean_text("".join(parts))
+        if not txt:
+            continue
+        segs.append({
+            "text": txt,
+            "start": (ev.get("tStartMs") or 0) / 1000,
+            "duration": (ev.get("dDurationMs") or 0) / 1000,
+        })
+    return segs
+
+
+def parse_srt_vtt(raw):
+    """解析 SRT / VTT 字幕块（时间行含 -->，其余为文本）"""
+    raw = raw.replace("\r\n", "\n").replace("\r", "\n")
+    if raw.lstrip().startswith("WEBVTT"):
+        raw = raw.split("\n", 1)[1] if "\n" in raw else ""
+    segs = []
+    for block in re.split(r"\n\s*\n", raw.strip()):
+        lines = [l for l in block.split("\n") if l.strip()]
+        if not lines:
+            continue
+        ti = next((i for i, l in enumerate(lines) if "-->" in l), None)
+        if ti is None:
+            continue
+        m = re.search(r"(\d{1,2}:\d{2}:\d{2}[,.]\d+)\s*-->\s*(\d{1,2}:\d{2}:\d{2}[,.]\d+)", lines[ti])
+        if not m:
+            continue
+        start = ts_to_sec(m.group(1))
+        end = ts_to_sec(m.group(2))
+        txt = clean_text(" ".join(lines[ti + 1:]))
+        if txt:
+            segs.append({"text": txt, "start": start, "duration": max(0.0, end - start)})
+    return segs
+
+
+def dedupe_segments(segs):
+    """去掉连续重复文本（自动生成字幕常见滚动重复）"""
+    out = []
+    for s in segs:
+        if out and out[-1]["text"] == s["text"]:
+            continue
+        out.append(s)
+    return out
+
+
+def download_subtitle(session, track):
+    """下载并解析所选字幕轨，返回 segments 列表；失败回退其他格式"""
+    urls = track.get("urls") or []
+    tried = set()
+    ordered = []
+    for fmt in ("json3", "srt", "vtt"):
+        for u in urls:
+            f = (u.get("format") or "").lower()
+            if f == fmt and u.get("url") and u["url"] not in tried:
+                ordered.append((u["url"], f))
+    for u in urls:
+        f = (u.get("format") or "").lower()
+        if u.get("url") and u["url"] not in tried and (u["url"], f) not in ordered:
+            ordered.append((u["url"], f))
+
+    for url, fmt in ordered:
+        tried.add(url)
+        try:
+            resp = session.get(url, timeout=30)
+            if resp.status_code != 200 or not resp.text.strip():
+                warn(f"字幕下载失败（{fmt}，HTTP {resp.status_code}），尝试其他格式…")
+                continue
+            segs = parse_json3(resp.text) if fmt == "json3" else parse_srt_vtt(resp.text)
+            segs = dedupe_segments(segs)
+            if segs:
+                return segs
+            warn(f"字幕解析为空（{fmt}），尝试其他格式…")
+        except (requests.exceptions.RequestException, ValueError) as e:
+            warn(f"字幕下载/解析异常（{fmt}）：{e}")
+    return []
+
+
+# ─── 字幕接口（带递增延迟重试 + 限频处理）──────────────────────────────────────────
+def fetch_transcript(session, api_key, video_url, language):
+    """
+    调用 videoSubtitle 接口获取字幕轨列表，客户端选轨后下载解析字幕。
+    成功返回标准化 data 字典（video_id / title / duration / language / language_name / transcript），失败返回 None。
     重试覆盖三类失败：网络异常、状态码错误、业务数据为空；鉴权失败不重试。
     """
-    payload = {
-        "videoUrl": video_url,
-        "format": "json",
-        "includeTimestamp": include_timestamp,
-        "sendMetadata": send_metadata,
-        "language": language,
-        "source": SOURCE,
+    payload = {"url": video_url, "source": SOURCE}
+    headers = {
+        "REDFOX_API_KEY": api_key,
+        "X-API-KEY": api_key,
+        "Content-Type": "application/json",
     }
-    headers = {"REDFOX_API_KEY": api_key, "Content-Type": "application/json"}
 
     for attempt in range(MAX_RETRIES):
         try:
             resp = session.post(API_URL, json=payload, headers=headers, timeout=30)
             result = resp.json()
 
-            # 网关包装层：{code, data, msg}
-            if isinstance(result, dict) and "code" in result:
+            if not isinstance(result, dict):
+                warn("响应格式异常（非 JSON 对象）")
+                data = None
+            else:
                 code = result.get("code")
                 if code in (200, 2000):
-                    data = result.get("data") if isinstance(result.get("data"), dict) else result
+                    data = result.get("data")
+                elif code == 3105:
+                    error("API Key 已禁用（3105），请更换有效密钥")
+                    return None
                 elif code in (3106, 3107):
                     error("API Key 无效或已过期，请检查配置（3106/3107）")
                     return None
@@ -195,19 +371,41 @@ def fetch_transcript(session, api_key, video_url, language, include_timestamp, s
                     warn("触发接口限频，5 秒后重试…")
                     time.sleep(5)
                     continue
+                elif code == 3203:
+                    # 链接无效/提取失败属确定性错误，重试无意义
+                    error(f"提取失败：{result.get('msg', result.get('message', ''))}")
+                    return None
                 else:
-                    warn(f"接口返回错误：code={code} msg={result.get('msg', '')}")
+                    warn(f"接口返回错误：code={code} msg={result.get('msg', result.get('message', ''))}")
                     data = None
-            else:
-                # 未包装，直接是文字稿结构
-                data = result
 
             if isinstance(data, dict):
-                transcript = data.get("transcript")
-                # text 格式兜底：纯文本字符串也算成功
-                if transcript or data.get("text"):
-                    return data
-            warn("返回数据为空或不含文字稿（视频可能无字幕）")
+                subtitles = data.get("subtitles") or []
+                if not subtitles:
+                    warn("返回数据不含字幕轨（视频可能无字幕）")
+                else:
+                    track = select_track(subtitles, language)
+                    if not track:
+                        avail = "、".join(
+                            f"{t.get('languageTag', '?')}({t.get('languageName', '?')})"
+                            for t in subtitles[:10]
+                        )
+                        warn(f"按语言优先级 [{language}] 未匹配到字幕轨，可用轨：{avail}")
+                    else:
+                        tag = track.get("languageTag") or ""
+                        name = track.get("languageName") or tag
+                        segs = download_subtitle(session, track)
+                        if segs:
+                            return {
+                                "video_id": data.get("id", ""),
+                                "title": data.get("title") or "",
+                                "duration": data.get("duration") or 0,
+                                "language": tag,
+                                "language_name": name,
+                                "auto": is_auto_track(track),
+                                "transcript": segs,
+                            }
+                        warn("所选字幕轨下载/解析失败")
 
         except requests.exceptions.RequestException as e:
             warn(f"网络请求异常：{e}")
@@ -234,12 +432,17 @@ def render_lines(data, with_timestamp=True):
             lines.append(f"[{fmt_ts(seg.get('start', 0))}] {text}")
         else:
             lines.append(text)
-    if not lines and data.get("text"):
-        lines = [t.strip() for t in str(data["text"]).splitlines() if t.strip()]
     return lines
 
 
 def total_duration_of(data):
+    """优先用接口返回的视频时长，兜底取最后一条字幕的结束时间"""
+    try:
+        dur = float(data.get("duration") or 0)
+        if dur > 0:
+            return dur
+    except (ValueError, TypeError):
+        pass
     transcript = data.get("transcript") or []
     if not transcript:
         return 0
@@ -253,20 +456,17 @@ def total_duration_of(data):
 def build_markdown(data, lines, with_timestamp, video_url_input):
     video_id = data.get("video_id", "")
     language = data.get("language", "")
-    metadata = data.get("metadata") or {}
-    title = metadata.get("title") or data.get("title") or ""
-    author = metadata.get("author") or metadata.get("channel") or data.get("author") or ""
+    language_name = data.get("language_name") or language
+    title = data.get("title") or ""
 
     md = ["# YouTube 视频文案", ""]
     md.append("| 项目 | 内容 |")
     md.append("|------|------|")
     if title:
         md.append(f"| 标题 | {title} |")
-    if author:
-        md.append(f"| 频道 | {author} |")
     md.append(f"| 视频ID | {video_id} |")
     md.append(f"| 视频链接 | {video_url_of(video_id) or video_url_input} |")
-    md.append(f"| 语言 | {language} |")
+    md.append(f"| 语言 | {language_name} ({language}){' 自动生成' if data.get('auto') else ''} |")
     md.append(f"| 片段数 | {len(data.get('transcript') or [])} |")
     md.append(f"| 总时长 | {fmt_ts(total_duration_of(data))} |")
     md.append(f"| 时间戳 | {'含' if with_timestamp else '不含'} |")
@@ -289,8 +489,7 @@ def export_excel(data, lines, fpath):
         return False
 
     video_id = data.get("video_id", "")
-    metadata = data.get("metadata") or {}
-    title = metadata.get("title") or data.get("title") or video_id
+    title = data.get("title") or video_id
 
     wb = Workbook()
     ws = wb.active
@@ -317,11 +516,9 @@ def main():
     )
     parser.add_argument("video_url", help="YouTube 视频 URL（完整/短链）或直接给视频 ID")
     parser.add_argument("--language", default=DEFAULT_LANGUAGE,
-                        help=f"字幕语言优先级，逗号分隔（默认 {DEFAULT_LANGUAGE}：中文字幕轨优先，无中文回退英文，asr=自动生成字幕兜底；接口仅选轨不翻译）")
+                        help=f"字幕语言优先级，逗号分隔（默认 {DEFAULT_LANGUAGE}：中文字幕轨优先，无中文回退英文，asr=自动生成字幕兜底；客户端选轨）")
     parser.add_argument("--timestamp", action="store_true",
                         help="输出带 [MM:SS] 时间戳的文案（默认不带时间戳）")
-    parser.add_argument("--no-metadata", action="store_true",
-                        help="不获取视频元数据（默认获取标题/频道）")
     parser.add_argument("--excel", action="store_true",
                         help="同时导出 Excel（.xlsx，需 openpyxl）")
     parser.add_argument("--json", action="store_true",
@@ -346,15 +543,11 @@ def main():
         sys.exit(1)
 
     with_timestamp = args.timestamp
-    step(f"正在提取文字稿：{args.video_url}（语言优先级：{args.language}）")
+    video_url = normalize_video_url(args.video_url)
+    step(f"正在提取文字稿：{video_url}（语言优先级：{args.language}）")
 
     session = requests.Session()
-    data = fetch_transcript(
-        session, api_key, args.video_url,
-        language=args.language,
-        include_timestamp=True,  # 始终请求时间戳用于计算总时长，展示层控制是否渲染
-        send_metadata=not args.no_metadata,
-    )
+    data = fetch_transcript(session, api_key, video_url, language=args.language)
     if data is None:
         error("提取失败：多次重试后仍无法获取文字稿")
         error("可能原因：视频无字幕 / 视频不存在或受限 / API 额度不足")
@@ -366,23 +559,20 @@ def main():
     # ─── 概要 ───
     video_id = data.get("video_id", "")
     language = data.get("language", "")
+    language_name = data.get("language_name") or language
     transcript = data.get("transcript") or []
-    metadata = data.get("metadata") or {}
-    title = metadata.get("title") or data.get("title") or ""
-    author = metadata.get("author") or metadata.get("channel") or data.get("author") or ""
+    title = data.get("title") or ""
 
     info(f"提取成功：视频 {video_id}")
     if title:
         print(f"  标题：{title}")
-    if author:
-        print(f"  频道：{author}")
-    print(f"  语言：{language} ｜ 片段数：{len(transcript)} ｜ 总时长：{fmt_ts(total_duration_of(data))}")
-    print(f"  链接：{video_url_of(video_id) or args.video_url}")
+    print(f"  语言：{language_name} ({language}){' 自动生成' if data.get('auto') else ''} ｜ 片段数：{len(transcript)} ｜ 总时长：{fmt_ts(total_duration_of(data))}")
+    print(f"  链接：{video_url_of(video_id) or video_url}")
 
     # ─── 自动翻译（非中文字幕 → 中文）───
     need_translate = args.translate and not is_chinese(language)
     if need_translate:
-        step(f"检测到字幕语言为 {language}，正在自动翻译为中文…")
+        step(f"检测到字幕语言为 {language_name}，正在自动翻译为中文…")
 
     # ─── 文案全文 ───
     lines = render_lines(data, with_timestamp)
@@ -405,7 +595,7 @@ def main():
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         fname = f"{video_id or 'transcript'}_{stamp}.md"
         fpath = out_dir / fname
-        fpath.write_text(build_markdown(data, lines, with_timestamp, args.video_url), encoding="utf-8")
+        fpath.write_text(build_markdown(data, lines, with_timestamp, video_url), encoding="utf-8")
         info(f"文案已保存：{fpath}")
 
     # ─── Excel 导出 ───
