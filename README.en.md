@@ -240,11 +240,10 @@ https://clawhub.ai/user/redfox-data
 
 #### YouTube
 
-- [YouTube extract video transcript](https://redfox.hk/apis/Youtube/WYRKHK6C)
 - [YouTube search videos](https://redfox.hk/apis/Youtube/GC5SC5HS)
 - [YouTube get video details](https://redfox.hk/apis/Youtube/609DF2IR)
 - [YouTube get video comments](https://redfox.hk/apis/Youtube/WULKP6JP)
-- [Get video subtitle details](https://redfox.hk/apis/Youtube/API_1790219598781)
+- [YouTube extract video transcript](https://redfox.hk/apis/Youtube/API_1792051516512)
 
 #### Instagram
 

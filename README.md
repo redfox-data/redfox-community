@@ -236,11 +236,10 @@ npx skills add https://github.com/redfox-data/redfox-community/tree/main/skills/
 
 #### Youtube:
 
-- [Youtube视频提文案](https://redfox.hk/apis/Youtube/WYRKHK6C)
 - [Youtube搜索视频](https://redfox.hk/apis/Youtube/GC5SC5HS)
 - [Youtube获取视频详情](https://redfox.hk/apis/Youtube/609DF2IR)
 - [Youtube获取视频评论](https://redfox.hk/apis/Youtube/WULKP6JP)
-- [获取视频字幕详情](https://redfox.hk/apis/Youtube/API_1790219598781)
+- [Youtube视频提文案](https://redfox.hk/apis/Youtube/API_1792051516512)
 
 #### Instagram:
 
