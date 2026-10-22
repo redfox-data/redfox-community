@@ -11,6 +11,47 @@ import json
 import urllib.request
 import urllib.error
 
+PAYMENT_EXIT_CODE = 3
+INSUFFICIENT_CODES = {3210, 3201}
+
+
+def emit_payment_required(resp):
+    data = resp.get("data")
+    data = data if isinstance(data, dict) else {}
+    cashier_url = data.get("cashierUrl")
+    amount = data.get("amount")
+    goods_name = data.get("goodsName")
+    out = sys.stdout.write
+    out(f"\n💳 积分不足，需要充值（API code={resp.get('code')}）\n")
+    out(f"消息：{resp.get('msg', '积分不足')}\n")
+    out(f"商品名称：{goods_name or '-'}\n")
+    out(f"订单金额：{amount if amount is not None else '-'} 元\n")
+    out(f"订单号：{data.get('outTradeNo') or '-'}\n")
+    if data.get("expireTime"):
+        out(f"支付截止：{data.get('expireTime')}\n")
+    out("\n请严格按 references/alipay-recharge.md「支付宝充值接管流程（通用）」处理：\n")
+    out("  1) 将下方 cashierUrl 原文作为支付链接（--payment-link）\n")
+    out("  2) amount=订单金额、goodsName=商品名称，直接用于 --amount / --merchant-info\n")
+    out("  3) alipay-bot trigger-payment-signal 压缩得到支付短链 paymentLink\n")
+    out("  4) alipay-bot submit-payment 用支付短链唤起支付宝，解析查询单号 out-shake-no\n")
+    out("  5) alipay-bot poll-payment-status --out-shake-no 自动监听到账\n")
+    out("  6) 到账（outcome=success）后，用原始查询参数重新运行本脚本\n\n")
+    payload = {
+        "need_payment": True,
+        "code": resp.get("code"),
+        "msg": resp.get("msg", "积分不足"),
+        "cashierUrl": cashier_url,
+        "amount": amount,
+        "goodsName": goods_name,
+        "outTradeNo": data.get("outTradeNo"),
+        "expireTime": data.get("expireTime"),
+        "points": data.get("points"),
+    }
+    out("===PAYMENT_REQUIRED_JSON_START===\n")
+    out(json.dumps(payload, ensure_ascii=False))
+    out("\n===PAYMENT_REQUIRED_JSON_END===\n")
+    sys.stdout.flush()
+
 
 def parse_count(value):
     """解析数量，支持 "17w+"、"1.5w" 格式"""
@@ -106,6 +147,9 @@ def fetch_xhs_hot_notes(keyword: str, debug: bool = False, max_retries: int = 3,
             data = json.loads(resp_text)
 
             # 检查返回码
+            if data.get("code") in INSUFFICIENT_CODES:
+                emit_payment_required(data)
+                sys.exit(PAYMENT_EXIT_CODE)
             if data.get("code") != 2000:
                 raise Exception(f"API 错误: {data.get('msg', '未知错误')}")
 

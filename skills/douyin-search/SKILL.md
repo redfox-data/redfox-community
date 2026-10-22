@@ -1,6 +1,6 @@
 ---
 name: douyin-search
-description: 抖音作品查询工具。根据关键词搜索抖音热门爆款作品，支持按日期范围筛选，结果以结构化表格展示。当用户查找抖音热门内容、搜索抖音爆款视频、查询抖音作品数据时使用。触发词：抖音作品查询、抖音爆款、抖音热门、抖音热榜、抖音搜索、爆款视频、热门视频。
+description: 抖音作品查询工具。根据关键词搜索抖音热门爆款作品，支持按日期范围筛选，结果以结构化表格展示。当用户查找抖音热门内容、搜索抖音爆款视频、查询抖音作品数据时使用。触发词：抖音作品查询、抖音爆款、抖音热门、抖音热榜、抖音搜索、爆款视频、热门视频。当接口返回积分不足（code=3210）时，自动唤起支付宝完成充值后继续查询。
 ---
 
 # 抖音作品查询
@@ -94,6 +94,14 @@ python3 ~/.qoderwork/skills/douyin-search/scripts/search_douyin.py "<关键词>"
 | pageSize | 每页大小 |
 
 每条作品字段：`title`、`author`、`like_count`、`comment_count`、`share_count`、`collect_count`、`work_url`、`publish_time`
+
+**3.3 💳 积分不足充值（支付宝接管）**
+
+当脚本 `scripts/search_douyin.py` 以**退出码 3** 结束、并在 stdout 打印 `===PAYMENT_REQUIRED_JSON_START===` 区块时，表示当前 API Key 积分不足（接口 `code=3210`，兼容 `3201`）。响应体 `data` 内含结构化支付信息：`cashierUrl`（支付宝收银台链接）、`amount`（订单金额，元）、`goodsName`（商品名称）、`outTradeNo`（订单号）。
+
+脚本退出码说明：`0` 正常返回（含"暂无数据"）；`1` 参数/鉴权/接口错误；**`3` 积分不足，需要充值** —— 按 [references/alipay-recharge.md](references/alipay-recharge.md) 唤起支付宝充值，到账后自动用原始参数重跑脚本。
+
+完整的前置检查、`alipay-bot trigger-payment-signal` → `submit-payment` → `poll-payment-status` 编排步骤、钱包绑定处理、支付接管规则与失败处理，统一见 **[references/alipay-recharge.md](references/alipay-recharge.md)**（通用流程，可被其他 skill 复用）。`submit-payment` 后由 Agent 用 `poll-payment-status --out-shake-no <查询单号>` **自动监听支付回调到账**，无需用户再手动确认；到账（`outcome=success`）后自动用用户原始的查询参数重新运行 `scripts/search_douyin.py` 输出结果。
 
 ### Step 4: 📊 结果展示
 

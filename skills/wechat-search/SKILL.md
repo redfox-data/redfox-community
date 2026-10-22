@@ -1,6 +1,6 @@
 ---
 name: wechat-search
-description: 公众号搜索工具，支持按关键词搜索爆款文章，展示推荐热门文章，助力内容创作者把握趋势与获取灵感；当用户需要搜索公众号文章、查找爆款内容、获取创作灵感时使用
+description: 公众号搜索工具，支持按关键词搜索爆款文章，展示推荐热门文章，助力内容创作者把握趋势与获取灵感；当用户需要搜索公众号文章、查找爆款内容、获取创作灵感时使用。当接口返回积分不足（code=3210）时，自动唤起支付宝完成充值后继续查询。
 dependency:
   python:
     - 无第三方依赖（纯标准库：urllib.request, json, os, sys, argparse, datetime）
@@ -359,6 +359,16 @@ python scripts/fetch_gzh_trends.py --keyword <关键词> --start-date <日期>
 | 指定时间范围 | `python scripts/fetch_gzh_trends.py --keyword "关键词" --start-date 2026-05-08` |
 | 生成 HTML 报告 | 脚本自动生成 `{keyword}_趋势数据.html` |
 | 订阅创建 | 回复1️⃣后使用 `calendar_create` 工具创建定时任务 |
+
+---
+
+### 💳 积分不足充值（支付宝接管）
+
+当脚本以**退出码 3** 结束、并在 stdout 打印 `===PAYMENT_REQUIRED_JSON_START===` 区块时，表示当前 API Key 积分不足（接口 `code=3210`，兼容 `3201`）。响应体 `data` 内含结构化支付信息：`cashierUrl`（支付宝收银台链接）、`amount`（订单金额，元）、`goodsName`（商品名称）、`outTradeNo`（订单号）。
+
+脚本退出码说明：`0` = 正常返回（含"暂无数据"），按标准输出格式呈现结果；`1` = 参数/鉴权/接口错误，按脚本提示告知用户；**`3` = 积分不足，需要充值**，按 [references/alipay-recharge.md](references/alipay-recharge.md) 唤起支付宝充值，到账后自动用原始参数重跑脚本。
+
+完整的前置检查、`alipay-bot trigger-payment-signal` → `submit-payment` → `poll-payment-status` 编排步骤、钱包绑定处理、支付接管规则与失败处理，统一见 **[references/alipay-recharge.md](references/alipay-recharge.md)**（通用流程，可被其他 skill 复用）。`submit-payment` 后由 Agent 用 `poll-payment-status --out-shake-no <查询单号>` **自动监听支付回调到账**，无需用户再手动确认；到账（`outcome=success`）后自动用用户原始的查询参数重新运行 `scripts/fetch_gzh_trends.py` 输出结果。
 
 ## 5. 使用场景
 

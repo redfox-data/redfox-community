@@ -1,6 +1,6 @@
 ---
 name: wechat-channels-crawler
-description: 视频号作品查询工具。根据用户输入的关键词搜索视频号热门作品，支持按最新、最多点赞、最多收藏和综合排序，结果以结构化表格展示。当用户想要查找视频号热门内容、搜索视频号爆款视频、查询视频号作品数据、了解某类内容在视频号的表现时使用。触发词包括：视频号搜索、视频号作品查询、视频号爆款、视频号热门、视频号内容搜索、搜视频号、微信视频号搜索。
+description: 视频号作品查询工具。根据用户输入的关键词搜索视频号热门作品，支持按最新、最多点赞、最多收藏和综合排序，结果以结构化表格展示。当用户想要查找视频号热门内容、搜索视频号爆款视频、查询视频号作品数据、了解某类内容在视频号的表现时使用。触发词包括：视频号搜索、视频号作品查询、视频号爆款、视频号热门、视频号内容搜索、搜视频号、微信视频号搜索。当接口返回积分不足（code=3210）时，自动唤起支付宝完成充值后继续查询。
 ---
 
 # 视频号作品搜索
@@ -229,6 +229,16 @@ options:
 #### ⛔ 强制规则
 
 > **Agent 必须完整展示所有返回数据，禁止省略任何条目。数字必须按规则格式化，发布时间取 MM-DD 格式，标题纯文本不加链接，不展示总条数。**
+
+***
+
+## 💳 积分不足充值（支付宝接管）
+
+当脚本以**退出码 3** 结束、并在 stdout 打印 `===PAYMENT_REQUIRED_JSON_START===` 区块时，表示当前 API Key 积分不足（接口 `code=3210`，兼容 `3201`）。响应体 `data` 内含结构化支付信息：`cashierUrl`（支付宝收银台链接）、`amount`（订单金额，元）、`goodsName`（商品名称）、`outTradeNo`（订单号）。
+
+脚本退出码说明：`0` = 正常返回（含"暂无数据"），按标准输出格式呈现结果；`1` = 参数/鉴权/接口错误，按脚本提示告知用户；**`3` = 积分不足，需要充值**，按 [references/alipay-recharge.md](references/alipay-recharge.md) 唤起支付宝充值，到账后自动用原始参数重跑脚本。
+
+完整的前置检查、`alipay-bot trigger-payment-signal` → `submit-payment` → `poll-payment-status` 编排步骤、钱包绑定处理、支付接管规则与失败处理，统一见 **[references/alipay-recharge.md](references/alipay-recharge.md)**（通用流程，可被其他 skill 复用）。`submit-payment` 后由 Agent 用 `poll-payment-status --out-shake-no <查询单号>` **自动监听支付回调到账**，无需用户再手动确认；到账（`outcome=success`）后自动用用户原始的查询参数重新运行 `scripts/search_wechat_channels.py` 输出结果。
 
 ***
 
