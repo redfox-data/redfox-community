@@ -1,97 +1,37 @@
-# API 配置说明
+# API 配置与调用
 
-## 环境变量配置
+## 🔑 鉴权方式
 
-在使用本 skill 前，需配置以下环境变量（或在 Qoder 设置中配置 API Key）：
+所有红狐 API 请求都需要在请求头中携带 API Key：
 
-```bash
-REDFOX_API_KEY=your_api_key_here
-```
+| 项 | 值 |
+|----|----|
+| 请求头 | `X-API-KEY` |
+| 值来源 | 环境变量 `REDFOX_API_KEY`（或 Agent 配置文件的 `env.REDFOX_API_KEY`） |
+| 获取地址 | https://redfox.hk/settings/api-keys |
 
-## 接口说明
+## 📡 接口信息
 
-### 查询每日点赞飙升榜
+- **接口地址**：`POST https://redfox.hk/story/api/dy/search/hotContentRank`
+- **Content-Type**：`application/json`
+- **认证方式**：请求头 `X-API-KEY`，值从环境变量 `REDFOX_API_KEY` 获取
+- **固定参数**：`source`（数据来源标识，值由 Agent 按脚本约定传入）
+- **可选参数**：
+  - `type`：赛道分类（见 interaction-guide.md 赛道表）
+  - `startTime` / `endTime`：日期范围（格式 `YYYY-MM-DD`）
 
-```
-POST https://redfox.hk/story/api/dy/search/hotContentRank
-Content-Type: application/json
-```
-
-**请求头：**
-
-| Header | 说明 |
-|--------|------|
-| X-API-KEY | API 密钥，从环境变量 `REDFOX_API_KEY` 中获取 |
-
-**请求体（JSON）：**
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| type | string | 否 | 赛道分类，默认"全部"，见下方分类列表 |
-| startTime | string | 否 | 查询日期，格式 YYYY-MM-DD |
-| source | string | 是 | 固定参数（值见脚本） |
-
-**请求示例：**
+## 📦 请求示例
 
 ```bash
-curl -X POST \
+curl -X POST "https://redfox.hk/story/api/dy/search/hotContentRank" \
   -H "X-API-KEY: $REDFOX_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"source":"<见脚本>","type":"美食","startTime":"2026-05-28"}' \
-  "https://redfox.hk/story/api/dy/search/hotContentRank"
+  -d '{"source": "dy", "type": "美食", "startTime": "2026-08-01", "endTime": "2026-08-07"}'
 ```
 
-**响应示例：**
+## ⚠️ 注意事项
 
-```json
-{
-  "code": 2000,
-  "data": [
-    {
-      "accountId": "1234567890",
-      "accountName": "账号名",
-      "avatarUrl": "https://p3.douyinpic.com/aweme-avatar/xxx.jpeg",
-      "category": "美食",
-      "followerCount": 1000000,
-      "collectCount": 100000,
-      "commentCount": 50000,
-      "shareCount": 30000,
-      "likeCount": 500000,
-      "title": "作品标题",
-      "content": "作品正文",
-      "publishTime": "2026-05-28 12:00:00",
-      "workId": "7644570847852254031",
-      "workUrl": "https://www.iesdouyin.com/share/video/7644570847852254031"
-    }
-  ]
-}
-```
-
-## 状态码说明
-
-| 状态码 | 说明 |
-|--------|------|
-| 2000 | 请求成功 |
-
-## 错误处理
-
-| 错误码 | 说明 | 处理方式 |
-|--------|------|------|
-| 401 | API Key 无效或未配置 | 提示用户检查 API Key 配置 |
-| 404 | 该日期数据不存在 | 提示用户该日期暂无数据 |
-| 429 | 请求频率超限 | 提示稍后重试 |
-| 500 | 服务端错误 | 提示稍后重试 |
-
-## 支持的赛道分类
-
-```
-全部、小剧场、财富理财、二次元、身体锻炼、居家装修、数码科技、科学普及、
-旅行、美食、动物、明星娱乐、汽车、亲子、人文、三农、潮流风尚、游戏、
-生活记录、体育、舞蹈才艺、学习教育、休闲玩乐、影视、音乐、颜值造型、
-健康医学、综艺、个人成长
-```
-
-## 数据更新时间
-
-- 每日 17:00 更新昨日全天数据
-- 可回溯范围：最近 30 天
+- 数据每日定时收录更新，查询「今天」时请先向用户说明最新数据为昨日
+- 日期回溯最多 30 天，超出范围需提示用户取最接近时间范围
+- API Key 不要写入任何脚本或仓库文件，始终通过环境变量注入
+- 接口被限流时（429），等待后重试，不要高频轮询
