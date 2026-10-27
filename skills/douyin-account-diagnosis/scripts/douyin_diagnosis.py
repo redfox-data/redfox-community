@@ -1155,8 +1155,8 @@ def main():
     acc = query_account(keyword, require_api_key(cli_key))
     if not acc:
         print("未查询到该抖音账号信息")
-        print(f"- 抖音号 {keyword} 不存在或已被注销")
-        print("- 抖音号输入有误 — 请核对是否区分大小写，是否为正确的抖音号（非 UID、非昵称）")
+        print(f"- 账号 {keyword} 不存在或已被注销")
+        print("- 抖音号/昵称输入有误 — 请核对是否区分大小写，是否为正确的抖音号/昵称（非 UID）")
         print("- 账号尚未收录：可前往 https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查")
         sys.exit(1)
 

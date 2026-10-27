@@ -99,6 +99,6 @@ The diagnostic report includes the following sections:
 
 **Q: What should I do if I get "Account not found"?**
 
-A: There are 3 possible reasons: ① the Douyin ID does not exist or the account has been deactivated; ② the ID was mistyped (check case sensitivity, and that it is a Douyin ID — not a UID, not a nickname); ③ the account has not been indexed yet: submit it for indexing at [redfox.hk/account-storage](https://redfox.hk/account-storage) — once indexed, it is permanently queryable. The same guidance applies when the API returns a success code but empty data; this is not treated as an API error.
+A: There are 3 possible reasons: ① the account does not exist or has been deactivated; ② the Douyin ID or nickname was mistyped (check case sensitivity, and that it is the Douyin ID or nickname — not a UID); ③ the account has not been indexed yet: submit it for indexing at [redfox.hk/account-storage](https://redfox.hk/account-storage) — once indexed, it is permanently queryable. The same guidance applies when the API returns a success code but empty data; this is not treated as an API error.
 
 ---

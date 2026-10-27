@@ -192,8 +192,8 @@ class DouyinUserAPI:
         accounts = result["data"]
         if not accounts:
             print(f"❌ 未查询到抖音账号: {account_name or account_id}")
-            print(f"- 抖音号 {account_name or account_id} 不存在或已被注销")
-            print("- 抖音号输入有误 — 请核对是否区分大小写，是否为正确的抖音号（非 UID、非昵称）")
+            print(f"- 账号 {account_name or account_id} 不存在或已被注销")
+            print("- 抖音号/昵称输入有误 — 请核对是否区分大小写，是否为正确的抖音号/昵称（非 UID）")
             print("- 账号尚未收录：可前往 https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查")
             return {
                 "success": False,
