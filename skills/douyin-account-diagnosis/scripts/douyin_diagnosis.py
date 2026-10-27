@@ -63,8 +63,9 @@ def query_account(keyword, api_key):
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             result = json.loads(resp.read().decode("utf-8"))
-            if result.get("code") == 2000 and result.get("data"):
-                return result["data"][0]
+            if result.get("code") == 2000:
+                data = result.get("data") or []
+                return data[0] if data else None
             elif result.get("code") == 3201:
                 print("[错误] API积分不足，请前往 https://redfox.hk/?source=github 充值。")
                 return None
@@ -1156,8 +1157,7 @@ def main():
         print("未查询到该抖音账号信息")
         print(f"- 抖音号 {keyword} 不存在或已被注销")
         print("- 抖音号输入有误 — 请核对是否区分大小写，是否为正确的抖音号（非 UID、非昵称）")
-        print("- 尚未收录 — 当前仅收录了粉丝数≧1万的账号")
-        print("- 申请收录 — 如需收录请发送邮件至 redfoxdata@proton.me，申请通过后可进行每日定时数据追踪与分析")
+        print("- 账号尚未收录：可前往 https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查")
         sys.exit(1)
 
     report = generate_report(acc)
