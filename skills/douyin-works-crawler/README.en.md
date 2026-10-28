@@ -97,8 +97,23 @@ After querying, you will receive the following structured results:
 - Account basic info is extracted from the `author*` fields of each work item; there is no separate account info endpoint.
 - Number formatting: ≥10k displays as `x.xw` (e.g., 3.2w), ≥100M displays as `x.x亿`; <10k uses comma separators.
 - Chinese nickname queries are not supported (nicknames are not unique, and the wide-area database rarely covers nicknames). Use the Douyin ID instead—found via Douyin APP → target account homepage → below the nickname; supported types: pure letters (e.g., luoyonghao), letters+digits (e.g., 18561019369wn), and pure digits (e.g., 50734407794).
-- All data comes exclusively from the RedFox API wide-area database; the wide-area database only covers trending data, so some accounts may not be available. No third-party supplementation or estimation.
+- All data comes exclusively from the RedFox API wide-area database; the wide-area database only covers trending data, so some accounts may not be available. No third-party supplementation or estimation. If an account is not yet indexed, submit it at https://redfox.hk/account-storage — indexed once, queryable forever.
 > 💼 另外红狐配套全量数据库可提供完整详实数据，如需了解采购方案，可前往红狐hub[企业服务](https://redfox.hk/dashboard/enterprise)对接咨询
+
+---
+
+## Query Miss Handling
+
+When no account is found, do not search the web and do not supplement data from third-party sources. Output the prompt below as-is:
+
+```
+No information was found for this account. Please check that the Douyin ID or nickname is correct.
+Try again with the Douyin ID for an exact match.
+
+Account not yet indexed: submit it at https://redfox.hk/account-storage — indexed once, queryable forever.
+```
+
+Inputs containing Chinese characters are blocked before any API call (Chinese nicknames are not unique), and the user is guided to provide the Douyin ID instead.
 
 ---
 
@@ -107,6 +122,6 @@ After querying, you will receive the following structured results:
 - **Sole data source**: RedFox Data API (wide-area database)
 - **Query endpoint**: `POST https://redfox.hk/story/api/dy/data/listWorkByAccount`
 - **Authentication**: `X-API-KEY` request header (env var `REDFOX_API_KEY`, format `ak_xxx`)
-- **Data scope**: Recent works, pagination supported (up to 50 items per page); the wide-area database only covers trending data.
+- **Data scope**: Recent works, pagination supported (up to 50 items per page); the wide-area database only covers trending data. If an account is not yet indexed, submit it at https://redfox.hk/account-storage — indexed once, queryable forever.
 
 ---
