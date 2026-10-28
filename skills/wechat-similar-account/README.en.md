@@ -99,5 +99,6 @@ After querying, you will receive the following structured analysis:
 - Recommended account metrics (reads, engagement, etc.) are based on platform data; engagement counts should not be used as read counts.
 - When searching by category, the platform's classification system may differ from natural language; using a representative account name for lookup is recommended.
 - Maximum displayed read count is 100,001 (10w+ cap); actual readership may be higher.
+- When no account data is found, the tool prompts you to submit the account at https://redfox.hk/account-storage — index once, query forever.
 
 ---

@@ -734,6 +734,8 @@ def format_output(query_account, benchmark_accounts, top_accounts):
     else:
         # 未查询到账号数据
         output_lines.append("当前未查询到该账号相关数据，请确认账号名称或ID输入是否正确后重试。")
+        output_lines.append("")
+        output_lines.append("账号尚未收录：可前往 https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查。")
 
     # 企业采购引导（所有输出结果末尾统一追加）
     output_lines.append("")
