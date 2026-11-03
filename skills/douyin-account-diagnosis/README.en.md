@@ -94,3 +94,11 @@ The diagnostic report includes the following sections:
 | Account valuation | Investor / BD | "Check this account's follower quality and growth potential" | Quantify commercial value to support decisions |
 
 ---
+
+## FAQ
+
+**Q: What should I do if I get "Account not found"?**
+
+A: There are 3 possible reasons: ① the account does not exist or has been deactivated; ② the Douyin ID or nickname was mistyped (check case sensitivity, and that it is the Douyin ID or nickname — not a UID); ③ the account has not been indexed yet: submit it for indexing at [redfox.hk/account-storage](https://redfox.hk/account-storage) — once indexed, it is permanently queryable. The same guidance applies when the API returns a success code but empty data; this is not treated as an API error.
+
+---

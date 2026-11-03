@@ -15,6 +15,14 @@ from datetime import datetime
 from typing import Dict, Optional
 
 
+NOT_FOUND_HINT = (
+    "未查询到当前账号的相关信息，请检查输入的抖音号或昵称是否正确。\n"
+    "建议使用抖音号进行精准查询，或稍后再试。\n"
+    "\n"
+    "账号尚未收录：可前往 https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查。"
+)
+
+
 class DouyinWorksFetcher:
     """抖音作品爬取 - 红狐数据API"""
 
@@ -206,7 +214,7 @@ class DouyinWorksFetcher:
         if not result["success"]:
             # 账号未查询到，输出提示信息
             if result.get("need_sync"):
-                return "未查询到当前账号的相关信息，请检查输入的抖音号或昵称是否正确。建议使用抖音号进行精准查询。"
+                return NOT_FOUND_HINT
             return f"❌ 查询失败: {result['error']}"
 
         account = result["account"]
@@ -437,7 +445,7 @@ def main():
     else:
         print(fetcher.format_markdown(result))
 
-    if not result["success"]:
+    if not result["success"] and not result.get("need_sync"):
         print(f"\n💡 提示：请提供目标账号的抖音号进行精准查询，避免昵称模糊匹配错误。")
 
 

@@ -36,8 +36,8 @@ python scripts/wechat_analyzer.py query --account_ids "账号ID"
 - 读取 `output/report_data.json`，按第4节输出格式生成诊断报告
 
 **未找到时**（`status: "success"`, `query_type: "not_found"`）：
-- 若返回 `candidates` 数组（有相近账号），将候选列表展示给用户（含账号名称、公众号ID `wxId`、微信号 `account`），引导用户确认正确名称或用微信号/ID重试
-- 若无候选账号，告知用户该账号尚未收录或名称有误
+- 若返回 `candidates` 数组（有相近账号），将候选列表展示给用户（含账号名称、公众号ID `wxId`、微信号 `account`），引导用户确认正确名称或用微信号/ID重试；若候选均非目标账号，提示「账号尚未收录：可前往https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查」
+- 若无候选账号，告知用户该账号尚未收录或名称有误，并提示「账号尚未收录：可前往https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查」
 - **严禁生成估算报告**
 
 **错误时**（`status: "error"`）：
@@ -336,7 +336,7 @@ python scripts/wechat_analyzer.py query --account_ids "账号ID"
 - 告知用户未查询到，并输出以下三条可能原因：
   1. **ID 格式问题**：`gh_xxx` 是公众号 AppID 格式，如果知道微信号（如 `duhaoshu` 这类形式），可尝试用微信号查询
   2. **尚未收录**：该账号发文量较少，未被红狐数据库收录
-  3. **申请收录**：收录到红狐后可进行每日定时数据追踪与数据分析，如需收录请发送邮件至 redfoxdata@proton.me
+  3. **申请收录**：账号尚未收录，可前往 https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查
 - **严禁生成估算报告**
 
 ### 特殊场景处理

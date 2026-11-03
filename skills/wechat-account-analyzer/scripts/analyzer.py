@@ -370,7 +370,7 @@ def cmd_query(account_ids=None, account_names=None, force_analyze=False):
             print(json.dumps({
                 "status": "success",
                 "query_type": "not_found",
-                "message": f"未查询到账号【{name}】，该账号可能尚未收录或名称有误，请核实公众号名称后重试。",
+                "message": f"未查询到账号【{name}】，该账号可能尚未收录或名称有误，请核实公众号名称后重试。账号尚未收录：可前往https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查。",
                 "data": []
             }, ensure_ascii=False))
             return
@@ -404,6 +404,7 @@ def cmd_query(account_ids=None, account_names=None, force_analyze=False):
                     f"未找到名称为「{name}」的公众号，"
                     f"搜索结果中有较相近的账号：{candidates_str}，"
                     f"请确认公众号名称后重试，或可用公众号ID（微信号）直接查询。"
+                    f"若以上均非目标账号，账号尚未收录：可前往https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查。"
                 ),
                 "candidates": candidates,
                 "data": []
@@ -484,7 +485,7 @@ def cmd_query(account_ids=None, account_names=None, force_analyze=False):
             print(json.dumps({
                 "status": "success",
                 "query_type": "not_found",
-                "message": f"未查询到ID为【{wx_id}】的公众号，请确认ID是否正确。",
+                "message": f"未查询到ID为【{wx_id}】的公众号，请确认ID是否正确。账号尚未收录：可前往https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查。",
                 "data": []
             }, ensure_ascii=False))
             return

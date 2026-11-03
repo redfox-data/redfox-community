@@ -16,6 +16,14 @@ import urllib.parse
 import urllib.request
 
 
+NOT_FOUND_HINT = "\n".join([
+    "未查询到该抖音账号信息",
+    "- 账号不存在或已被注销",
+    "- 抖音号/昵称输入有误 — 请核对是否区分大小写，是否为正确的抖音号/昵称（非 UID）",
+    "- 账号尚未收录：可前往 https://redfox.hk/account-storage 进行账号收录入库，一次入库，永久可查",
+])
+
+
 # ============================================================
 # API Key 管理
 # ============================================================
@@ -1117,11 +1125,13 @@ def main():
         # 计算当前账号的平均播放量
         query_avg_play = None
         query_redfox_index = None
-        if current_account:
-            works = current_account.get("works") or []
-            if works:
-                query_avg_play = sum(w.get("playCount") or 0 for w in works) / len(works)
-            query_redfox_index = current_account.get("redfoxIndex")
+        if not current_account:
+            print(NOT_FOUND_HINT)
+            return
+        works = current_account.get("works") or []
+        if works:
+            query_avg_play = sum(w.get("playCount") or 0 for w in works) / len(works)
+        query_redfox_index = current_account.get("redfoxIndex")
 
         # 格式化输出
         result = format_output(current_account, benchmark_accounts, top_accounts, query_avg_play, query_redfox_index)
@@ -1131,7 +1141,7 @@ def main():
         error_msg = str(e)
         # 账号未找到时，输出提示信息
         if "未找到账号" in error_msg:
-            print("未查询到当前账号的相关信息，请检查输入的抖音号或昵称是否正确。")
+            print(NOT_FOUND_HINT)
         else:
             print(f"查询失败: {error_msg}")
 
