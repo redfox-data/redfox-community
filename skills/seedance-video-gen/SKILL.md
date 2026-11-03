@@ -1,6 +1,6 @@
 ---
 name: seedance-video-gen
-description: 基于 Seedance 2.0 模型的 AI 视频生成器，输入关键词/描述文案即可生成 MP4 视频。支持文生视频、分辨率/比例/时长控制、预置虚拟人像引用。使用 Seedance 视频生成、AI 视频、text-to-video 时调用此 Skill。
+description: 基于 Seedance 2.0 模型的 AI 视频生成器，输入关键词/描述文案即可生成 MP4 视频。支持文生视频、首帧/尾帧/参考图生视频、分辨率/比例/时长控制。使用 Seedance 视频生成、AI 视频、text-to-video 时调用此 Skill。
 ---
 
 # Seedance2.0
@@ -12,7 +12,7 @@ Seedance2.0是一款基于火山方舟 **Seedance 2.0** 模型的 AI 视频生�
 > **Skill 特色**
 >
 > - 支持命令行参数化控制分辨率、比例、时长
-> - 文生视频 + 虚拟人像引用双模式
+> - 文生视频 + 图生视频（首帧/尾帧/参考图）双模式
 
 ### 为什么用这个 Skill？
 
@@ -31,8 +31,8 @@ Seedance2.0是一款基于火山方舟 **Seedance 2.0** 模型的 AI 视频生�
 ### 核心功能
 
 - **文生视频**：输入一句中文或英文描述，Seedance 2.0 自动生成带有同步音频的 MP4 视频
-- **参数控制**：支持分辨率（480p/720p/1080p）、画面比例（16:9/9:16 等 7 种）、视频时长（4-15 秒）
-- **虚拟人像**：支持通过 `asset://` 格式引用预置虚拟人像，无需上传真实人脸素材
+- **参数控制**：支持分辨率（480p/720p）、画面比例（16:9/9:16 等 7 种）、视频时长（4-15 秒）
+- **图生视频**：支持首帧图、尾帧图、参考图三种图片角色，可传图片 URL 参与生成
 - **任务管理**：支持提交任务后获取 taskId，可随时查询任务进度和结果
 - **自动轮询**：脚本自动轮询任务状态（排队中/生成中/已完成），无需手动等待
 
@@ -41,7 +41,6 @@ Seedance2.0是一款基于火山方舟 **Seedance 2.0** 模型的 AI 视频生�
 - 底层模型：`doubao-seedance-2-0-260128`
 - 同步音频生成：视频画面与声音同步输出
 - 尾帧提取：支持返回视频最后一帧，用于连续视频生成
-- 随机种子：支持设置 seed 值，结果可复现
 - HTTPS 安全传输：全链路 SSL 验证
 
 ### 参数速查
@@ -49,14 +48,13 @@ Seedance2.0是一款基于火山方舟 **Seedance 2.0** 模型的 AI 视频生�
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `prompt` | 视频提示词（必填，中英文均可） | — |
-| `--resolution` | 分辨率：`480p` / `720p` / `1080p` | `720p` |
+| `--resolution` | 分辨率：`480p` / `720p` | `720p` |
 | `--ratio` | 画面比例：`16:9` / `4:3` / `1:1` / `3:4` / `9:16` / `21:9` / `adaptive` | `16:9` |
-| `--duration` | 视频时长（秒）：4-15 或 -1（智能） | `5` |
-| `--seed` | 随机种子：-1 到 2147483647 | `-1` |
+| `--duration` | 视频时长（秒）：4-15 | `5` |
 | `--no-audio` | 不生成声音 | 默认生成 |
-| `--watermark` | 添加水印 | 默认不添加 |
 | `--return-last-frame` | 返回尾帧图片 URL | 默认不返回 |
-| `--image-url` | 参考图 URL（`asset://` 格式） | — |
+| `--image-url` | 参考图片 URL，逗号分隔可传多张 | — |
+| `--image-role` | 图片角色：`first_frame` / `last_frame` / `reference_image` | `reference_image` |
 | `-o, --output-dir` | 输出目录 | `~/Downloads/QoderVideos` |
 | `--prefix` | 文件名前缀 | `video` |
 | `--no-download` | 仅提交不等待 | — |
@@ -91,7 +89,7 @@ python3 "$SKILL_PATH/scripts/videogen.py" "美妆产品展示，柔和的灯光�
 **使用方式**：
 
 ```bash
-python3 "$SKILL_PATH/scripts/videogen.py" "一款智能手表在桌面上展示，表盘切换不同功能界面" --resolution 1080p --duration 8
+python3 "$SKILL_PATH/scripts/videogen.py" "一款智能手表在桌面上展示，表盘切换不同功能界面" --resolution 720p --duration 8
 ```
 
 **预期收益**：无需专业视频制作能力，文案即视频
@@ -225,16 +223,21 @@ python3 "$SKILL_PATH/scripts/videogen.py" "时尚都市夜景，霓虹灯闪烁"
 #### 高清长视频
 
 ```bash
-python3 "$SKILL_PATH/scripts/videogen.py" "海浪拍打岩石的慢动作" --resolution 1080p --duration 10
+python3 "$SKILL_PATH/scripts/videogen.py" "海浪拍打岩石的慢动作" --resolution 720p --duration 10
 ```
 
-#### 使用预置虚拟人像
+#### 图生视频（参考图 / 首帧 / 尾帧）
 
 ```bash
-python3 "$SKILL_PATH/scripts/videogen.py" "一位年轻女性在图书馆安静阅读" --image-url "asset://female_student_01"
-```
+# 参考图：让图片中的猫咪动起来（默认 reference_image，最多 9 张）
+python3 "$SKILL_PATH/scripts/videogen.py" "让图片中的猫咪动起来，眨眼摇尾巴" --image-url "https://example.com/cat.jpg"
 
-更多预置虚拟人像 ID 请参考火山方舟「素材&虚拟人像库」文档。
+# 首帧图：以指定画面作为视频第一帧
+python3 "$SKILL_PATH/scripts/videogen.py" "镜头缓缓拉远，展现完整场景" --image-url "https://example.com/frame.jpg" --image-role first_frame
+
+# 尾帧图：以指定画面作为视频最后一帧
+python3 "$SKILL_PATH/scripts/videogen.py" "画面逐渐过渡到夕阳下的海滩" --image-url "https://example.com/last.jpg" --image-role last_frame
+```
 
 #### 任务管理
 
@@ -243,7 +246,7 @@ python3 "$SKILL_PATH/scripts/videogen.py" "一位年轻女性在图书馆安静�
 python3 "$SKILL_PATH/scripts/videogen.py" "复杂场景" --no-download
 
 # 稍后用 taskId 查询结果
-python3 "$SKILL_PATH/scripts/videogen.py" "ignored" --task-id vg_abc123def456
+python3 "$SKILL_PATH/scripts/videogen.py" "ignored" --task-id <taskId>
 ```
 
 #### 多段连续视频生成
@@ -253,7 +256,7 @@ python3 "$SKILL_PATH/scripts/videogen.py" "ignored" --task-id vg_abc123def456
 python3 "$SKILL_PATH/scripts/videogen.py" "开场画面" --return-last-frame
 
 # 2. 将返回的 lastFrameUrl 作为下一段的首帧
-python3 "$SKILL_PATH/scripts/videogen.py" "转场到第二个场景" --image-url "上一步的lastFrameUrl"
+python3 "$SKILL_PATH/scripts/videogen.py" "转场到第二个场景" --image-url "上一步的lastFrameUrl" --image-role first_frame
 ```
 
 ### 命令速查
@@ -262,12 +265,12 @@ python3 "$SKILL_PATH/scripts/videogen.py" "转场到第二个场景" --image-url
 |------|------|
 | `python3 videogen.py "提示词"` | 基础文生视频 |
 | `--ratio 9:16` | 竖屏比例 |
-| `--resolution 1080p` | 高清分辨率 |
-| `--duration 10` | 指定时长 |
+| `--resolution 720p` | 指定分辨率（480p/720p） |
+| `--duration 10` | 指定时长（4-15 秒） |
 | `--no-audio` | 静音视频 |
-| `--watermark` | 添加水印 |
-| `--seed 42` | 固定种子可复现 |
-| `--image-url "asset://..."` | 引用虚拟人像 |
+| `--image-url "URL"` | 参考图片（逗号分隔多张） |
+| `--image-role first_frame` | 图片角色：首帧/尾帧/参考图 |
+| `--return-last-frame` | 返回尾帧图片 URL |
 | `--no-download` | 仅提交任务 |
 | `--task-id <id>` | 查询已有任务 |
 | `--api-key <key>` | 指定 API Key |
@@ -301,7 +304,7 @@ seedance-video-gen/
 | 模块 | 职责 |
 |------|------|
 | `get_api_key()` | 三级优先级获取 API Key：CLI > 环境变量 > 配置文件 |
-| `submit_video_task()` | 构建 content 数组，提交视频生成任务 |
+| `submit_video_task()` | 构建请求体（prompt/aspectRatio/imageWithRoles 等），提交视频生成任务 |
 | `poll_video_result()` | 轮询任务状态（queued/running/succeeded/failed/expired），最多 20 分钟 |
 | `download_video()` | 流式下载 MP4 视频，带进度条显示 |
 | `main()` | CLI 入口：参数解析、API Key 校验、双分支（提交/查询）流程 |
@@ -343,7 +346,7 @@ A：通常 3-15 分钟，复杂场景可能更长。脚本会自动轮询等待�
 
 **Q5：支持上传自己的参考图吗？**
 
-A：Seedance 2.0 不支持直接上传含真人人脸的参考图/视频。如需指定人物外观，可在提示词中描述（如"一位戴眼镜的亚洲女性"），或使用预置虚拟人像库的 `asset://` URL。更多信息请参考火山方舟「素材&虚拟人像库」文档。
+A：支持三种图片角色：`first_frame`（首帧图，最多 1 张）、`last_frame`（尾帧图，最多 1 张）、`reference_image`（参考图，最多 9 张）。通过 `--image-url` 传入图片 URL，`--image-role` 指定角色。注意：含真人人脸的图片可能被平台拒绝，建议使用非真人素材。
 
 **Q6：支持哪些提示词语言？**
 

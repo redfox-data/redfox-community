@@ -9,8 +9,8 @@ An AI video generator based on the Volcano Engine Seedance 2.0 model. Generate M
 **Core Value**
 
 - **Text-to-Video**: Enter Chinese or English descriptions to auto-generate MP4 videos with synchronized audio
-- **Full Control**: Adjustable resolution (480p/720p/1080p), aspect ratio (7 options), and duration (4-15 seconds)
-- **Virtual Avatars**: Reference preset virtual avatars without uploading real face assets
+- **Full Control**: Adjustable resolution (480p/720p), aspect ratio (7 options), and duration (4-15 seconds)
+- **Image-to-Video**: Reference first-frame, last-frame, or reference images via URL
 
 **Target Users**
 
@@ -26,7 +26,7 @@ An AI video generator based on the Volcano Engine Seedance 2.0 model. Generate M
 
 - **Text-to-Video**: Enter a prompt and Seedance 2.0 generates an MP4 with synchronized audio
 - **Parameter Control**: Customize resolution, aspect ratio, and video duration
-- **Virtual Avatars**: Reference preset virtual avatars without uploading real face assets
+- **Image-to-Video**: Reference first-frame, last-frame, or reference images via URL
 - **Auto-Polling**: The script automatically waits for task completion, no manual refresh needed
 - **Task Management**: Submit-only mode with taskId for later query and download
 
@@ -53,7 +53,8 @@ Simply describe the video scene you want in natural language.
 |--------|---------|--------|
 | Text-to-Video | "Generate a video of an orange cat yawning on a windowsill" | Submits task, auto-generates MP4 video |
 | Vertical Short Video | "Generate a vertical city nightscape video" | 9:16 aspect ratio for Douyin/Xiaohongshu |
-| HD Long Video | "Generate a 1080p landscape video, 10 seconds" | High-quality long-duration output |
+| HD Long Video | "Generate a 720p landscape video, 10 seconds" | High-quality long-duration output |
+| Image-to-Video | "Make the cat in this image blink" | Reference/first-frame/last-frame image generation |
 | Query Progress | "Check the result of video task XXX" | Query and download completed video by taskId |
 
 ---

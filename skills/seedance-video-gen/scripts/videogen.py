@@ -17,13 +17,11 @@ from pathlib import Path
 
 import requests
 
-SUBMIT_URL = "https://redfox.hk/story/api/parseWork/videoGen/submit"
+SUBMIT_URL = "https://redfox.hk/story/api/parseWork/videoGen/seedanceSubmit"
 RESULT_URL = "https://redfox.hk/story/api/parseWork/videoGen/result"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
 ENV_KEY = "REDFOX_API_KEY"
-SOURCE = "seedance2.0-GitHub"
-DEFAULT_MODEL = "doubao-seedance-2-0-260128"
 
 POLL_INTERVAL = 10  # seconds
 MAX_POLL_ATTEMPTS = 120  # max ~20 minutes
@@ -73,36 +71,26 @@ def get_api_key(cli_key=None):
 def confirm_retry():
     """询问用户是否需要重试。"""
     while True:
-        answer = input(f"{YELLOW}[?]{RESET} 是否重试？(y/n): ").strip().lower()
+        try:
+            answer = input(f"{YELLOW}[?]{RESET} 是否重试？(y/n): ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            return False
         if answer in ('y', 'yes'):
             return True
         if answer in ('n', 'no'):
             return False
 
 
-def submit_video_task(session, prompt, params, image_url=None):
+def submit_video_task(session, prompt, params, images=None):
     """Submit video generation task, return taskId."""
-    # Build content array
-    content = [{"type": "text", "text": prompt}]
-    if image_url:
-        content.append({
-            "type": "image_url",
-            "imageUrl": image_url,
-            "imageRole": "first_frame",
-        })
-
     payload = {
-        "content": content,
-        "model": DEFAULT_MODEL,
-        "source": SOURCE,
-        "resolution": params["resolution"],
-        "ratio": params["ratio"],
+        "prompt": prompt,
+        "aspectRatio": params["ratio"],
         "duration": params["duration"],
-        "seed": params["seed"],
-        "watermark": params["watermark"],
+        "resolution": params["resolution"],
         "generateAudio": params["generateAudio"],
         "returnLastFrame": params["returnLastFrame"],
-        "executionExpiresAfter": 172800,
+        "imageWithRoles": images or [],
     }
 
     try:
@@ -118,7 +106,7 @@ def submit_video_task(session, prompt, params, image_url=None):
     code = result.get("code")
     msg = result.get("msg", "")
 
-    if not str(code).startswith("2"):
+    if code != 2000:
         error(f"Submit failed (code {code}): {msg}")
         return None
 
@@ -240,36 +228,36 @@ Examples:
   python3 videogen.py "时尚都市夜景，霓虹灯闪烁" --ratio 9:16
 
   # 高清 10 秒
-  python3 videogen.py "海浪拍打岩石的慢动作" --resolution 1080p --duration 10
+  python3 videogen.py "海浪拍打岩石的慢动作" --resolution 720p --duration 10
 
-  # 使用预置虚拟人像
-  python3 videogen.py "一位年轻女性在图书馆阅读" --image-url "asset://female_student_01"
+  # 图生视频（参考图/首帧/尾帧）
+  python3 videogen.py "让图片中的猫咪动起来，眨眼摇尾巴" --image-url "https://example.com/cat.jpg"
+  python3 videogen.py "转场到第二个场景" --image-url "上一步的lastFrameUrl" --image-role first_frame
 
   # 仅提交任务
-  python3 videogen.py "complex scene" --no-download
+  python3 videogen.py "复杂场景" --no-download
 
   # 查询已有任务
-  python3 videogen.py "ignored" --task-id vg_abc123def456
+  python3 videogen.py "ignored" --task-id <taskId>
         """,
     )
     parser.add_argument("prompt", help="视频生成提示词（中英文均可）")
-    parser.add_argument("--resolution", default="720p", choices=["480p", "720p", "1080p"],
+    parser.add_argument("--resolution", default="720p", choices=["480p", "720p"],
                         help="视频分辨率 (默认 720p)")
     parser.add_argument("--ratio", default="16:9",
                         choices=["16:9", "4:3", "1:1", "3:4", "9:16", "21:9", "adaptive"],
                         help="画面比例 (默认 16:9)")
     parser.add_argument("--duration", type=int, default=5,
-                        help="视频时长秒数: 4-15 或 -1(智能) (默认 5)")
-    parser.add_argument("--seed", type=int, default=-1,
-                        help="随机种子: -1(随机) 到 2147483647 (默认 -1)")
+                        help="视频时长秒数: 4-15 (默认 5)")
     parser.add_argument("--no-audio", action="store_true",
                         help="不生成声音 (默认生成)")
-    parser.add_argument("--watermark", action="store_true",
-                        help="添加水印 (默认不添加)")
     parser.add_argument("--return-last-frame", action="store_true",
                         help="返回视频尾帧图片 URL")
     parser.add_argument("--image-url",
-                        help="参考图 URL (asset:// 格式引用预置虚拟人像)")
+                        help="参考图片 URL，逗号分隔可传多张")
+    parser.add_argument("--image-role", default="reference_image",
+                        choices=["first_frame", "last_frame", "reference_image"],
+                        help="图片角色: 首帧图/尾帧图/参考图 (默认 reference_image)")
     parser.add_argument("--api-key", help="API Key (前往 https://redfox.hk/settings/api-keys?source=github 注册获取)")
     parser.add_argument("-o", "--output-dir", help="输出目录 (默认 ~/Downloads/QoderVideos)")
     parser.add_argument("--prefix", default="video", help="下载文件名前缀 (默认 video)")
@@ -300,7 +288,7 @@ Examples:
     session.verify = True
     session.headers.update({
         "Content-Type": "application/json",
-        "X-API-KEY": api_key,
+        "REDFOX_API_KEY": api_key,
     })
 
     # ── Mode: Query existing task ──
@@ -346,30 +334,31 @@ Examples:
         error("提示词不能为空")
         sys.exit(1)
 
-    # Validate image-url format
-    if args.image_url and not args.image_url.startswith("asset://"):
-        error(f"image-url 仅支持 asset:// 格式引用预置虚拟人像，当前值: {args.image_url}")
-        error("请参考火山方舟「素材&虚拟人像库」文档获取可用 ID")
+    # Validate duration
+    if args.duration < 4 or args.duration > 15:
+        error(f"duration 取值范围: 4-15，当前值: {args.duration}")
         sys.exit(1)
 
-    # Validate duration
-    if args.duration != -1 and (args.duration < 4 or args.duration > 15):
-        error(f"duration 取值范围: 4-15 或 -1（智能），当前值: {args.duration}")
-        sys.exit(1)
+    # Build image list with role
+    images = []
+    if args.image_url:
+        for u in [x.strip() for x in args.image_url.split(",") if x.strip()]:
+            images.append({"url": u, "role": args.image_role})
+        if args.image_role in ("first_frame", "last_frame") and len(images) > 1:
+            error(f"{args.image_role} 最多只能传 1 张图片，当前: {len(images)} 张")
+            sys.exit(1)
 
     step(f"Prompt: {prompt[:100]}{'...' if len(prompt) > 100 else ''}")
-    step(f"Settings: {args.resolution}, {args.ratio}, {args.duration}s, seed={args.seed}, audio={'off' if args.no_audio else 'on'}")
+    step(f"Settings: {args.resolution}, {args.ratio}, {args.duration}s, audio={'off' if args.no_audio else 'on'}")
 
-    if args.image_url:
-        step(f"Reference image: {args.image_url}")
+    if images:
+        step(f"Reference images: {len(images)} 张 (role={args.image_role})")
 
     # Build parameters
     params = {
         "resolution": args.resolution,
         "ratio": args.ratio,
         "duration": args.duration,
-        "seed": args.seed,
-        "watermark": args.watermark,
         "generateAudio": not args.no_audio,
         "returnLastFrame": args.return_last_frame,
     }
@@ -377,7 +366,7 @@ Examples:
     # Submit
     while True:
         step("Submitting video generation task...")
-        task_id = submit_video_task(session, prompt, params, args.image_url)
+        task_id = submit_video_task(session, prompt, params, images)
         if task_id:
             break
         if not confirm_retry():
