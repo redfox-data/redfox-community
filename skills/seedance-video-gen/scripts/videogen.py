@@ -3,6 +3,9 @@
 Qoder Video Generator - 基于 Seedance 2.0 的视频生成工具
 使用 redfox.hk API 提交视频生成任务并下载结果
 
+接口地址、鉴权头、状态映射等配置从在线 spec 加载（远端 > 本地缓存 > 内置快照），
+接口更新时只需更新线上 spec，无需发版 skill。
+
 Usage:
     python3 videogen.py "提示词" [options]
     python3 videogen.py "ignored" --task-id vg_xxx
@@ -17,14 +20,17 @@ from pathlib import Path
 
 import requests
 
-SUBMIT_URL = "https://redfox.hk/story/api/parseWork/videoGen/seedanceSubmit"
-RESULT_URL = "https://redfox.hk/story/api/parseWork/videoGen/result"
+SPEC_URL = "https://redfox-hk.oss-cn-hangzhou.aliyuncs.com/skill-specs/video-gen/spec.json"
+SPEC_NAME = "redfox-video-gen"
+SPEC_HOST_WHITELIST = ("https://redfox.hk/", "https://redfox-hk.oss-cn-hangzhou.aliyuncs.com/")
+BUNDLED_SPEC_FILE = Path(__file__).resolve().parent / "spec.json"
 CONFIG_DIR = Path.home() / ".qoder" / "apis"
 CONFIG_FILE = CONFIG_DIR / "redfox.json"
+SPEC_CACHE_FILE = CONFIG_DIR / "redfox-video-gen-spec.json"
 ENV_KEY = "REDFOX_API_KEY"
 
-POLL_INTERVAL = 10  # seconds
-MAX_POLL_ATTEMPTS = 120  # max ~20 minutes
+DEFAULT_POLL_INTERVAL = 10  # seconds
+DEFAULT_MAX_POLL_ATTEMPTS = 120  # max ~20 minutes
 
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
@@ -48,6 +54,60 @@ def error(msg):
 
 def step(msg):
     print(f"{CYAN}[→]{RESET} {msg}")
+
+
+def validate_spec(spec):
+    """校验 spec 结构，接口地址必须命中域名白名单。返回错误原因或 None。"""
+    if not isinstance(spec, dict) or spec.get("specName") != SPEC_NAME:
+        return "specName 不匹配"
+    if not str(spec.get("version", "")).strip():
+        return "缺少 version"
+    endpoints = spec.get("endpoints")
+    if not isinstance(endpoints, dict):
+        return "缺少 endpoints"
+    for name in ("submit", "result"):
+        url = (endpoints.get(name) or {}).get("url", "")
+        if not any(url.startswith(prefix) for prefix in SPEC_HOST_WHITELIST):
+            return f"{name} 接口地址不在域名白名单内"
+    status = spec.get("status")
+    if not isinstance(status, dict) or not status.get("success") or not status.get("failed"):
+        return "status 映射不完整"
+    if not isinstance(status.get("inProgress"), list) or not status["inProgress"]:
+        return "status.inProgress 不能为空"
+    auth_header = str((spec.get("auth") or {}).get("header", ""))
+    if not auth_header or not auth_header.replace("-", "").replace("_", "").isalnum():
+        return "auth.header 非法"
+    return None
+
+
+def load_spec():
+    """加载接口配置：在线 spec（校验通过后写缓存）> 本地缓存 > 内置快照。"""
+    try:
+        spec = requests.get(SPEC_URL, timeout=5).json()
+        reason = validate_spec(spec)
+        if reason:
+            warn(f"在线接口配置无效（{reason}），改用本地配置")
+        else:
+            try:
+                CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+                SPEC_CACHE_FILE.write_text(json.dumps(spec, ensure_ascii=False, indent=2))
+            except OSError:
+                pass
+            return spec, "在线"
+    except (requests.exceptions.RequestException, ValueError):
+        pass
+
+    for path, source in ((SPEC_CACHE_FILE, "本地缓存"), (BUNDLED_SPEC_FILE, "内置快照")):
+        try:
+            spec = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        if validate_spec(spec) is None:
+            warn(f"在线接口配置拉取失败，使用{source}")
+            return spec, source
+
+    error(f"接口配置加载失败，请检查网络或 {SPEC_URL}")
+    sys.exit(1)
 
 
 def get_api_key(cli_key=None):
@@ -81,7 +141,7 @@ def confirm_retry():
             return False
 
 
-def submit_video_task(session, prompt, params, images=None):
+def submit_video_task(session, spec, prompt, params, images=None):
     """Submit video generation task, return taskId."""
     payload = {
         "prompt": prompt,
@@ -94,7 +154,7 @@ def submit_video_task(session, prompt, params, images=None):
     }
 
     try:
-        resp = session.post(SUBMIT_URL, json=payload, timeout=30)
+        resp = session.post(spec["endpoints"]["submit"]["url"], json=payload, timeout=30)
         result = resp.json()
     except requests.exceptions.RequestException as e:
         error(f"API request failed: {e}")
@@ -118,13 +178,25 @@ def submit_video_task(session, prompt, params, images=None):
     return data["taskId"]
 
 
-def poll_video_result(session, task_id):
-    """Poll for video task result until succeeded/failed/expired/timeout."""
+def poll_video_result(session, spec, task_id):
+    """Poll for video task result until success/failed/timeout."""
+    result_url = spec["endpoints"]["result"]["url"]
+    polling = spec.get("polling", {})
+    poll_interval = polling.get("intervalSeconds", DEFAULT_POLL_INTERVAL)
+    max_attempts = polling.get("maxAttempts", DEFAULT_MAX_POLL_ATTEMPTS)
+    status_spec = spec["status"]
+    success_status = status_spec["success"]
+    failed_status = status_spec["failed"]
+    status_labels = status_spec.get("inProgressLabels", {})
+    fields = spec.get("fields", {})
+    fail_reason_field = fields.get("failReason", "failReason")
+    progress_field = fields.get("progress", "progress")
+
     consecutive_errors = 0
 
-    for attempt in range(1, MAX_POLL_ATTEMPTS + 1):
+    for attempt in range(1, max_attempts + 1):
         try:
-            resp = session.post(RESULT_URL, json={"taskId": task_id}, timeout=15)
+            resp = session.post(result_url, json={"taskId": task_id}, timeout=15)
             result = resp.json()
         except requests.exceptions.RequestException as e:
             consecutive_errors += 1
@@ -132,7 +204,7 @@ def poll_video_result(session, task_id):
             if consecutive_errors >= 5:
                 error("Too many consecutive network errors, giving up")
                 return None
-            time.sleep(POLL_INTERVAL)
+            time.sleep(poll_interval)
             continue
         except json.JSONDecodeError:
             consecutive_errors += 1
@@ -140,7 +212,7 @@ def poll_video_result(session, task_id):
             if consecutive_errors >= 5:
                 error("Too many consecutive decode errors, giving up")
                 return None
-            time.sleep(POLL_INTERVAL)
+            time.sleep(poll_interval)
             continue
 
         consecutive_errors = 0  # Reset on success
@@ -153,24 +225,23 @@ def poll_video_result(session, task_id):
         data = result.get("data", {})
         status = data.get("status")
 
-        if status == "succeeded":
+        if status == success_status:
             return data
-        elif status == "failed":
-            reason = data.get("failReason", "unknown")
+        elif status == failed_status:
+            reason = data.get(fail_reason_field, "unknown")
             error(f"Generation failed: {reason}")
             return None
-        elif status == "expired":
-            error("Task expired: the task did not complete within the allowed time")
-            return None
         else:
-            # queued or running
-            elapsed = attempt * POLL_INTERVAL
-            status_cn = {"queued": "排队中", "running": "生成中"}.get(status, status)
-            print(f"\r  {CYAN}⏳ Generating... ({elapsed}s) [{status_cn}]{RESET}", end="", flush=True)
-            time.sleep(POLL_INTERVAL)
+            # in progress or unknown status
+            elapsed = attempt * poll_interval
+            label = status_labels.get(status, status)
+            progress = data.get(progress_field)
+            progress_text = f" {progress}%" if isinstance(progress, (int, float)) else ""
+            print(f"\r  {CYAN}⏳ Generating... ({elapsed}s) [{label}{progress_text}]{RESET}", end="", flush=True)
+            time.sleep(poll_interval)
 
     print()
-    error(f"Timeout: task did not complete within {MAX_POLL_ATTEMPTS * POLL_INTERVAL}s")
+    error(f"Timeout: task did not complete within {max_attempts * poll_interval}s")
     print(f"  You can query later with: --task-id {task_id}")
     return None
 
@@ -213,6 +284,20 @@ def download_video(session, video_url, output_dir, prefix="video", task_id=""):
     except requests.exceptions.RequestException as e:
         error(f"Download failed: {e}")
         return None
+
+
+def print_video_summary(result, spec):
+    fields = spec.get("fields", {})
+    ratio = result.get(fields.get("ratio", "ratio"), "?")
+    info(f"Video ready: {result.get(fields.get('duration', 'duration'), '?')}s, "
+         f"{result.get(fields.get('resolution', 'resolution'), '?')}, {ratio}")
+    last_frame_url = result.get(fields.get("lastFrameUrl", "lastFrameUrl"))
+    if last_frame_url:
+        info(f"Last frame: {last_frame_url}")
+    usage = result.get("usage", {})
+    if usage:
+        info(f"Token usage: {usage.get('totalTokens', '?')}")
+    return result.get(fields.get("videoUrl", "videoUrl"))
 
 
 def main():
@@ -283,35 +368,27 @@ Examples:
         print(f"  获取 Key: https://redfox.hk/settings/api-keys?source=github")
         sys.exit(1)
 
+    # ── Spec (remote > cache > bundled, with domain whitelist validation) ──
+    spec, spec_source = load_spec()
+    step(f"接口配置: v{spec.get('version')} ({spec.get('updatedAt', '')}) · {spec_source}")
+
     # ── Session (all requests use HTTPS with SSL verification) ──
     session = requests.Session()
     session.verify = True
     session.headers.update({
         "Content-Type": "application/json",
-        "REDFOX_API_KEY": api_key,
+        spec["auth"]["header"]: api_key,
     })
 
     # ── Mode: Query existing task ──
     if args.task_id:
         step(f"Querying task: {args.task_id}")
-        result = poll_video_result(session, args.task_id)
+        result = poll_video_result(session, spec, args.task_id)
         if not result:
             sys.exit(1)
 
         print()
-        video_url = result.get("videoUrl")
-        last_frame_url = result.get("lastFrameUrl")
-        duration = result.get("duration", "?")
-        resolution = result.get("resolution", "?")
-        ratio = result.get("ratio", "?")
-        usage = result.get("usage", {})
-        tokens = usage.get("totalTokens", "?") if usage else "?"
-
-        info(f"Video ready: {duration}s, {resolution}, {ratio}")
-        if last_frame_url:
-            info(f"Last frame: {last_frame_url}")
-        if usage:
-            info(f"Token usage: {tokens}")
+        video_url = print_video_summary(result, spec)
 
         if video_url:
             output_dir = os.path.expanduser(args.output_dir) if args.output_dir else str(Path.home() / "Downloads" / "QoderVideos")
@@ -366,7 +443,7 @@ Examples:
     # Submit
     while True:
         step("Submitting video generation task...")
-        task_id = submit_video_task(session, prompt, params, images)
+        task_id = submit_video_task(session, spec, prompt, params, images)
         if task_id:
             break
         if not confirm_retry():
@@ -382,24 +459,12 @@ Examples:
 
     # Poll for result
     step("Waiting for video generation (may take several minutes)...")
-    result = poll_video_result(session, task_id)
+    result = poll_video_result(session, spec, task_id)
     if not result:
         sys.exit(1)
 
     print()
-    video_url = result.get("videoUrl")
-    last_frame_url = result.get("lastFrameUrl")
-    duration = result.get("duration", "?")
-    resolution = result.get("resolution", "?")
-    ratio = result.get("ratio", "?")
-    usage = result.get("usage", {})
-    tokens = usage.get("totalTokens", "?") if usage else "?"
-
-    info(f"Video ready: {duration}s, {resolution}, {ratio}")
-    if last_frame_url:
-        info(f"Last frame: {last_frame_url}")
-    if usage:
-        info(f"Token usage: {tokens}")
+    video_url = print_video_summary(result, spec)
 
     if video_url:
         output_dir = os.path.expanduser(args.output_dir) if args.output_dir else str(Path.home() / "Downloads" / "QoderVideos")

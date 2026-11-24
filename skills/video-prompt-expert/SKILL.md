@@ -128,7 +128,8 @@ description: 帮助用户编写专业级 AI 视频提示词，写完直接生成
 video-prompt-expert/
 ├── SKILL.md                          # 主技能文件（本文档）
 ├── scripts/
-│   └── videogen.py                  # 视频生成主程序
+│   ├── videogen.py                  # 视频生成主程序
+│   └── spec.json                    # 内置接口配置快照（在线拉取失败时兜底）
 ├── references/
 │   └── core_workflow.md             # 核心执行流程
 └── assets/

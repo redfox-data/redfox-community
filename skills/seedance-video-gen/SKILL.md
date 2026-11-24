@@ -34,7 +34,7 @@ Seedance2.0是一款基于火山方舟 **Seedance 2.0** 模型的 AI 视频生�
 - **参数控制**：支持分辨率（480p/720p）、画面比例（16:9/9:16 等 7 种）、视频时长（4-15 秒）
 - **图生视频**：支持首帧图、尾帧图、参考图三种图片角色，可传图片 URL 参与生成
 - **任务管理**：支持提交任务后获取 taskId，可随时查询任务进度和结果
-- **自动轮询**：脚本自动轮询任务状态（排队中/生成中/已完成），无需手动等待
+- **自动轮询**：脚本自动轮询任务状态（生成中/已完成/失败，显示实时进度百分比），无需手动等待
 
 ### 技术亮点
 
@@ -42,6 +42,7 @@ Seedance2.0是一款基于火山方舟 **Seedance 2.0** 模型的 AI 视频生�
 - 同步音频生成：视频画面与声音同步输出
 - 尾帧提取：支持返回视频最后一帧，用于连续视频生成
 - HTTPS 安全传输：全链路 SSL 验证
+- 接口配置在线加载：接口地址、鉴权头、状态映射从 redfox.hk 在线 spec 获取并校验域名白名单，接口更新时无需更新 skill；拉取失败时回退本地缓存/内置快照
 
 ### 参数速查
 
@@ -205,8 +206,10 @@ python3 "$SKILL_PATH/scripts/videogen.py" "一只橘猫在窗台上打哈欠，�
 生成成功后会显示视频信息和文件路径：
 
 ```
+[→] 接口配置: v1.0.0 (2026-11-24) · 在线
+[✓] Task submitted: e53a64b1xxxx
+  ⏳ Generating... (120s) [生成中 45%]
 [✓] Video ready: 5s, 720p, 16:9
-[✓] Token usage: 108900
 [→] Downloading video: video.mp4
 [✓] Done!
   /Users/you/Downloads/QoderVideos/video.mp4 (2.5 MB)
@@ -286,7 +289,8 @@ python3 "$SKILL_PATH/scripts/videogen.py" "转场到第二个场景" --image-url
 seedance-video-gen/
 ├── SKILL.md              # Skill 定义与文档
 └── scripts/              # 工具脚本
-    └── videogen.py       # 视频生成主程序
+    ├── videogen.py       # 视频生成主程序
+    └── spec.json         # 内置接口配置快照（在线拉取失败时兜底）
 ```
 
 ### 技术栈
@@ -303,9 +307,10 @@ seedance-video-gen/
 
 | 模块 | 职责 |
 |------|------|
+| `load_spec()` | 加载接口配置：在线 spec > 本地缓存 > 内置快照，校验域名白名单与结构 |
 | `get_api_key()` | 三级优先级获取 API Key：CLI > 环境变量 > 配置文件 |
 | `submit_video_task()` | 构建请求体（prompt/aspectRatio/imageWithRoles 等），提交视频生成任务 |
-| `poll_video_result()` | 轮询任务状态（queued/running/succeeded/failed/expired），最多 20 分钟 |
+| `poll_video_result()` | 轮询任务状态（processing/completed/failed，显示实时进度），最多 20 分钟 |
 | `download_video()` | 流式下载 MP4 视频，带进度条显示 |
 | `main()` | CLI 入口：参数解析、API Key 校验、双分支（提交/查询）流程 |
 

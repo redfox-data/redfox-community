@@ -27,6 +27,7 @@ An AI video generator based on the Volcano Engine Seedance 2.0 model. Generate M
 - **Text-to-Video**: Enter a prompt and Seedance 2.0 generates an MP4 with synchronized audio
 - **Parameter Control**: Customize resolution, aspect ratio, and video duration
 - **Image-to-Video**: Reference first-frame, last-frame, or reference images via URL
+- **Online Config Updates**: API endpoints and parameters are fetched at runtime, no skill reinstall needed when the API is upgraded
 - **Auto-Polling**: The script automatically waits for task completion, no manual refresh needed
 - **Task Management**: Submit-only mode with taskId for later query and download
 
@@ -40,6 +41,12 @@ An AI video generator based on the Volcano Engine Seedance 2.0 model. Generate M
 - Configure the environment variable `REDFOX_API_KEY` on your device before using this skill.
 - Before providing your key, verify its source, available scope, validity period, and whether it supports reset/revocation.
 - Do not hardcode or expose the key in plaintext within code, prompts, logs, or output files.
+
+**API Config & Billing**
+
+- API configuration (endpoints, parameters, status mapping) is fetched online at runtime: online config > local cache > built-in snapshot, with automatic fallback when offline, so usage is never interrupted
+- Each run echoes the current config version and source, e.g. "API config: v1.0.0 · online", so you can confirm you are on the latest config
+- ⚠️ The video generation API only accepts **paid credits**; free credits cannot be used. Recharge at https://redfox.hk/dashboard/recharge
 
 ---
 
