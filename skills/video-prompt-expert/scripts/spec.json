@@ -1,0 +1,42 @@
+{
+  "specName": "redfox-video-gen",
+  "version": "1.0.0",
+  "updatedAt": "2026-11-24",
+  "endpoints": {
+    "submit": {
+      "url": "https://redfox.hk/story/api/parseWork/videoGen/seedanceSubmit",
+      "method": "POST"
+    },
+    "result": {
+      "url": "https://redfox.hk/story/api/parseWork/videoGen/seedanceResult",
+      "method": "POST"
+    }
+  },
+  "auth": {
+    "header": "REDFOX_API_KEY"
+  },
+  "polling": {
+    "intervalSeconds": 10,
+    "maxAttempts": 120
+  },
+  "status": {
+    "success": "completed",
+    "failed": "failed",
+    "inProgress": ["queued", "in_progress", "processing"],
+    "inProgressLabels": {
+      "queued": "排队中",
+      "in_progress": "生成中",
+      "processing": "生成中"
+    }
+  },
+  "fields": {
+    "taskId": "taskId",
+    "videoUrl": "videoUrl",
+    "lastFrameUrl": "lastFrameUrl",
+    "duration": "duration",
+    "resolution": "resolution",
+    "ratio": "aspectRatio",
+    "failReason": "failReason",
+    "progress": "progress"
+  }
+}
